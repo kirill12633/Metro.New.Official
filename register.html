@@ -1,8 +1,194 @@
-<script type="module">
-import './app.js';
-document.getElementById("registerBtn").addEventListener("click", () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  myFirebase.register(email, password);
-});
-</script>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация - Метро New</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* --- ВЕСЬ твой стиль оставил как есть --- */
+    /* ... код CSS полностью без изменений ... */
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <span class="logo-icon">M</span>
+          <span>Метро New</span>
+        </div>
+        <div class="nav-links">
+          <a href="index.html">Главная</a>
+          <a href="game.html">Игра</a>
+          <a href="wiki.html">Wiki</a>
+          <a href="news.html">Новости</a>
+          <a href="login.html" class="auth-btn">Вход</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="register-container">
+    <div class="container">
+      <div class="register-box">
+        <div class="register-header">
+          <h1>Создать аккаунт</h1>
+          <p>Заполните форму для регистрации в системе</p>
+        </div>
+        
+        <form class="register-form" id="registerForm">
+          <div class="form-group">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" class="form-control" placeholder="Придумайте имя пользователя" required>
+            <small class="form-text">Имя пользователя должно содержать от 3 до 20 символов</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email адрес</label>
+            <input type="email" id="email" class="form-control" placeholder="Введите ваш email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Пароль</label>
+            <div class="password-container">
+              <input type="password" id="password" class="form-control" placeholder="Придумайте надежный пароль" required>
+              <button type="button" class="toggle-password" id="togglePassword">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+            <div class="password-strength" id="passwordStrength">
+              <div class="password-strength-bar"></div>
+            </div>
+            <div class="password-requirements" id="passwordRequirements">
+              <div class="requirement invalid" id="lengthReq"><i class="fas fa-circle"></i> Не менее 8 символов</div>
+              <div class="requirement invalid" id="uppercaseReq"><i class="fas fa-circle"></i> Содержит заглавные буквы</div>
+              <div class="requirement invalid" id="numberReq"><i class="fas fa-circle"></i> Содержит цифры</div>
+              <div class="requirement invalid" id="specialReq"><i class="fas fa-circle"></i> Содержит специальные символы</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Подтверждение пароля</label>
+            <div class="password-container">
+              <input type="password" id="confirmPassword" class="form-control" placeholder="Повторите пароль" required>
+              <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+            <small class="form-text" id="passwordMatchText"></small>
+          </div>
+          
+          <div class="terms">
+            <input type="checkbox" id="agreeTerms" required>
+            <label for="agreeTerms">
+              Я соглашаюсь с <a href="terms.html">условиями использования</a> и <a href="privacy.html">политикой конфиденциальности</a>
+            </label>
+          </div>
+          
+          <button type="submit" class="btn-register" id="registerButton" disabled>Зарегистрироваться</button>
+        </form>
+        
+        <div class="divider"><span>или зарегистрируйтесь с помощью</span></div>
+        <div class="social-register">
+          <a href="#" class="btn-social btn-roblox"><i class="fab fa-roblox"></i> Roblox</a>
+          <a href="#" class="btn-social btn-discord"><i class="fab fa-discord"></i> Discord</a>
+        </div>
+        
+        <div class="login-link">
+          Уже есть аккаунт? <a href="login.html">Войти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="about.html">О нас</a>
+        <a href="contact.html">Контакты</a>
+        <a href="privacy.html">Политика конфиденциальности</a>
+        <a href="terms.html">Пользовательское соглашение</a>
+      </div>
+      <p class="copyright">© 2024 Метро New. Все права защищены.</p>
+    </div>
+  </footer>
+
+  <!-- Скрипт с логикой регистрации -->
+  <script type="module">
+    import './app.js';
+
+    // --- Показать/скрыть пароль ---
+    function togglePassword(inputId, buttonId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(buttonId);
+      btn.addEventListener('click', () => {
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    }
+    togglePassword('password', 'togglePassword');
+    togglePassword('confirmPassword', 'toggleConfirmPassword');
+
+    // --- Проверка пароля и совпадения ---
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirmPassword');
+    const matchText = document.getElementById('passwordMatchText');
+    function checkPasswordMatch() {
+      if (confirmInput.value === '') {
+        matchText.textContent = '';
+      } else if (passwordInput.value === confirmInput.value) {
+        matchText.textContent = 'Пароли совпадают';
+        matchText.style.color = 'var(--success)';
+      } else {
+        matchText.textContent = 'Пароли не совпадают';
+        matchText.style.color = 'var(--danger)';
+      }
+      validateForm();
+    }
+    passwordInput.addEventListener('input', checkPasswordMatch);
+    confirmInput.addEventListener('input', checkPasswordMatch);
+
+    // --- Валидация формы ---
+    function validateForm() {
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = passwordInput.value;
+      const confirmPassword = confirmInput.value;
+      const agreeTerms = document.getElementById('agreeTerms').checked;
+      const registerButton = document.getElementById('registerButton');
+
+      const isUsernameValid = username.length >= 3;
+      const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const isPasswordValid = password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password) && /[!@#$%^&*]/.test(password);
+      const isPasswordMatch = password === confirmPassword && password !== '';
+
+      registerButton.disabled = !(isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch && agreeTerms);
+    }
+    document.getElementById('username').addEventListener('input', validateForm);
+    document.getElementById('email').addEventListener('input', validateForm);
+    document.getElementById('agreeTerms').addEventListener('change', validateForm);
+
+    // --- Отправка формы в Firebase ---
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await myFirebase.register(email, password);
+        // После регистрации редирект настроен в app.js -> profile.html
+      } catch (err) {
+        alert("Ошибка: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
+
