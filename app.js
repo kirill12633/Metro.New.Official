@@ -1,8 +1,13 @@
-// Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
-// Конфиг Firebase
+// Конфиг
 const firebaseConfig = {
   apiKey: "AIzaSyCi2bgSNDjqTM5UoY_ep9Hn54kCaHouF74",
   authDomain: "metro-c2eb7.firebaseapp.com",
@@ -22,14 +27,13 @@ const registerForm = document.getElementById("registerForm");
 if (registerForm) {
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      alert("Регистрация успешна! Добро пожаловать, " + userCredential.user.email);
-      window.location.href = "login.html"; // После регистрации на вход
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("Регистрация успешна!");
+      window.location.href = "login.html";
     } catch (error) {
       alert("Ошибка: " + error.message);
     }
@@ -41,16 +45,34 @@ const loginForm = document.getElementById("loginForm");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      alert("Добро пожаловать, " + userCredential.user.email);
-      window.location.href = "index.html"; // После входа на главную
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "profile.html"; // После входа -> профиль
     } catch (error) {
       alert("Ошибка входа: " + error.message);
     }
+  });
+}
+
+// --- Профиль ---
+if (window.location.pathname.endsWith("profile.html")) {
+  const userEmailEl = document.getElementById("userEmail");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userEmailEl.textContent = "Вы вошли как: " + user.email;
+    } else {
+      // Если не авторизован — обратно на вход
+      window.location.href = "login.html";
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
   });
 }
