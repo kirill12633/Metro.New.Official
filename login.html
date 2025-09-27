@@ -4,22 +4,129 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Вход - Метро New</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0066CC;
+      --primary-dark: #0052a3;
+      --secondary: #FFD700;
+      --dark: #1A1A1A;
+      --light: #F8F9FA;
+      --gray: #6C757D;
+      --success: #28A745;
+      --warning: #FFC107;
+      --danger: #DC3545;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--light); color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem 0; }
+    .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+    nav { display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 30px; height: 30px; background-color: var(--secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--dark); font-weight: bold; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { color: white; text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border-radius: 4px; transition: 0.3s; }
+    .nav-links a:hover { background-color: rgba(255,255,255,0.15); }
+    .login-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 3rem 0; }
+    .login-box { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
+    .login-box h1 { color: var(--primary); margin-bottom: 1rem; }
+    .login-box input { width: 100%; padding: 0.8rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; }
+    .login-box button { width: 100%; background: var(--primary); color: white; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .login-box button:hover { background: var(--primary-dark); }
+    .login-box a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .login-box a:hover { text-decoration: underline; }
+    footer { background: var(--dark); color: white; padding: 2rem 0; text-align: center; margin-top: auto; }
+    .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .footer-links a { color: white; text-decoration: none; transition: 0.3s; }
+    .footer-links a:hover { color: var(--secondary); }
+    .copyright { color: var(--gray); font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-  <h1>Вход</h1>
-  <form id="loginForm">
-    <label>Email:</label><br>
-    <input type="email" id="loginEmail" required><br><br>
-    
-    <label>Пароль:</label><br>
-    <input type="password" id="loginPassword" required><br><br>
-    
-    <button type="submit">Войти</button>
-  </form>
 
-  <p>Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+<header>
+  <div class="container">
+    <nav>
+      <div class="logo">
+        <span class="logo-icon">M</span>
+        <span>Метро New</span>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Главная</a>
+        <a href="game.html">Игра</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="news.html">Новости</a>
+        <a href="register.html" class="auth-btn">Регистрация</a>
+      </div>
+    </nav>
+  </div>
+</header>
 
-  <!-- Firebase + твой app.js -->
-  <script type="module" src="app.js"></script>
+<div class="login-container">
+  <div class="login-box">
+    <h1>Вход в аккаунт</h1>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Пароль" required>
+      <button type="submit">Войти</button>
+    </form>
+    <p>Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+    <p id="loginError" style="color: var(--danger); font-size: 0.9rem;"></p>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="about.html">О нас</a>
+      <a href="contact.html">Контакты</a>
+      <a href="privacy.html">Политика конфиденциальности</a>
+      <a href="terms.html">Пользовательское соглашение</a>
+    </div>
+    <p class="copyright">© 2024 Метро New. Все права защищены.</p>
+  </div>
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      window.location.href = "profile.html";
+    }
+  });
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        window.location.href = "profile.html";
+      })
+      .catch((error) => {
+        loginError.textContent = error.message;
+      });
+  });
+</script>
+
 </body>
 </html>
