@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --admin-bg: #1a1a2e;
+            --admin-sidebar: #16213e;
+            --admin-card: #0f3460;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--admin-bg);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .login-box {
+            background-color: var(--admin-card);
+            border-radius: 12px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .login-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .login-logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 2rem;
+        }
+        
+        .security-alert {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .admin-sidebar {
+            width: 320px;
+            background-color: var(--admin-sidebar);
+            padding: 2rem 1.5rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .admin-logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .admin-logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .admin-user-info {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .user-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .user-detail-label {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .user-detail-value {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .secret-info {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 6px;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+        
+        .admin-nav {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-nav li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .admin-nav a:hover, .admin-nav a.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .admin-nav i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .admin-main {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .admin-header h1 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+        
+        .admin-section {
+            background-color: var(--admin-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: black;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .access-log {
+            margin-top: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .log-item.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .log-item.danger {
+            border-left-color: var(--danger);
+        }
+        
+        .log-item.success {
+            border-left-color: var(--success);
+        }
+        
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .log-ip {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .log-time {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .log-action {
+            color: white;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        
+        .log-details {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+            color: black;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .emergency-block {
+            background-color: rgba(220, 53, 69, 0.3);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .log-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 968px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .admin-sidebar {
+                width: 100%;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-buttons, .log-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <!-- Экран авторизации -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="login-logo-icon">M</div>
+                <div>
+                    <div class="login-title">Метро New Админ</div>
+                    <div class="login-subtitle">Система аудита и безопасности</div>
+                </div>
+            </div>
+            
+            <div class="security-alert" id="securityAlert">
+                <i class="fas fa-shield-alt"></i> <strong>Система безопасности:</strong> Все действия записываются в PGF файл
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminPassword">Спец пароль</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="Введите специальный пароль" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="accessReason">Причина доступа</label>
+                    <textarea id="accessReason" class="form-control" rows="2" placeholder="Объясните причину доступа..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-lock"></i> Войти в админ-панель
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Админ-панель -->
+    <div class="admin-container" id="adminPanel">
+        <div class="admin-sidebar">
+            <div class="admin-logo">
+                <div class="admin-logo-icon">M</div>
+                <div class="admin-logo-text">Метро New Админ</div>
+            </div>
+            
+            <div class="admin-user-info">
+                <div class="user-detail">
+                    <span class="user-detail-label">Администратор:</span>
+                    <span class="user-detail-value" id="adminName">-</span>
+                </div>
+                <div class="user-detail">
+                    <span class="user-detail-label">Уровень доступа:</span>
+                    <span class="user-detail-value" id="adminLevel">-</span>
+                </div>
+                <div class="user-detail">
+                    <span class="user-detail-label">Сессия:</span>
+                    <span class="user-detail-value" id="loginDate">-</span>
+                </div>
+                <div class="user-detail">
+                    <span class="user-detail-label">IP адрес:</span>
+                    <span class="user-detail-value" id="adminIP">-</span>
+                </div>
+                
+                <div class="secret-info">
+                    <strong>Текущий пароль:</strong><br>
+                    <span id="currentPassword">Загрузка...</span>
+                </div>
+            </div>
+            
+            <ul class="admin-nav">
+                <li><a href="#actions" class="active"><i class="fas fa-play"></i> Действия</a></li>
+                <li><a href="#reports"><i class="fas fa-flag"></i> Отчеты</a></li>
+                <li><a href="#security"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
+                <li><a href="#audit"><i class="fas fa-history"></i> История действий</a></li>
+            </ul>
+            
+            <div class="emergency-block">
+                <button class="btn btn-danger btn-block" onclick="emergencyLockdown()">
+                    <i class="fas fa-radiation"></i> АВАРИЙНАЯ БЛОКИРОВКА
+                </button>
+                <small style="color: rgba(255,255,255,0.7); margin-top: 0.5rem; display: block;">
+                    Система заблокируется на 5 дней. Пароль изменится!
+                </small>
+            </div>
+        </div>
+        
+        <div class="admin-main">
+            <div class="admin-header">
+                <h1>Система аудита действий</h1>
+                <button class="btn btn-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+            
+            <!-- Быстрые действия -->
+            <div class="admin-section" id="actions">
+                <div class="section-header">
+                    <h2><i class="fas fa-play"></i> Быстрые действия</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" onclick="logAction('ban', 'Бан пользователя')">
+                            <i class="fas fa-ban"></i> Бан пользователя
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-warning btn-block" onclick="logAction('warn', 'Выдать предупреждение')">
+                            <i class="fas fa-exclamation-triangle"></i> Предупреждение
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-success btn-block" onclick="logAction('message', 'Отправить сообщение')">
+                            <i class="fas fa-envelope"></i> Сообщение игроку
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-danger btn-block" onclick="logAction('restart', 'Перезапуск сервера')">
+                            <i class="fas fa-power-off"></i> Перезапуск
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Отчеты -->
+            <div class="admin-section" id="reports">
+                <div class="section-header">
+                    <h2><i class="fas fa-flag"></i> Создание отчетов</h2>
+                </div>
+                
+                <form id="reportForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="reportType">Тип отчета</label>
+                            <select id="reportType" class="form-control" required>
+                                <option value="">Выберите тип</option>
+                                <option value="security">🛡️ Отчет безопасности</option>
+                                <option value="moderation">👮 Отчет модерации</option>
+                                <option value="technical">🔧 Технический отчет</option>
+                                <option value="daily">📅 Ежедневный отчет</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportPeriod">Период</label>
+                            <input type="text" id="reportPeriod" class="form-control" placeholder="Например: 15-21 января" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="reportContent">Содержание</label>
+                            <textarea id="reportContent" class="form-control" rows="4" placeholder="Детали отчета..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Отправить отчет
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Безопасность -->
+            <div class="admin-section" id="security">
+                <div class="section-header">
+                    <h2><i class="fas fa-shield-alt"></i> Управление безопасностью</h2>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <button class="btn btn-warning btn-block" onclick="changeAdminPassword()">
+                            <i class="fas fa-key"></i> Сменить пароль
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" onclick="generateBackup()">
+                            <i class="fas fa-download"></i> Создать бэкап
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-success btn-block" onclick="exportAuditLogs()">
+                            <i class="fas fa-file-export"></i> Экспорт логов
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-danger btn-block" onclick="viewEmergencyPassword()">
+                            <i class="fas fa-exclamation-circle"></i> Аварийный пароль
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- История действий -->
+            <div class="admin-section" id="audit">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> История действий и аудит</h2>
+                    <div class="export-buttons">
+                        <button class="btn btn-primary" onclick="exportToPGF()">
+                            <i class="fas fa-file-code"></i> Экспорт в PGF
+                        </button>
+                        <button class="btn btn-success" onclick="exportToJSON()">
+                            <i class="fas fa-file-export"></i> Экспорт в JSON
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="log-filters">
+                    <button class="filter-btn active" onclick="filterLogs('all')">Все действия</button>
+                    <button class="filter-btn" onclick="filterLogs('security')">Безопасность</button>
+                    <button class="filter-btn" onclick="filterLogs('moderation')">Модерация</button>
+                    <button class="filter-btn" onclick="filterLogs('system')">Система</button>
+                    <button class="filter-btn" onclick="filterLogs('emergency')">Аварийные</button>
+                </div>
+                
+                <div class="access-log" id="accessLog">
+                    <!-- История будет заполняться JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Система безопасности
+        const SECURITY_CONFIG = {
+            currentPassword: "[Metro-New]zM@%KI",
+            emergencyPassword: "[Metro-New]jOdM#5hp",
+            discordWebhook: "https://discord.com/api/webhooks/1401901296923054132/kszAx-KrKI6962AqKunsHMV5KxrA_3B2EbNqgHMCaJaxcNWrjXbKeY6MwRk_Wa6Uidyf",
+            systemLocked: false
+        };
+        
+        // Хранилище данных
+        let actionHistory = JSON.parse(localStorage.getItem('adminActionHistory')) || [];
+        let currentAdminData = null;
+        let failedAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        
+        // Уведомления
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Получение IP адреса
+        function getIPAddress() {
+            const fakeIPs = ['192.168.1.100', '10.0.0.15', '172.16.254.1', '85.234.156.23'];
+            return fakeIPs[Math.floor(Math.random() * fakeIPs.length)];
+        }
+        
+        // Отправка в Discord
+        async function sendToDiscord(message) {
+            try {
+                const response = await fetch(SECURITY_CONFIG.discordWebhook, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: message,
+                        username: 'Метро New - Аудит Системы',
+                        avatar_url: 'https://i.imgur.com/M8dWXX6.png'
+                    })
+                });
+                
+                return response.ok;
+            } catch (error) {
+                console.error('Ошибка:', error);
+                return false;
+            }
+        }
+        
+        // Логирование действия
+        function logAction(type, action, details = '') {
+            const timestamp = new Date().toLocaleString('ru-RU');
+            const ip = currentAdminData?.ip || getIPAddress();
+            
+            const actionEntry = {
+                id: Date.now(),
+                type: type,
+                action: action,
+                details: details,
+                admin: currentAdminData?.name || 'Неизвестно',
+                ip: ip,
+                timestamp: timestamp,
+                level: getActionLevel(type)
+            };
+            
+            actionHistory.unshift(actionEntry);
+            localStorage.setItem('adminActionHistory', JSON.stringify(actionHistory));
+            
+            // Отправка в Discord
+            const discordMessage = `📝 **ДЕЙСТВИЕ АДМИНА**\n👤 ${currentAdminData?.name}\n🎯 ${action}\n📋 ${details}\n🌐 ${ip}\n🕒 ${timestamp}`;
+            sendToDiscord(discordMessage);
+            
+            showNotification(`Действие "${action}" записано в лог`);
+            updateActionHistory();
+        }
+        
+        // Уровень важности действия
+        function getActionLevel(type) {
+            const levels = {
+                'ban': 'danger',
+                'warn': 'warning', 
+                'message': 'success',
+                'restart': 'danger',
+                'security': 'warning',
+                'emergency': 'danger',
+                'system': 'success'
+            };
+            return levels[type] || 'success';
+        }
+        
+        // Аварийная блокировка
+        async function emergencyLockdown() {
+            if (!confirm('🚨 ВНИМАНИЕ! Аварийная блокировка изменит пароль и заблокирует систему на 5 дней! Продолжить?')) {
+                return;
+            }
+            
+            SECURITY_CONFIG.systemLocked = true;
+            SECURITY_CONFIG.currentPassword = SECURITY_CONFIG.emergencyPassword;
+            
+            const timestamp = new Date().toLocaleString('ru-RU');
+            const adminName = currentAdminData?.name || 'Неизвестно';
+            const ip = currentAdminData?.ip || getIPAddress();
+            
+            // Логируем аварийную блокировку
+            logAction('emergency', 'Аварийная блокировка системы', 'Система заблокирована на 5 дней. Пароль изменен.');
+            
+            const discordMessage = `🚨 **АВАРИЙНАЯ БЛОКИРОВКА СИСТЕМЫ**\n👤 Инициатор: ${adminName}\n🌐 IP: ${ip}\n🕒 Время: ${timestamp}\n⏰ Блокировка на: 5 ДНЕЙ\n🔒 Новый пароль: ${SECURITY_CONFIG.emergencyPassword}`;
+            
+            await sendToDiscord(discordMessage);
+            
+            showNotification('🚨 СИСТЕМА ЗАБЛОКИРОВАНА! Новый пароль активен.', 'error');
+            
+            setTimeout(() => {
+                logout();
+            }, 5000);
+        }
+        
+        // Просмотр аварийного пароля
+        function viewEmergencyPassword() {
+            alert(`🚨 АВАРИЙНЫЙ ПАРОЛЬ (использовать только при ЧП):\n\n${SECURITY_CONFIG.emergencyPassword}\n\nЭтот пароль активируется только после аварийной блокировки!`);
+            logAction('security', 'Просмотр аварийного пароля', 'Администратор запросил просмотр аварийного пароля');
+        }
+        
+        // Авторизация
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('adminPassword').value;
+            const reason = document.getElementById('accessReason').value;
+            const ip = getIPAddress();
+            const timestamp = new Date().toLocaleString('ru-RU');
+            
+            // Проверка блокировки системы
+            if (SECURITY_CONFIG.systemLocked) {
+                if (password !== SECURITY_CONFIG.emergencyPassword) {
+                    showNotification('Система заблокирована! Используйте аварийный пароль.', 'error');
+                    return;
+                }
+            } else {
+                if (password !== SECURITY_CONFIG.currentPassword) {
+                    failedAttempts++;
+                    showNotification(`Неверный пароль! Попыток осталось: ${MAX_ATTEMPTS - failedAttempts}`, 'error');
+                    
+                    if (failedAttempts >= MAX_ATTEMPTS) {
+                        const lockdownMessage = `🚨 **ПРЕВЫШЕН ЛИМИТ ПОПЫТОК ВХОДА**\n🌐 IP: ${ip}\n🕒 Время: ${timestamp}\n🚫 Система временно заблокирована`;
+                        await sendToDiscord(lockdownMessage);
+                        showNotification('🚨 СИСТЕМА ВРЕМЕННО ЗАБЛОКИРОВАНА!', 'error');
+                        return;
+                    }
+                    return;
+                }
+            }
+            
+            if (!reason.trim()) {
+                showNotification('Укажите причину доступа!', 'error');
+                return;
+            }
+            
+            // Сброс счетчика попыток
+            failedAttempts = 0;
+            
+            // Сохраняем данные о входе
+            currentAdminData = {
+                name: "Главный Администратор",
+                level: SECURITY_CONFIG.systemLocked ? "АВАРИЙНЫЙ РЕЖИМ" : "Полный доступ",
+                loginTime: timestamp,
+                ip: ip,
+                reason: reason
+            };
+            
+            // Логируем вход
+            logAction('security', 'Вход в систему', reason);
+            
+            // Заполняем данные администратора
+            document.getElementById('adminName').textContent = currentAdminData.name;
+            document.getElementById('adminLevel').textContent = currentAdminData.level;
+            document.getElementById('loginDate').textContent = currentAdminData.loginTime;
+            document.getElementById('adminIP').textContent = currentAdminData.ip;
+            document.getElementById('currentPassword').textContent = SECURITY_CONFIG.systemLocked ? 
+                '🚨 АВАРИЙНЫЙ РЕЖИМ' : 'Активен стандартный пароль';
+            
+            // Обновляем предупреждение
+            document.getElementById('securityAlert').innerHTML = SECURITY_CONFIG.systemLocked ?
+                '🚨 <strong>АВАРИЙНЫЙ РЕЖИМ!</strong> Система заблокирована на 5 дней' :
+                '<i class="fas fa-shield-alt"></i> <strong>Система безопасности:</strong> Все действия записываются в PGF файл';
+            
+            // Показываем админ-панель
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'flex';
+            showNotification(SECURITY_CONFIG.systemLocked ? 
+                'Вход в аварийном режиме' : 'Успешный вход в систему');
+            
+            // Обновляем историю действий
+            updateActionHistory();
+        });
+        
+        // Выход
+        async function logout() {
+            if (currentAdminData) {
+                logAction('security', 'Выход из системы', 'Администратор вышел из системы');
+            }
+            
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            showNotification('Вы вышли из системы');
+        }
+        
+        // Обновление истории действий
+        function updateActionHistory(filter = 'all') {
+            const accessLog = document.getElementById('accessLog');
+            accessLog.innerHTML = '';
+            
+            const filteredActions = filter === 'all' ? 
+                actionHistory : 
+                actionHistory.filter(action => action.type === filter);
+            
+            filteredActions.forEach(entry => {
+                const logItem = document.createElement('div');
+                logItem.className = `log-item ${entry.level}`;
+                logItem.innerHTML = `
+                    <div class="log-header">
+                        <span class="log-ip">${entry.ip}</span>
+                        <span class="log-time">${entry.timestamp}</span>
+                    </div>
+                    <div class="log-action">${entry.action}</div>
+                    <div class="log-details">
+                        <strong>Админ:</strong> ${entry.admin} | 
+                        <strong>Детали:</strong> ${entry.details}
+                    </div>
+                `;
+                accessLog.appendChild(logItem);
+            });
+        }
+        
+        // Фильтрация логов
+        function filterLogs(filter) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateActionHistory(filter);
+        }
+        
+        // Функции безопасности
+        function changeAdminPassword() {
+            const newPassword = prompt('Введите новый пароль администратора:');
+            if (newPassword && newPassword.length >= 8) {
+                SECURITY_CONFIG.currentPassword = newPassword;
+                logAction('security', 'Смена пароля администратора', 'Пароль был изменен');
+                showNotification('Пароль администратора изменен', 'success');
+                document.getElementById('currentPassword').textContent = 'Пароль обновлен';
+            }
+        }
+        
+        function generateBackup() {
+            logAction('system', 'Создание бэкапа системы', 'Резервная копия создана');
+            showNotification('Бэкап системы создан', 'success');
+        }
+        
+        // Экспорт логов
+        function exportAuditLogs() {
+            const logsText = actionHistory.map(entry => 
+                `[${entry.timestamp}] ${entry.action} - ${entry.admin} (${entry.ip}) - ${entry.details}`
+            ).join('\n');
+            
+            const blob = new Blob([logsText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `audit_logs_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            
+            logAction('system', 'Экспорт логов аудита', 'Логи экспортированы в файл');
+            showNotification('Логи экспортированы', 'success');
+        }
+        
+        // Экспорт в PGF формат
+        function exportToPGF() {
+            const pgfContent = `
+% PGF Audit Log - Metro New Admin System
+% Generated: ${new Date().toLocaleString('ru-RU')}
+% Total actions: ${actionHistory.length}
+
+\\begin{auditlog}
+${actionHistory.map(entry => `
+\\action{
+    timestamp={${entry.timestamp}},
+    admin={${entry.admin}},
+    ip={${entry.ip}},
+    action={${entry.action}},
+    details={${entry.details}},
+    level={${entry.level}}
+}`).join('')}
+\\end{auditlog}
+            `.trim();
+            
+            const blob = new Blob([pgfContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `admin_audit_${new Date().toISOString().split('T')[0]}.pgf`;
+            a.click();
+            
+            logAction('system', 'Экспорт в PGF формат', 'Данные аудита экспортированы в PGF');
+            showNotification('Данные экспортированы в PGF формат', 'success');
+        }
+        
+        // Экспорт в JSON
+        function exportToJSON() {
+            const jsonContent = JSON.stringify(actionHistory, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `admin_audit_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            logAction('system', 'Экспорт в JSON формат', 'Данные аудита экспортированы в JSON');
+            showNotification('Данные экспортированы в JSON формат', 'success');
+        }
+        
+        // Обработка формы отчета
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const reportType = document.getElementById('reportType').value;
+            const period = document.getElementById('reportPeriod').value;
+            const content = document.getElementById('reportContent').value;
+            
+            logAction('report', `Отчет: ${reportType}`, `Период: ${period}\nСодержание: ${content}`);
+            showNotification('Отчет создан и записан в лог', 'success');
+            this.reset();
+        });
+        
+        // Навигация
+        document.querySelectorAll('.admin-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                document.querySelectorAll('.admin-nav a').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Инициализация при загрузке
+        updateActionHistory();
+    </script>
+</body>
+</html>
