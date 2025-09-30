@@ -1,255 +1,318 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Регистрация - Метро New</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-:root {
-    --primary: #0066CC;
-    --primary-dark: #0052a3;
-    --secondary: #FFD700;
-    --dark: #1A1A1A;
-    --light: #F8F9FA;
-    --gray: #6C757D;
-    --success: #28A745;
-    --warning: #FFC107;
-    --danger: #DC3545;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--light);
-    color: var(--dark);
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-}
-header { 
-    background: linear-gradient(135deg,var(--primary),var(--primary-dark));
-    color:#fff;
-    padding:1rem 0;
-}
-.container { width:90%; max-width:1200px; margin:0 auto; }
-nav { display:flex; justify-content:space-between; align-items:center; }
-.logo { display:flex; align-items:center; gap:10px; font-size:1.5rem; font-weight:700; }
-.logo-icon { width:30px;height:30px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:bold;}
-.nav-links { display:flex; align-items:center; gap:1.5rem; }
-.nav-links a { color:white; text-decoration:none; font-weight:500; padding:0.5rem 1rem; border-radius:4px; transition:0.3s; }
-.nav-links a:hover { background: rgba(255,255,255,0.15); }
-.auth-btn { background: var(--secondary); color: var(--dark); padding:0.5rem 1.5rem; border-radius:50px; font-weight:600; transition:0.3s; }
-.auth-btn:hover { transform: translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.2); }
-
-.register-container { flex:1; display:flex; justify-content:center; align-items:center; padding:2rem 0; }
-.register-box { background:white; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); padding:3rem; width:100%; max-width:500px; text-align:center; }
-.register-header h1 { color: var(--primary); margin-bottom:0.5rem; font-size:2rem; }
-.register-header p { color: var(--gray); margin-bottom:2rem; }
-
-.form-group { margin-bottom:1.5rem; text-align:left; }
-.form-group label { font-weight:500; color: var(--dark); display:block; margin-bottom:0.5rem; }
-.form-control { width:100%; padding:0.8rem 1rem; border:1px solid #ddd; border-radius:8px; font-size:1rem; transition:0.3s; }
-.form-control:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,102,204,0.1); }
-
-.password-container { position:relative; }
-.toggle-password { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--gray); cursor:pointer; }
-
-.password-strength { margin-top:0.5rem; height:5px; border-radius:5px; background:#eee; overflow:hidden; }
-.password-strength-bar { height:100%; width:0%; transition:0.3s; }
-.password-strength.weak .password-strength-bar { width:33%; background:var(--danger); }
-.password-strength.medium .password-strength-bar { width:66%; background:var(--warning); }
-.password-strength.strong .password-strength-bar { width:100%; background:var(--success); }
-
-.password-requirements { font-size:0.8rem; color:var(--gray); margin-top:0.5rem; }
-.requirement { display:flex; align-items:center; margin-bottom:0.2rem; }
-.requirement i { margin-right:0.5rem; font-size:0.7rem; }
-.requirement.valid { color:var(--success); }
-.requirement.invalid { color:var(--gray); }
-
-.terms { display:flex; align-items:flex-start; gap:0.5rem; margin-bottom:1.5rem; }
-.terms input { margin-top:0.2rem; }
-.terms a { color:var(--primary); text-decoration:none; }
-.terms a:hover { text-decoration:underline; }
-
-.btn-register { width:100%; background:var(--primary); color:white; border:none; padding:0.8rem; border-radius:8px; font-weight:600; cursor:pointer; transition:0.3s; margin-bottom:1.5rem; }
-.btn-register:hover { background:var(--primary-dark); transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.2); }
-.btn-register:disabled { background:var(--gray); cursor:not-allowed; transform:none; box-shadow:none; }
-
-.divider { display:flex; align-items:center; margin:1.5rem 0; color:var(--gray); }
-.divider::before, .divider::after { content:''; flex:1; height:1px; background:#ddd; }
-.divider span { padding:0 1rem; }
-
-.social-register { display:flex; gap:1rem; margin-bottom:1.5rem; }
-.btn-social { flex:1; display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.7rem; border:1px solid #ddd; border-radius:8px; background:white; color:var(--dark); font-weight:500; transition:0.3s; text-decoration:none; }
-.btn-social:hover { background:#f8f9fa; transform:translateY(-2px); }
-.btn-roblox { border-color:#ff4c4c; color:#ff4c4c; }
-.btn-discord { border-color:#5865F2; color:#5865F2; }
-
-.login-link { color:var(--gray); margin-top:1.5rem; }
-.login-link a { color:var(--primary); font-weight:600; text-decoration:none; }
-.login-link a:hover { text-decoration:underline; }
-
-footer { background:var(--dark); color:white; padding:2rem 0; text-align:center; margin-top:auto; }
-.footer-links { display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; margin-bottom:1rem; }
-.footer-links a { color:white; text-decoration:none; transition:0.3s; }
-.footer-links a:hover { color:var(--secondary); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница в разработке | Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        main {
+            flex: 1;
+            padding: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .construction-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        
+        .construction-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            color: var(--warning);
+        }
+        
+        .construction-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .construction-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--gray);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .construction-title {
+                font-size: 2rem;
+            }
+            
+            .construction-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<header>
-<div class="container">
-<nav>
-<div class="logo"><span class="logo-icon">M</span>Метро New</div>
-<div class="nav-links">
-<a href="index.html">Главная</a>
-<a href="game.html">Игра</a>
-<a href="wiki.html">Wiki</a>
-<a href="news.html">Новости</a>
-<a href="login.html" class="auth-btn">Вход</a>
-</div>
-</nav>
-</div>
-</header>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Главная</a>
+                    <a href="game.html">Игра</a>
+                    <a href="wiki.html">Wiki</a>
+                    <a href="news.html">Новости</a>
+                    <div class="dropdown">
+                        <a href="other.html" class="active">Другое</a>
+                        <div class="dropdown-content">
+                            <a href="sites.html">Наши сайты</a>
+                            <a href="status.html">Статус сервисов</a>
+                            <a href="faq.html">FAQ</a>
+                            <a href="contact.html">Контакты</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-<div class="register-container">
-<div class="container">
-<div class="register-box">
-<div class="register-header">
-<h1>Создать аккаунт</h1>
-<p>Заполните форму для регистрации в системе</p>
-</div>
+    <main>
+        <div class="container">
+            <div class="construction-container">
+                <div class="construction-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h1 class="construction-title">Страница в разработке</h1>
+                <p class="construction-text">Мы активно работаем над созданием этого раздела. Скоро здесь появится новый контент. Спасибо за ваше терпение!</p>
+                <a href="index.html" class="btn">Вернуться на главную</a>
+            </div>
+        </div>
+    </main>
 
-<form class="register-form" id="registerForm">
-<div class="form-group">
-<label for="username">Имя пользователя</label>
-<input type="text" id="username" class="form-control" placeholder="Придумайте имя пользователя" required>
-<small class="form-text">Имя пользователя должно содержать от 3 до 20 символов</small>
-</div>
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="about.html">О нас</a>
+                <a href="contact.html">Контакты</a>
+                <a href="privacy.html">Политика конфиденциальности</a>
+                <a href="terms.html">Пользовательское соглашение</a>
+            </div>
+            <p class="copyright">© 2025 Метро New. Все права защищены.</p>
+        </div>
+    </footer>
 
-<div class="form-group">
-<label for="email">Email адрес</label>
-<input type="email" id="email" class="form-control" placeholder="Введите ваш email" required>
-</div>
-
-<div class="form-group">
-<label for="password">Пароль</label>
-<div class="password-container">
-<input type="password" id="password" class="form-control" placeholder="Придумайте надежный пароль" required>
-<button type="button" class="toggle-password" id="togglePassword"><i class="far fa-eye"></i></button>
-</div>
-<div class="password-strength" id="passwordStrength"><div class="password-strength-bar"></div></div>
-<div class="password-requirements">
-<div class="requirement invalid" id="lengthReq"><i class="fas fa-circle"></i> Не менее 8 символов</div>
-<div class="requirement invalid" id="uppercaseReq"><i class="fas fa-circle"></i> Содержит заглавные буквы</div>
-<div class="requirement invalid" id="numberReq"><i class="fas fa-circle"></i> Содержит цифры</div>
-<div class="requirement invalid" id="specialReq"><i class="fas fa-circle"></i> Содержит специальные символы</div>
-</div>
-</div>
-
-<div class="form-group">
-<label for="confirmPassword">Подтверждение пароля</label>
-<div class="password-container">
-<input type="password" id="confirmPassword" class="form-control" placeholder="Повторите пароль" required>
-<button type="button" class="toggle-password" id="toggleConfirmPassword"><i class="far fa-eye"></i></button>
-</div>
-<small class="form-text" id="passwordMatchText"></small>
-</div>
-
-<div class="terms">
-<input type="checkbox" id="agreeTerms" required>
-<label for="agreeTerms">Я соглашаюсь с <a href="terms.html">условиями использования</a> и <a href="privacy.html">политикой конфиденциальности</a></label>
-</div>
-
-<button type="submit" class="btn-register" id="registerButton" disabled>Зарегистрироваться</button>
-</form>
-
-<div class="divider"><span>или зарегистрируйтесь с помощью</span></div>
-<div class="social-register">
-<a href="#" class="btn-social btn-roblox"><i class="fab fa-roblox"></i> Roblox</a>
-<a href="#" class="btn-social btn-discord"><i class="fab fa-discord"></i> Discord</a>
-</div>
-<div class="login-link">Уже есть аккаунт? <a href="login.html">Войти</a></div>
-</div>
-</div>
-</div>
-
-<footer>
-<div class="container">
-<div class="footer-links">
-<a href="about.html">О нас</a>
-<a href="contact.html">Контакты</a>
-<a href="privacy.html">Политика конфиденциальности</a>
-<a href="terms.html">Пользовательское соглашение</a>
-</div>
-<p>© 2024 Метро New. Все права защищены.</p>
-</div>
-</footer>
-
-<script>
-// Показать/скрыть пароль
-document.getElementById('togglePassword').addEventListener('click',function(){
-let p=document.getElementById('password');let i=this.querySelector('i');
-if(p.type==='password'){p.type='text';i.classList.remove('fa-eye');i.classList.add('fa-eye-slash');} 
-else {p.type='password';i.classList.remove('fa-eye-slash');i.classList.add('fa-eye');}
-});
-document.getElementById('toggleConfirmPassword').addEventListener('click',function(){
-let p=document.getElementById('confirmPassword');let i=this.querySelector('i');
-if(p.type==='password'){p.type='text';i.classList.remove('fa-eye');i.classList.add('fa-eye-slash');} 
-else {p.type='password';i.classList.remove('fa-eye-slash');i.classList.add('fa-eye');}
-});
-
-// Проверка сложности пароля
-document.getElementById('password').addEventListener('input',function(){
-let pass=this.value;
-let sbar=document.querySelector('.password-strength-bar');
-let sc=document.getElementById('passwordStrength'); sc.className='password-strength';
-let l=pass.length>=8, u=/[A-Z]/.test(pass), n=/\d/.test(pass), sp=/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass);
-document.getElementById('lengthReq').className=l?'requirement valid':'requirement invalid';
-document.getElementById('uppercaseReq').className=u?'requirement valid':'requirement invalid';
-document.getElementById('numberReq').className=n?'requirement valid':'requirement invalid';
-document.getElementById('specialReq').className=sp?'requirement valid':'requirement invalid';
-let str=0;if(l)str+=25;if(u)str+=25;if(n)str+=25;if(sp)str+=25;
-if(str>0){ if(str<=25) sc.classList.add('weak'); else if(str<=75) sc.classList.add('medium'); else sc.classList.add('strong'); }
-checkPasswordMatch();
-});
-document.getElementById('confirmPassword').addEventListener('input',checkPasswordMatch);
-function checkPasswordMatch(){
-let p=document.getElementById('password').value;
-let c=document.getElementById('confirmPassword').value;
-let t=document.getElementById('passwordMatchText');
-if(c===''){t.textContent=''; t.style.color='';}
-else if(p===c){t.textContent='Пароли совпадают'; t.style.color='var(--success)';}
-else{t.textContent='Пароли не совпадают'; t.style.color='var(--danger)';}
-validateForm();
-}
-
-function validateForm(){
-let u=document.getElementById('username').value;
-let e=document.getElementById('email').value;
-let p=document.getElementById('password').value;
-let c=document.getElementById('confirmPassword').value;
-let a=document.getElementById('agreeTerms').checked;
-let btn=document.getElementById('registerButton');
-let validUser=u.length>=3;
-let validEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-let validPass=p.length>=8 && /[A-Z]/.test(p) && /\d/.test(p) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p);
-let match=p===c && p!=='';
-btn.disabled=!(validUser && validEmail && validPass && match && a);
-}
-document.getElementById('username').addEventListener('input',validateForm);
-document.getElementById('email').addEventListener('input',validateForm);
-document.getElementById('agreeTerms').addEventListener('change',validateForm);
-
-document.getElementById('registerForm').addEventListener('submit',function(e){
-e.preventDefault();
-let u=document.getElementById('username').value;
-let em=document.getElementById('email').value;
-let p=document.getElementById('password').value;
-console.log('Регистрация:',{u,em,p});
-alert('Регистрация выполнена успешно! Проверьте вашу почту для подтверждения аккаунта.');
-// window.location.href='login.html';
-});
-</script>
+    <script>
+        // Фиксируем меню "Другое" при клике
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownContent = document.querySelector('.dropdown-content');
+            
+            dropdown.addEventListener('click', function(e) {
+                if (window.innerWidth > 768) {
+                    e.preventDefault();
+                    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+            
+            // Закрываем выпадающее меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdownContent.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
