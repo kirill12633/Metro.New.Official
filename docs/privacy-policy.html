@@ -132,6 +132,9 @@
             margin-right: 10px;
             margin-bottom: 10px;
             font-family: 'Montserrat', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .btn:hover {
@@ -155,6 +158,22 @@
             background: #e0a800;
         }
         
+        .btn-test {
+            background: #6f42c1;
+        }
+        
+        .btn-test:hover {
+            background: #5a2d91;
+        }
+        
+        .btn-reset {
+            background: #dc3545;
+        }
+        
+        .btn-reset:hover {
+            background: #c82333;
+        }
+        
         .versions {
             margin-top: 30px;
             border-top: 2px solid #e9ecef;
@@ -174,6 +193,9 @@
             margin-top: 20px;
             color: #0066CC;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .back-link:hover {
@@ -232,20 +254,35 @@
         </div>
 
         <div class="admin-panel">
-            <button class="btn" onclick="toggleEdit()">Редактировать (требуется пароль)</button>
+            <button class="btn" onclick="toggleEdit()">
+                <i class="fas fa-edit"></i> Редактировать (требуется пароль)
+            </button>
             
             <div class="login-form" id="loginForm">
                 <div class="form-group">
                     <input type="password" class="form-input" id="password" placeholder="Введите пароль admin">
                 </div>
-                <button class="btn" onclick="login()">Войти</button>
+                <button class="btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
             </div>
 
             <div id="adminControls" style="display: none;">
-                <button class="btn btn-success" onclick="saveChanges()">💾 Сохранить изменения</button>
-                <button class="btn btn-warning" onclick="publish()">🚀 Опубликовать</button>
-                <button class="btn" onclick="addVersion()">📝 Добавить версию</button>
-                <button class="btn" onclick="resetContent()">🔄 Сбросить</button>
+                <button class="btn btn-success" onclick="saveChanges()">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+                <button class="btn btn-warning" onclick="publish()">
+                    <i class="fas fa-rocket"></i> Опубликовать
+                </button>
+                <button class="btn" onclick="addVersion()">
+                    <i class="fas fa-history"></i> Версия
+                </button>
+                <button class="btn btn-test" onclick="sendToTestServer()">
+                    <i class="fas fa-vial"></i> Test
+                </button>
+                <button class="btn btn-reset" onclick="resetContent()">
+                    <i class="fas fa-undo"></i> Сбросить
+                </button>
             </div>
         </div>
 
@@ -261,7 +298,9 @@
             </div>
         </div>
 
-        <a href="docs/admin-pаnel-index.html" class="back-link">← Назад к списку документов</a>
+        <a href="docs/admin-pаnel-index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Назад к списку документов
+        </a>
     </div>
 
     <script>
@@ -360,6 +399,27 @@
                 versionsContainer.appendChild(newVersion);
                 alert('✅ Новая версия добавлена в историю!');
             }
+        }
+
+        function sendToTestServer() {
+            const content = document.getElementById('policyContent').innerHTML;
+            const lastUpdate = document.getElementById('lastUpdate').textContent;
+            
+            // Данные для отправки
+            const data = {
+                content: content,
+                lastUpdate: lastUpdate,
+                document: 'privacy-policy',
+                timestamp: new Date().toISOString()
+            };
+            
+            // Временное решение - сохраняем в localStorage
+            localStorage.setItem('testServerData', JSON.stringify(data));
+            
+            // Имитация отправки на сервер
+            console.log('📤 Данные для отправки на тестовый сервер:', data);
+            
+            alert('✅ Данные подготовлены для отправки на тестовый сервер!\n\nПроверь консоль браузера (F12)');
         }
 
         function resetContent() {
