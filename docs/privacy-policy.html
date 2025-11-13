@@ -86,6 +86,7 @@
             margin-bottom: 20px;
             transition: border-color 0.3s;
             background: #fafafa;
+            min-height: 400px;
         }
         
         .editable:focus {
@@ -129,6 +130,29 @@
             border-radius: 5px;
             cursor: pointer;
             margin-right: 10px;
+            margin-bottom: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .btn:hover {
+            background: #0052a3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
         }
         
         .versions {
@@ -143,6 +167,17 @@
             margin-bottom: 10px;
             border-radius: 5px;
             border-left: 4px solid #28a745;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0066CC;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -161,13 +196,13 @@
                 </div>
                 <div class="date-card">
                     <strong>Дата последнего обновления:</strong>
-                    <span contenteditable="true" class="editable" id="lastUpdate">4 октября 2025 года</span>
+                    <span id="lastUpdate">4 октября 2025 года</span>
                 </div>
             </div>
         </div>
 
         <div class="content">
-            <div class="editable" contenteditable="false" id="policyContent">
+            <div class="editable" id="policyContent">
                 <p>Настоящая Политика конфиденциальности описывает, какие данные мы собираем, как мы их обрабатываем, защищаем и храним в рамках проекта "Метро New". Используя наш сайт, бота или любые связанные сервисы, вы соглашаетесь с условиями настоящей Политики.</p>
                 
                 <h3>1. Собираемые данные</h3>
@@ -187,6 +222,12 @@
                     <li>Обеспечения безопасности сервиса и предотвращения мошенничества.</li>
                     <li>Поддержки работы аккаунтов, сохранения настроек и истории действий пользователя.</li>
                 </ul>
+
+                <h3>3. Хранение данных</h3>
+                <p>Данные автоматически удаляются через 1 год после их отправки. При удалении аккаунта все связанные данные полностью удаляются из системы.</p>
+
+                <h3>4. Безопасность</h3>
+                <p>Все данные защищены шифрованием и строгим контролем доступа. Регулярно проводим аудиты безопасности системы.</p>
             </div>
         </div>
 
@@ -201,9 +242,10 @@
             </div>
 
             <div id="adminControls" style="display: none;">
-                <button class="btn" onclick="saveChanges()">Сохранить изменения</button>
-                <button class="btn" onclick="publish()">Опубликовать</button>
-                <button class="btn" onclick="addVersion()">Добавить версию</button>
+                <button class="btn btn-success" onclick="saveChanges()">💾 Сохранить изменения</button>
+                <button class="btn btn-warning" onclick="publish()">🚀 Опубликовать</button>
+                <button class="btn" onclick="addVersion()">📝 Добавить версию</button>
+                <button class="btn" onclick="resetContent()">🔄 Сбросить</button>
             </div>
         </div>
 
@@ -215,14 +257,33 @@
             </div>
             <div class="version-item">
                 <strong>Версия 1.1</strong> - 4 октября 2025 года<br>
-                Обновлены условия хранения данных
+                -
             </div>
         </div>
+
+        <a href="admin.metro.new.html" class="back-link">← Назад к списку документов</a>
     </div>
 
     <script>
         const ADMIN_PASSWORD = "123";
         let isEditing = false;
+        let originalContent = '';
+
+        // Загрузка сохраненного контента при старте
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedContent = localStorage.getItem('privacyPolicyContent');
+            const savedDate = localStorage.getItem('privacyPolicyLastUpdate');
+            
+            if (savedContent) {
+                document.getElementById('policyContent').innerHTML = savedContent;
+            }
+            
+            if (savedDate) {
+                document.getElementById('lastUpdate').textContent = savedDate;
+            }
+            
+            originalContent = document.getElementById('policyContent').innerHTML;
+        });
 
         function toggleEdit() {
             if (!isEditing) {
@@ -238,36 +299,47 @@
                 enableEditing();
                 document.getElementById('loginForm').classList.remove('active');
                 document.getElementById('adminControls').style.display = 'block';
+                document.getElementById('password').value = '';
                 isEditing = true;
             } else {
-                alert('Неверный пароль!');
+                alert('❌ Неверный пароль! Попробуйте снова.');
             }
         }
 
         function enableEditing() {
-            document.getElementById('policyContent').setAttribute('contenteditable', 'true');
-            document.getElementById('policyContent').style.borderColor = '#0066CC';
-            document.getElementById('policyContent').style.background = '#fff';
+            const editableElement = document.getElementById('policyContent');
+            editableElement.setAttribute('contenteditable', 'true');
+            editableElement.style.borderColor = '#0066CC';
+            editableElement.style.background = '#fff';
+            editableElement.focus();
         }
 
         function disableEditing() {
-            document.getElementById('policyContent').setAttribute('contenteditable', 'false');
-            document.getElementById('policyContent').style.borderColor = 'transparent';
-            document.getElementById('policyContent').style.background = '#fafafa';
+            const editableElement = document.getElementById('policyContent');
+            editableElement.setAttribute('contenteditable', 'false');
+            editableElement.style.borderColor = 'transparent';
+            editableElement.style.background = '#fafafa';
             document.getElementById('adminControls').style.display = 'none';
             isEditing = false;
         }
 
         function saveChanges() {
-            alert('Изменения сохранены!');
-            // Здесь будет сохранение в localStorage или на сервер
+            const content = document.getElementById('policyContent').innerHTML;
+            localStorage.setItem('privacyPolicyContent', content);
+            alert('✅ Изменения сохранены в браузере!');
         }
 
         function publish() {
             const today = new Date();
-            const dateString = today.toLocaleDateString('ru-RU');
-            document.getElementById('lastUpdate').textContent = dateString + ' года';
-            alert('Политика опубликована!');
+            const dateString = today.toLocaleDateString('ru-RU') + ' года';
+            
+            document.getElementById('lastUpdate').textContent = dateString;
+            localStorage.setItem('privacyPolicyLastUpdate', dateString);
+            
+            // Сохраняем контент при публикации
+            saveChanges();
+            
+            alert('🚀 Политика опубликована! Дата обновлена.');
         }
 
         function addVersion() {
@@ -277,16 +349,33 @@
                 const dateString = today.toLocaleDateString('ru-RU');
                 
                 const versionsContainer = document.querySelector('.versions');
+                const versionNumber = versionsContainer.children.length;
+                
                 const newVersion = document.createElement('div');
                 newVersion.className = 'version-item';
                 newVersion.innerHTML = `
-                    <strong>Версия 1.2</strong> - ${dateString}<br>
+                    <strong>Версия 1.${versionNumber}</strong> - ${dateString}<br>
                     ${versionText}
                 `;
                 versionsContainer.appendChild(newVersion);
-                alert('Новая версия добавлена!');
+                alert('✅ Новая версия добавлена в историю!');
             }
         }
+
+        function resetContent() {
+            if (confirm('⚠️ Вы уверены, что хотите сбросить все изменения?')) {
+                document.getElementById('policyContent').innerHTML = originalContent;
+                alert('🔄 Контент сброшен к исходному состоянию');
+            }
+        }
+
+        // Автосохранение каждые 30 секунд при редактировании
+        setInterval(() => {
+            if (isEditing) {
+                const content = document.getElementById('policyContent').innerHTML;
+                localStorage.setItem('privacyPolicyAutoSave', content);
+            }
+        }, 30000);
     </script>
 </body>
 </html>
