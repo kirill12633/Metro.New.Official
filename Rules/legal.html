@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правовые документы - Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* СТИЛИ ОСТАЮТСЯ ТАКИМИ ЖЕ, КАК В ВАШЕМ ПРИМЕРЕ */
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-header p {
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* СТИЛИ ДЛЯ КАРТОЧЕК ПОЛИТИК */
+        .policies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .policy-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .policy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .policy-icon {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        
+        .policy-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .policy-title {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .policy-description {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .policy-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .policy-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .support-section {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .support-section h2 {
+            margin-bottom: 1rem;
+        }
+        
+        .support-section p {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .support-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .support-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .support-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .policies-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .support-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Главная</a>
+                    <a href="game.html">Игра</a>
+                    <a href="wiki.html">Wiki</a>
+                    <a href="news.html">Новости</a>
+                    <div class="dropdown">
+                        <a href="services.html">Техобслуживание</a>
+                        <div class="dropdown-content">
+                            <a href="sites.html">Наши сайты</a>
+                            <a href="status.html">Статус сервисов</a>
+                            <a href="faq.html">FAQ</a>
+                            <a href="contact.html">Контакты</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="page-header">
+            <h1>Правовые документы</h1>
+            <p>Ознакомьтесь с правилами и политиками, регулирующими использование наших услуг и защищающими ваши права</p>
+        </section>
+        
+        <section class="policies-grid">
+            <div class="policy-card">
+                <div class="policy-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="policy-content">
+                    <h3 class="policy-title">Политика конфиденциальности</h3>
+                    <p class="policy-description">Узнайте, как мы собираем, используем и защищаем ваши личные данные. Описываются ваши права на конфиденциальность и наши обязательства по защите информации.</p>
+                    <a href="privacy-policy.html" class="policy-btn">Читать документ</a>
+                </div>
+            </div>
+            
+            <div class="policy-card">
+                <div class="policy-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div class="policy-content">
+                    <h3 class="policy-title">Пользовательское соглашение</h3>
+                    <p class="policy-description">Правила и условия использования наших услуг. Описываются права и обязанности сторон, ограничения ответственности и порядок разрешения споров.</p>
+                    <a href="terms-of-service.html" class="policy-btn">Читать документ</a>
+                </div>
+            </div>
+            
+            <div class="policy-card">
+                <div class="policy-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="policy-content">
+                    <h3 class="policy-title">Политика возврата</h3>
+                    <p class="policy-description">Условия и процедура возврата средств за приобретенные товары или услуги. Сроки, основания для возврата и необходимые действия.</p>
+                    <a href="refund-policy.html" class="policy-btn">Читать документ</a>
+                </div>
+            </div>
+            
+            <div class="policy-card">
+                <div class="policy-icon">
+                    <i class="fas fa-copyright"></i>
+                </div>
+                <div class="policy-content">
+                    <h3 class="policy-title">Политика авторских прав</h3>
+                    <p class="policy-description">Правила использования контента, защищенного авторским правом. Процедура подачи жалоб на нарушение авторских прав и наши действия в таких случаях.</p>
+                    <a href="copyright-policy.html" class="policy-btn">Читать документ</a>
+                </div>
+            </div>
+            
+            <div class="policy-card">
+                <div class="policy-icon">
+                    <i class="fas fa-cookie-bite"></i>
+                </div>
+                <div class="policy-content">
+                    <h3 class="policy-title">Политика использования файлов cookie</h3>
+                    <p class="policy-description">Информация о том, как мы используем файлы cookie и аналогичные технологии для улучшения работы пользователей и сбора аналитических данных.</p>
+                    <a href="cookie-policy.html" class="policy-btn">Читать документ</a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="support-section">
+            <h2>Остались вопросы?</h2>
+            <p>Если у вас есть вопросы относительно наших политик или вам нужна дополнительная информация, свяжитесь с нашей службой поддержки</p>
+            <div class="support-buttons">
+                <a href="contact.html" class="support-btn">
+                    <i class="fas fa-envelope"></i>
+                    <span>Форма обратной связи</span>
+                </a>
+                <a href="mailto:support@metro-new.example" class="support-btn">
+                    <i class="fas fa-at"></i>
+                    <span>Email: support@metro-new.example</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="about.html">О нас</a>
+                <a href="contact.html">Контакты</a>
+                <a href="legal.html" class="active">Правовые документы</a>
+                <a href="services.html">Техническое обслуживание</a>
+            </div>
+            <p class="copyright">© 2024 Метро New. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Фиксируем меню "Другое" при клике
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownContent = document.querySelector('.dropdown-content');
+            
+            dropdown.addEventListener('click', function(e) {
+                if (window.innerWidth > 768) {
+                    e.preventDefault();
+                    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+            
+            // Закрываем выпадающее меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdownContent.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
