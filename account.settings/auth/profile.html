@@ -7,6 +7,205 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* Дополнительные стили для профиля */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .badge-warning {
+            background: var(--warning-light);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .badge-danger {
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .badge-info {
+            background: var(--info-light);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+        
+        .actions-grid .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Анимации для уведомлений */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .notification-success {
+            background: #4CAF50;
+        }
+        
+        .notification-error {
+            background: #f44336;
+        }
+        
+        .notification-info {
+            background: #2196F3;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .notification-content i {
+            font-size: 1.2rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+        
+        .mt-4 {
+            margin-top: 2rem;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-info {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Навигация -->
@@ -178,28 +377,55 @@
         </div>
     </footer>
 
-    <script src="../assets/js/main.js"></script>
     <script>
         // Discord Webhook URL
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1422279632643948595/iZ8ji9S-ocIRwdNqSTdK8WvzlBY-7YjrzAfgUvC9D45W3lQuFrWYhx-h2Lh3xJ5oh4Tp';
 
-        // Данные пользователя
-        const userData = {
-            achievements: [
-                { id: 1, name: 'Первый вход', icon: '🚇', progress: 100, unlocked: true },
-                { id: 2, name: 'Исследователь', icon: '🧭', progress: 75, unlocked: false },
-                { id: 3, name: 'Машинист', icon: '👨‍✈️', progress: 30, unlocked: false }
-            ],
-            activity: [
-                { type: 'login', title: 'Вход в систему', time: 'Только что', icon: 'fas fa-sign-in-alt' },
-                { type: 'achievement', title: 'Получено достижение "Первый вход"', time: '5 минут назад', icon: 'fas fa-trophy' },
-                { type: 'game', title: 'Завершена поездка по Сокольнической линии', time: '2 часа назад', icon: 'fas fa-subway' }
-            ],
-            metroLines: [
-                { name: 'Сокольническая', color: '#FF0000', progress: 65 },
-                { name: 'Замоскворецкая', color: '#008000', progress: 30 },
-                { name: 'Арбатско-Покровская', color: '#0000FF', progress: 15 }
-            ]
+        // Metro System объект
+        const metroSystem = {
+            showNotification: function(message, type = 'info') {
+                // Удаляем старые уведомления
+                const oldNotifications = document.querySelectorAll('.notification');
+                oldNotifications.forEach(notif => notif.remove());
+                
+                // Создаем уведомление
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Удаляем через 3 секунды
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            },
+
+            sendToDiscord: async function(data) {
+                try {
+                    await fetch(DISCORD_WEBHOOK, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    return true;
+                } catch (error) {
+                    console.log('Ошибка отправки в Discord:', error);
+                    return false;
+                }
+            }
         };
 
         // Загрузка данных пользователя
@@ -210,10 +436,23 @@
                 return;
             }
 
-            const user = JSON.parse(savedUser);
-            loadUserProfile(user);
-            loadLoginHistory(user);
-            updateVerificationStatus(user);
+            try {
+                const user = JSON.parse(savedUser);
+                loadUserProfile(user);
+                loadLoginHistory(user);
+                updateVerificationStatus(user);
+                
+                // Обновляем информацию о системе
+                document.getElementById('infoVersion').textContent = '1.0.2';
+                document.getElementById('infoOnline').textContent = '🟢 Онлайн';
+                
+            } catch (error) {
+                console.error('Ошибка загрузки пользователя:', error);
+                metroSystem.showNotification('Ошибка загрузки профиля', 'error');
+                setTimeout(() => {
+                    window.location.href = 'enter.html';
+                }, 2000);
+            }
         });
 
         function loadUserProfile(user) {
@@ -231,10 +470,12 @@
             headerAvatar.textContent = firstLetter;
 
             // Статистика
-            document.getElementById('statDays').textContent = Math.floor((new Date() - new Date(user.joinDate || new Date())) / (1000 * 60 * 60 * 24)) + 1;
+            const joinDate = new Date(user.joinDate || new Date());
+            const daysInGame = Math.floor((new Date() - joinDate) / (1000 * 60 * 60 * 24)) + 1;
+            document.getElementById('statDays').textContent = daysInGame;
             document.getElementById('statLogins').textContent = user.loginCount || 1;
             document.getElementById('statStatus').textContent = '⚡';
-            document.getElementById('statRank').textContent = user.role === 'administrator' ? '👑' : '#' + (Math.random() * 1000 + 1).toFixed(0);
+            document.getElementById('statRank').textContent = user.role === 'administrator' ? '👑' : '#' + (Math.floor(Math.random() * 1000) + 1);
         }
 
         function loadLoginHistory(user) {
@@ -243,6 +484,16 @@
                 { time: new Date().toLocaleString(), ip: '192.168.1.1', device: 'Chrome, Windows' },
                 { time: new Date(Date.now() - 86400000).toLocaleString(), ip: '192.168.1.1', device: 'Firefox, Windows' }
             ];
+
+            if (loginHistory.length === 0) {
+                historyContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>История входов пуста</p>
+                    </div>
+                `;
+                return;
+            }
 
             historyContainer.innerHTML = loginHistory.map(login => `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem;">
@@ -305,6 +556,7 @@
                 `;
                 verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Запросить верификацию';
                 verifyBtn.disabled = false;
+                verifyBtn.style.display = 'block';
             }
         }
 
@@ -312,81 +564,83 @@
             const savedUser = localStorage.getItem('metro_user');
             if (!savedUser) return;
 
-            const user = JSON.parse(savedUser);
-            
-            // Создаем ID запроса
-            const verificationId = 'VRF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            // Обновляем данные пользователя
-            user.verificationPending = true;
-            user.verificationRequestDate = new Date().toLocaleString();
-            user.verificationId = verificationId;
-            localStorage.setItem('metro_user', JSON.stringify(user));
-
-            // Отправляем запрос в Discord
-            const discordData = {
-                embeds: [{
-                    title: "🚀 НОВЫЙ ЗАПРОС НА ВЕРИФИКАЦИЮ",
-                    color: 0x0066CC,
-                    fields: [
-                        {
-                            name: "👤 Пользователь",
-                            value: user.username || "Не указан",
-                            inline: true
-                        },
-                        {
-                            name: "📧 Email",
-                            value: user.email || "Не указан",
-                            inline: true
-                        },
-                        {
-                            name: "🆔 ID запроса",
-                            value: verificationId,
-                            inline: true
-                        },
-                        {
-                            name: "📅 Дата регистрации",
-                            value: user.joinDate || "Неизвестно",
-                            inline: true
-                        },
-                        {
-                            name: "🔗 Действия",
-                            value: `[✅ Одобрить](http://127.0.0.1:5500/Metro.New.Official/account.settings/auth/admin.account.html?action=approve&id=${verificationId}) | [❌ Отклонить](http://127.0.0.1:5500/Metro.New.Official/account.settings/auth/admin.account.html?action=reject&id=${verificationId})`
-                        }
-                    ],
-                    timestamp: new Date().toISOString(),
-                    footer: {
-                        text: "Metro New Verification System"
-                    }
-                }]
-            };
-
             try {
-                await fetch(DISCORD_WEBHOOK, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(discordData)
-                });
+                const user = JSON.parse(savedUser);
                 
-                metroSystem.showNotification('✅ Запрос на верификацию отправлен! Ожидайте проверки администратором.', 'success');
-                updateVerificationStatus(user);
+                // Создаем ID запроса
+                const verificationId = 'VRF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Обновляем данные пользователя
+                user.verificationPending = true;
+                user.verificationRequestDate = new Date().toLocaleString();
+                user.verificationId = verificationId;
+                localStorage.setItem('metro_user', JSON.stringify(user));
+
+                // Отправляем запрос в Discord
+                const discordData = {
+                    embeds: [{
+                        title: "🚀 НОВЫЙ ЗАПРОС НА ВЕРИФИКАЦИЮ",
+                        color: 0x0066CC,
+                        fields: [
+                            {
+                                name: "👤 Пользователь",
+                                value: user.username || "Не указан",
+                                inline: true
+                            },
+                            {
+                                name: "📧 Email",
+                                value: user.email || "Не указан",
+                                inline: true
+                            },
+                            {
+                                name: "🆔 ID запроса",
+                                value: verificationId,
+                                inline: true
+                            },
+                            {
+                                name: "📅 Дата регистрации",
+                                value: user.joinDate || "Неизвестно",
+                                inline: true
+                            },
+                            {
+                                name: "🔗 Действия",
+                                value: `[✅ Одобрить](http://127.0.0.1:5500/Metro.New.Official/account.settings/auth/admin.account.html?action=approve&id=${verificationId}) | [❌ Отклонить](http://127.0.0.1:5500/Metro.New.Official/account.settings/auth/admin.account.html?action=reject&id=${verificationId})`
+                            }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: "Metro New Verification System"
+                        }
+                    }]
+                };
+
+                const success = await metroSystem.sendToDiscord(discordData);
+                
+                if (success) {
+                    metroSystem.showNotification('✅ Запрос на верификацию отправлен! Ожидайте проверки администратором.', 'success');
+                    updateVerificationStatus(user);
+                } else {
+                    metroSystem.showNotification('❌ Ошибка при отправке запроса. Попробуйте позже.', 'error');
+                }
             } catch (error) {
-                metroSystem.showNotification('❌ Ошибка при отправке запроса. Попробуйте позже.', 'error');
-                console.error('Error sending to Discord:', error);
+                console.error('Error in verification request:', error);
+                metroSystem.showNotification('❌ Ошибка при обработке запроса.', 'error');
             }
         }
 
         function clearLoginHistory() {
-            if (confirm('Очистить историю входов?')) {
+            if (confirm('Вы уверены, что хотите очистить историю входов?')) {
                 const savedUser = localStorage.getItem('metro_user');
                 if (savedUser) {
-                    const user = JSON.parse(savedUser);
-                    user.loginHistory = [];
-                    localStorage.setItem('metro_user', JSON.stringify(user));
-                    loadLoginHistory(user);
-                    metroSystem.showNotification('История входов очищена!', 'success');
+                    try {
+                        const user = JSON.parse(savedUser);
+                        user.loginHistory = [];
+                        localStorage.setItem('metro_user', JSON.stringify(user));
+                        loadLoginHistory(user);
+                        metroSystem.showNotification('✅ История входов очищена!', 'success');
+                    } catch (error) {
+                        metroSystem.showNotification('❌ Ошибка при очистке истории.', 'error');
+                    }
                 }
             }
         }
@@ -394,30 +648,40 @@
         function exportData() {
             const savedUser = localStorage.getItem('metro_user');
             if (savedUser) {
-                const user = JSON.parse(savedUser);
-                const dataStr = JSON.stringify(user, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `metro_new_data_${user.username || 'user'}.json`;
-                link.click();
-                
-                metroSystem.showNotification('Данные экспортированы в JSON файл!', 'success');
+                try {
+                    const user = JSON.parse(savedUser);
+                    const dataStr = JSON.stringify(user, null, 2);
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(dataBlob);
+                    link.download = `metro_new_data_${user.username || 'user'}_${new Date().toISOString().split('T')[0]}.json`;
+                    link.click();
+                    
+                    metroSystem.showNotification('✅ Данные экспортированы в JSON файл!', 'success');
+                } catch (error) {
+                    metroSystem.showNotification('❌ Ошибка при экспорте данных.', 'error');
+                }
             }
         }
 
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 localStorage.removeItem('metro_user');
-                window.location.href = 'enter.html';
+                metroSystem.showNotification('👋 До свидания! Возвращайтесь скорее!', 'info');
+                setTimeout(() => {
+                    window.location.href = 'enter.html';
+                }, 1500);
             }
         }
 
         // Обновление статуса онлайн
         setInterval(() => {
-            document.getElementById('infoOnline').textContent = 'Онлайн';
-        }, 5000);
+            const onlineElement = document.getElementById('infoOnline');
+            if (onlineElement) {
+                onlineElement.innerHTML = Math.random() > 0.1 ? '🟢 Онлайн' : '🟡 Неактивен';
+            }
+        }, 10000);
     </script>
 </body>
 </html>
