@@ -6,7 +6,7 @@
     <title>Новости - Метро New Работа</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../../../assets/css/style.css">
 </head>
 <body>
     <!-- Навигация -->
@@ -17,10 +17,10 @@
                 <span>Метро New Работа</span>
             </div>
             <ul class="nav-links">
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="vacancies.html">Вакансии</a></li>
+                <li><a href="../index.html">Главная</a></li>
+                <li><a href="../vacancies.html">Вакансии</a></li>
                 <li><a href="news.html" class="active">Новости</a></li>
-                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="../faq.html">FAQ</a></li>
             </ul>
         </div>
     </header>
@@ -231,6 +231,24 @@
                     </div>
                 `;
                 
+                // Стили для уведомления
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: white;
+                    border-radius: var(--radius-md);
+                    padding: 1rem 1.5rem;
+                    box-shadow: var(--shadow-lg);
+                    border-left: 4px solid ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--info)'};
+                    z-index: 9999;
+                    animation: slideInRight 0.3s ease-out;
+                    max-width: 400px;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                `;
+                
                 document.body.appendChild(notification);
                 
                 // Удаляем уведомление через 3 секунды
@@ -243,6 +261,33 @@
                     }, 300);
                 }, 3000);
             }
+            
+            // Добавляем CSS для анимации уведомлений
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                
+                @keyframes slideOutRight {
+                    from {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         });
     </script>
 </body>
