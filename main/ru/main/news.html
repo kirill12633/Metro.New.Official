@@ -3,29 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Новости - Метро New Работа</title>
+    <title>Новости - Метро New</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../../assets/css/style.css">
+    <style>
+        /* Metro.New.Official - Стили новостей */
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --radius-md: 8px;
+            --radius-xl: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Навигация */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Основной контент */
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--gray);
+        }
+
+        /* Карточки новостей */
+        .news-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .news-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            position: relative;
+        }
+
+        .news-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .news-date i {
+            color: var(--primary);
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .news-excerpt {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Пагинация */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+        }
+
+        .page-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: white;
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s;
+        }
+
+        .page-number:hover, .page-number.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Футер */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        .copyright {
+            color: var(--gray);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .news-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Навигация -->
-    <header class="nav">
-        <div class="container nav-container">
-            <div class="logo">
-                <span class="logo-icon">M</span>
-                <span>Метро New Работа</span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="../index.html">Главная</a></li>
-                <li><a href="../vacancies.html">Вакансии</a></li>
-                <li><a href="news.html" class="active">Новости</a></li>
-                <li><a href="../faq.html">FAQ</a></li>
-            </ul>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New Работа</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Главная</a>
+                    <a href="vacancies.html">Вакансии</a>
+                    <a href="news.html" class="active">Новости</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+            </nav>
         </div>
     </header>
 
-    <!-- Основной контент -->
     <main class="container">
         <div class="page-header">
             <h1>Новости проекта</h1>
@@ -33,261 +308,99 @@
         </div>
         
         <div class="news-container">
-            <!-- Новость 1 -->
             <article class="news-card">
                 <div class="news-image">
                     <div class="news-badge">Новое</div>
                 </div>
                 <div class="news-content">
-                    <div class="news-meta">
-                        <div class="news-date">
-                            <i class="far fa-calendar"></i>
-                            22.10.2025
-                        </div>
-                        <div class="news-category">
-                            <i class="fas fa-bullhorn"></i>
-                            Анонс
-                        </div>
+                    <div class="news-date">
+                        <i class="far fa-calendar"></i>
+                        22.10.2025
                     </div>
                     <h3 class="news-title">Открытие сайта Метро New Работа</h3>
                     <p class="news-excerpt">В этот день мы опубликовали сайт для всех пользователей. Теперь каждый может найти информацию о вакансиях и последних новостях нашего проекта.</p>
-                    <div class="news-footer">
-                        <a href="news-detail.html?id=1" class="btn btn-outline">
-                            Читать далее
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                        <div class="news-stats">
-                            <div class="news-stat">
-                                <i class="far fa-eye"></i>
-                                245
-                            </div>
-                            <div class="news-stat">
-                                <i class="far fa-comment"></i>
-                                18
-                            </div>
-                        </div>
-                    </div>
+                    <a href="news-detail.html?id=1" class="btn">
+                        Читать далее
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </article>
 
-            <!-- Новость 2 -->
             <article class="news-card">
                 <div class="news-image" style="background: linear-gradient(135deg, var(--success), #20c997)">
                     <div class="news-badge">Обновление</div>
                 </div>
                 <div class="news-content">
-                    <div class="news-meta">
-                        <div class="news-date">
-                            <i class="far fa-calendar"></i>
-                            18.10.2025
-                        </div>
-                        <div class="news-category">
-                            <i class="fas fa-sync-alt"></i>
-                            Обновление
-                        </div>
+                    <div class="news-date">
+                        <i class="far fa-calendar"></i>
+                        18.10.2025
                     </div>
                     <h3 class="news-title">Запуск системы подачи заявок</h3>
                     <p class="news-excerpt">Теперь пользователи могут подавать заявки на вакансии прямо через наш сайт. Упрощенный процесс отбора кандидатов.</p>
-                    <div class="news-footer">
-                        <a href="news-detail.html?id=2" class="btn btn-outline">
-                            Читать далее
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                        <div class="news-stats">
-                            <div class="news-stat">
-                                <i class="far fa-eye"></i>
-                                189
-                            </div>
-                            <div class="news-stat">
-                                <i class="far fa-comment"></i>
-                                12
-                            </div>
-                        </div>
-                    </div>
+                    <a href="news-detail.html?id=2" class="btn">
+                        Читать далее
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </article>
 
-            <!-- Новость 3 -->
             <article class="news-card">
-                <div class="news-image" style="background: linear-gradient(135deg, var(--warning), #fd7e14)">
+                <div class="news-image" style="background: linear-gradient(135deg, #FFC107, #fd7e14)">
                     <div class="news-badge">Важно</div>
                 </div>
                 <div class="news-content">
-                    <div class="news-meta">
-                        <div class="news-date">
-                            <i class="far fa-calendar"></i>
-                            15.10.2025
-                        </div>
-                        <div class="news-category">
-                            <i class="fas fa-exclamation-circle"></i>
-                            Важно
-                        </div>
+                    <div class="news-date">
+                        <i class="far fa-calendar"></i>
+                        15.10.2025
                     </div>
                     <h3 class="news-title">Новые вакансии на следующей неделе</h3>
                     <p class="news-excerpt">Мы готовим к публикации несколько новых интересных вакансий. Следите за обновлениями!</p>
-                    <div class="news-footer">
-                        <a href="news-detail.html?id=3" class="btn btn-outline">
-                            Читать далее
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                        <div class="news-stats">
-                            <div class="news-stat">
-                                <i class="far fa-eye"></i>
-                                312
-                            </div>
-                            <div class="news-stat">
-                                <i class="far fa-comment"></i>
-                                24
-                            </div>
-                        </div>
-                    </div>
+                    <a href="news-detail.html?id=3" class="btn">
+                        Читать далее
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </article>
         </div>
         
-        <!-- Пагинация -->
         <div class="pagination">
             <a href="#" class="page-number active">1</a>
             <a href="#" class="page-number">2</a>
             <a href="#" class="page-number">3</a>
-            <a href="#" class="page-number next">Следующая <i class="fas fa-arrow-right"></i></a>
+            <a href="#" class="page-number">→</a>
         </div>
     </main>
 
-    <!-- Индикатор статуса -->
-    <div class="status-indicator">
-        <span class="status-dot"></span>
-        <span>Система онлайн</span>
-    </div>
-
-    <!-- Футер -->
     <footer>
         <div class="container">
             <div class="footer-links">
                 <a href="https://discord.com/invite/WjGZBs3HMX">О компании</a>
                 <a href="https://discord.com/invite/WjGZBs3HMX">Контакты</a>
-                <a href="https://docs.google.com/document/d/1Y_3cs7qEcSehVIirIPSSqJQjxOco5ixipMF6zXSSO_I/edit?usp=sharing">Политика конфиденциальности</a>
-                <a href="https://docs.google.com/document/d/1bbDwsFuSFou-qqcIvhb44mton1z2TY32F9SqcYnMcyI/edit?usp=sharing">Пользовательское соглашение</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/legal.html">Правовые документы</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html">Политика конфиденциальности</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html">Пользовательское соглашение</a>
             </div>
             <p class="copyright">© 2025 Метро New. Все права защищены.</p>
         </div>
     </footer>
 
     <script>
+        // Простой скрипт для интерактивности
         document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления карточек при скролле
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationPlayState = 'running';
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-            
-            // Наблюдаем за карточками новостей
-            document.querySelectorAll('.news-card').forEach(card => {
-                card.style.animationPlayState = 'paused';
-                observer.observe(card);
+            // Анимация карточек при появлении
+            const cards = document.querySelectorAll('.news-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = (index * 0.1) + 's';
             });
-            
-            // Добавляем интерактивность для пагинации
+
+            // Пагинация
             document.querySelectorAll('.page-number').forEach(page => {
                 page.addEventListener('click', function(e) {
                     e.preventDefault();
-                    
-                    // Убираем активный класс у всех страниц
-                    document.querySelectorAll('.page-number').forEach(p => {
-                        p.classList.remove('active');
-                    });
-                    
-                    // Добавляем активный класс к текущей странице
+                    document.querySelectorAll('.page-number').forEach(p => p.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    // Показываем уведомление о загрузке
-                    showNotification('Загружаем страницу...', 'info');
-                    
-                    // Имитируем загрузку данных
-                    setTimeout(() => {
-                        showNotification('Страница загружена', 'success');
-                    }, 800);
                 });
             });
-            
-            // Функция показа уведомлений
-            function showNotification(message, type = 'info') {
-                // Создаем элемент уведомления
-                const notification = document.createElement('div');
-                notification.className = `notification notification-${type}`;
-                notification.innerHTML = `
-                    <div class="notification-content">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-                        <span>${message}</span>
-                    </div>
-                `;
-                
-                // Стили для уведомления
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: white;
-                    border-radius: var(--radius-md);
-                    padding: 1rem 1.5rem;
-                    box-shadow: var(--shadow-lg);
-                    border-left: 4px solid ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--info)'};
-                    z-index: 9999;
-                    animation: slideInRight 0.3s ease-out;
-                    max-width: 400px;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Удаляем уведомление через 3 секунды
-                setTimeout(() => {
-                    notification.style.animation = 'slideOutRight 0.3s ease-out';
-                    setTimeout(() => {
-                        if (document.body.contains(notification)) {
-                            document.body.removeChild(notification);
-                        }
-                    }, 300);
-                }, 3000);
-            }
-            
-            // Добавляем CSS для анимации уведомлений
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from {
-                        opacity: 0;
-                        transform: translateX(100%);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateX(0);
-                    }
-                }
-                
-                @keyframes slideOutRight {
-                    from {
-                        opacity: 1;
-                        transform: translateX(0);
-                    }
-                    to {
-                        opacity: 0;
-                        transform: translateX(100%);
-                    }
-                }
-            `;
-            document.head.appendChild(style);
         });
     </script>
 </body>
