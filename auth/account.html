@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой аккаунт - Metro.New.Official</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="account-container">
+        <div class="account-header">
+            <h1>👤 Мой аккаунт</h1>
+            <button onclick="exitAccount()" class="btn-secondary">🚪 Выйти</button>
+        </div>
+        
+        <div class="account-card">
+            <div class="user-info">
+                <h2>Личная информация</h2>
+                <div id="userDetails">
+                    <!-- Данные загружаются через JS -->
+                </div>
+            </div>
+            
+            <div class="account-actions">
+                <h2>Действия</h2>
+                <div class="action-buttons">
+                    <button onclick="editProfile()" class="btn-action">✏️ Редактировать профиль</button>
+                    <button onclick="changePassword()" class="btn-action">🔒 Сменить пароль</button>
+                    <button onclick="viewHistory()" class="btn-action">📊 История активности</button>
+                    <button onclick="showSettings()" class="btn-action">⚙️ Настройки</button>
+                </div>
+            </div>
+            
+            <div class="account-stats">
+                <h2>Статистика</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="daysCount">0</span>
+                        <span class="stat-label">дней с нами</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="loginCount">1</span>
+                        <span class="stat-label">входов в систему</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка авторизации
+        const userData = localStorage.getItem('metro_user');
+        if (!userData) {
+            alert('Сначала войдите в систему!');
+            window.location.href = 'enter.html';
+        }
+
+        const user = JSON.parse(userData);
+        
+        // Заполняем данные пользователя
+        document.getElementById('userDetails').innerHTML = `
+            <p><strong>Имя пользователя:</strong> ${user.username || 'Не указано'}</p>
+            <p><strong>Email:</strong> ${user.email || 'Не указан'}</p>
+            <p><strong>Дата регистрации:</strong> ${user.joinDate || new Date().toLocaleDateString()}</p>
+            <p><strong>Статус:</strong> ${user.isNew ? '🆕 Новый пользователь' : '✅ Активный'}</p>
+        `;
+
+        // Функции аккаунта
+        function editProfile() {
+            const newUsername = prompt('Введите новое имя пользователя:', user.username);
+            if (newUsername) {
+                user.username = newUsername;
+                localStorage.setItem('metro_user', JSON.stringify(user));
+                location.reload();
+            }
+        }
+
+        function changePassword() {
+            alert('Функция смены пароля будет доступна в следующем обновлении!');
+        }
+
+        function viewHistory() {
+            alert('Последние действия:\n• Вход в аккаунт: сегодня\n• Регистрация: ${user.joinDate}');
+        }
+
+        function showSettings() {
+            alert('Раздел настроек в разработке!');
+        }
+
+        function exitAccount() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('metro_user');
+                window.location.href = 'enter.html';
+            }
+        }
+
+        // Обновляем статистику
+        document.getElementById('daysCount').textContent = 
+            Math.floor((new Date() - new Date(user.joinDate || new Date())) / (1000 * 60 * 60 * 24)) + 1;
+    </script>
+</body>
+</html>
