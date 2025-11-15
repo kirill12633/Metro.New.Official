@@ -6,33 +6,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Настройка почты
-const transporter = nodemailer.createTransporter({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS
-    }
+// Простой ответ для теста
+app.get('/test', (req, res) => {
+    res.json({ message: 'Сервер работает!', status: 'OK' });
 });
 
-// Отправка кода
+// Отправка кода (упрощенная версия)
 app.post('/send-code', async (req, res) => {
     const { email, code } = req.body;
     
-    try {
-        await transporter.sendMail({
-            from: 'Метро New <noreply@metro.new>',
-            to: email,
-            subject: 'Код восстановления',
-            html: `<h2>Ваш код: ${code}</h2><p>Введите его на сайте</p>`
-        });
-        
-        res.json({ success: true, message: 'Код отправлен' });
-    } catch (error) {
-        res.json({ success: false, message: 'Ошибка отправки' });
-    }
+    console.log('Получен запрос на отправку кода:', { email, code });
+    
+    // Всегда возвращаем успех для тестирования
+    res.json({ 
+        success: true, 
+        message: 'Код отправлен (тестовый режим)',
+        test_code: code 
+    });
 });
 
-app.listen(process.env.PORT, () => {
-    console.log(`Сервер восстановления запущен на порту ${process.env.PORT}`);
+app.listen(3001, '0.0.0.0', () => {
+    console.log('✅ Сервер восстановления запущен на http://localhost:3001');
 });
