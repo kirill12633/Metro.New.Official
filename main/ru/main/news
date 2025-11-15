@@ -1,1 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница в разработке | Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Защитные мета-теги -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://www.google.com; script-src 'self' https://cdnjs.cloudflare.com https://www.google.com">
+    <meta name="description" content="Метро New - страница в разработке">
+    
+    <!-- reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    
+    <style>
+        /* Metro.New.Official/main/ru/assets/css/style.css */
+        
+        :root {
+            /* Основные цвета */
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            
+            /* Нейтральные цвета */
+            --dark: #1A1A1A;
+            --dark-light: #2d2d2d;
+            --light: #F8F9FA;
+            --light-dark: #e9ecef;
+            --gray: #6C757D;
+            --gray-light: #8a939b;
+            --gray-dark: #495057;
+            
+            /* Статусные цвета */
+            --success: #28A745;
+            --success-light: #d4edda;
+            --warning: #FFC107;
+            --warning-light: #fff3cd;
+            --danger: #DC3545;
+            --danger-light: #f8d7da;
+            --info: #17A2B8;
+            --info-light: #d1ecf1;
+            
+            /* Тени */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --shadow-xl: 0 15px 35px rgba(0,0,0,0.25);
+            
+            /* Скругления */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+            --radius-full: 50px;
+            
+            /* Анимации */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Контейнер */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Хедер */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color var(--transition-normal);
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-dark);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Основной контент */
+        main {
+            flex: 1;
+            padding: 3rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .construction-container {
+            text-align: center;
+            max-width: 700px;
+            padding: 3rem 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .construction-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            color: var(--warning);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .construction-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .construction-text {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--radius-full);
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: var(--dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Прогресс-бар */
+        .progress-container {
+            margin: 2.5rem 0;
+            text-align: left;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background-color: var(--light-dark);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-full);
+            width: 0;
+            animation: progressAnimation 2s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes progressAnimation {
+            to { width: 65%; }
+        }
+
+        /* Форма обратной связи */
+        .feedback-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .feedback-form h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--light-dark);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all var(--transition-normal);
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .g-recaptcha {
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Статус индикатор */
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Футер */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color var(--transition-normal);
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .emergency-contacts {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #444;
+        }
+
+        .emergency-contacts h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Защита контента */
+        .protected-content {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+            
+            .construction-title {
+                font-size: 2rem;
+            }
+            
+            .construction-text {
+                font-size: 1.1rem;
+            }
+            
+            .construction-container {
+                padding: 2rem 1rem;
+            }
+            
+            .feedback-form {
+                padding: 2rem 1.5rem;
+                margin: 2rem 1rem;
+            }
+            
+            .status-indicator {
+                bottom: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+                padding: 10px 15px;
+            }
+            
+            .footer-links {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .construction-title {
+                font-size: 1.75rem;
+            }
+            
+            .construction-icon {
+                font-size: 4rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .progress-container {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body class="protected-content">
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Главная</a>
+                    <a href="game.html">Игра</a>
+                    <a href="wiki.html">Wiki</a>
+                    <a href="news.html">Новости</a>
+                    <div class="dropdown">
+                        <a href="other.html" class="active">Другое</a>
+                        <div class="dropdown-content">
+                            <a href="sites.html">Наши сайты</a>
+                            <a href="status.html">Статус сервисов</a>
+                            <a href="faq.html">FAQ</a>
+                            <a href="contact.html">Контакты</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="construction-container">
+                <div class="construction-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h1 class="construction-title">Страница в разработке</h1>
+                <p class="construction-text">Мы активно работаем над созданием этого раздела. Скоро здесь появится новый контент. Спасибо за ваше терпение!</p>
+                
+                <!-- Прогресс-бар разработки -->
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Прогресс разработки:</span>
+                        <span>65%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    Вернуться на главную
+                </a>
+                
+                <!-- Форма обратной связи -->
+                <div class="feedback-form">
+                    <h3>Сообщить о проблеме</h3>
+                    <form id="feedback-form">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Ваш email:</label>
+                            <input type="email" id="email" name="email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message" class="form-label">Сообщение:</label>
+                            <textarea id="message" name="message" class="form-input" placeholder="Опишите проблему или предложение..." required rows="4"></textarea>
+                        </div>
+                        
+                        <!-- reCAPTCHA -->
+                        <div class="g-recaptcha" data-sitekey="6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7"></div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                            <i class="fas fa-paper-plane"></i>
+                            Отправить сообщение
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Индикатор статуса -->
+    <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span>Система онлайн</span>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="about.html">О нас</a>
+                <a href="contact.html">Контакты</a>
+                <a href="privacy.html">Политика конфиденциальности</a>
+                <a href="terms.html">Пользовательское соглашение</a>
+            </div>
+            
+            <p class="copyright">© 2025 Метро New. Все права защищены.</p>
+            
+            <div class="emergency-contacts">
+                <h4>📞 Экстренная связь:</h4>
+                <p>Email: <a href="mailto:admin@metro-new.ru" style="color: var(--secondary);">admin@metro-new.ru</a></p>
+                <p>Telegram: <a href="https://t.me/metro_new" style="color: var(--secondary);">@metro_new_support</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // reCAPTCHA callback функция
+        function onSubmit(token) {
+            document.getElementById("feedback-form").submit();
+            showNotification('Спасибо! Ваше сообщение отправлено.', 'success');
+            document.getElementById("feedback-form").reset();
+        }
+
+        // Функция показа уведомлений
+        function showNotification(message, type = 'info') {
+            // Создаем элемент уведомления
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Стили для уведомления
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: var(--radius-md);
+                padding: 1rem 1.5rem;
+                box-shadow: var(--shadow-xl);
+                border-left: 4px solid ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--info)'};
+                z-index: 9999;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 400px;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Удаляем уведомление через 5 секунд
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Защита контента и инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Блокировка правого клика
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Блокировка выделения текста
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Блокировка перетаскивания
+            document.addEventListener('dragstart', function(e) {
+                if (e.target.tagName === 'IMG') {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Защита от копирования
+            document.addEventListener('copy', function(e) {
+                e.clipboardData.setData('text/plain', 'Контент защищен © Метро New');
+                e.preventDefault();
+            });
+            
+            // Управление выпадающим меню
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownContent = document.querySelector('.dropdown-content');
+            
+            dropdown.addEventListener('click', function(e) {
+                if (window.innerWidth > 768) {
+                    e.preventDefault();
+                    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+            
+            // Закрываем выпадающее меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdownContent.style.display = 'none';
+                }
+            });
+            
+            // Мониторинг ошибок
+            window.addEventListener('error', function(e) {
+                console.error('Ошибка на странице:', e.error);
+            });
+            
+            // Добавляем CSS для анимации уведомлений
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                
+                @keyframes slideOutRight {
+                    from {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Защита от частых запросов
+        let lastRequest = Date.now();
+        setInterval(() => {
+            if (Date.now() - lastRequest < 100) {
+                console.warn('⚠️ Обнаружены частые запросы');
+            }
+            lastRequest = Date.now();
+        }, 1000);
+    </script>
+</body>
+</html>
