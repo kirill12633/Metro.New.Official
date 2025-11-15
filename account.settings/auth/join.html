@@ -7,157 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        /* Дополнительные стили */
-        .form-hint {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-top: 0.25rem;
-        }
-        
-        .auth-divider {
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
-            color: var(--gray);
-        }
-        
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--light-dark);
-        }
-        
-        .auth-divider span {
-            background: white;
-            padding: 0 1rem;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .checkbox-group input {
-            margin-top: 0.2rem;
-        }
-        
-        .form-group {
-            opacity: 0;
-            transform: translateX(-30px);
-            transition: all 0.6s ease;
-        }
-        
-        .password-toggle {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.5rem;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .input-with-icon {
-            position: relative;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .form-input {
-            padding-left: 45px !important;
-            padding-right: 45px !important;
-        }
-        
-        /* Анимации */
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        
-        .animate-shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        
-        /* Стили для ошибок */
-        .form-input.error {
-            border-color: #f44336 !important;
-            background-color: #fff5f5 !important;
-        }
-        
-        /* Стили для уведомлений */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .notification-success {
-            background: #4CAF50;
-        }
-        
-        .notification-error {
-            background: #f44336;
-        }
-        
-        .notification-info {
-            background: #2196F3;
-        }
-        
-        .notification-content {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .notification-content i {
-            font-size: 1.2rem;
-        }
-    </style>
 </head>
 <body>
     <!-- Навигация -->
@@ -232,6 +81,11 @@
                         </div>
                     </div>
                     
+                    <!-- Google reCAPTCHA v2 -->
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo"></div>
+                    </div>
+                    
                     <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="agreeTerms" required>
@@ -272,6 +126,9 @@
         </div>
     </footer>
 
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <script>
         // Discord Webhook URL
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1422279632643948595/iZ8ji9S-ocIRwdNqSTdK8WvzlBY-7YjrzAfgUvC9D45W3lQuFrWYhx-h2Lh3xJ5oh4Tp';
@@ -279,10 +136,6 @@
         // Metro System объект
         const metroSystem = {
             showNotification: function(message, type = 'info') {
-                // Удаляем старые уведомления
-                const oldNotifications = document.querySelectorAll('.notification');
-                oldNotifications.forEach(notif => notif.remove());
-                
                 // Создаем уведомление
                 const notification = document.createElement('div');
                 notification.className = `notification notification-${type}`;
@@ -293,16 +146,25 @@
                     </div>
                 `;
                 
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    animation: slideInRight 0.3s ease;
+                    max-width: 300px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                
                 document.body.appendChild(notification);
                 
                 // Удаляем через 3 секунды
                 setTimeout(() => {
-                    notification.style.animation = 'slideOutRight 0.3s ease';
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.parentNode.removeChild(notification);
-                        }
-                    }, 300);
+                    notification.remove();
                 }, 3000);
             },
 
@@ -329,10 +191,10 @@
                         },
                         body: JSON.stringify(data)
                     });
+                    return true;
                 } catch (error) {
                     console.log('Ошибка отправки в Discord:', error);
-                // Продолжаем работу даже если Discord недоступен
-                return true;
+                    return false;
                 }
             },
 
@@ -384,10 +246,7 @@
 
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            if (!input) return;
-            
             const icon = input.parentNode.querySelector('.password-toggle i');
-            if (!icon) return;
             
             if (input.type === 'password') {
                 input.type = 'text';
@@ -405,15 +264,11 @@
             const confirmPassword = document.getElementById('confirmPassword');
             const agreeTerms = document.getElementById('agreeTerms');
             
-            if (!username || !email || !password || !confirmPassword || !agreeTerms) {
-                return false;
-            }
-            
             let isValid = true;
             
             // Сброс ошибок
             [username, email, password, confirmPassword].forEach(input => {
-                if (input) input.classList.remove('error');
+                input.classList.remove('error');
             });
             
             // Валидация имени пользователя
@@ -445,6 +300,13 @@
                 metroSystem.showNotification('Пароли не совпадают', 'error');
             }
             
+            // Проверка reCAPTCHA
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (recaptchaResponse.length === 0) {
+                isValid = false;
+                metroSystem.showNotification('Пройдите проверку reCAPTCHA', 'error');
+            }
+            
             // Проверка согласия с условиями
             if (!agreeTerms.checked) {
                 agreeTerms.parentElement.style.color = 'var(--danger)';
@@ -465,27 +327,26 @@
             }
 
             const submitBtn = document.getElementById('submitBtn');
-            const usernameInput = document.getElementById('username');
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            
-            if (!submitBtn || !usernameInput || !emailInput || !passwordInput) return;
-            
             const originalText = submitBtn.innerHTML;
             
             // Анимация загрузки
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание аккаунта...';
             submitBtn.disabled = true;
 
-            const username = usernameInput.value;
-            const email = emailInput.value;
-            const password = passwordInput.value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             const userIP = await metroSystem.getUserIP();
             const browserInfo = metroSystem.getBrowserInfo();
             const timestamp = new Date().toLocaleString();
             
             // Проверяем, нет ли уже такого пользователя
-            if (metroSystem.userExists(username, email)) {
+            const existingUsers = metroSystem.getAllUsers();
+            const userExists = existingUsers.find(user => 
+                user.username === username || user.email === email
+            );
+
+            if (userExists) {
                 metroSystem.showNotification('Пользователь с таким именем или email уже существует', 'error');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
@@ -536,7 +397,7 @@
                 }]
             };
 
-            // Отправляем данные в Discord (продолжаем даже при ошибке)
+            // Отправляем данные в Discord
             await metroSystem.sendToDiscord(registerData);
 
             // Создаем пользователя
@@ -568,7 +429,6 @@
                 metroSystem.showNotification('Аккаунт успешно создан! Добро пожаловать в Метро New!', 'success');
                 
                 setTimeout(() => {
-                    // ПРАВИЛЬНЫЙ ПУТЬ РЕДИРЕКТА
                     window.location.href = 'profile.html';
                 }, 1500);
                 
@@ -577,8 +437,6 @@
 
         function loginWithGoogle() {
             const btn = document.querySelector('.btn-outline');
-            if (!btn) return;
-            
             const originalText = btn.innerHTML;
             
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение...';
@@ -591,34 +449,106 @@
             }, 1500);
         }
 
-        // Real-time валидация
-        document.querySelectorAll('.form-input').forEach(input => {
-            if (!input) return;
+        // Стили для формы
+        const style = document.createElement('style');
+        style.textContent = `
+            .form-hint {
+                font-size: 0.8rem;
+                color: var(--gray);
+                margin-top: 0.25rem;
+            }
             
-            input.addEventListener('blur', function() {
-                if (this.value.trim() !== '') {
-                    validateForm();
+            .auth-divider {
+                text-align: center;
+                margin: 2rem 0;
+                position: relative;
+                color: var(--gray);
+            }
+            
+            .auth-divider::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: var(--light-dark);
+            }
+            
+            .auth-divider span {
+                background: white;
+                padding: 0 1rem;
+            }
+            
+            .checkbox-group {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .checkbox-group input {
+                margin-top: 0.2rem;
+            }
+            
+            .form-group {
+                opacity: 0;
+                transform: translateX(-30px);
+                transition: all 0.6s ease;
+            }
+            
+            .password-toggle {
+                background: none;
+                border: none;
+                color: var(--gray);
+                cursor: pointer;
+                padding: 0.5rem;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            
+            .input-with-icon {
+                position: relative;
+            }
+            
+            .input-icon {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--gray);
+            }
+            
+            .form-input {
+                padding-left: 45px !important;
+                padding-right: 45px !important;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
                 }
-            });
-            
-            input.addEventListener('input', function() {
-                this.classList.remove('error');
-            });
-        });
-
-        // Валидация в реальном времени для паролей
-        document.getElementById('confirmPassword')?.addEventListener('input', function() {
-            const password = document.getElementById('password');
-            const confirmPassword = this;
-            
-            if (password && confirmPassword) {
-                if (password.value !== confirmPassword.value && confirmPassword.value.length > 0) {
-                    confirmPassword.classList.add('error');
-                } else {
-                    confirmPassword.classList.remove('error');
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
                 }
             }
-        });
+            
+            .form-input.error {
+                border-color: #f44336 !important;
+                background-color: #fff5f5 !important;
+            }
+            
+            /* Стили для reCAPTCHA */
+            .g-recaptcha {
+                transform: scale(0.9);
+                transform-origin: 0 0;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
