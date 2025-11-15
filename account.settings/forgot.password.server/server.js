@@ -1,3 +1,4 @@
+// 📄 forgot.password.server/server.js
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
@@ -6,25 +7,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Простой ответ для теста
+// Тестовый маршрут
 app.get('/test', (req, res) => {
-    res.json({ message: 'Сервер работает!', status: 'OK' });
+    res.json({ message: 'Сервер работает! ✅', status: 'OK' });
 });
 
-// Отправка кода (упрощенная версия)
+// Отправка кода
 app.post('/send-code', async (req, res) => {
     const { email, code } = req.body;
     
-    console.log('Получен запрос на отправку кода:', { email, code });
+    console.log('📧 Запрос на отправку кода:', email, 'Код:', code);
     
-    // Всегда возвращаем успех для тестирования
+    // Всегда успех для теста
     res.json({ 
         success: true, 
-        message: 'Код отправлен (тестовый режим)',
-        test_code: code 
+        message: 'Код отправлен (тест)',
+        test_code: code,
+        email: email
     });
 });
 
-app.listen(3001, '0.0.0.0', () => {
-    console.log('✅ Сервер восстановления запущен на http://localhost:3001');
+app.listen(3001, () => {
+    console.log('🚀 Сервер запущен на http://localhost:3001');
+    console.log('✅ Тест: http://localhost:3001/test');
 });
