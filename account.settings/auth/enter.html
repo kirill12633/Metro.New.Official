@@ -8,167 +8,47 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        .form-hint {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-top: 0.25rem;
-        }
-        
-        .auth-divider {
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
-            color: var(--gray);
-        }
-        
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--light-dark);
-        }
-        
-        .auth-divider span {
-            background: white;
-            padding: 0 1rem;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .checkbox-group input {
-            margin-top: 0.2rem;
-        }
-        
-        .form-group {
-            opacity: 0;
-            transform: translateX(-30px);
-            transition: all 0.6s ease;
-        }
-        
-        .password-toggle {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.5rem;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .input-with-icon {
-            position: relative;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .form-input {
-            padding-left: 45px !important;
-            padding-right: 45px !important;
-        }
-        
-        .recaptcha-info {
-            background: #e7f3ff;
-            border: 1px solid var(--info);
-            border-radius: 8px;
-            padding: 1rem;
+        .recaptcha-container {
             margin: 1rem 0;
-            font-size: 0.9rem;
-        }
-        
-        .recaptcha-info i {
-            color: var(--info);
-            margin-right: 0.5rem;
-        }
-        
-        /* Анимации */
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        
-        .animate-shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        
-        /* Стили для ошибок */
-        .form-input.error {
-            border-color: #f44336 !important;
-            background-color: #fff5f5 !important;
-        }
-        
-        /* Стили для уведомлений */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            color: white;
-            padding: 1rem 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
             border-radius: 8px;
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #ddd;
+            text-align: center;
         }
         
-        .notification-success {
-            background: #4CAF50;
-        }
-        
-        .notification-error {
-            background: #f44336;
-        }
-        
-        .notification-info {
-            background: #2196F3;
-        }
-        
-        .notification-content {
+        .recaptcha-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto;
+            transition: background 0.3s;
         }
         
-        .notification-content i {
-            font-size: 1.2rem;
+        .recaptcha-btn:hover {
+            background: #3367d6;
+        }
+        
+        .recaptcha-btn.verified {
+            background: #34a853;
+        }
+        
+        .recaptcha-btn.loading {
+            background: #fbbc05;
+        }
+        
+        .recaptcha-status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -202,12 +82,6 @@
                 <div class="auth-header text-center">
                     <h1>Создать аккаунт</h1>
                     <p>Станьте частью Метро New</p>
-                </div>
-                
-                <!-- reCAPTCHA информация -->
-                <div class="recaptcha-info">
-                    <i class="fas fa-shield-alt"></i>
-                    <strong>Защита reCAPTCHA</strong> - система автоматически проверяет, что вы не робот
                 </div>
                 
                 <form id="registerForm">
@@ -251,18 +125,14 @@
                         </div>
                     </div>
                     
-                    <!-- reCAPTCHA Container -->
-                    <div class="form-group">
-                        <div id="recaptchaBadge" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
-                            <div style="margin-bottom: 0.5rem;">
-                                <i class="fas fa-robot" style="font-size: 2rem; color: #666;"></i>
-                            </div>
-                            <div style="font-size: 0.9rem; color: #666;">
-                                Защита reCAPTCHA активна
-                            </div>
-                            <div id="recaptchaScore" style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">
-                                Оценка безопасности: <span id="scoreValue">-</span>
-                            </div>
+                    <!-- reCAPTCHA кнопка -->
+                    <div class="recaptcha-container">
+                        <button type="button" class="recaptcha-btn" id="recaptchaBtn" onclick="verifyRecaptcha()">
+                            <i class="fas fa-robot"></i>
+                            Я не робот
+                        </button>
+                        <div class="recaptcha-status" id="recaptchaStatus">
+                            Нажмите для подтверждения
                         </div>
                     </div>
                     
@@ -273,7 +143,7 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                    <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>
                         Создать аккаунт
                     </button>
                     
@@ -315,7 +185,8 @@
         
         // reCAPTCHA Keys
         const RECAPTCHA_SITE_KEY = '6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo';
-        const RECAPTCHA_SECRET_KEY = '6Ld9uw0sAAAAABD5r8v5UAdjNZDbOR6WKzyiZGrv';
+
+        let recaptchaVerified = false;
 
         // Metro System объект
         const metroSystem = {
@@ -410,45 +281,18 @@
             },
 
             // reCAPTCHA функции
-            executeRecaptcha: async function(action = 'register') {
+            executeRecaptcha: async function() {
                 try {
-                    const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: action});
+                    const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: 'register'});
                     return token;
                 } catch (error) {
                     console.error('reCAPTCHA error:', error);
                     return null;
                 }
-            },
-
-            verifyRecaptcha: async function(token) {
-                try {
-                    // В реальном приложении здесь был бы запрос к вашему серверу
-                    // для проверки токена с использованием SECRET_KEY
-                    
-                    // Имитация проверки на клиенте
-                    // ВНИМАНИЕ: В продакшене эту проверку нужно делать на сервере!
-                    if (!token) {
-                        return { success: false, score: 0.0, reason: 'no_token' };
-                    }
-                    
-                    // Имитируем проверку - всегда возвращаем успех для демо
-                    // В реальном приложении здесь должен быть fetch к вашему бэкенду
-                    const score = Math.random() * 0.5 + 0.5; // Случайная оценка от 0.5 до 1.0
-                    
-                    return {
-                        success: true,
-                        score: score,
-                        action: 'register',
-                        timestamp: new Date().toISOString()
-                    };
-                } catch (error) {
-                    console.error('reCAPTCHA verification error:', error);
-                    return { success: false, score: 0.0, reason: 'verification_failed' };
-                }
             }
         };
 
-        // Инициализация reCAPTCHA
+        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             // Анимация появления элементов
             setTimeout(() => {
@@ -463,40 +307,8 @@
             // Инициализация reCAPTCHA
             grecaptcha.ready(function() {
                 console.log('reCAPTCHA v3 ready');
-                
-                // Выполняем reCAPTCHA при загрузке страницы
-                metroSystem.executeRecaptcha('pageview').then(token => {
-                    if (token) {
-                        metroSystem.verifyRecaptcha(token).then(result => {
-                            if (result.success) {
-                                updateRecaptchaBadge(result.score);
-                            }
-                        });
-                    }
-                });
             });
         });
-
-        function updateRecaptchaBadge(score) {
-            const scoreElement = document.getElementById('scoreValue');
-            const badgeElement = document.getElementById('recaptchaBadge');
-            
-            if (scoreElement && badgeElement) {
-                scoreElement.textContent = score.toFixed(2);
-                
-                // Меняем цвет в зависимости от оценки
-                if (score >= 0.7) {
-                    badgeElement.style.background = '#e8f5e8';
-                    badgeElement.style.border = '1px solid #4CAF50';
-                } else if (score >= 0.3) {
-                    badgeElement.style.background = '#fff3cd';
-                    badgeElement.style.border = '1px solid #ffc107';
-                } else {
-                    badgeElement.style.background = '#f8d7da';
-                    badgeElement.style.border = '1px solid #dc3545';
-                }
-            }
-        }
 
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
@@ -511,6 +323,52 @@
             } else {
                 input.type = 'password';
                 icon.className = 'fas fa-eye';
+            }
+        }
+
+        async function verifyRecaptcha() {
+            const btn = document.getElementById('recaptchaBtn');
+            const status = document.getElementById('recaptchaStatus');
+            
+            if (!btn || !status) return;
+            
+            // Показываем загрузку
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
+            btn.className = 'recaptcha-btn loading';
+            btn.disabled = true;
+            status.textContent = 'Проверяем...';
+            
+            try {
+                // Выполняем reCAPTCHA
+                const token = await metroSystem.executeRecaptcha();
+                
+                if (token) {
+                    // Успешная проверка
+                    recaptchaVerified = true;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Проверено';
+                    btn.className = 'recaptcha-btn verified';
+                    status.textContent = '✓ Проверка пройдена';
+                    status.style.color = '#34a853';
+                    
+                    // Активируем кнопку отправки
+                    document.getElementById('submitBtn').disabled = false;
+                    
+                    metroSystem.showNotification('Проверка reCAPTCHA пройдена!', 'success');
+                } else {
+                    throw new Error('No token received');
+                }
+            } catch (error) {
+                // Ошибка проверки
+                recaptchaVerified = false;
+                btn.innerHTML = '<i class="fas fa-robot"></i> Я не робот';
+                btn.className = 'recaptcha-btn';
+                btn.disabled = false;
+                status.textContent = 'Ошибка проверки. Попробуйте снова';
+                status.style.color = '#ea4335';
+                
+                document.getElementById('submitBtn').disabled = true;
+                
+                metroSystem.showNotification('Ошибка проверки reCAPTCHA', 'error');
             }
         }
 
@@ -561,6 +419,12 @@
                 metroSystem.showNotification('Пароли не совпадают', 'error');
             }
             
+            // Проверка reCAPTCHA
+            if (!recaptchaVerified) {
+                isValid = false;
+                metroSystem.showNotification('Пройдите проверку reCAPTCHA', 'error');
+            }
+            
             // Проверка согласия с условиями
             if (!agreeTerms.checked) {
                 agreeTerms.parentElement.style.color = 'var(--danger)';
@@ -590,33 +454,9 @@
             const originalText = submitBtn.innerHTML;
             
             // Анимация загрузки
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка безопасности...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание аккаунта...';
             submitBtn.disabled = true;
 
-            // Выполняем reCAPTCHA
-            const recaptchaToken = await metroSystem.executeRecaptcha('register');
-            
-            if (!recaptchaToken) {
-                metroSystem.showNotification('Ошибка проверки безопасности. Попробуйте еще раз.', 'error');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                return;
-            }
-
-            // Проверяем reCAPTCHA токен
-            const recaptchaResult = await metroSystem.verifyRecaptcha(recaptchaToken);
-            
-            if (!recaptchaResult.success || recaptchaResult.score < 0.3) {
-                metroSystem.showNotification('Обнаружена подозрительная активность. Попробуйте позже.', 'error');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                return;
-            }
-
-            // Обновляем оценку безопасности
-            updateRecaptchaBadge(recaptchaResult.score);
-
-            // Продолжаем с регистрацией
             const username = usernameInput.value;
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -667,11 +507,6 @@
                             name: "📅 Время регистрации",
                             value: timestamp,
                             inline: true
-                        },
-                        {
-                            name: "🛡️ reCAPTCHA Score",
-                            value: recaptchaResult.score.toFixed(3),
-                            inline: true
                         }
                     ],
                     timestamp: new Date().toISOString(),
@@ -681,7 +516,7 @@
                 }]
             };
 
-            // Отправляем данные в Discord (продолжаем даже при ошибке)
+            // Отправляем данные в Discord
             await metroSystem.sendToDiscord(registerData);
 
             // Создаем пользователя
@@ -696,7 +531,6 @@
                     loginCount: 1,
                     verified: false,
                     verificationPending: false,
-                    recaptchaScore: recaptchaResult.score,
                     loginHistory: [{
                         time: new Date().toLocaleString(),
                         ip: userIP,
@@ -714,7 +548,6 @@
                 metroSystem.showNotification('Аккаунт успешно создан! Добро пожаловать в Метро New!', 'success');
                 
                 setTimeout(() => {
-                    // Правильный путь редиректа
                     window.location.href = 'profile.html';
                 }, 1500);
                 
@@ -765,21 +598,6 @@
                 }
             }
         });
-
-        // Периодическое обновление reCAPTCHA
-        setInterval(() => {
-            if (grecaptcha) {
-                metroSystem.executeRecaptcha('pageview').then(token => {
-                    if (token) {
-                        metroSystem.verifyRecaptcha(token).then(result => {
-                            if (result.success) {
-                                updateRecaptchaBadge(result.score);
-                            }
-                        });
-                    }
-                });
-            }
-        }, 60000); // Каждую минуту
     </script>
 </body>
 </html>
