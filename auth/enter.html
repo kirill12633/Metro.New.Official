@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Metro.New.Official</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🔐 Вход в систему</h1>
+            
+            <form id="enterForm">
+                <div class="input-group">
+                    <label>Email или логин:</label>
+                    <input type="text" name="username" placeholder="ваш@email.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Пароль:</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Войти</button>
+            </form>
+            
+            <div class="auth-links">
+                <a href="join.html">Создать аккаунт</a>
+                <a href="#">Забыли пароль?</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        // Если уже авторизован - сразу в аккаунт
+        if (localStorage.getItem('metro_user')) {
+            window.location.href = 'account.html';
+        }
+
+        document.getElementById('enterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const username = formData.get('username');
+            const password = formData.get('password');
+            
+            // Простая проверка (в реальном проекте через backend)
+            if (username && password) {
+                const userData = {
+                    username: username,
+                    loginTime: new Date().toLocaleString()
+                };
+                
+                localStorage.setItem('metro_user', JSON.stringify(userData));
+                window.location.href = 'account.html';
+            } else {
+                alert('Заполните все поля!');
+            }
+        });
+    </script>
+</body>
+</html>
