@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Metro.New.Official</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>👤 Создать аккаунт</h1>
+            
+            <form id="joinForm">
+                <div class="input-group">
+                    <label>Имя пользователя:</label>
+                    <input type="text" name="username" placeholder="ivanov" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Email:</label>
+                    <input type="email" name="email" placeholder="ivan@example.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Пароль:</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Подтвердите пароль:</label>
+                    <input type="password" name="confirmPassword" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Создать аккаунт</button>
+            </form>
+            
+            <div class="auth-links">
+                <a href="enter.html">Уже есть аккаунт? Войдите</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают!');
+                return;
+            }
+            
+            // Создаем "аккаунт"
+            const userData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                joinDate: new Date().toLocaleDateString(),
+                isNew: true
+            };
+            
+            localStorage.setItem('metro_user', JSON.stringify(userData));
+            alert('Аккаунт успешно создан!');
+            window.location.href = 'account.html';
+        });
+    </script>
+</body>
+</html>
