@@ -3,60 +3,893 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход - Metro.New.Official</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <title>Вход - Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @keyframes metroArrival {
+            0% { transform: translateX(-100px) scale(0.8); opacity: 0; }
+            70% { transform: translateX(10px) scale(1.1); }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .animate-slide-right {
+            animation: slideInRight 0.8s ease-out;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        .animate-metro-arrival {
+            animation: metroArrival 1s ease-out;
+        }
+        
+        /* Header */
+        header {
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .auth-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Auth Container */
+        .auth-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metro-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.1) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(255,255,255,0.1) 50%, transparent 51%);
+            background-size: 50px 50px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+            z-index: 1;
+        }
+        
+        .auth-card.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .metro-decoration {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .metro-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            animation: metroArrival 1s ease-out 0.5s both;
+        }
+        
+        .welcome-text {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-header p {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .form-group.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .form-input.error {
+            border-color: var(--danger);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            transition: color 0.3s;
+        }
+        
+        .form-input:focus + .input-icon {
+            color: var(--primary);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.6s ease 0.3s;
+        }
+        
+        .form-options.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease 0.6s;
+        }
+        
+        .btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn-google {
+            background: white;
+            color: var(--dark);
+            border: 2px solid #e1e5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease 0.8s;
+        }
+        
+        .btn-google.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .btn-google:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .auth-divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            color: var(--gray);
+            opacity: 0;
+            transition: all 0.6s ease 0.4s;
+        }
+        
+        .auth-divider.visible {
+            opacity: 1;
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+        
+        .auth-divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--gray);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease 1s;
+        }
+        
+        .auth-footer.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Demo Users */
+        .demo-users {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .demo-users h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .demo-user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.8rem;
+        }
+        
+        .demo-user:last-child {
+            border-bottom: none;
+        }
+        
+        .demo-user button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .demo-user button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <h1>🔐 Вход в систему</h1>
-            
-            <form id="enterForm">
-                <div class="input-group">
-                    <label>Email или логин:</label>
-                    <input type="text" name="username" placeholder="ваш@email.com" required>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Главная</a>
+                    <a href="game.html">Игра</a>
+                    <a href="join.html">Регистрация</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="auth-container">
+            <div class="metro-background"></div>
+            <div class="auth-card" id="authCard">
+                <div class="metro-decoration">
+                    <div class="metro-icon">
+                        <i class="fas fa-subway"></i>
+                    </div>
+                    <div class="welcome-text">Добро пожаловать обратно!</div>
                 </div>
                 
-                <div class="input-group">
-                    <label>Пароль:</label>
-                    <input type="password" name="password" placeholder="••••••••" required>
+                <div class="auth-header">
+                    <h1>Вход в систему</h1>
+                    <p>Войдите в свой аккаунт Метро New</p>
                 </div>
                 
-                <button type="submit" class="btn-primary">Войти</button>
-            </form>
-            
-            <div class="auth-links">
-                <a href="join.html">Создать аккаунт</a>
-                <a href="#">Забыли пароль?</a>
+                <form id="loginForm">
+                    <div class="form-group" id="usernameGroup">
+                        <label class="form-label">Email или имя пользователя</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" class="form-input" id="username" placeholder="Введите email или логин" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="passwordGroup">
+                        <label class="form-label">Пароль</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" class="form-input" id="password" placeholder="Введите ваш пароль" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-options" id="optionsGroup">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="rememberMe">
+                            <label for="rememberMe">Запомнить меня</label>
+                        </div>
+                        <a href="forgot-password.html" class="forgot-link">Забыли пароль?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        Войти в систему
+                    </button>
+                    
+                    <div class="auth-divider" id="dividerGroup">
+                        <span>или</span>
+                    </div>
+                    
+                    <button type="button" class="btn btn-google" id="googleBtn">
+                        <i class="fab fa-google"></i>
+                        Войти с Google
+                    </button>
+                </form>
+                
+                <!-- Демо пользователи для тестирования -->
+                <div class="demo-users">
+                    <h4>🚇 Демо аккаунты (для тестирования):</h4>
+                    <div class="demo-user">
+                        <span>👤 Пользователь: <strong>demo</strong></span>
+                        <button onclick="fillDemoCredentials('demo', '123456')">Использовать</button>
+                    </div>
+                    <div class="demo-user">
+                        <span>👤 Администратор: <strong>admin</strong></span>
+                        <button onclick="fillDemoCredentials('admin', 'admin123')">Использовать</button>
+                    </div>
+                </div>
+                
+                <div class="auth-footer" id="footerGroup">
+                    Нет аккаунта? <a href="join.html">Зарегистрируйтесь здесь</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <script src="../assets/js/auth.js"></script>
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="about.html">О нас</a>
+                <a href="contact.html">Контакты</a>
+                <a href="privacy.html">Политика конфиденциальности</a>
+                <a href="terms.html">Пользовательское соглашение</a>
+            </div>
+            <p class="copyright">© 2025 Метро New. Все права защищены.</p>
+        </div>
+    </footer>
+
     <script>
-        // Если уже авторизован - сразу в аккаунт
-        if (localStorage.getItem('metro_user')) {
-            window.location.href = 'account.html';
+        // Инициализация анимаций
+        document.addEventListener('DOMContentLoaded', function() {
+            const authCard = document.getElementById('authCard');
+            const formGroups = document.querySelectorAll('.form-group');
+            const optionsGroup = document.getElementById('optionsGroup');
+            const submitBtn = document.getElementById('submitBtn');
+            const dividerGroup = document.getElementById('dividerGroup');
+            const googleBtn = document.getElementById('googleBtn');
+            const footerGroup = document.getElementById('footerGroup');
+            
+            // Анимация появления карточки
+            setTimeout(() => {
+                authCard.classList.add('loaded');
+            }, 100);
+            
+            // Последовательная анимация элементов формы
+            formGroups.forEach((group, index) => {
+                setTimeout(() => {
+                    group.classList.add('visible');
+                }, 300 + (index * 200));
+            });
+            
+            setTimeout(() => {
+                optionsGroup.classList.add('visible');
+                submitBtn.classList.add('visible');
+                dividerGroup.classList.add('visible');
+                googleBtn.classList.add('visible');
+                footerGroup.classList.add('visible');
+            }, 1500);
+            
+            // Проверяем, есть ли сохраненные данные
+            const savedUser = localStorage.getItem('metro_user');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                document.getElementById('username').placeholder = `Добро пожаловать, ${userData.username}!`;
+            }
+        });
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentNode.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
         }
-
-        document.getElementById('enterForm').addEventListener('submit', function(e) {
+        
+        function fillDemoCredentials(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.getElementById('username').focus();
+            
+            // Анимация заполнения
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.style.background = 'linear-gradient(90deg, #e3f2fd, #ffffff)';
+                setTimeout(() => {
+                    input.style.background = 'white';
+                }, 1000);
+            });
+        }
+        
+        function validateForm() {
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            
+            let isValid = true;
+            
+            // Сброс ошибок
+            [username, password].forEach(input => {
+                input.classList.remove('error');
+            });
+            
+            // Валидация имени пользователя
+            if (username.value.trim() === '') {
+                username.classList.add('error');
+                isValid = false;
+            }
+            
+            // Валидация пароля
+            if (password.value.length < 1) {
+                password.classList.add('error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
-            const username = formData.get('username');
-            const password = formData.get('password');
+            if (!validateForm()) {
+                return;
+            }
             
-            // Простая проверка (в реальном проекте через backend)
-            if (username && password) {
-                const userData = {
-                    username: username,
-                    loginTime: new Date().toLocaleString()
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Анимация загрузки
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход в систему...';
+            submitBtn.disabled = true;
+            
+            // Имитация запроса на сервер
+            setTimeout(() => {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                // Проверка демо аккаунтов
+                const demoAccounts = {
+                    'demo': '123456',
+                    'admin': 'admin123'
                 };
                 
-                localStorage.setItem('metro_user', JSON.stringify(userData));
-                window.location.href = 'account.html';
-            } else {
-                alert('Заполните все поля!');
+                if (demoAccounts[username] && demoAccounts[username] === password) {
+                    // Успешный вход для демо аккаунтов
+                    const userData = {
+                        username: username,
+                        role: username === 'admin' ? 'administrator' : 'user',
+                        loginTime: new Date().toLocaleString(),
+                        rememberMe: rememberMe
+                    };
+                    
+                    localStorage.setItem('metro_user', JSON.stringify(userData));
+                    
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешный вход!';
+                    submitBtn.style.background = 'var(--success)';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'account.html';
+                    }, 1000);
+                } else {
+                    // Проверка существующих пользователей
+                    const savedUser = localStorage.getItem('metro_user');
+                    if (savedUser) {
+                        const userData = JSON.parse(savedUser);
+                        if (userData.username === username || userData.email === username) {
+                            // Успешный вход для зарегистрированного пользователя
+                            userData.loginTime = new Date().toLocaleString();
+                            userData.rememberMe = rememberMe;
+                            localStorage.setItem('metro_user', JSON.stringify(userData));
+                            
+                            submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешный вход!';
+                            submitBtn.style.background = 'var(--success)';
+                            
+                            setTimeout(() => {
+                                window.location.href = 'account.html';
+                            }, 1000);
+                            return;
+                        }
+                    }
+                    
+                    // Неверные данные
+                    submitBtn.innerHTML = 'Неверные данные!';
+                    submitBtn.style.background = 'var(--danger)';
+                    submitBtn.classList.add('animate-shake');
+                    
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.style.background = '';
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('animate-shake');
+                    }, 2000);
+                }
+                
+            }, 1500);
+        });
+        
+        // Google Auth
+        document.getElementById('googleBtn').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                alert('Интеграция с Google будет добавлена в ближайшем обновлении!');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        });
+        
+        // Автозаполнение при фокусе
+        document.getElementById('username').addEventListener('focus', function() {
+            this.style.background = 'linear-gradient(90deg, #e8f5e8, #ffffff)';
+            setTimeout(() => {
+                this.style.background = 'white';
+            }, 500);
+        });
+        
+        document.getElementById('password').addEventListener('focus', function() {
+            this.style.background = 'linear-gradient(90deg, #e8f5e8, #ffffff)';
+            setTimeout(() => {
+                this.style.background = 'white';
+            }, 500);
+        });
+        
+        // Быстрый вход по Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
             }
         });
     </script>
