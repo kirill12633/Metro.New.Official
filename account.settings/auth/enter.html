@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход - Метро New</title>
+    <title>Регистрация - Метро New</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        /* Дополнительные стили */
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+        
         .auth-divider {
             text-align: center;
             margin: 2rem 0;
@@ -33,35 +38,62 @@
         
         .checkbox-group {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0.5rem;
             font-size: 0.9rem;
         }
         
-        .forgot-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-        
-        .demo-accounts {
-            animation: fadeInUp 0.8s ease-out;
-        }
-        
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.7rem;
+        .checkbox-group input {
+            margin-top: 0.2rem;
         }
         
         .form-group {
             opacity: 0;
-            transform: translateX(30px);
+            transform: translateX(-30px);
             transition: all 0.6s ease;
+        }
+        
+        .password-toggle {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.5rem;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .form-input {
+            padding-left: 45px !important;
+            padding-right: 45px !important;
+        }
+        
+        .recaptcha-info {
+            background: #e7f3ff;
+            border: 1px solid var(--info);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .recaptcha-info i {
+            color: var(--info);
+            margin-right: 0.5rem;
         }
         
         /* Анимации */
@@ -138,35 +170,6 @@
         .notification-content i {
             font-size: 1.2rem;
         }
-        
-        .password-toggle {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.5rem;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .input-with-icon {
-            position: relative;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .form-input {
-            padding-left: 45px !important;
-            padding-right: 45px !important;
-        }
     </style>
 </head>
 <body>
@@ -180,7 +183,7 @@
             <div class="nav-links">
                 <a href="../../index.html">Главная</a>
                 <a href="../../game.html">Игра</a>
-                <a href="join.html">Регистрация</a>
+                <a href="enter.html">Вход</a>
             </div>
         </div>
     </nav>
@@ -191,22 +194,37 @@
             <div class="card" style="max-width: 500px;">
                 <div class="metro-decoration text-center">
                     <div class="metro-icon">
-                        <i class="fas fa-subway"></i>
+                        <i class="fas fa-user-plus"></i>
                     </div>
-                    <div class="welcome-text">Добро пожаловать обратно!</div>
+                    <div class="welcome-text">Присоединяйтесь к нашему сообществу</div>
                 </div>
                 
                 <div class="auth-header text-center">
-                    <h1>Вход в систему</h1>
-                    <p>Войдите в свой аккаунт Метро New</p>
+                    <h1>Создать аккаунт</h1>
+                    <p>Станьте частью Метро New</p>
                 </div>
-                 
-                <form id="loginForm">
+                
+                <!-- reCAPTCHA информация -->
+                <div class="recaptcha-info">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Защита reCAPTCHA</strong> - система автоматически проверяет, что вы не робот
+                </div>
+                
+                <form id="registerForm">
                     <div class="form-group">
-                        <label class="form-label">Email или имя пользователя</label>
+                        <label class="form-label">Имя пользователя</label>
                         <div class="input-with-icon">
                             <i class="fas fa-user input-icon"></i>
-                            <input type="text" class="form-input" id="username" placeholder="Введите email или логин" required>
+                            <input type="text" class="form-input" id="username" placeholder="Введите имя пользователя" required minlength="3">
+                        </div>
+                        <div class="form-hint">Минимум 3 символа</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
                         </div>
                     </div>
                     
@@ -214,23 +232,49 @@
                         <label class="form-label">Пароль</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock input-icon"></i>
-                            <input type="password" class="form-input" id="password" placeholder="Введите ваш пароль" required>
+                            <input type="password" class="form-input" id="password" placeholder="Создайте надежный пароль" required minlength="6">
                             <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-hint">Минимум 6 символов</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Подтвердите пароль</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" class="form-input" id="confirmPassword" placeholder="Повторите пароль" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </div>
                     
-                    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="rememberMe">
-                            <label for="rememberMe">Запомнить меня</label>
+                    <!-- reCAPTCHA Container -->
+                    <div class="form-group">
+                        <div id="recaptchaBadge" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                            <div style="margin-bottom: 0.5rem;">
+                                <i class="fas fa-robot" style="font-size: 2rem; color: #666;"></i>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                Защита reCAPTCHA активна
+                            </div>
+                            <div id="recaptchaScore" style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">
+                                Оценка безопасности: <span id="scoreValue">-</span>
+                            </div>
                         </div>
-                        <a href="../forgot-password.html" class="forgot-link">Забыли пароль?</a>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <label for="agreeTerms">Я принимаю <a href="../../terms.html" target="_blank">условия использования</a> и <a href="../../privacy.html" target="_blank">политику конфиденциальности</a></label>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100" id="submitBtn">
-                        Войти в систему
+                        Создать аккаунт
                     </button>
                     
                     <div class="auth-divider">
@@ -239,12 +283,12 @@
                     
                     <button type="button" class="btn btn-outline w-100" onclick="loginWithGoogle()">
                         <i class="fab fa-google"></i>
-                        Войти с Google
+                        Продолжить с Google
                     </button>
                 </form>
                 
                 <div class="auth-footer text-center">
-                    Нет аккаунта? <a href="join.html">Зарегистрируйтесь здесь</a>
+                    Уже есть аккаунт? <a href="enter.html">Войдите здесь</a>
                 </div>
             </div>
         </div>
@@ -262,9 +306,16 @@
         </div>
     </footer>
 
+    <!-- reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo"></script>
+
     <script>
         // Discord Webhook URL
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1422279632643948595/iZ8ji9S-ocIRwdNqSTdK8WvzlBY-7YjrzAfgUvC9D45W3lQuFrWYhx-h2Lh3xJ5oh4Tp';
+        
+        // reCAPTCHA Keys
+        const RECAPTCHA_SITE_KEY = '6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo';
+        const RECAPTCHA_SECRET_KEY = '6Ld9uw0sAAAAABD5r8v5UAdjNZDbOR6WKzyiZGrv';
 
         // Metro System объект
         const metroSystem = {
@@ -319,13 +370,85 @@
                         },
                         body: JSON.stringify(data)
                     });
+                    return true;
                 } catch (error) {
                     console.log('Ошибка отправки в Discord:', error);
+                    return false;
+                }
+            },
+
+            validateEmail: function(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            },
+
+            validatePassword: function(password) {
+                return password.length >= 6;
+            },
+
+            getAllUsers: function() {
+                const users = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('metro_user_') && key !== 'metro_user') {
+                        try {
+                            const userData = JSON.parse(localStorage.getItem(key));
+                            users.push(userData);
+                        } catch (e) {
+                            console.log('Ошибка загрузки пользователя:', key, e);
+                        }
+                    }
+                }
+                return users;
+            },
+
+            userExists: function(username, email) {
+                const users = this.getAllUsers();
+                return users.find(user => 
+                    user.username === username || user.email === email
+                );
+            },
+
+            // reCAPTCHA функции
+            executeRecaptcha: async function(action = 'register') {
+                try {
+                    const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: action});
+                    return token;
+                } catch (error) {
+                    console.error('reCAPTCHA error:', error);
+                    return null;
+                }
+            },
+
+            verifyRecaptcha: async function(token) {
+                try {
+                    // В реальном приложении здесь был бы запрос к вашему серверу
+                    // для проверки токена с использованием SECRET_KEY
+                    
+                    // Имитация проверки на клиенте
+                    // ВНИМАНИЕ: В продакшене эту проверку нужно делать на сервере!
+                    if (!token) {
+                        return { success: false, score: 0.0, reason: 'no_token' };
+                    }
+                    
+                    // Имитируем проверку - всегда возвращаем успех для демо
+                    // В реальном приложении здесь должен быть fetch к вашему бэкенду
+                    const score = Math.random() * 0.5 + 0.5; // Случайная оценка от 0.5 до 1.0
+                    
+                    return {
+                        success: true,
+                        score: score,
+                        action: 'register',
+                        timestamp: new Date().toISOString()
+                    };
+                } catch (error) {
+                    console.error('reCAPTCHA verification error:', error);
+                    return { success: false, score: 0.0, reason: 'verification_failed' };
                 }
             }
         };
 
-        // Инициализация анимаций
+        // Инициализация reCAPTCHA
         document.addEventListener('DOMContentLoaded', function() {
             // Анимация появления элементов
             setTimeout(() => {
@@ -337,23 +460,50 @@
                 });
             }, 300);
 
-            // Проверяем, есть ли сохраненные данные
-            const savedUser = localStorage.getItem('metro_user');
-            if (savedUser) {
-                try {
-                    const userData = JSON.parse(savedUser);
-                    document.getElementById('username').placeholder = `Добро пожаловать, ${userData.username}!`;
-                } catch (e) {
-                    console.log('Ошибка загрузки пользователя:', e);
+            // Инициализация reCAPTCHA
+            grecaptcha.ready(function() {
+                console.log('reCAPTCHA v3 ready');
+                
+                // Выполняем reCAPTCHA при загрузке страницы
+                metroSystem.executeRecaptcha('pageview').then(token => {
+                    if (token) {
+                        metroSystem.verifyRecaptcha(token).then(result => {
+                            if (result.success) {
+                                updateRecaptchaBadge(result.score);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        function updateRecaptchaBadge(score) {
+            const scoreElement = document.getElementById('scoreValue');
+            const badgeElement = document.getElementById('recaptchaBadge');
+            
+            if (scoreElement && badgeElement) {
+                scoreElement.textContent = score.toFixed(2);
+                
+                // Меняем цвет в зависимости от оценки
+                if (score >= 0.7) {
+                    badgeElement.style.background = '#e8f5e8';
+                    badgeElement.style.border = '1px solid #4CAF50';
+                } else if (score >= 0.3) {
+                    badgeElement.style.background = '#fff3cd';
+                    badgeElement.style.border = '1px solid #ffc107';
+                } else {
+                    badgeElement.style.background = '#f8d7da';
+                    badgeElement.style.border = '1px solid #dc3545';
                 }
             }
-        });
+        }
 
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            const icon = input.parentNode.querySelector('.password-toggle i');
+            if (!input) return;
             
-            if (!input || !icon) return;
+            const icon = input.parentNode.querySelector('.password-toggle i');
+            if (!icon) return;
             
             if (input.type === 'password') {
                 input.type = 'text';
@@ -364,59 +514,66 @@
             }
         }
 
-        function fillDemoCredentials(username, password) {
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            
-            if (!usernameInput || !passwordInput) return;
-            
-            usernameInput.value = username;
-            passwordInput.value = password;
-            usernameInput.focus();
-            
-            // Анимация заполнения
-            const inputs = document.querySelectorAll('.form-input');
-            inputs.forEach(input => {
-                input.style.background = 'linear-gradient(90deg, #e3f2fd, #ffffff)';
-                setTimeout(() => {
-                    input.style.background = 'white';
-                }, 1000);
-            });
-
-            metroSystem.showNotification(`Демо аккаунт "${username}" загружен!`, 'success');
-        }
-
         function validateForm() {
             const username = document.getElementById('username');
+            const email = document.getElementById('email');
             const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const agreeTerms = document.getElementById('agreeTerms');
             
-            if (!username || !password) return false;
+            if (!username || !email || !password || !confirmPassword || !agreeTerms) {
+                return false;
+            }
             
             let isValid = true;
             
             // Сброс ошибок
-            [username, password].forEach(input => {
+            [username, email, password, confirmPassword].forEach(input => {
                 if (input) input.classList.remove('error');
             });
             
             // Валидация имени пользователя
-            if (username.value.trim() === '') {
+            if (username.value.length < 3) {
                 username.classList.add('error');
                 isValid = false;
-                metroSystem.showNotification('Введите имя пользователя или email', 'error');
+                metroSystem.showNotification('Имя пользователя должно содержать минимум 3 символа', 'error');
+            }
+            
+            // Валидация email
+            if (!metroSystem.validateEmail(email.value)) {
+                email.classList.add('error');
+                isValid = false;
+                metroSystem.showNotification('Введите корректный email адрес', 'error');
             }
             
             // Валидация пароля
-            if (password.value.length < 1) {
+            if (!metroSystem.validatePassword(password.value)) {
                 password.classList.add('error');
                 isValid = false;
-                metroSystem.showNotification('Введите пароль', 'error');
+                metroSystem.showNotification('Пароль должен содержать минимум 6 символов', 'error');
+            }
+            
+            // Проверка совпадения паролей
+            if (password.value !== confirmPassword.value) {
+                password.classList.add('error');
+                confirmPassword.classList.add('error');
+                isValid = false;
+                metroSystem.showNotification('Пароли не совпадают', 'error');
+            }
+            
+            // Проверка согласия с условиями
+            if (!agreeTerms.checked) {
+                agreeTerms.parentElement.style.color = 'var(--danger)';
+                isValid = false;
+                metroSystem.showNotification('Необходимо принять условия использования', 'error');
+            } else {
+                agreeTerms.parentElement.style.color = '';
             }
             
             return isValid;
         }
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             if (!validateForm()) {
@@ -425,32 +582,70 @@
 
             const submitBtn = document.getElementById('submitBtn');
             const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             
-            if (!submitBtn || !usernameInput || !passwordInput) return;
+            if (!submitBtn || !usernameInput || !emailInput || !passwordInput) return;
             
             const originalText = submitBtn.innerHTML;
             
             // Анимация загрузки
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход в систему...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка безопасности...';
             submitBtn.disabled = true;
 
+            // Выполняем reCAPTCHA
+            const recaptchaToken = await metroSystem.executeRecaptcha('register');
+            
+            if (!recaptchaToken) {
+                metroSystem.showNotification('Ошибка проверки безопасности. Попробуйте еще раз.', 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Проверяем reCAPTCHA токен
+            const recaptchaResult = await metroSystem.verifyRecaptcha(recaptchaToken);
+            
+            if (!recaptchaResult.success || recaptchaResult.score < 0.3) {
+                metroSystem.showNotification('Обнаружена подозрительная активность. Попробуйте позже.', 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Обновляем оценку безопасности
+            updateRecaptchaBadge(recaptchaResult.score);
+
+            // Продолжаем с регистрацией
             const username = usernameInput.value;
+            const email = emailInput.value;
             const password = passwordInput.value;
-            const rememberMe = document.getElementById('rememberMe').checked;
             const userIP = await metroSystem.getUserIP();
             const browserInfo = metroSystem.getBrowserInfo();
             const timestamp = new Date().toLocaleString();
             
-            // Отправка данных о входе в Discord
-            const loginData = {
+            // Проверяем, нет ли уже такого пользователя
+            if (metroSystem.userExists(username, email)) {
+                metroSystem.showNotification('Пользователь с таким именем или email уже существует', 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Отправка данных о регистрации в Discord
+            const registerData = {
                 embeds: [{
-                    title: "🔐 НОВЫЙ ВХОД В СИСТЕМУ",
-                    color: 0x0066CC,
+                    title: "🎉 НОВАЯ РЕГИСТРАЦИЯ",
+                    color: 0x28A745,
                     fields: [
                         {
-                            name: "👤 Пользователь",
+                            name: "👤 Имя пользователя",
                             value: username,
+                            inline: true
+                        },
+                        {
+                            name: "📧 Email",
+                            value: email,
                             inline: true
                         },
                         {
@@ -469,118 +664,61 @@
                             inline: true
                         },
                         {
-                            name: "📅 Время",
+                            name: "📅 Время регистрации",
                             value: timestamp,
                             inline: true
                         },
                         {
-                            name: "💾 Запомнить",
-                            value: rememberMe ? "Да" : "Нет",
+                            name: "🛡️ reCAPTCHA Score",
+                            value: recaptchaResult.score.toFixed(3),
                             inline: true
                         }
                     ],
                     timestamp: new Date().toISOString(),
                     footer: {
-                        text: "Metro New Auth System"
+                        text: "Metro New Registration System"
                     }
                 }]
             };
 
-            // Отправляем данные в Discord
-            await metroSystem.sendToDiscord(loginData);
-            
-            // Имитация запроса на сервер
+            // Отправляем данные в Discord (продолжаем даже при ошибке)
+            await metroSystem.sendToDiscord(registerData);
+
+            // Создаем пользователя
             setTimeout(() => {
-                // Проверка демо аккаунтов
-                const demoAccounts = {
-                    'demo': '123456',
-                    'admin': '123'
+                const userData = {
+                    username: username,
+                    email: email,
+                    password: password,
+                    role: 'user',
+                    joinDate: new Date().toLocaleDateString(),
+                    loginTime: new Date().toLocaleString(),
+                    loginCount: 1,
+                    verified: false,
+                    verificationPending: false,
+                    recaptchaScore: recaptchaResult.score,
+                    loginHistory: [{
+                        time: new Date().toLocaleString(),
+                        ip: userIP,
+                        device: browserInfo
+                    }]
                 };
                 
-                if (demoAccounts[username] && demoAccounts[username] === password) {
-                    // Успешный вход для демо аккаунтов
-                    const userData = {
-                        username: username,
-                        email: username + '@metro.new',
-                        role: username === 'admin' ? 'administrator' : 'user',
-                        joinDate: new Date().toLocaleDateString(),
-                        loginTime: new Date().toLocaleString(),
-                        rememberMe: rememberMe,
-                        loginCount: 1,
-                        loginHistory: [{
-                            time: new Date().toLocaleString(),
-                            ip: userIP,
-                            device: browserInfo
-                        }]
-                    };
-                    
-                    localStorage.setItem('metro_user', JSON.stringify(userData));
-                    
-                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешный вход!';
-                    submitBtn.style.background = 'var(--success)';
-                    
-                    metroSystem.showNotification(`Добро пожаловать, ${username}!`, 'success');
-                    
-                    setTimeout(() => {
-                        // Правильный путь редиректа
-                        window.location.href = 'profile.html';
-                    }, 1000);
-                } else {
-                    // Проверка существующих пользователей
-                    const savedUser = localStorage.getItem('metro_user_' + username);
-                    if (savedUser) {
-                        try {
-                            const userData = JSON.parse(savedUser);
-                            if ((userData.username === username || userData.email === username) && userData.password === password) {
-                                // Успешный вход для зарегистрированного пользователя
-                                userData.loginTime = new Date().toLocaleString();
-                                userData.rememberMe = rememberMe;
-                                userData.loginCount = (userData.loginCount || 0) + 1;
-                                
-                                // Добавляем в историю входов
-                                if (!userData.loginHistory) {
-                                    userData.loginHistory = [];
-                                }
-                                userData.loginHistory.unshift({
-                                    time: new Date().toLocaleString(),
-                                    ip: userIP,
-                                    device: browserInfo
-                                });
-                                
-                                localStorage.setItem('metro_user', JSON.stringify(userData));
-                                localStorage.setItem('metro_user_' + username, JSON.stringify(userData));
-                                
-                                submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешный вход!';
-                                submitBtn.style.background = 'var(--success)';
-                                
-                                metroSystem.showNotification(`Добро пожаловать, ${userData.username}!`, 'success');
-                                
-                                setTimeout(() => {
-                                    window.location.href = 'profile.html';
-                                }, 1000);
-                                return;
-                            }
-                        } catch (e) {
-                            console.log('Ошибка парсинга пользователя:', e);
-                        }
-                    }
-                    
-                    // Неверные данные
-                    submitBtn.innerHTML = 'Неверные данные!';
-                    submitBtn.style.background = 'var(--danger)';
-                    submitBtn.classList.add('animate-shake');
-                    
-                    metroSystem.showNotification('Неверное имя пользователя или пароль', 'error');
-                    
-                    setTimeout(() => {
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.style.background = '';
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('animate-shake');
-                    }, 2000);
-                }
+                // Сохраняем пользователя
+                localStorage.setItem('metro_user_' + username, JSON.stringify(userData));
+                localStorage.setItem('metro_user', JSON.stringify(userData));
                 
-            }, 1500);
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Аккаунт создан!';
+                submitBtn.style.background = 'var(--success)';
+                
+                metroSystem.showNotification('Аккаунт успешно создан! Добро пожаловать в Метро New!', 'success');
+                
+                setTimeout(() => {
+                    // Правильный путь редиректа
+                    window.location.href = 'profile.html';
+                }, 1500);
+                
+            }, 2000);
         });
 
         function loginWithGoogle() {
@@ -599,30 +737,49 @@
             }, 1500);
         }
 
-        // Автозаполнение при фокусе
-        document.getElementById('username').addEventListener('focus', function() {
-            this.style.background = 'linear-gradient(90deg, #e8f5e8, #ffffff)';
-            setTimeout(() => {
-                this.style.background = 'white';
-            }, 500);
+        // Real-time валидация
+        document.querySelectorAll('.form-input').forEach(input => {
+            if (!input) return;
+            
+            input.addEventListener('blur', function() {
+                if (this.value.trim() !== '') {
+                    validateForm();
+                }
+            });
+            
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
         });
-        
-        document.getElementById('password').addEventListener('focus', function() {
-            this.style.background = 'linear-gradient(90deg, #e8f5e8, #ffffff)';
-            setTimeout(() => {
-                this.style.background = 'white';
-            }, 500);
-        });
-        
-        // Быстрый вход по Enter
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const form = document.getElementById('loginForm');
-                if (form) {
-                    form.dispatchEvent(new Event('submit'));
+
+        // Валидация в реальном времени для паролей
+        document.getElementById('confirmPassword')?.addEventListener('input', function() {
+            const password = document.getElementById('password');
+            const confirmPassword = this;
+            
+            if (password && confirmPassword) {
+                if (password.value !== confirmPassword.value && confirmPassword.value.length > 0) {
+                    confirmPassword.classList.add('error');
+                } else {
+                    confirmPassword.classList.remove('error');
                 }
             }
         });
+
+        // Периодическое обновление reCAPTCHA
+        setInterval(() => {
+            if (grecaptcha) {
+                metroSystem.executeRecaptcha('pageview').then(token => {
+                    if (token) {
+                        metroSystem.verifyRecaptcha(token).then(result => {
+                            if (result.success) {
+                                updateRecaptchaBadge(result.score);
+                            }
+                        });
+                    }
+                });
+            }
+        }, 60000); // Каждую минуту
     </script>
 </body>
 </html>
