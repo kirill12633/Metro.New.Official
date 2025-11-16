@@ -173,6 +173,9 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
+                // Получаем профиль пользователя
+                const userProfile = await metroSystem.getUserProfile(user.uid) || {};
+
                 // Сохраняем данные пользователя
                 const userData = {
                     uid: user.uid,
@@ -182,7 +185,17 @@
                     emailVerified: user.emailVerified,
                     lastLogin: new Date().toISOString(),
                     rememberMe: rememberMe,
-                    loginHistory: [{
+                    settings: userProfile.settings || {
+                        theme: 'light',
+                        notifications: true,
+                        language: 'ru'
+                    },
+                    stats: userProfile.stats || {
+                        gamesPlayed: 0,
+                        totalScore: 0,
+                        level: 1
+                    },
+                    loginHistory: [...(userProfile.loginHistory || []), {
                         time: new Date().toISOString(),
                         ip: await metroSystem.getUserIP(),
                         userAgent: navigator.userAgent
@@ -193,12 +206,16 @@
                 await metroSystem.updateUserProfile(user.uid, userData);
                 metroSystem.saveUser(userData);
 
+                // Логирование входа
+                await metroSystem.logUserAction('УСПЕШНЫЙ_ВХОД', {
+                    email: email,
+                    rememberMe: rememberMe
+                });
+
                 metroSystem.showNotification('Успешный вход! Добро пожаловать!', 'success');
 
-                // Перенаправление на страницу профиля
-                setTimeout(() => {
-                    window.location.href = 'profile.html';
-                }, 1500);
+                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
+                metroSystem.redirectToProfile(1500, 'Успешный вход! Перенаправление на профиль...');
 
             } catch (error) {
                 console.error('Ошибка входа:', error);
@@ -209,12 +226,10 @@
             }
         });
 
-        // Верификация reCAPTCHA на сервере
+        // Верификация reCAPTCHA
         async function verifyRecaptcha(token) {
             try {
-                // В реальном приложении здесь должен быть запрос к вашему серверу
-                // Для демонстрации просто проверяем что токен есть
-                return { success: !!token };
+                return await metroSystem.verifyRecaptcha(token);
             } catch (error) {
                 console.error('Ошибка верификации reCAPTCHA:', error);
                 return { success: false };
@@ -224,12 +239,17 @@
         // OAuth вход
         async function loginWithGoogle() {
             try {
+                metroSystem.setLoading(event.target, true, 'Подключение к Google...');
+
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.addScope('email');
                 provider.addScope('profile');
 
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
+
+                // Получаем или создаем профиль
+                const userProfile = await metroSystem.getUserProfile(user.uid) || {};
 
                 const userData = {
                     uid: user.uid,
@@ -239,7 +259,17 @@
                     emailVerified: user.emailVerified,
                     provider: 'google',
                     lastLogin: new Date().toISOString(),
-                    loginHistory: [{
+                    settings: userProfile.settings || {
+                        theme: 'light',
+                        notifications: true,
+                        language: 'ru'
+                    },
+                    stats: userProfile.stats || {
+                        gamesPlayed: 0,
+                        totalScore: 0,
+                        level: 1
+                    },
+                    loginHistory: [...(userProfile.loginHistory || []), {
                         time: new Date().toISOString(),
                         ip: await metroSystem.getUserIP(),
                         userAgent: navigator.userAgent
@@ -249,35 +279,56 @@
                 await metroSystem.updateUserProfile(user.uid, userData);
                 metroSystem.saveUser(userData);
 
+                // Логирование
+                await metroSystem.logUserAction('ВХОД_ЧЕРЕЗ_GOOGLE', {
+                    email: user.email,
+                    displayName: user.displayName
+                });
+
                 metroSystem.showNotification('Успешный вход через Google!', 'success');
 
-                setTimeout(() => {
-                    window.location.href = 'profile.html';
-                }, 1500);
+                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
+                metroSystem.redirectToProfile(1500, 'Успешный вход! Перенаправление на профиль...');
 
             } catch (error) {
                 console.error('Ошибка входа через Google:', error);
                 metroSystem.showNotification('Ошибка входа через Google', 'error');
+                metroSystem.setLoading(event.target, false);
             }
         }
 
         async function loginWithGitHub() {
             try {
+                metroSystem.setLoading(event.target, true, 'Подключение к GitHub...');
+
                 const provider = new firebase.auth.GithubAuthProvider();
                 provider.addScope('user:email');
 
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
 
+                // Получаем или создаем профиль
+                const userProfile = await metroSystem.getUserProfile(user.uid) || {};
+
                 const userData = {
                     uid: user.uid,
                     email: user.email,
-                    displayName: user.displayName,
+                    displayName: user.displayName || user.email.split('@')[0],
                     photoURL: user.photoURL,
                     emailVerified: user.emailVerified,
                     provider: 'github',
                     lastLogin: new Date().toISOString(),
-                    loginHistory: [{
+                    settings: userProfile.settings || {
+                        theme: 'light',
+                        notifications: true,
+                        language: 'ru'
+                    },
+                    stats: userProfile.stats || {
+                        gamesPlayed: 0,
+                        totalScore: 0,
+                        level: 1
+                    },
+                    loginHistory: [...(userProfile.loginHistory || []), {
                         time: new Date().toISOString(),
                         ip: await metroSystem.getUserIP(),
                         userAgent: navigator.userAgent
@@ -287,15 +338,21 @@
                 await metroSystem.updateUserProfile(user.uid, userData);
                 metroSystem.saveUser(userData);
 
+                // Логирование
+                await metroSystem.logUserAction('ВХОД_ЧЕРЕЗ_GITHUB', {
+                    email: user.email,
+                    displayName: user.displayName
+                });
+
                 metroSystem.showNotification('Успешный вход через GitHub!', 'success');
 
-                setTimeout(() => {
-                    window.location.href = 'profile.html';
-                }, 1500);
+                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
+                metroSystem.redirectToProfile(1500, 'Успешный вход! Перенаправление на профиль...');
 
             } catch (error) {
                 console.error('Ошибка входа через GitHub:', error);
                 metroSystem.showNotification('Ошибка входа через GitHub', 'error');
+                metroSystem.setLoading(event.target, false);
             }
         }
 
@@ -320,6 +377,24 @@
                 document.getElementById('loginForm').dispatchEvent(new Event('submit'));
             }
         });
+
+        // Демо аккаунты для тестирования
+        function fillDemoAccount(type) {
+            let email, password;
+            
+            if (type === 'user') {
+                email = 'demo@metro.new';
+                password = '123456';
+            } else if (type === 'admin') {
+                email = 'admin@metro.new';
+                password = 'admin123';
+            }
+            
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+            
+            metroSystem.showNotification(`Демо аккаунт "${email}" загружен!`, 'success');
+        }
     </script>
 </body>
 </html>
