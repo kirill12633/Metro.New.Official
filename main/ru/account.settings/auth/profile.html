@@ -1,1 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-container">
+            <div class="logo">
+                <span class="logo-icon">M</span>
+                <span>Метро New</span>
+            </div>
+            <div class="nav-links">
+                <a href="../../../index.html">Главная</a>
+                <a href="../../../game.html">Игра</a>
+                <a href="settings.html">Настройки</a>
+                <a href="#" id="logoutBtn">Выйти</a>
+                <div class="user-info d-flex align-center gap-2">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="user-name" id="userName">Пользователь</span>
+                </div>
+            </div>
+        </div>
+    </nav>
 
+    <main>
+        <div class="container" style="padding: 2rem 0;">
+            <div class="metro-background"></div>
+            
+            <!-- Заголовок профиля -->
+            <div class="profile-header animate-fade-in-up">
+                <div class="card text-center">
+                    <div class="profile-avatar-container">
+                        <div id="profileAvatar" class="profile-avatar">U</div>
+                        <button class="btn btn-outline btn-sm mt-2" onclick="changeAvatar()">
+                            <i class="fas fa-camera"></i> Сменить аватар
+                        </button>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(this.files[0])">
+                    </div>
+                    <h1 id="profileName">Пользователь</h1>
+                    <p class="text-muted" id="profileEmail">user@example.com</p>
+                    <div class="d-flex justify-center gap-2 mt-2">
+                        <span id="emailVerifiedBadge" class="badge badge-success" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Email подтвержден
+                        </span>
+                        <span id="emailNotVerifiedBadge" class="badge badge-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Email не подтвержден
+                        </span>
+                        <button id="verifyEmailBtn" class="btn btn-sm btn-outline" onclick="sendEmailVerification()">
+                            Подтвердить email
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Статистика -->
+            <div class="profile-stats animate-slide-left">
+                <div class="stat-card">
+                    <div class="stat-number" id="gamesPlayed">0</div>
+                    <div class="stat-label">Игр сыграно</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalScore">0</div>
+                    <div class="stat-label">Общий счет</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="userLevel">1</div>
+                    <div class="stat-label">Уровень</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="registrationDays">0</div>
+                    <div class="stat-label">Дней с нами</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2 gap-3">
+                <!-- Информация о профиле -->
+                <div class="card animate-slide-left">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-circle"></i> Информация профиля</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-input" id="displayName" placeholder="Введите имя пользователя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email адрес</label>
+                        <input type="email" class="form-input" id="profileEmailInput" disabled>
+                        <div class="form-note">Для смены email обратитесь в поддержку</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">О себе</label>
+                        <textarea class="form-input" id="userBio" placeholder="Расскажите о себе..." rows="3"></textarea>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" onclick="updateProfile()">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                </div>
+
+                <!-- Действия и безопасность -->
+                <div class="card animate-slide-right">
+                    <div class="card-header">
+                        <h3><i class="fas fa-shield-alt"></i> Безопасность</h3>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>Сменить пароль</h4>
+                            <p>Обновите ваш пароль для безопасности</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="changePassword()">
+                            <i class="fas fa-key"></i> Сменить
+                        </button>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>Двухфакторная аутентификация</h4>
+                            <p>Дополнительная защита вашего аккаунта</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="twoFactorAuth" data-setting="twoFactorAuth">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>Активные сессии</h4>
+                            <p>Управление устройствами с доступом к аккаунту</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showActiveSessions()">
+                            <i class="fas fa-desktop"></i> Просмотр
+                        </button>
+                    </div>
+                </div>
+
+                <!-- История активности -->
+                <div class="card animate-slide-left">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> История активности</h3>
+                    </div>
+                    <div id="activityHistory">
+                        <div class="text-center text-muted p-4">
+                            <i class="fas fa-spinner fa-spin"></i> Загрузка истории...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Достижения -->
+                <div class="card animate-slide-right">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy"></i> Достижения</h3>
+                    </div>
+                    <div id="achievementsList">
+                        <div class="achievement-item">
+                            <div class="d-flex align-center gap-3">
+                                <div class="achievement-icon" style="background: var(--primary); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div>
+                                    <h5 style="margin-bottom: 0.25rem;">Новичок</h5>
+                                    <p class="text-muted" style="margin: 0;">Зарегистрировался в системе</p>
+                                    <small class="text-success"><i class="fas fa-check"></i> Получено</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Опасная зона -->
+            <div class="card animate-fade-in-up mt-4" style="border-left: 4px solid var(--danger);">
+                <div class="card-header">
+                    <h3 style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Опасная зона</h3>
+                </div>
+                <div class="grid grid-2 gap-3">
+                    <div>
+                        <h4>Удалить аккаунт</h4>
+                        <p class="text-muted">Безвозвратно удалить ваш аккаунт и все данные</p>
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-danger" onclick="deleteAccount()">
+                            <i class="fas fa-trash"></i> Удалить аккаунт
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-4">
+        <div class="container text-center">
+            <div class="footer-links d-flex justify-center gap-3 mb-2 flex-wrap">
+                <a href="../../../about.html">О нас</a>
+                <a href="../../../contact.html">Контакты</a>
+                <a href="../../../privacy.html">Политика конфиденциальности</a>
+                <a href="../../../terms.html">Пользовательское соглашение</a>
+            </div>
+            <p class="copyright text-muted">© 2025 Метро New. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let currentUser = null;
+
+        // Загрузка профиля при открытии страницы
+        document.addEventListener('DOMContentLoaded', async function() {
+            currentUser = metroSystem.checkAuth();
+            if (!currentUser) return;
+
+            await loadUserProfile();
+            await loadUserStats();
+            await loadActivityHistory();
+            setupEventListeners();
+        });
+
+        // Загрузка данных профиля
+        async function loadUserProfile() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                // Обновляем данные из Firebase Auth
+                document.getElementById('profileName').textContent = user.displayName || user.email;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileEmailInput').value = user.email;
+                document.getElementById('displayName').value = user.displayName || '';
+                
+                // Обновляем аватар
+                const avatarElement = document.getElementById('profileAvatar');
+                const navAvatar = document.getElementById('userAvatar');
+                const userName = document.getElementById('userName');
+                
+                if (user.displayName) {
+                    avatarElement.textContent = user.displayName.charAt(0).toUpperCase();
+                    navAvatar.textContent = user.displayName.charAt(0).toUpperCase();
+                    userName.textContent = user.displayName;
+                } else {
+                    avatarElement.textContent = user.email.charAt(0).toUpperCase();
+                    navAvatar.textContent = user.email.charAt(0).toUpperCase();
+                    userName.textContent = user.email;
+                }
+
+                // Проверка верификации email
+                const verifiedBadge = document.getElementById('emailVerifiedBadge');
+                const notVerifiedBadge = document.getElementById('emailNotVerifiedBadge');
+                const verifyBtn = document.getElementById('verifyEmailBtn');
+                
+                if (user.emailVerified) {
+                    verifiedBadge.style.display = 'inline-flex';
+                    notVerifiedBadge.style.display = 'none';
+                    verifyBtn.style.display = 'none';
+                } else {
+                    verifiedBadge.style.display = 'none';
+                    notVerifiedBadge.style.display = 'inline-flex';
+                    verifyBtn.style.display = 'inline-flex';
+                }
+
+                // Загружаем дополнительные данные из Firestore
+                const userProfile = await metroSystem.getUserProfile(user.uid);
+                if (userProfile) {
+                    document.getElementById('userBio').value = userProfile.bio || '';
+                    
+                    // Восстанавливаем настройки
+                    if (userProfile.settings) {
+                        document.getElementById('twoFactorAuth').checked = userProfile.settings.twoFactorAuth || false;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Ошибка загрузки профиля:', error);
+                metroSystem.showNotification('Ошибка загрузки профиля', 'error');
+            }
+        }
+
+        // Загрузка статистики
+        async function loadUserStats() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const userProfile = await metroSystem.getUserProfile(user.uid);
+                const stats = userProfile?.stats || {};
+                
+                document.getElementById('gamesPlayed').textContent = stats.gamesPlayed || 0;
+                document.getElementById('totalScore').textContent = stats.totalScore || 0;
+                document.getElementById('userLevel').textContent = stats.level || 1;
+
+                // Расчет дней с регистрации
+                if (userProfile?.registrationDate) {
+                    const regDate = new Date(userProfile.registrationDate);
+                    const today = new Date();
+                    const diffTime = Math.abs(today - regDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    document.getElementById('registrationDays').textContent = diffDays;
+                }
+
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+            }
+        }
+
+        // Загрузка истории активности
+        async function loadActivityHistory() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const userProfile = await metroSystem.getUserProfile(user.uid);
+                const loginHistory = userProfile?.loginHistory || [];
+                
+                const activityContainer = document.getElementById('activityHistory');
+                
+                if (loginHistory.length === 0) {
+                    activityContainer.innerHTML = `
+                        <div class="text-center text-muted p-4">
+                            <i class="fas fa-history"></i> История активности отсутствует
+                        </div>
+                    `;
+                    return;
+                }
+
+                activityContainer.innerHTML = loginHistory.slice(0, 5).map(activity => `
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h5>Вход в систему</h5>
+                            <p>IP: ${activity.ip || 'Неизвестно'} • ${metroSystem.formatDate(activity.time)}</p>
+                        </div>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+                document.getElementById('activityHistory').innerHTML = `
+                    <div class="text-center text-muted p-4">
+                        <i class="fas fa-exclamation-triangle"></i> Ошибка загрузки истории
+                    </div>
+                `;
+            }
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Слушатель изменений email верификации
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    const verifiedBadge = document.getElementById('emailVerifiedBadge');
+                    const notVerifiedBadge = document.getElementById('emailNotVerifiedBadge');
+                    const verifyBtn = document.getElementById('verifyEmailBtn');
+                    
+                    if (user.emailVerified) {
+                        verifiedBadge.style.display = 'inline-flex';
+                        notVerifiedBadge.style.display = 'none';
+                        verifyBtn.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Обновление профиля
+        async function updateProfile() {
+            const displayName = document.getElementById('displayName').value;
+            const userBio = document.getElementById('userBio').value;
+
+            try {
+                metroSystem.setLoading(event.target, true, 'Сохранение...');
+                
+                const user = auth.currentUser;
+                if (!user) throw new Error('Пользователь не авторизован');
+
+                // Обновление в Firebase Auth
+                await user.updateProfile({
+                    displayName: displayName
+                });
+
+                // Обновление в Firestore
+                const updateData = {
+                    displayName: displayName,
+                    bio: userBio,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                await metroSystem.updateUserProfile(user.uid, updateData);
+
+                // Обновление локальных данных
+                const userData = metroSystem.getCurrentUser();
+                if (userData) {
+                    userData.displayName = displayName;
+                    userData.bio = userBio;
+                    metroSystem.saveUser(userData);
+                }
+
+                // Обновление интерфейса
+                await loadUserProfile();
+                
+                metroSystem.showNotification('Профиль успешно обновлен!', 'success');
+                metroSystem.logUserAction('ОБНОВЛЕНИЕ_ПРОФИЛЯ', {
+                    displayName: displayName
+                });
+
+            } catch (error) {
+                console.error('Ошибка обновления профиля:', error);
+                metroSystem.showNotification('Ошибка обновления профиля', 'error');
+            } finally {
+                metroSystem.setLoading(event.target, false);
+            }
+        }
+
+        // Смена аватара
+        function changeAvatar() {
+            document.getElementById('avatarInput').click();
+        }
+
+        async function handleAvatarUpload(file) {
+            if (!file) return;
+
+            try {
+                metroSystem.showNotification('Загрузка аватара...', 'info');
+                
+                const result = await metroSystem.uploadFile(
+                    file,
+                    (progress) => {
+                        console.log(`Прогресс загрузки: ${progress}%`);
+                    },
+                    (fileData) => {
+                        // В реальном приложении здесь будет загрузка в Firebase Storage
+                        return fileData;
+                    },
+                    (error) => {
+                        throw error;
+                    }
+                );
+
+                // Обновление аватара пользователя
+                const user = auth.currentUser;
+                await user.updateProfile({
+                    photoURL: result.url
+                });
+
+                // Обновление в Firestore
+                await metroSystem.updateUserProfile(user.uid, {
+                    photoURL: result.url
+                });
+
+                // Обновление локальных данных
+                const userData = metroSystem.getCurrentUser();
+                if (userData) {
+                    userData.photoURL = result.url;
+                    metroSystem.saveUser(userData);
+                }
+
+                metroSystem.showNotification('Аватар успешно обновлен!', 'success');
+                metroSystem.logUserAction('СМЕНА_АВАТАРА', {
+                    fileName: file.name,
+                    fileSize: file.size
+                });
+
+            } catch (error) {
+                console.error('Ошибка загрузки аватара:', error);
+                metroSystem.showNotification(error.message, 'error');
+            }
+        }
+
+        // Отправка подтверждения email
+        async function sendEmailVerification() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                await user.sendEmailVerification();
+                metroSystem.showNotification('Письмо с подтверждением отправлено на ваш email!', 'success');
+                metroSystem.logUserAction('ОТПРАВКА_ПОДТВЕРЖДЕНИЯ_EMAIL');
+
+            } catch (error) {
+                console.error('Ошибка отправки подтверждения:', error);
+                metroSystem.showNotification('Ошибка отправки подтверждения email', 'error');
+            }
+        }
+
+        // Смена пароля
+        async function changePassword() {
+            const newPassword = prompt('Введите новый пароль (минимум 6 символов):');
+            if (!newPassword) return;
+
+            if (newPassword.length < 6) {
+                metroSystem.showNotification('Пароль должен содержать минимум 6 символов', 'error');
+                return;
+            }
+
+            try {
+                const user = auth.currentUser;
+                await user.updatePassword(newPassword);
+                
+                metroSystem.showNotification('Пароль успешно изменен!', 'success');
+                metroSystem.logUserAction('СМЕНА_ПАРОЛЯ');
+
+            } catch (error) {
+                console.error('Ошибка смены пароля:', error);
+                metroSystem.showNotification('Ошибка смены пароля. Возможно, требуется повторный вход.', 'error');
+            }
+        }
+
+        // Показать активные сессии
+        function showActiveSessions() {
+            metroSystem.showNotification('Функция находится в разработке', 'info');
+        }
+
+        // Удаление аккаунта
+        async function deleteAccount() {
+            const confirmation = confirm(
+                'ВНИМАНИЕ! Это действие нельзя отменить.\n\n' +
+                'Все ваши данные будут безвозвратно удалены:\n' +
+                '• Статистика игр\n' +
+                '• Настройки профиля\n' +
+                '• История активности\n\n' +
+                'Вы уверены, что хотите удалить аккаунт?'
+            );
+
+            if (!confirmation) return;
+
+            try {
+                const user = auth.currentUser;
+                
+                // Сначала удаляем данные из Firestore
+                await db.collection('users').doc(user.uid).delete();
+                
+                // Затем удаляем аккаунт из Firebase Auth
+                await user.delete();
+                
+                // Очищаем локальные данные
+                localStorage.removeItem('metro_user');
+                
+                metroSystem.showNotification('Аккаунт успешно удален', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '../../../index.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Ошибка удаления аккаунта:', error);
+                
+                if (error.code === 'auth/requires-recent-login') {
+                    metroSystem.showNotification('Для удаления аккаунта требуется повторный вход', 'error');
+                    setTimeout(() => {
+                        metroSystem.logout();
+                    }, 2000);
+                } else {
+                    metroSystem.showNotification('Ошибка удаления аккаунта', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
