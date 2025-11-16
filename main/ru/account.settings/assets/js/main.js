@@ -9,12 +9,17 @@ const firebaseConfig = {
 };
 
 // Инициализация Firebase
-firebase.initializeApp(firebaseConfig);
+try {
+    firebase.initializeApp(firebaseConfig);
+} catch (error) {
+    console.log('Firebase уже инициализирован');
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Discord Webhook для логирования (опционально)
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/your-webhook-url';
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1422279632643948595/iZ8ji9S-ocIRwdNqSTdK8WvzlBY-7YjrzAfgUvC9D45W3lQuFrWYhx-h2Lh3xJ5oh4Tp';
 
 // Metro System объект
 const metroSystem = {
@@ -396,7 +401,6 @@ const metroSystem = {
 
     // Загрузка файла (аватар)
     uploadFile: function(file, onProgress, onComplete, onError) {
-        // В реальном приложении здесь будет загрузка в Firebase Storage
         return new Promise((resolve, reject) => {
             if (!file) {
                 reject(new Error('Файл не выбран'));
@@ -465,6 +469,45 @@ const metroSystem = {
     restoreTheme: function() {
         const theme = metroSystem.getSetting('theme', 'light');
         metroSystem.setTheme(theme);
+    },
+
+    // Автопереход на профиль
+    redirectToProfile: function(delay = 1500, message = 'Успешная авторизация! Перенаправление на профиль...') {
+        // Показываем экран перехода
+        const redirectHTML = `
+            <div class="auto-redirect">
+                <div class="redirect-content">
+                    <div class="redirect-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <h3>${message}</h3>
+                    <p>Пожалуйста, подождите...</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', redirectHTML);
+        
+        // Переход через указанное время
+        setTimeout(() => {
+            window.location.href = 'profile.html';
+        }, delay);
+    },
+
+    // Проверка и авторедирект если пользователь авторизован
+    checkAndRedirectAuth: function() {
+        const user = metroSystem.getCurrentUser();
+        const currentPage = window.location.pathname;
+        
+        // Если пользователь авторизован и находится на странице входа/регистрации
+        if (user && (currentPage.includes('login.html') || currentPage.includes('registration.html'))) {
+            metroSystem.redirectToProfile(1000, 'Вы уже авторизованы! Перенаправление...');
+        }
+        
+        // Если пользователь не авторизован и пытается зайти на защищенную страницу
+        if (!user && (currentPage.includes('profile.html') || currentPage.includes('settings.html') || currentPage.includes('support.html'))) {
+            window.location.href = 'login.html';
+        }
     }
 };
 
@@ -502,8 +545,36 @@ function handleAuthError(error) {
     }
 }
 
+// Обработчики ошибок регистрации
+function handleRegistrationError(error) {
+    console.error('Ошибка регистрации:', error);
+    
+    switch (error.code || error.message) {
+        case 'auth/email-already-in-use':
+        case 'email-exists':
+            return 'Этот email уже используется';
+        case 'auth/invalid-email':
+            return 'Неверный формат email адреса';
+        case 'auth/operation-not-allowed':
+            return 'Регистрация по email временно отключена';
+        case 'auth/weak-password':
+            return 'Пароль слишком слабый. Минимум 6 символов';
+        case 'username-exists':
+            return 'Это имя пользователя уже занято';
+        case 'auth/network-request-failed':
+            return 'Ошибка сети. Проверьте подключение к интернету.';
+        case 'auth/too-many-requests':
+            return 'Слишком много попыток. Попробуйте позже.';
+        default:
+            return 'Произошла ошибка при регистрации. Попробуйте снова.';
+    }
+}
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
+    // Проверка авторизации и редирект
+    metroSystem.checkAndRedirectAuth();
+    
     // Анимация появления элементов
     metroSystem.animateElements('.form-group', 150);
     metroSystem.animateElements('.card', 100);
@@ -664,5 +735,5 @@ window.addEventListener('error', function(e) {
 
 // Экспорт для использования в других скриптах
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { metroSystem, handleAuthError };
+    module.exports = { metroSystem, handleAuthError, handleRegistrationError };
 }
