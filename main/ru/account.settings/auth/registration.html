@@ -7,10 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <nav class="nav">
@@ -42,61 +38,46 @@
                     <h1>Регистрация</h1>
                     <p class="text-muted">Только email и пароль - быстро и просто</p>
                 </div>
-
-                <div class="security-badge">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Ваши данные защищены</span>
-                </div>
                 
                 <form id="registrationForm">
                     <div class="form-group">
-                        <label class="form-label">Email адрес *</label>
+                        <label class="form-label">Email адрес</label>
                         <div class="input-with-icon">
                             <i class="fas fa-envelope input-icon"></i>
                             <input type="email" class="form-input" id="email" placeholder="Введите ваш email" required>
                         </div>
-                        <div class="error-message" id="emailError"></div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Пароль *</label>
+                        <label class="form-label">Пароль</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock input-icon"></i>
                             <input type="password" class="form-input" id="password" placeholder="Придумайте пароль" required>
-                            <button type="button" class="password-toggle" onclick="metroSystem.togglePassword('password')">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="error-message" id="passwordError"></div>
                         <div class="form-note">Минимум 6 символов</div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Подтверждение пароля *</label>
+                        <label class="form-label">Подтверждение пароля</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock input-icon"></i>
                             <input type="password" class="form-input" id="confirmPassword" placeholder="Повторите пароль" required>
-                            <button type="button" class="password-toggle" onclick="metroSystem.togglePassword('confirmPassword')">
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="error-message" id="confirmPasswordError"></div>
                     </div>
                     
                     <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="agreeTerms" required>
                             <label for="agreeTerms">
-                                Я принимаю <a href="../../../terms.html" target="_blank">пользовательское соглашение</a>
+                                Я принимаю пользовательское соглашение
                             </label>
                         </div>
-                        <div class="error-message" id="agreeTermsError"></div>
-                    </div>
-                    
-                    <!-- reCAPTCHA -->
-                    <div class="form-group text-center">
-                        <div class="g-recaptcha" data-sitekey="6Ld7xA0sAAAAAERFZ-gD6rZTETKUdrPJCxr8KXTb"></div>
-                        <div class="error-message" id="recaptchaError"></div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 mb-3" id="submitBtn">
@@ -109,11 +90,11 @@
                     </div>
                     
                     <div class="grid grid-2 gap-2">
-                        <button type="button" class="btn btn-outline" onclick="registerWithGoogle()">
+                        <button type="button" class="btn btn-outline">
                             <i class="fab fa-google"></i>
                             Google
                         </button>
-                        <button type="button" class="btn btn-outline" onclick="registerWithGitHub()">
+                        <button type="button" class="btn btn-outline">
                             <i class="fab fa-github"></i>
                             GitHub
                         </button>
@@ -129,356 +110,100 @@
 
     <footer class="mt-auto">
         <div class="container text-center">
-            <div class="footer-links d-flex justify-center gap-3 mb-2 flex-wrap">
-                <a href="../../../about.html">О нас</a>
-                <a href="../../../contact.html">Контакты</a>
-                <a href="../../../privacy.html">Политика конфиденциальности</a>
-                <a href="../../../terms.html">Пользовательское соглашение</a>
-            </div>
             <p class="copyright text-muted">© 2025 Метро New. Все права защищены.</p>
         </div>
     </footer>
 
-    <script src="../../assets/js/main.js"></script>
     <script>
-        // Обработчик формы регистрации
-        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+        // Функция переключения пароля
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentNode.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Обработчик формы
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            metroSystem.clearErrors();
-            metroSystem.setLoading(document.getElementById('submitBtn'), true, 'Регистрация...');
-
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const agreeTerms = document.getElementById('agreeTerms').checked;
-            const recaptchaResponse = grecaptcha.getResponse();
+            const submitBtn = document.getElementById('submitBtn');
 
-            // Валидация
-            let isValid = true;
-
-            // Валидация email
-            if (!email) {
-                metroSystem.showError('email', 'Введите email адрес');
-                isValid = false;
-            } else if (!metroSystem.isValidEmail(email)) {
-                metroSystem.showError('email', 'Введите корректный email адрес');
-                isValid = false;
-            }
-
-            // Валидация пароля
-            if (!password) {
-                metroSystem.showError('password', 'Введите пароль');
-                isValid = false;
-            } else if (password.length < 6) {
-                metroSystem.showError('password', 'Пароль должен содержать минимум 6 символов');
-                isValid = false;
-            }
-
-            // Подтверждение пароля
-            if (!confirmPassword) {
-                metroSystem.showError('confirmPassword', 'Подтвердите пароль');
-                isValid = false;
-            } else if (password !== confirmPassword) {
-                metroSystem.showError('confirmPassword', 'Пароли не совпадают');
-                isValid = false;
-            }
-
-            // Соглашение с условиями
-            if (!agreeTerms) {
-                metroSystem.showError('agreeTerms', 'Необходимо принять пользовательское соглашение');
-                isValid = false;
-            }
-
-            // reCAPTCHA
-            if (!recaptchaResponse) {
-                metroSystem.showError('recaptcha', 'Пожалуйста, подтвердите что вы не робот');
-                isValid = false;
-            }
-
-            if (!isValid) {
-                metroSystem.setLoading(document.getElementById('submitBtn'), false);
+            // Простая проверка паролей
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают!');
                 return;
             }
 
-            try {
-                // Верификация reCAPTCHA
-                const recaptchaResult = await verifyRecaptcha(recaptchaResponse);
-                if (!recaptchaResult.success) {
-                    throw new Error('Ошибка проверки reCAPTCHA');
-                }
+            if (password.length < 6) {
+                alert('Пароль должен быть минимум 6 символов!');
+                return;
+            }
 
-                // Проверка существования email
-                await checkEmailExists(email);
+            // Показываем загрузку
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
+            submitBtn.disabled = true;
 
-                // Создание пользователя в Firebase
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // Генерируем имя пользователя из email
-                const username = email.split('@')[0];
-
-                // Обновление профиля
-                await user.updateProfile({
-                    displayName: username
-                });
-
-                // Отправка email подтверждения
-                await user.sendEmailVerification();
-
-                // Сохранение данных пользователя
+            // Имитация регистрации
+            setTimeout(() => {
+                // Сохраняем пользователя
                 const userData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: username,
-                    username: username,
-                    photoURL: user.photoURL,
-                    emailVerified: user.emailVerified,
-                    registrationDate: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    settings: {
-                        theme: 'light',
-                        notifications: true,
-                        language: 'ru'
-                    },
-                    stats: {
-                        gamesPlayed: 0,
-                        totalScore: 0,
-                        level: 1
-                    },
-                    registrationIP: await metroSystem.getUserIP(),
-                    userAgent: navigator.userAgent,
-                    loginHistory: [{
-                        time: new Date().toISOString(),
-                        ip: await metroSystem.getUserIP(),
-                        userAgent: navigator.userAgent
-                    }]
-                };
-
-                // Сохранение в Firestore
-                await metroSystem.updateUserProfile(user.uid, userData);
-                metroSystem.saveUser(userData);
-
-                // Логирование регистрации
-                await metroSystem.logUserAction('РЕГИСТРАЦИЯ', {
                     email: email,
-                    method: 'email'
-                });
-
-                metroSystem.showNotification('Аккаунт успешно создан!', 'success');
-
-                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
-                metroSystem.redirectToProfile(1500, 'Регистрация завершена! Перенаправление на профиль...');
-
-            } catch (error) {
-                console.error('Ошибка регистрации:', error);
-                const errorMessage = handleRegistrationError(error);
-                metroSystem.showNotification(errorMessage, 'error');
-                metroSystem.setLoading(document.getElementById('submitBtn'), false);
-                metroSystem.resetRecaptcha();
-            }
-        });
-
-        // Проверка существования email
-        async function checkEmailExists(email) {
-            const emailSnapshot = await db.collection('users')
-                .where('email', '==', email)
-                .get();
-            
-            if (!emailSnapshot.empty) {
-                throw new Error('email-exists');
-            }
-        }
-
-        // Верификация reCAPTCHA
-        async function verifyRecaptcha(token) {
-            try {
-                return await metroSystem.verifyRecaptcha(token);
-            } catch (error) {
-                console.error('Ошибка верификации reCAPTCHA:', error);
-                return { success: false };
-            }
-        }
-
-        // OAuth регистрация
-        async function registerWithGoogle() {
-            try {
-                metroSystem.setLoading(event.target, true, 'Подключение к Google...');
-
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.addScope('email');
-                provider.addScope('profile');
-
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-
-                // Генерация username из email
-                const username = user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
-
-                const userData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName || username,
-                    username: username,
-                    photoURL: user.photoURL,
-                    emailVerified: user.emailVerified,
-                    provider: 'google',
-                    registrationDate: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    settings: {
-                        theme: 'light',
-                        notifications: true,
-                        language: 'ru'
-                    },
+                    displayName: email.split('@')[0],
+                    registrationDate: new Date().toLocaleString(),
                     stats: {
                         gamesPlayed: 0,
                         totalScore: 0,
                         level: 1
-                    },
-                    registrationIP: await metroSystem.getUserIP(),
-                    userAgent: navigator.userAgent,
-                    loginHistory: [{
-                        time: new Date().toISOString(),
-                        ip: await metroSystem.getUserIP(),
-                        userAgent: navigator.userAgent
-                    }]
+                    }
                 };
-
-                await metroSystem.updateUserProfile(user.uid, userData);
-                metroSystem.saveUser(userData);
-
-                // Логирование
-                await metroSystem.logUserAction('РЕГИСТРАЦИЯ_GOOGLE', {
-                    email: user.email,
-                    displayName: user.displayName
-                });
-
-                metroSystem.showNotification('Успешная регистрация через Google!', 'success');
-
-                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
-                metroSystem.redirectToProfile(1500, 'Регистрация завершена! Перенаправление на профиль...');
-
-            } catch (error) {
-                console.error('Ошибка регистрации через Google:', error);
-                metroSystem.showNotification('Ошибка регистрации через Google', 'error');
-                metroSystem.setLoading(event.target, false);
-            }
-        }
-
-        async function registerWithGitHub() {
-            try {
-                metroSystem.setLoading(event.target, true, 'Подключение к GitHub...');
-
-                const provider = new firebase.auth.GithubAuthProvider();
-                provider.addScope('user:email');
-
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-
-                // Генерация username из email
-                const username = user.email.split('@')[0] || 'github_user';
-
-                const userData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName || username,
-                    username: username,
-                    photoURL: user.photoURL,
-                    emailVerified: user.emailVerified,
-                    provider: 'github',
-                    registrationDate: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    settings: {
-                        theme: 'light',
-                        notifications: true,
-                        language: 'ru'
-                    },
-                    stats: {
-                        gamesPlayed: 0,
-                        totalScore: 0,
-                        level: 1
-                    },
-                    registrationIP: await metroSystem.getUserIP(),
-                    userAgent: navigator.userAgent,
-                    loginHistory: [{
-                        time: new Date().toISOString(),
-                        ip: await metroSystem.getUserIP(),
-                        userAgent: navigator.userAgent
-                    }]
-                };
-
-                await metroSystem.updateUserProfile(user.uid, userData);
-                metroSystem.saveUser(userData);
-
-                // Логирование
-                await metroSystem.logUserAction('РЕГИСТРАЦИЯ_GITHUB', {
-                    email: user.email,
-                    displayName: user.displayName
-                });
-
-                metroSystem.showNotification('Успешная регистрация через GitHub!', 'success');
-
-                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
-                metroSystem.redirectToProfile(1500, 'Регистрация завершена! Перенаправление на профиль...');
-
-            } catch (error) {
-                console.error('Ошибка регистрации через GitHub:', error);
-                metroSystem.showNotification('Ошибка регистрации через GitHub', 'error');
-                metroSystem.setLoading(event.target, false);
-            }
-        }
-
-        // Валидация в реальном времени
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
-            
-            if (confirmPassword && password !== confirmPassword) {
-                metroSystem.showError('confirmPassword', 'Пароли не совпадают');
-            } else {
-                const errorElement = document.getElementById('confirmPasswordError');
-                if (errorElement) {
-                    errorElement.textContent = '';
-                    errorElement.classList.remove('show');
-                }
-                document.getElementById('confirmPassword').classList.remove('error');
-            }
-        });
-
-        // Автозаполнение при фокусе
-        document.querySelectorAll('.form-input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.style.background = 'linear-gradient(90deg, var(--primary-light), #ffffff)';
+                
+                localStorage.setItem('metro_user', JSON.stringify(userData));
+                
+                // Показываем успех
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Успешно!';
+                submitBtn.style.background = 'var(--success)';
+                
+                // Переход на профиль
                 setTimeout(() => {
-                    this.style.background = 'white';
-                }, 500);
-            });
+                    window.location.href = 'profile.html';
+                }, 1000);
+                
+            }, 1500);
         });
 
-        // Быстрый вход по Enter
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('registrationForm').dispatchEvent(new Event('submit'));
-            }
+        // Автозаполнение для теста
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем кнопку для теста
+            const testBtn = document.createElement('button');
+            testBtn.textContent = 'TEST';
+            testBtn.style.position = 'fixed';
+            testBtn.style.top = '10px';
+            testBtn.style.left = '10px';
+            testBtn.style.zIndex = '10000';
+            testBtn.style.padding = '8px 12px';
+            testBtn.style.background = '#ff4444';
+            testBtn.style.color = 'white';
+            testBtn.style.border = 'none';
+            testBtn.style.borderRadius = '5px';
+            testBtn.style.cursor = 'pointer';
+            testBtn.onclick = function() {
+                document.getElementById('email').value = 'test@example.com';
+                document.getElementById('password').value = '123456';
+                document.getElementById('confirmPassword').value = '123456';
+                document.getElementById('agreeTerms').checked = true;
+            };
+            document.body.appendChild(testBtn);
         });
-
-        // Демо данные для тестирования
-        function fillDemoData() {
-            document.getElementById('email').value = 'test@example.com';
-            document.getElementById('password').value = '123456';
-            document.getElementById('confirmPassword').value = '123456';
-            document.getElementById('agreeTerms').checked = true;
-            
-            metroSystem.showNotification('Демо данные загружены!', 'success');
-        }
-
-        // Автозаполнение для быстрого тестирования
-        setTimeout(() => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('demo') === 'true') {
-                fillDemoData();
-            }
-        }, 500);
     </script>
 </body>
 </html>
