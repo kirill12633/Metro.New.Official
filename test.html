@@ -3,35 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro App</title>
+    <title>Metro Приложение</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
-        input, button { width: 100%; padding: 10px; margin: 5px 0; }
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 400px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input, button { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
         .hidden { display: none; }
-        .user-info { background: #f0f0f0; padding: 15px; margin: 10px 0; }
+        .user-info { 
+            background: #e9f7ef; 
+            padding: 15px; 
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .error { 
+            color: #dc3545; 
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <!-- Форма входа/регистрации -->
-    <div id="auth-section">
-        <h2>Вход в приложение</h2>
-        <input type="email" id="email" placeholder="Ваш email">
-        <input type="password" id="password" placeholder="Пароль">
-        <button onclick="signUp()">Зарегистрироваться</button>
-        <button onclick="signIn()">Войти</button>
-        <button onclick="signInAnonymously()">Войти как гость</button>
-    </div>
+    <div class="container">
+        <!-- Форма входа/регистрации -->
+        <div id="auth-section">
+            <h2>🔐 Вход в приложение</h2>
+            
+            <div id="error-message" class="error hidden"></div>
+            
+            <input type="email" id="email" placeholder="📧 Ваш email">
+            <input type="password" id="password" placeholder="🔒 Пароль">
+            
+            <button onclick="зарегистрироваться()">📝 Зарегистрироваться</button>
+            <button onclick="войти()">🚪 Войти</button>
+            <button onclick="войтиКакГость()">👤 Войти как гость</button>
+            
+            <div style="text-align: center; margin-top: 15px; color: #666;">
+                <small>Или войдите через Google</small>
+                <button onclick="войтиЧерезGoogle()" style="background: #db4437; margin-top: 5px;">
+                    🔵 Войти через Google
+                </button>
+            </div>
+        </div>
 
-    <!-- Контент для авторизованных -->
-    <div id="app-section" class="hidden">
-        <h2>Добро пожаловать!</h2>
-        <div id="user-info" class="user-info"></div>
-        <button onclick="signOut()">Выйти</button>
-        
-        <!-- Ваше приложение здесь -->
-        <div id="app-content">
-            <h3>Ваше приложение</h3>
-            <p>Теперь можно разрабатывать функционал!</p>
+        <!-- Контент для авторизованных -->
+        <div id="app-section" class="hidden">
+            <h2>🎉 Добро пожаловать!</h2>
+            
+            <div id="user-info" class="user-info"></div>
+            
+            <button onclick="выйти()" style="background: #6c757d;">🚪 Выйти</button>
+            
+            <!-- Ваше приложение здесь -->
+            <div id="app-content" style="margin-top: 20px;">
+                <h3>🚀 Ваше приложение готово!</h3>
+                <p>Теперь можно разрабатывать функционал вашего Metro приложения.</p>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <h4>📊 Информация о пользователе:</h4>
+                    <div id="user-details"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -54,47 +121,122 @@
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // Функции аутентификации
-        async function signUp() {
+        // Функция показа ошибок
+        function показатьОшибку(сообщение) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = сообщение;
+            errorDiv.classList.remove('hidden');
+            
+            // Автоскрытие ошибки через 5 секунд
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Функция скрытия ошибок
+        function скрытьОшибку() {
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        // Регистрация
+        async function зарегистрироваться() {
+            скрытьОшибку();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                показатьОшибку('📧 Введите email и пароль');
+                return;
+            }
             
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                alert('Регистрация успешна!');
-                console.log('User:', userCredential.user);
+                console.log('Пользователь зарегистрирован:', userCredential.user);
+                // Сообщение об успехе покажет onAuthStateChanged
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                console.error('Ошибка регистрации:', error);
+                
+                // Русские сообщения об ошибках
+                if (error.code === 'auth/email-already-in-use') {
+                    показатьОшибку('❌ Этот email уже используется');
+                } else if (error.code === 'auth/invalid-email') {
+                    показатьОшибку('❌ Неправильный формат email');
+                } else if (error.code === 'auth/weak-password') {
+                    показатьОшибку('❌ Пароль слишком простой (минимум 6 символов)');
+                } else {
+                    показатьОшибку('❌ Ошибка регистрации: ' + error.message);
+                }
             }
         }
 
-        async function signIn() {
+        // Вход
+        async function войти() {
+            скрытьОшибку();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
+            if (!email || !password) {
+                показатьОшибку('📧 Введите email и пароль');
+                return;
+            }
+            
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                alert('Вход успешен!');
+                console.log('Пользователь вошел:', userCredential.user);
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                console.error('Ошибка входа:', error);
+                
+                // Русские сообщения об ошибках
+                if (error.code === 'auth/user-not-found') {
+                    показатьОшибку('❌ Пользователь не найден');
+                } else if (error.code === 'auth/wrong-password') {
+                    показатьОшибку('❌ Неправильный пароль');
+                } else if (error.code === 'auth/invalid-email') {
+                    показатьОшибку('❌ Неправильный формат email');
+                } else {
+                    показатьОшибку('❌ Ошибка входа: ' + error.message);
+                }
             }
         }
 
-        async function signInAnonymously() {
+        // Вход как гость
+        async function войтиКакГость() {
+            скрытьОшибку();
             try {
                 const userCredential = await auth.signInAnonymously();
-                alert('Вход как гость!');
+                console.log('Гость вошел:', userCredential.user);
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                console.error('Ошибка гостевого входа:', error);
+                показатьОшибку('❌ Ошибка гостевого входа');
             }
         }
 
-        async function signOut() {
+        // Вход через Google
+        async function войтиЧерезGoogle() {
+            скрытьОшибку();
+            // Нужно сначала включить Google провайдер в Firebase Console
+            показатьОшибку('⚠️ Google вход нужно настроить в Firebase Console');
+            
+            // Раскомментируйте когда настроите Google провайдер:
+            /*
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                console.log('Google пользователь:', result.user);
+            } catch (error) {
+                показатьОшибку('❌ Ошибка входа через Google');
+            }
+            */
+        }
+
+        // Выход
+        async function выйти() {
             try {
                 await auth.signOut();
-                alert('Вы вышли!');
+                console.log('Пользователь вышел');
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                console.error('Ошибка выхода:', error);
+                показатьОшибку('❌ Ошибка при выходе');
             }
         }
 
@@ -103,21 +245,46 @@
             const authSection = document.getElementById('auth-section');
             const appSection = document.getElementById('app-section');
             const userInfo = document.getElementById('user-info');
+            const userDetails = document.getElementById('user-details');
             
             if (user) {
                 // Пользователь вошел
                 authSection.classList.add('hidden');
                 appSection.classList.remove('hidden');
                 
+                const isAnonymous = user.isAnonymous;
+                const email = user.email;
+                
                 userInfo.innerHTML = `
-                    <strong>Email:</strong> ${user.email || 'Гость'}<br>
-                    <strong>UID:</strong> ${user.uid}<br>
-                    <strong>Тип:</strong> ${user.isAnonymous ? 'Гость' : 'Зарегистрированный'}
+                    <strong>👤 Пользователь:</strong> ${email || 'Гость'}<br>
+                    <strong>🆔 UID:</strong> ${user.uid}<br>
+                    <strong>🎯 Тип:</strong> ${isAnonymous ? 'Гость' : 'Зарегистрированный'}<br>
+                    <strong>📅 Зарегистрирован:</strong> ${new Date(user.metadata.creationTime).toLocaleDateString('ru-RU')}
                 `;
+                
+                userDetails.innerHTML = `
+                    <p><strong>Email:</strong> ${email || 'Не указан'}</p>
+                    <p><strong>Email подтвержден:</strong> ${user.emailVerified ? '✅ Да' : '❌ Нет'}</p>
+                    <p><strong>Последний вход:</strong> ${new Date(user.metadata.lastSignInTime).toLocaleString('ru-RU')}</p>
+                    <p><strong>Анонимный аккаунт:</strong> ${isAnonymous ? '✅ Да' : '❌ Нет'}</p>
+                `;
+                
+                // Очищаем поля ввода
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                скрытьОшибку();
+                
             } else {
                 // Пользователь вышел
                 authSection.classList.remove('hidden');
                 appSection.classList.add('hidden');
+            }
+        });
+
+        // Enter для быстрого входа
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                войти();
             }
         });
     </script>
