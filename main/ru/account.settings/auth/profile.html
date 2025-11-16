@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
     <nav class="nav">
@@ -38,6 +40,19 @@
                     <h1 id="profileName">Пользователь</h1>
                     <p class="text-muted" id="profileEmail">user@example.com</p>
                     
+                    <!-- Статус верификации email -->
+                    <div id="verificationStatus" class="mb-3">
+                        <span id="verifiedBadge" class="badge badge-success" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Email подтверждён
+                        </span>
+                        <span id="notVerifiedBadge" class="badge badge-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Email не подтверждён
+                        </span>
+                        <button id="verifyEmailBtn" class="btn btn-sm btn-outline ml-2" onclick="sendEmailVerification()">
+                            Подтвердить email
+                        </button>
+                    </div>
+
                     <div class="profile-stats">
                         <div class="stat-card">
                             <div class="stat-number" id="gamesPlayed">0</div>
@@ -56,6 +71,7 @@
             </div>
 
             <div class="grid grid-2 gap-3">
+                <!-- Редактирование профиля -->
                 <div class="card">
                     <h3><i class="fas fa-user-edit"></i> Редактировать профиль</h3>
                     <div class="form-group">
@@ -67,66 +83,196 @@
                     </button>
                 </div>
 
+                <!-- Безопасность -->
                 <div class="card">
                     <h3><i class="fas fa-shield-alt"></i> Безопасность</h3>
-                    <p>Email: <span id="userEmail"></span></p>
-                    <button class="btn btn-outline w-100 mb-2" onclick="changePassword()">
-                        <i class="fas fa-key"></i> Сменить пароль
-                    </button>
-                    <button class="btn btn-outline w-100" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Выйти
-                    </button>
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>Сменить пароль</h4>
+                            <p>Обновите ваш пароль для безопасности</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="changePassword()">
+                            <i class="fas fa-key"></i> Сменить
+                        </button>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>Сменить email</h4>
+                            <p>Изменить адрес электронной почты</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="changeEmail()">
+                            <i class="fas fa-envelope"></i> Сменить
+                        </button>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="option-info">
+                            <h4>Выйти из системы</h4>
+                            <p>Завершить текущую сессию</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
+        // Firebase конфиг - ЗАМЕНИ НА СВОЙ!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализация Firebase
+        let auth;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            console.log('Firebase инициализирован');
+        } catch (error) {
+            console.log('Firebase уже инициализирован');
+            auth = firebase.auth();
+        }
+
         // Проверяем авторизацию
-        const userData = JSON.parse(localStorage.getItem('metro_user'));
-        
-        if (!userData) {
-            window.location.href = 'login.html';
-        } else {
-            // Загружаем данные пользователя
-            document.getElementById('profileName').textContent = userData.displayName || userData.email;
-            document.getElementById('profileEmail').textContent = userData.email;
-            document.getElementById('userEmail').textContent = userData.email;
-            document.getElementById('userName').textContent = userData.displayName || userData.email;
-            document.getElementById('userAvatar').textContent = (userData.displayName || userData.email).charAt(0).toUpperCase();
-            document.getElementById('profileAvatar').textContent = (userData.displayName || userData.email).charAt(0).toUpperCase();
-            document.getElementById('displayName').value = userData.displayName || '';
-            
-            // Загружаем статистику
-            if (userData.stats) {
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadUserProfile(user);
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Загрузка профиля
+        function loadUserProfile(user) {
+            document.getElementById('profileName').textContent = user.displayName || user.email;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('userName').textContent = user.displayName || user.email;
+            document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+            document.getElementById('profileAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+            document.getElementById('displayName').value = user.displayName || '';
+
+            // Проверка верификации email
+            if (user.emailVerified) {
+                document.getElementById('verifiedBadge').style.display = 'inline-flex';
+                document.getElementById('notVerifiedBadge').style.display = 'none';
+                document.getElementById('verifyEmailBtn').style.display = 'none';
+            } else {
+                document.getElementById('verifiedBadge').style.display = 'none';
+                document.getElementById('notVerifiedBadge').style.display = 'inline-flex';
+                document.getElementById('verifyEmailBtn').style.display = 'inline-flex';
+            }
+
+            // Загружаем данные из localStorage
+            const userData = JSON.parse(localStorage.getItem('metro_user'));
+            if (userData && userData.stats) {
                 document.getElementById('gamesPlayed').textContent = userData.stats.gamesPlayed || 0;
                 document.getElementById('totalScore').textContent = userData.stats.totalScore || 0;
                 document.getElementById('userLevel').textContent = userData.stats.level || 1;
             }
         }
 
-        function updateProfile() {
+        // Обновление профиля
+        async function updateProfile() {
             const displayName = document.getElementById('displayName').value;
             if (displayName) {
-                userData.displayName = displayName;
-                localStorage.setItem('metro_user', JSON.stringify(userData));
-                
-                document.getElementById('profileName').textContent = displayName;
-                document.getElementById('userName').textContent = displayName;
-                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
-                document.getElementById('profileAvatar').textContent = displayName.charAt(0).toUpperCase();
-                
-                alert('Профиль обновлен!');
+                try {
+                    const user = auth.currentUser;
+                    await user.updateProfile({
+                        displayName: displayName
+                    });
+
+                    // Обновляем UI
+                    document.getElementById('profileName').textContent = displayName;
+                    document.getElementById('userName').textContent = displayName;
+                    document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                    document.getElementById('profileAvatar').textContent = displayName.charAt(0).toUpperCase();
+
+                    showNotification('✅ Профиль обновлен!', 'success');
+                } catch (error) {
+                    console.error('Ошибка обновления:', error);
+                    showNotification('❌ Ошибка обновления профиля', 'error');
+                }
             }
         }
 
-        function changePassword() {
-            alert('Функция смены пароля будет доступна в следующем обновлении');
+        // Отправка подтверждения email
+        async function sendEmailVerification() {
+            try {
+                const user = auth.currentUser;
+                await user.sendEmailVerification();
+                showNotification('✅ Письмо с подтверждением отправлено!', 'success');
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showNotification('❌ Ошибка отправки подтверждения', 'error');
+            }
         }
 
-        function logout() {
-            localStorage.removeItem('metro_user');
-            window.location.href = 'login.html';
+        // Смена пароля
+        async function changePassword() {
+            const newPassword = prompt('Введите новый пароль (минимум 6 символов):');
+            if (newPassword && newPassword.length >= 6) {
+                try {
+                    const user = auth.currentUser;
+                    await user.updatePassword(newPassword);
+                    showNotification('✅ Пароль успешно изменен!', 'success');
+                } catch (error) {
+                    console.error('Ошибка смены пароля:', error);
+                    showNotification('❌ Ошибка смены пароля', 'error');
+                }
+            } else if (newPassword) {
+                showNotification('❌ Пароль должен быть минимум 6 символов', 'error');
+            }
+        }
+
+        // Смена email
+        async function changeEmail() {
+            const newEmail = prompt('Введите новый email:');
+            if (newEmail) {
+                try {
+                    const user = auth.currentUser;
+                    await user.updateEmail(newEmail);
+                    showNotification('✅ Email успешно изменен!', 'success');
+                    // Перезагружаем страницу чтобы обновить данные
+                    setTimeout(() => location.reload(), 1000);
+                } catch (error) {
+                    console.error('Ошибка смены email:', error);
+                    showNotification('❌ Ошибка смены email', 'error');
+                }
+            }
+        }
+
+        // Выход
+        async function logout() {
+            try {
+                await auth.signOut();
+                localStorage.removeItem('metro_user');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+            }
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check' : 'info'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
         }
 
         // Обработчик кнопки выхода в навигации
