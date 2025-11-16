@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <nav class="nav">
@@ -58,7 +57,7 @@
                         <div class="input-with-icon">
                             <i class="fas fa-lock input-icon"></i>
                             <input type="password" class="form-input" id="password" placeholder="Введите ваш пароль" required>
-                            <button type="button" class="password-toggle" onclick="metroSystem.togglePassword('password')">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -71,12 +70,6 @@
                             <label for="rememberMe">Запомнить меня</label>
                         </div>
                         <a href="forgot-password.html" class="forgot-link">Забыли пароль?</a>
-                    </div>
-                    
-                    <!-- reCAPTCHA -->
-                    <div class="form-group text-center">
-                        <div class="g-recaptcha" data-sitekey="6Ld7xA0sAAAAAERFZ-gD6rZTETKUdrPJCxr8KXTb"></div>
-                        <div class="error-message" id="recaptchaError"></div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 mb-3" id="submitBtn">
@@ -109,138 +102,249 @@
 
     <footer class="mt-auto">
         <div class="container text-center">
-            <div class="footer-links d-flex justify-center gap-3 mb-2 flex-wrap">
-                <a href="../../../about.html">О нас</a>
-                <a href="../../../contact.html">Контакты</a>
-                <a href="../../../privacy.html">Политика конфиденциальности</a>
-                <a href="../../../terms.html">Пользовательское соглашение</a>
-            </div>
             <p class="copyright text-muted">© 2025 Метро New. Все права защищены.</p>
         </div>
     </footer>
 
-    <script src="../../assets/js/main.js"></script>
     <script>
+        // Firebase конфигурация
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализация Firebase
+        let auth, db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log('Firebase инициализирован для входа');
+        } catch (error) {
+            console.log('Firebase уже инициализирован');
+            auth = firebase.auth();
+            db = firebase.firestore();
+        }
+
+        // Проверяем, если пользователь уже авторизован - редирект на профиль
+        const currentUser = JSON.parse(localStorage.getItem('metro_user'));
+        if (currentUser) {
+            window.location.href = 'profile.html';
+        }
+
+        // Функции уведомлений
+        function showNotification(message, type = 'info') {
+            const oldNotifications = document.querySelectorAll('.notification');
+            oldNotifications.forEach(notif => notif.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + 'Error');
+            const inputElement = document.getElementById(fieldId);
+            
+            if (errorElement && inputElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                inputElement.classList.add('error');
+            }
+        }
+
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            const inputElements = document.querySelectorAll('.form-input');
+            
+            errorElements.forEach(el => el.style.display = 'none');
+            inputElements.forEach(el => el.classList.remove('error'));
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentNode.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function setLoading(loading) {
+            const submitBtn = document.getElementById('submitBtn');
+            if (loading) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
+                submitBtn.disabled = true;
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Войти в систему';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
         // Обработчик формы входа
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            metroSystem.clearErrors();
-            metroSystem.setLoading(document.getElementById('submitBtn'), true, 'Проверка...');
+            setLoading(true);
+            clearErrors();
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('rememberMe').checked;
-            const recaptchaResponse = grecaptcha.getResponse();
 
             // Валидация
             let isValid = true;
 
             if (!email) {
-                metroSystem.showError('email', 'Введите email адрес');
+                showError('email', 'Введите email адрес');
                 isValid = false;
-            } else if (!metroSystem.isValidEmail(email)) {
-                metroSystem.showError('email', 'Введите корректный email адрес');
+            } else if (!isValidEmail(email)) {
+                showError('email', 'Введите корректный email адрес');
                 isValid = false;
             }
 
             if (!password) {
-                metroSystem.showError('password', 'Введите пароль');
-                isValid = false;
-            } else if (password.length < 6) {
-                metroSystem.showError('password', 'Пароль должен содержать минимум 6 символов');
-                isValid = false;
-            }
-
-            if (!recaptchaResponse) {
-                metroSystem.showError('recaptcha', 'Пожалуйста, подтвердите что вы не робот');
+                showError('password', 'Введите пароль');
                 isValid = false;
             }
 
             if (!isValid) {
-                metroSystem.setLoading(document.getElementById('submitBtn'), false);
+                setLoading(false);
                 return;
             }
 
             try {
-                // Верификация reCAPTCHA
-                const recaptchaResult = await verifyRecaptcha(recaptchaResponse);
-                if (!recaptchaResult.success) {
-                    throw new Error('Ошибка проверки reCAPTCHA');
-                }
-
+                console.log('Попытка входа...');
+                
                 // Вход через Firebase
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
+                
+                console.log('Вход успешен:', user.uid);
 
-                // Получаем профиль пользователя
-                const userProfile = await metroSystem.getUserProfile(user.uid) || {};
-
-                // Сохраняем данные пользователя
-                const userData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName || user.email.split('@')[0],
-                    photoURL: user.photoURL,
-                    emailVerified: user.emailVerified,
-                    lastLogin: new Date().toISOString(),
-                    rememberMe: rememberMe,
-                    settings: userProfile.settings || {
-                        theme: 'light',
-                        notifications: true,
-                        language: 'ru'
-                    },
-                    stats: userProfile.stats || {
-                        gamesPlayed: 0,
-                        totalScore: 0,
-                        level: 1
-                    },
-                    loginHistory: [...(userProfile.loginHistory || []), {
+                // Получаем данные пользователя из Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                let userData;
+                if (userDoc.exists) {
+                    // Обновляем существующие данные
+                    userData = userDoc.data();
+                    userData.lastLogin = new Date().toISOString();
+                    userData.rememberMe = rememberMe;
+                    
+                    // Добавляем в историю входов
+                    if (!userData.loginHistory) {
+                        userData.loginHistory = [];
+                    }
+                    userData.loginHistory.unshift({
                         time: new Date().toISOString(),
-                        ip: await metroSystem.getUserIP(),
+                        ip: await getUserIP(),
                         userAgent: navigator.userAgent
-                    }]
-                };
+                    });
+                    
+                    // Ограничиваем историю последними 10 входами
+                    userData.loginHistory = userData.loginHistory.slice(0, 10);
+                    
+                    // Обновляем в Firestore
+                    await db.collection('users').doc(user.uid).update(userData);
+                } else {
+                    // Создаем базовый профиль если не найден
+                    const username = email.split('@')[0];
+                    userData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || username,
+                        username: username,
+                        photoURL: user.photoURL || '',
+                        emailVerified: user.emailVerified,
+                        lastLogin: new Date().toISOString(),
+                        rememberMe: rememberMe,
+                        settings: {
+                            theme: 'light',
+                            notifications: true,
+                            language: 'ru'
+                        },
+                        stats: {
+                            gamesPlayed: 0,
+                            totalScore: 0,
+                            level: 1,
+                            experience: 0
+                        },
+                        loginHistory: [{
+                            time: new Date().toISOString(),
+                            ip: await getUserIP(),
+                            userAgent: navigator.userAgent
+                        }]
+                    };
+                    
+                    await db.collection('users').doc(user.uid).set(userData);
+                }
 
-                // Сохраняем в Firestore
-                await metroSystem.updateUserProfile(user.uid, userData);
-                metroSystem.saveUser(userData);
+                // Сохраняем в localStorage
+                localStorage.setItem('metro_user', JSON.stringify(userData));
 
-                // Логирование входа
-                await metroSystem.logUserAction('УСПЕШНЫЙ_ВХОД', {
-                    email: email,
-                    rememberMe: rememberMe
-                });
+                showNotification('✅ Вход выполнен успешно!', 'success');
 
-                metroSystem.showNotification('Успешный вход! Добро пожаловать!', 'success');
-
-                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
-                metroSystem.redirectToProfile(1500, 'Успешный вход! Перенаправление на профиль...');
+                // Автоматический переход на профиль через 1.5 секунды
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
 
             } catch (error) {
                 console.error('Ошибка входа:', error);
-                const errorMessage = handleAuthError(error);
-                metroSystem.showNotification(errorMessage, 'error');
-                metroSystem.setLoading(document.getElementById('submitBtn'), false);
-                grecaptcha.reset();
+                
+                let errorMessage = 'Ошибка входа. Попробуйте снова.';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = '❌ Пользователь с таким email не найден';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = '❌ Неверный пароль';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = '❌ Неверный формат email адреса';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = '❌ Слишком много попыток. Попробуйте позже.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    errorMessage = '❌ Ошибка сети. Проверьте подключение к интернету';
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMessage = '❌ Аккаунт заблокирован';
+                }
+                
+                showNotification(errorMessage, 'error');
+                setLoading(false);
             }
         });
-
-        // Верификация reCAPTCHA
-        async function verifyRecaptcha(token) {
-            try {
-                return await metroSystem.verifyRecaptcha(token);
-            } catch (error) {
-                console.error('Ошибка верификации reCAPTCHA:', error);
-                return { success: false };
-            }
-        }
 
         // OAuth вход
         async function loginWithGoogle() {
             try {
-                metroSystem.setLoading(event.target, true, 'Подключение к Google...');
-
+                setLoading(true);
+                
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.addScope('email');
                 provider.addScope('profile');
@@ -249,58 +353,69 @@
                 const user = result.user;
 
                 // Получаем или создаем профиль
-                const userProfile = await metroSystem.getUserProfile(user.uid) || {};
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                let userData;
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    userData.lastLogin = new Date().toISOString();
+                    
+                    // Обновляем в Firestore
+                    await db.collection('users').doc(user.uid).update({
+                        lastLogin: new Date().toISOString()
+                    });
+                } else {
+                    // Создаем новый профиль
+                    userData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        username: user.email.split('@')[0],
+                        photoURL: user.photoURL,
+                        emailVerified: user.emailVerified,
+                        provider: 'google',
+                        registrationDate: new Date().toISOString(),
+                        lastLogin: new Date().toISOString(),
+                        settings: {
+                            theme: 'light',
+                            notifications: true,
+                            language: 'ru'
+                        },
+                        stats: {
+                            gamesPlayed: 0,
+                            totalScore: 0,
+                            level: 1,
+                            experience: 0
+                        },
+                        loginHistory: [{
+                            time: new Date().toISOString(),
+                            ip: await getUserIP(),
+                            userAgent: navigator.userAgent
+                        }]
+                    };
+                    
+                    await db.collection('users').doc(user.uid).set(userData);
+                }
 
-                const userData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    emailVerified: user.emailVerified,
-                    provider: 'google',
-                    lastLogin: new Date().toISOString(),
-                    settings: userProfile.settings || {
-                        theme: 'light',
-                        notifications: true,
-                        language: 'ru'
-                    },
-                    stats: userProfile.stats || {
-                        gamesPlayed: 0,
-                        totalScore: 0,
-                        level: 1
-                    },
-                    loginHistory: [...(userProfile.loginHistory || []), {
-                        time: new Date().toISOString(),
-                        ip: await metroSystem.getUserIP(),
-                        userAgent: navigator.userAgent
-                    }]
-                };
+                localStorage.setItem('metro_user', JSON.stringify(userData));
+                showNotification('✅ Вход через Google выполнен!', 'success');
 
-                await metroSystem.updateUserProfile(user.uid, userData);
-                metroSystem.saveUser(userData);
-
-                // Логирование
-                await metroSystem.logUserAction('ВХОД_ЧЕРЕЗ_GOOGLE', {
-                    email: user.email,
-                    displayName: user.displayName
-                });
-
-                metroSystem.showNotification('Успешный вход через Google!', 'success');
-
-                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
-                metroSystem.redirectToProfile(1500, 'Успешный вход! Перенаправление на профиль...');
+                // Переход на профиль
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
 
             } catch (error) {
                 console.error('Ошибка входа через Google:', error);
-                metroSystem.showNotification('Ошибка входа через Google', 'error');
-                metroSystem.setLoading(event.target, false);
+                showNotification('❌ Ошибка входа через Google', 'error');
+                setLoading(false);
             }
         }
 
         async function loginWithGitHub() {
             try {
-                metroSystem.setLoading(event.target, true, 'Подключение к GitHub...');
-
+                setLoading(true);
+                
                 const provider = new firebase.auth.GithubAuthProvider();
                 provider.addScope('user:email');
 
@@ -308,75 +423,75 @@
                 const user = result.user;
 
                 // Получаем или создаем профиль
-                const userProfile = await metroSystem.getUserProfile(user.uid) || {};
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                let userData;
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    userData.lastLogin = new Date().toISOString();
+                    
+                    // Обновляем в Firestore
+                    await db.collection('users').doc(user.uid).update({
+                        lastLogin: new Date().toISOString()
+                    });
+                } else {
+                    // Создаем новый профиль
+                    userData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        username: user.email.split('@')[0],
+                        photoURL: user.photoURL,
+                        emailVerified: user.emailVerified,
+                        provider: 'github',
+                        registrationDate: new Date().toISOString(),
+                        lastLogin: new Date().toISOString(),
+                        settings: {
+                            theme: 'light',
+                            notifications: true,
+                            language: 'ru'
+                        },
+                        stats: {
+                            gamesPlayed: 0,
+                            totalScore: 0,
+                            level: 1,
+                            experience: 0
+                        },
+                        loginHistory: [{
+                            time: new Date().toISOString(),
+                            ip: await getUserIP(),
+                            userAgent: navigator.userAgent
+                        }]
+                    };
+                    
+                    await db.collection('users').doc(user.uid).set(userData);
+                }
 
-                const userData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName || user.email.split('@')[0],
-                    photoURL: user.photoURL,
-                    emailVerified: user.emailVerified,
-                    provider: 'github',
-                    lastLogin: new Date().toISOString(),
-                    settings: userProfile.settings || {
-                        theme: 'light',
-                        notifications: true,
-                        language: 'ru'
-                    },
-                    stats: userProfile.stats || {
-                        gamesPlayed: 0,
-                        totalScore: 0,
-                        level: 1
-                    },
-                    loginHistory: [...(userProfile.loginHistory || []), {
-                        time: new Date().toISOString(),
-                        ip: await metroSystem.getUserIP(),
-                        userAgent: navigator.userAgent
-                    }]
-                };
+                localStorage.setItem('metro_user', JSON.stringify(userData));
+                showNotification('✅ Вход через GitHub выполнен!', 'success');
 
-                await metroSystem.updateUserProfile(user.uid, userData);
-                metroSystem.saveUser(userData);
-
-                // Логирование
-                await metroSystem.logUserAction('ВХОД_ЧЕРЕЗ_GITHUB', {
-                    email: user.email,
-                    displayName: user.displayName
-                });
-
-                metroSystem.showNotification('Успешный вход через GitHub!', 'success');
-
-                // АВТОМАТИЧЕСКИЙ ПЕРЕХОД НА ПРОФИЛЬ
-                metroSystem.redirectToProfile(1500, 'Успешный вход! Перенаправление на профиль...');
+                // Переход на профиль
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
 
             } catch (error) {
                 console.error('Ошибка входа через GitHub:', error);
-                metroSystem.showNotification('Ошибка входа через GitHub', 'error');
-                metroSystem.setLoading(event.target, false);
+                showNotification('❌ Ошибка входа через GitHub', 'error');
+                setLoading(false);
             }
         }
 
-        // Автозаполнение при фокусе
-        document.getElementById('email').addEventListener('focus', function() {
-            this.style.background = 'linear-gradient(90deg, var(--primary-light), #ffffff)';
-            setTimeout(() => {
-                this.style.background = 'white';
-            }, 500);
-        });
-        
-        document.getElementById('password').addEventListener('focus', function() {
-            this.style.background = 'linear-gradient(90deg, var(--primary-light), #ffffff)';
-            setTimeout(() => {
-                this.style.background = 'white';
-            }, 500);
-        });
-
-        // Быстрый вход по Enter
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        // Получение IP пользователя
+        async function getUserIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'unknown';
             }
-        });
+        }
 
         // Демо аккаунты для тестирования
         function fillDemoAccount(type) {
@@ -392,9 +507,58 @@
             
             document.getElementById('email').value = email;
             document.getElementById('password').value = password;
+            document.getElementById('rememberMe').checked = true;
             
-            metroSystem.showNotification(`Демо аккаунт "${email}" загружен!`, 'success');
+            showNotification(`Демо аккаунт "${email}" загружен!`, 'success');
         }
+
+        // Добавляем кнопки для тестирования
+        document.addEventListener('DOMContentLoaded', function() {
+            // Кнопка демо пользователя
+            const demoUserBtn = document.createElement('button');
+            demoUserBtn.textContent = 'DEMO USER';
+            demoUserBtn.style.position = 'fixed';
+            demoUserBtn.style.top = '10px';
+            demoUserBtn.style.left = '10px';
+            demoUserBtn.style.zIndex = '10000';
+            demoUserBtn.style.padding = '8px 12px';
+            demoUserBtn.style.background = '#ff4444';
+            demoUserBtn.style.color = 'white';
+            demoUserBtn.style.border = 'none';
+            demoUserBtn.style.borderRadius = '5px';
+            demoUserBtn.style.cursor = 'pointer';
+            demoUserBtn.style.fontSize = '12px';
+            demoUserBtn.style.fontWeight = 'bold';
+            demoUserBtn.onclick = () => fillDemoAccount('user');
+            document.body.appendChild(demoUserBtn);
+
+            // Кнопка демо админа
+            const demoAdminBtn = document.createElement('button');
+            demoAdminBtn.textContent = 'DEMO ADMIN';
+            demoAdminBtn.style.position = 'fixed';
+            demoAdminBtn.style.top = '50px';
+            demoAdminBtn.style.left = '10px';
+            demoAdminBtn.style.zIndex = '10000';
+            demoAdminBtn.style.padding = '8px 12px';
+            demoAdminBtn.style.background = '#4444ff';
+            demoAdminBtn.style.color = 'white';
+            demoAdminBtn.style.border = 'none';
+            demoAdminBtn.style.borderRadius = '5px';
+            demoAdminBtn.style.cursor = 'pointer';
+            demoAdminBtn.style.fontSize = '12px';
+            demoAdminBtn.style.fontWeight = 'bold';
+            demoAdminBtn.onclick = () => fillDemoAccount('admin');
+            document.body.appendChild(demoAdminBtn);
+
+            console.log('Страница входа загружена');
+        });
+
+        // Быстрый вход по Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
