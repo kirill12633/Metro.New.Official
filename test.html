@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro App</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        input, button { width: 100%; padding: 10px; margin: 5px 0; }
+        .hidden { display: none; }
+        .user-info { background: #f0f0f0; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <!-- Форма входа/регистрации -->
+    <div id="auth-section">
+        <h2>Вход в приложение</h2>
+        <input type="email" id="email" placeholder="Ваш email">
+        <input type="password" id="password" placeholder="Пароль">
+        <button onclick="signUp()">Зарегистрироваться</button>
+        <button onclick="signIn()">Войти</button>
+        <button onclick="signInAnonymously()">Войти как гость</button>
+    </div>
+
+    <!-- Контент для авторизованных -->
+    <div id="app-section" class="hidden">
+        <h2>Добро пожаловать!</h2>
+        <div id="user-info" class="user-info"></div>
+        <button onclick="signOut()">Выйти</button>
+        
+        <!-- Ваше приложение здесь -->
+        <div id="app-content">
+            <h3>Ваше приложение</h3>
+            <p>Теперь можно разрабатывать функционал!</p>
+        </div>
+    </div>
+
+    <!-- Подключаем Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
+    
+    <script>
+        // Ваши ключи Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Функции аутентификации
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                alert('Регистрация успешна!');
+                console.log('User:', userCredential.user);
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                alert('Вход успешен!');
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function signInAnonymously() {
+            try {
+                const userCredential = await auth.signInAnonymously();
+                alert('Вход как гость!');
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function signOut() {
+            try {
+                await auth.signOut();
+                alert('Вы вышли!');
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        // Следим за состоянием аутентификации
+        auth.onAuthStateChanged((user) => {
+            const authSection = document.getElementById('auth-section');
+            const appSection = document.getElementById('app-section');
+            const userInfo = document.getElementById('user-info');
+            
+            if (user) {
+                // Пользователь вошел
+                authSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                
+                userInfo.innerHTML = `
+                    <strong>Email:</strong> ${user.email || 'Гость'}<br>
+                    <strong>UID:</strong> ${user.uid}<br>
+                    <strong>Тип:</strong> ${user.isAnonymous ? 'Гость' : 'Зарегистрированный'}
+                `;
+            } else {
+                // Пользователь вышел
+                authSection.classList.remove('hidden');
+                appSection.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
