@@ -1,78 +1,98 @@
-// Генерация простой капчи
+// Firebase config (ПОМЕНЯЙ КЛЮЧИ!)
+const firebaseConfig = {
+    apiKey: "ТВОЙ_API_KEY",
+    authDomain: "metro-new-85226.firebaseapp.com",
+    projectId: "metro-new-85226",
+    storageBucket: "metro-new-85226.firebasestorage.app",
+    messagingSenderId: "905640751733",
+    appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+};
+
+// Инициализация Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Простая капча
 function generateCaptcha() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let captcha = '';
-  for (let i = 0; i < 6; i++) {
-    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return captcha;
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let captcha = '';
+    for (let i = 0; i < 6; i++) {
+        captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return captcha;
 }
 
-// Добавляем капчу в форму
-function addCaptchaToForm(formId) {
-  const form = document.getElementById(formId);
-  if (!form) return;
-  
-  const captchaDiv = document.createElement('div');
-  captchaDiv.className = 'captcha-container';
-  captchaDiv.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
-      <div id="captchaText" style="
-        background: #f0f0f0; 
-        padding: 10px; 
-        border-radius: 5px; 
-        font-family: monospace; 
-        font-size: 18px; 
-        font-weight: bold;
-        letter-spacing: 2px;
-      "></div>
-      <button type="button" id="refreshCaptcha" style="padding: 5px 10px;">🔄</button>
-    </div>
-    <input type="text" id="captchaInput" placeholder="Введите код с картинки" style="padding: 10px; width: 200px;">
-  `;
-  
-  form.appendChild(captchaDiv);
-  
-  // Генерируем и показываем капчу
-  let currentCaptcha = generateCaptcha();
-  document.getElementById('captchaText').textContent = currentCaptcha;
-  
-  // Обновление капчи
-  document.getElementById('refreshCaptcha').addEventListener('click', () => {
-    currentCaptcha = generateCaptcha();
-    document.getElementById('captchaText').textContent = currentCaptcha;
-    document.getElementById('captchaInput').value = '';
-  });
-  
-  return () => {
-    const userInput = document.getElementById('captchaInput').value.toUpperCase();
-    return userInput === currentCaptcha;
-  };
+// Добавляем капчу на страницу
+function setupCaptcha() {
+    const container = document.getElementById('captchaContainer');
+    if (!container) return null;
+    
+    let currentCaptcha = generateCaptcha();
+    
+    container.innerHTML = `
+        <div class="captcha-container">
+            <label>Введите код с картинки:</label>
+            <div class="captcha-code">${currentCaptcha}</div>
+            <input type="text" id="captchaInput" placeholder="Введите код" required>
+            <button type="button" class="refresh-btn" onclick="refreshCaptcha()">🔄 Обновить</button>
+        </div>
+    `;
+    
+    return currentCaptcha;
 }
 
-// Использование в формах
+// Обновление капчи
+function refreshCaptcha() {
+    const container = document.getElementById('captchaContainer');
+    if (container) {
+        setupCaptcha();
+    }
+}
+
+// Проверка капчи
+function validateCaptcha() {
+    const input = document.getElementById('captchaInput');
+    const container = document.getElementById('captchaContainer');
+    
+    if (!input || !container) return true; // Если капчи нет, пропускаем
+    
+    const userInput = input.value.toUpperCase();
+    const captchaText = container.querySelector('.captcha-code').textContent;
+    
+    return userInput === captchaText;
+}
+
+// Логика для страницы входа
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-  const validateCaptcha = addCaptchaToForm('loginForm');
-  
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    let currentCaptcha = setupCaptcha();
     
-    // Проверяем капчу
-    if (!validateCaptcha()) {
-      alert('Неверный код капчи!');
-      return;
-    }
-    
-    // Остальная логика входа...
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-      window.location.href = 'profile.html';
-    } catch (error) {
-      alert('Ошибка входа: ' + error.message);
-    }
-  });
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Проверяем капчу
+        if (!validateCaptcha()) {
+            alert('❌ Неверный код капчи! Попробуйте еще раз.');
+            refreshCaptcha();
+            return;
+        }
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            alert('✅ Вход успешен!');
+            window.location.href = 'profile.html';
+        } catch (error) {
+            alert('❌ Ошибка входа: ' + error.message);
+            refreshCaptcha(); // Обновляем капчу при ошибке
+        }
+    });
 }
+
+// Проверка авторизации
+auth.onAuthStateChanged((user) => {
+    console.log('Статус авторизации:', user ? 'вошел' : 'не вошел');
+});
