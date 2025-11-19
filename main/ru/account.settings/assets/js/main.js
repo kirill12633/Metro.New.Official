@@ -1,15 +1,26 @@
-// Firebase config (ПОМЕНЯЙ КЛЮЧИ!)1
+// Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-  authDomain: "metro-new-85226.firebaseapp.com",
-  projectId: "metro-new-85226",
-  storageBucket: "metro-new-85226.firebasestorage.app",
-  messagingSenderId: "905640751733",
-  appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+    apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+    authDomain: "metro-new-85226.firebaseapp.com",
+    projectId: "metro-new-85226",
+    storageBucket: "metro-new-85226.firebasestorage.app",
+    messagingSenderId: "905640751733",
+    appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
 
 // Инициализация Firebase
-const app = firebase.initializeApp(firebaseConfig);
+try {
+    // Проверяем, не инициализирован ли уже Firebase
+    if (!firebase.apps.length) {
+        const app = firebase.initializeApp(firebaseConfig);
+        console.log('Firebase инициализирован');
+    } else {
+        console.log('Firebase уже инициализирован');
+    }
+} catch (error) {
+    console.error('Ошибка инициализации Firebase:', error);
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -44,10 +55,7 @@ function setupCaptcha() {
 
 // Обновление капчи
 function refreshCaptcha() {
-    const container = document.getElementById('captchaContainer');
-    if (container) {
-        setupCaptcha();
-    }
+    setupCaptcha();
 }
 
 // Проверка капчи
@@ -55,7 +63,7 @@ function validateCaptcha() {
     const input = document.getElementById('captchaInput');
     const container = document.getElementById('captchaContainer');
     
-    if (!input || !container) return true; // Если капчи нет, пропускаем
+    if (!input || !container) return true;
     
     const userInput = input.value.toUpperCase();
     const captchaText = container.querySelector('.captcha-code').textContent;
@@ -66,7 +74,7 @@ function validateCaptcha() {
 // Логика для страницы входа
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-    let currentCaptcha = setupCaptcha();
+    setupCaptcha();
     
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -81,18 +89,21 @@ if (loginForm) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         
+        console.log('Пытаемся войти:', email);
+        
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             alert('✅ Вход успешен!');
             window.location.href = 'profile.html';
         } catch (error) {
+            console.error('Ошибка Firebase:', error);
             alert('❌ Ошибка входа: ' + error.message);
-            refreshCaptcha(); // Обновляем капчу при ошибке
+            refreshCaptcha();
         }
     });
 }
 
 // Проверка авторизации
 auth.onAuthStateChanged((user) => {
-    console.log('Статус авторизации:', user ? 'вошел' : 'не вошел');
+    console.log('Статус авторизации:', user ? user.email : 'не вошел');
 });
