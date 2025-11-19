@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему</title>
+</head>
+<body>
+    <div id="app">
+        <!-- Форма входа -->
+        <div id="login-form">
+            <h2>Вход в систему</h2>
+            <form id="loginForm">
+                <div>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div>
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Войти</button>
+            </form>
+            
+            <div style="margin: 20px 0; text-align: center;">
+                <div style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
+                <p>Или войдите с помощью:</p>
+                <button type="button" id="google-login" style="background: #db4437; color: white; padding: 10px 20px; border: none; cursor: pointer;">
+                    Войти через Google
+                </button>
+            </div>
+            
+            <p>Нет аккаунта? <a href="#" id="show-register">Зарегистрироваться</a></p>
+            <div id="login-error" style="color: red; display: none;"></div>
+        </div>
+
+        <!-- Форма регистрации -->
+        <div id="register-form" style="display: none;">
+            <h2>Регистрация</h2>
+            <form id="registerForm">
+                <div>
+                    <label for="reg-email">Email:</label>
+                    <input type="email" id="reg-email" required>
+                </div>
+                <div>
+                    <label for="reg-password">Пароль:</label>
+                    <input type="password" id="reg-password" required minlength="6">
+                </div>
+                <div>
+                    <label for="confirm-password">Подтвердите пароль:</label>
+                    <input type="password" id="confirm-password" required>
+                </div>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+            
+            <div style="margin: 20px 0; text-align: center;">
+                <div style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
+                <p>Или зарегистрируйтесь с помощью:</p>
+                <button type="button" id="google-register" style="background: #db4437; color: white; padding: 10px 20px; border: none; cursor: pointer;">
+                    Зарегистрироваться через Google
+                </button>
+            </div>
+            
+            <p>Уже есть аккаунт? <a href="#" id="show-login">Войти</a></p>
+            <div id="register-error" style="color: red; display: none;"></div>
+        </div>
+
+        <!-- Контент после входа -->
+        <div id="user-content" style="display: none;">
+            <h2>Добро пожаловать!</h2>
+            <div>
+                <p>Вы вошли как: <span id="user-email"></span></p>
+                <button id="logout-btn">Выйти</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Импорт Firebase модулей
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализация Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Элементы DOM
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginFormContainer = document.getElementById('login-form');
+        const registerFormContainer = document.getElementById('register-form');
+        const userContent = document.getElementById('user-content');
+        const showRegisterLink = document.getElementById('show-register');
+        const showLoginLink = document.getElementById('show-login');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userEmailSpan = document.getElementById('user-email');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const googleLoginBtn = document.getElementById('google-login');
+        const googleRegisterBtn = document.getElementById('google-register');
+
+        // Переключение между формами входа и регистрации
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginFormContainer.style.display = 'none';
+            registerFormContainer.style.display = 'block';
+            clearErrors();
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerFormContainer.style.display = 'none';
+            loginFormContainer.style.display = 'block';
+            clearErrors();
+        });
+
+        // Очистка ошибок
+        function clearErrors() {
+            loginError.style.display = 'none';
+            registerError.style.display = 'none';
+            loginError.textContent = '';
+            registerError.textContent = '';
+        }
+
+        // Показать ошибку
+        function showError(errorElement, message) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        // Вход через Google
+        async function signInWithGoogle() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                console.log('Успешный вход через Google:', result.user);
+            } catch (error) {
+                console.error('Ошибка входа через Google:', error);
+                let errorMessage = 'Ошибка входа через Google. ';
+                
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Окно входа было закрыто.';
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Всплывающее окно было заблокировано браузером. Разрешите всплывающие окна для этого сайта.';
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        errorMessage = 'Вход был отменен.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                // Показываем ошибку в активной форме
+                if (loginFormContainer.style.display !== 'none') {
+                    showError(loginError, errorMessage);
+                } else {
+                    showError(registerError, errorMessage);
+                }
+            }
+        }
+
+        // Обработчики для кнопок Google
+        googleLoginBtn.addEventListener('click', signInWithGoogle);
+        googleRegisterBtn.addEventListener('click', signInWithGoogle);
+
+        // Вход пользователя
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log('Пользователь вошел:', userCredential.user);
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                let errorMessage = 'Ошибка входа. ';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += 'Пользователь не найден.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Неверный пароль.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'Слишком много попыток. Попробуйте позже.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showError(loginError, errorMessage);
+            }
+        });
+
+        // Регистрация пользователя
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            // Проверка совпадения паролей
+            if (password !== confirmPassword) {
+                showError(registerError, 'Пароли не совпадают.');
+                return;
+            }
+            
+            // Проверка минимальной длины пароля
+            if (password.length < 6) {
+                showError(registerError, 'Пароль должен содержать минимум 6 символов.');
+                return;
+            }
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log('Пользователь зарегистрирован:', userCredential.user);
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                let errorMessage = 'Ошибка регистрации. ';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'Email уже используется.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Пароль слишком слабый.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showError(registerError, errorMessage);
+            }
+        });
+
+        // Выход пользователя
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log('Пользователь вышел');
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+            }
+        });
+
+        // Отслеживание состояния аутентификации
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Пользователь вошел
+                loginFormContainer.style.display = 'none';
+                registerFormContainer.style.display = 'none';
+                userContent.style.display = 'block';
+                userEmailSpan.textContent = user.email;
+                
+                // Очистка форм
+                loginForm.reset();
+                registerForm.reset();
+                clearErrors();
+            } else {
+                // Пользователь вышел
+                loginFormContainer.style.display = 'block';
+                registerFormContainer.style.display = 'none';
+                userContent.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
