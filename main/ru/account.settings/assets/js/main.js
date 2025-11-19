@@ -1,4 +1,4 @@
-// Firebase config (ПОМЕНЯЙ КЛЮЧИ!)
+// Firebase config (ПОМЕНЯЙ КЛЮЧИ!)1
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
