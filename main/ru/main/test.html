@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* СТИЛИ ОСТАЮТСЯ ТАКИМИ ЖЕ КАК В ПРЕДЫДУЩЕМ КОДЕ */
         :root {
             --primary: #0066CC;
             --primary-dark: #0052a3;
@@ -497,18 +496,9 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script type="module">
-        // Импорт только необходимых модулей Firebase
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword,
-            sendEmailVerification,
-            GoogleAuthProvider,
-            signInWithPopup
-        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
         // Firebase конфигурация
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
@@ -520,15 +510,9 @@
         };
 
         // Инициализация Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         
-        // Настройка Google провайдера
-        const googleProvider = new GoogleAuthProvider();
-        googleProvider.setCustomParameters({
-            prompt: 'select_account'
-        });
-
         // Элементы DOM
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
@@ -552,11 +536,9 @@
         });
 
         function switchTab(tabName) {
-            // Сброс активных состояний
             document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
             
-            // Установка новых активных состояний
             document.getElementById(`tab-${tabName}`).classList.add('active');
             document.getElementById(`${tabName}Form`).classList.add('active');
             
@@ -593,7 +575,7 @@
 
         // Таймер обратного отсчета
         function startCountdown() {
-            let timeLeft = 300; // 5 минут
+            let timeLeft = 300;
             const countdownInterval = setInterval(() => {
                 const minutes = Math.floor(timeLeft / 60);
                 const seconds = timeLeft % 60;
@@ -610,7 +592,10 @@
         // Включение/выключение кнопки
         function setButtonLoading(button, spinner, isLoading) {
             button.disabled = isLoading;
-            spinner.style.display = isLoading ? 'block' : 'none';
+            if (spinner) {
+                spinner.style.display = isLoading ? 'block' : 'none';
+            }
+            button.querySelector('span').style.display = isLoading ? 'none' : 'inline';
         }
 
         // Вход через Google
@@ -618,10 +603,11 @@
             try {
                 setButtonLoading(loginBtn, loginSpinner, true);
                 
-                const result = await signInWithPopup(auth, googleProvider);
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                
                 showAlert(loginAlert, 'Успешный вход через Google!', 'success');
                 
-                // Перенаправление на главную страницу
                 setTimeout(() => {
                     window.location.href = '../../index.html';
                 }, 2000);
@@ -636,9 +622,6 @@
                         break;
                     case 'auth/popup-blocked':
                         errorMessage = 'Всплывающее окно заблокировано браузером.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        errorMessage = 'Домен не авторизован для аутентификации.';
                         break;
                     default:
                         errorMessage += error.message;
@@ -660,10 +643,9 @@
             try {
                 setButtonLoading(loginBtn, loginSpinner, true);
                 
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 showAlert(loginAlert, 'Успешный вход!', 'success');
                 
-                // Перенаправление на главную страницу
                 setTimeout(() => {
                     window.location.href = '../../index.html';
                 }, 2000);
@@ -680,9 +662,6 @@
                         break;
                     case 'auth/too-many-requests':
                         errorMessage = 'Слишком много попыток. Попробуйте позже.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'Аккаунт отключен.';
                         break;
                     default:
                         errorMessage += error.message;
@@ -714,20 +693,15 @@
                 return;
             }
             
-            if (!name.trim()) {
-                showAlert(registerAlert, 'Пожалуйста, введите ваше имя.', 'error');
-                return;
-            }
-            
             try {
                 setButtonLoading(registerBtn, registerSpinner, true);
                 
                 // Создание пользователя
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
                 // Отправка письма верификации
-                await sendEmailVerification(user);
+                await user.sendEmailVerification();
                 
                 // Показываем модальное окно верификации
                 userEmailSpan.textContent = email;
@@ -751,10 +725,7 @@
                         errorMessage = 'Неверный формат email.';
                         break;
                     case 'auth/weak-password':
-                        errorMessage = 'Пароль слишком слабый. Используйте более сложный пароль.';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage = 'Регистрация отключена. Свяжитесь с поддержкой.';
+                        errorMessage = 'Пароль слишком слабый.';
                         break;
                     default:
                         errorMessage += error.message;
