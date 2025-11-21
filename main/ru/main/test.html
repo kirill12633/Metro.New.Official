@@ -2,43 +2,58 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Форма обратной связи</title>
+<title>Форма обратной связи1</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  input, textarea { width: 300px; margin-bottom: 10px; }
+  #log { margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 100px; overflow-y: auto; }
+</style>
 </head>
 <body>
+
 <h2>Форма обратной связи</h2>
 <form id="feedbackForm">
   <label>Ваше имя:</label><br>
-  <input type="text" id="name" required><br><br>
+  <input type="text" id="name" required><br>
 
   <label>Email адрес:</label><br>
-  <input type="email" id="email" required><br><br>
+  <input type="email" id="email" required><br>
 
   <label>Тема обращения:</label><br>
-  <input type="text" id="subject" required><br><br>
+  <input type="text" id="subject" required><br>
 
   <label>Сообщение:</label><br>
-  <textarea id="message" required></textarea><br><br>
+  <textarea id="message" required></textarea><br>
 
   <button type="submit">Отправить</button>
 </form>
 
+<div id="log"></div>
+
 <script>
-  // Вставьте сюда ваш firebaseConfig
-const firebaseConfig = {
-  apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-  authDomain: "metro-new-85226.firebaseapp.com",
-  projectId: "metro-new-85226",
-  storageBucket: "metro-new-85226.firebasestorage.app",
-  messagingSenderId: "905640751733",
-  appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
-};
+  // Вставьте сюда конфигурацию вашего Firebase проекта
+  const firebaseConfig = {
+    apiKey: "ВАШ_API_KEY",
+    authDomain: "ВАШ_PROJECT_ID.firebaseapp.com",
+    projectId: "ВАШ_PROJECT_ID",
+    storageBucket: "ВАШ_PROJECT_ID.appspot.com",
+    messagingSenderId: "ВАШ_SENDER_ID",
+    appId: "ВАШ_APP_ID"
+  };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // Обработка формы
+  const logDiv = document.getElementById("log");
+
+  function log(message) {
+    console.log(message);
+    logDiv.innerHTML += message + "<br>";
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
   document.getElementById("feedbackForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
@@ -54,12 +69,13 @@ const firebaseConfig = {
       message: message,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-      alert("Сообщение отправлено!");
+      log("✅ Сообщение отправлено!");
       document.getElementById("feedbackForm").reset();
     }).catch((error) => {
-      console.error("Ошибка при добавлении документа: ", error);
+      log("❌ Ошибка при отправке: " + error);
     });
   });
 </script>
+
 </body>
 </html>
