@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Форма обратной связи2</title>
+<title>Форма обратной связи</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; }
   input, textarea { width: 300px; margin-bottom: 10px; }
-  #log { margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 100px; overflow-y: auto; }
+  #log { margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 150px; overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -42,7 +42,8 @@ const firebaseConfig = {
   messagingSenderId: "905640751733",
   appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
-  
+
+  // Инициализация Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
@@ -54,25 +55,33 @@ const firebaseConfig = {
     logDiv.scrollTop = logDiv.scrollHeight;
   }
 
+  // Обработка формы
   document.getElementById("feedbackForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const subject = document.getElementById("subject").value;
-    const message = document.getElementById("message").value;
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    if (!name || !email || !subject || !message) {
+      log("❌ Все поля должны быть заполнены!");
+      return;
+    }
 
     db.collection("feedback").add({
-      name: name,
-      email: email,
-      subject: subject,
-      message: message,
+      name,
+      email,
+      subject,
+      message,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      log("✅ Сообщение отправлено!");
+    })
+    .then(() => {
+      log("✅ Сообщение успешно отправлено!");
       document.getElementById("feedbackForm").reset();
-    }).catch((error) => {
-      log("❌ Ошибка при отправке: " + error);
+    })
+    .catch((error) => {
+      log("❌ Ошибка при отправке: " + error.message);
     });
   });
 </script>
