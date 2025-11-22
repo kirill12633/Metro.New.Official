@@ -1,39 +1,37 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Форма обратной связи1</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<style>
-  body { font-family: Arial, sans-serif; padding: 20px; }
-  input, textarea { width: 300px; margin-bottom: 10px; }
-  #log { margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 150px; overflow-y: auto; }
-</style>
+  <meta charset="UTF-8">
+  <title>Форма обратной связи</title>
 </head>
 <body>
 
 <h2>Форма обратной связи</h2>
+
 <form id="feedbackForm">
   <label>Ваше имя:</label><br>
-  <input type="text" id="name" required><br>
+  <input type="text" id="name" required><br><br>
 
-  <label>Email адрес:</label><br>
-  <input type="email" id="email" required><br>
+  <label>Email:</label><br>
+  <input type="email" id="email" required><br><br>
 
-  <label>Тема обращения:</label><br>
-  <input type="text" id="subject" required><br>
+  <label>Тема:</label><br>
+  <input type="text" id="subject" required><br><br>
 
   <label>Сообщение:</label><br>
-  <textarea id="message" required></textarea><br>
+  <textarea id="message" required></textarea><br><br>
 
   <button type="submit">Отправить</button>
 </form>
 
-<div id="log"></div>
+<p id="status"></p>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // 🔹 Замените эти значения на свою конфигурацию Firebase
+// ТВОЙ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
@@ -43,46 +41,36 @@ const firebaseConfig = {
   appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
 
-  // Инициализация Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+// Инициализация Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  const logDiv = document.getElementById("log");
+// Обработчик формы
+document.getElementById("feedbackForm").addEventListener("submit", function (e) {
+  e.preventDefault();
 
-  function log(message) {
-    console.log(message);
-    logDiv.innerHTML += message + "<br>";
-    logDiv.scrollTop = logDiv.scrollHeight;
-  }
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const subject = document.getElementById("subject").value;
+  const message = document.getElementById("message").value;
 
-  document.getElementById("feedbackForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const subject = document.getElementById("subject").value.trim();
-    const message = document.getElementById("message").value.trim();
-
-    if (!name || !email || !subject || !message) {
-      log("❌ Все поля должны быть заполнены!");
-      return;
-    }
-
-    db.collection("feedback").add({
-      name,
-      email,
-      subject,
-      message,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  db.collection("feedback")
+    .add({
+      name: name,
+      email: email,
+      subject: subject,
+      message: message,
+      timestamp: new Date()
     })
     .then(() => {
-      log("✅ Сообщение успешно отправлено!");
-      document.getElementById("feedbackForm").reset();
+      document.getElementById("status").innerText = "✔ Сообщение отправлено!";
     })
     .catch((error) => {
-      log("❌ Ошибка при отправке: " + error.message);
+      document.getElementById("status").innerText =
+        "❌ Ошибка: " + error.message;
+      console.error(error);
     });
-  });
+});
 </script>
 
 </body>
