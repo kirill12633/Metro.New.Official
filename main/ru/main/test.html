@@ -38,6 +38,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
 <script>
+// 🔹 Конфигурация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
@@ -52,59 +53,66 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Анонимная авторизация
+// 🔹 Анонимная авторизация
 auth.signInAnonymously().catch(console.error);
 
-// App Check (reCAPTCHA v3)
+// 🔹 App Check (reCAPTCHA v3)
 firebase.appCheck().activate(
-  "6LfhAZkrAAAAAO1NxGCMX1J2HKiDp01FW9AuHR7r", // вставь свой site key
+  "ВАШ_SITE_KEY_IZ_RECAPTCHA_v3", // вставьте свой site key
   true // автообновление токена
 );
 
 const status = document.getElementById("status");
-let canSend = true; // фронтенд-защита cooldown
 
-function startCooldown() {
-  canSend = false;
-  setTimeout(() => canSend = true, 10*60*1000); // 10 минут
-}
+// 🔹 Ждём авторизацию и только потом включаем форму
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) return; // ничего не делаем, пока пользователь не авторизован
+  const uid = user.uid;
 
-document.getElementById("feedbackForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
+  const form = document.getElementById("feedbackForm");
+  let canSend = true;
 
-  if (!canSend) {
-    status.innerText = "⏳ Можно отправлять только раз в 10 минут!";
-    return;
+  function startCooldown() {
+    canSend = false;
+    setTimeout(() => canSend = true, 10*60*1000); // 10 минут
   }
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const subject = document.getElementById("subject").value.trim();
-  const message = document.getElementById("message").value.trim();
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-  // минимальная проверка длины
-  if (message.length < 5 || message.length > 2000) {
-    status.innerText = "⚠ Сообщение слишком короткое или длинное.";
-    return;
-  }
+    if (!canSend) {
+      status.innerText = "⏳ Можно отправлять только раз в 10 минут!";
+      return;
+    }
 
-  try {
-    await db.collection("feedback").add({
-      uid: auth.currentUser.uid,
-      name,
-      email,
-      subject,
-      message,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const message = document.getElementById("message").value.trim();
 
-    status.innerText = "✔ Спасибо! Сообщение отправлено!";
-    document.getElementById("feedbackForm").reset();
-    startCooldown();
-  } catch (err) {
-    status.innerText = "❌ Ошибка: " + err.message;
-    console.error(err);
-  }
+    // 🔹 анти-бот проверки
+    if (message.length < 5 || message.length > 2000) {
+      status.innerText = "⚠ Сообщение слишком короткое или длинное.";
+      return;
+    }
+
+    try {
+      await db.collection("feedback").add({
+        uid: uid,
+        name,
+        email,
+        subject,
+        message,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      status.innerText = "✔ Спасибо! Сообщение отправлено!";
+      form.reset();
+      startCooldown();
+    } catch(err) {
+      status.innerText = "❌ Ошибка: " + err.message;
+      console.error(err);
+    }
+  });
 });
 </script>
 
