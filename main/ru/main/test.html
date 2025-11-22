@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Форма обратной связи1</title>
+<meta charset="UTF-8">
+<title>Безопасная форма обратной связи</title>
+<style>
+  body { font-family: Arial; padding: 20px; }
+  input, textarea { width: 300px; margin-bottom: 10px; }
+  #status { margin-top: 10px; color: green; }
+</style>
 </head>
 <body>
 
@@ -10,16 +15,16 @@
 
 <form id="feedbackForm">
   <label>Ваше имя:</label><br>
-  <input type="text" id="name" required><br><br>
+  <input type="text" id="name" required><br>
 
   <label>Email:</label><br>
-  <input type="email" id="email" required><br><br>
+  <input type="email" id="email" required><br>
 
   <label>Тема:</label><br>
-  <input type="text" id="subject" required><br><br>
+  <input type="text" id="subject" required><br>
 
   <label>Сообщение:</label><br>
-  <textarea id="message" required></textarea><br><br>
+  <textarea id="message" required></textarea><br>
 
   <button type="submit">Отправить</button>
 </form>
@@ -29,15 +34,15 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
 <script>
-// ТВОЙ Firebase config
-  
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
   projectId: "metro-new-85226",
-  storageBucket: "metro-new-85226.firebasestorage.app",
+  storageBucket: "metro-new-85226.appspot.com",
   messagingSenderId: "905640751733",
   appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
@@ -45,32 +50,61 @@ const firebaseConfig = {
 // Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-// Обработчик формы
-document.getElementById("feedbackForm").addEventListener("submit", function (e) {
+// Анонимная авторизация
+auth.signInAnonymously().catch(console.error);
+
+// App Check (reCAPTCHA v3)
+firebase.appCheck().activate(
+  "6Lfr5g0sAAAAANmMqIPHhQ6pvNa3YnVcXs3A4eR2", // вставь свой site key
+  true // автообновление токена
+);
+
+const status = document.getElementById("status");
+let canSend = true; // фронтенд-защита cooldown
+
+function startCooldown() {
+  canSend = false;
+  setTimeout(() => canSend = true, 10*60*1000); // 10 минут
+}
+
+document.getElementById("feedbackForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const subject = document.getElementById("subject").value;
-  const message = document.getElementById("message").value;
+  if (!canSend) {
+    status.innerText = "⏳ Можно отправлять только раз в 10 минут!";
+    return;
+  }
 
-  db.collection("feedback")
-    .add({
-      name: name,
-      email: email,
-      subject: subject,
-      message: message,
-      timestamp: new Date()
-    })
-    .then(() => {
-      document.getElementById("status").innerText = "✔ Сообщение отправлено!";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText =
-        "❌ Ошибка: " + error.message;
-      console.error(error);
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const subject = document.getElementById("subject").value.trim();
+  const message = document.getElementById("message").value.trim();
+
+  // минимальная проверка длины
+  if (message.length < 5 || message.length > 2000) {
+    status.innerText = "⚠ Сообщение слишком короткое или длинное.";
+    return;
+  }
+
+  try {
+    await db.collection("feedback").add({
+      uid: auth.currentUser.uid,
+      name,
+      email,
+      subject,
+      message,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    status.innerText = "✔ Спасибо! Сообщение отправлено!";
+    document.getElementById("feedbackForm").reset();
+    startCooldown();
+  } catch (err) {
+    status.innerText = "❌ Ошибка: " + err.message;
+    console.error(err);
+  }
 });
 </script>
 
