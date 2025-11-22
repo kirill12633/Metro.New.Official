@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Безопасная форма обратной связи</title>
+<title>Форма обратной связи</title>
 <style>
   body { font-family: Arial; padding: 20px; }
   input, textarea { width: 300px; margin-bottom: 10px; }
-  #status { margin-top: 10px; color: green; }
+  #status { margin-top: 10px; font-weight: bold; color: green; }
 </style>
 </head>
 <body>
@@ -31,14 +31,13 @@
 
 <p id="status"></p>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
 <script>
-// 🔹 Firebase конфигурация
+// 🔹 Конфигурация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
@@ -48,46 +47,42 @@ const firebaseConfig = {
   appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
 
-// Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+const status = document.getElementById("status");
+
 // 🔹 Анонимная авторизация
 auth.signInAnonymously().catch(err => console.error("Auth error:", err));
 
-// 🔹 App Check (reCAPTCHA v3)
+// 🔹 App Check
 firebase.appCheck().activate(
   "6LfhAZkrAAAAAO1NxGCMX1J2HKiDp01FW9AuHR7r", // твой site key
-  true // автообновление токена
+  true
 );
 
-const status = document.getElementById("status");
+let canSend = true; // cooldown фронтенд
 
-// 🔹 Ждём авторизацию пользователя
 firebase.auth().onAuthStateChanged(user => {
   if (!user) return; // ждём авторизацию
   const uid = user.uid;
-  console.log("Пользователь авторизован:", uid);
 
   const form = document.getElementById("feedbackForm");
-  let canSend = true;
 
   function startCooldown() {
     canSend = false;
-    console.log("Cooldown запущен: 10 минут");
+    status.innerText = "⏳ Подождите 10 минут перед следующим сообщением";
     setTimeout(() => {
       canSend = true;
-      console.log("Cooldown завершён: можно отправлять снова");
+      status.innerText = "";
     }, 10*60*1000);
   }
 
   form.addEventListener("submit", async function(e) {
     e.preventDefault();
-    console.log("Форма отправлена");
 
     if (!canSend) {
-      console.log("Ограничение: нельзя отправлять чаще 1 раза в 10 минут");
       status.innerText = "⏳ Можно отправлять только раз в 10 минут!";
       return;
     }
@@ -97,10 +92,7 @@ firebase.auth().onAuthStateChanged(user => {
     const subject = document.getElementById("subject").value.trim();
     const message = document.getElementById("message").value.trim();
 
-    console.log("Данные формы:", {name, email, subject, message});
-
     if (message.length < 5 || message.length > 2000) {
-      console.log("Ошибка: слишком короткое или длинное сообщение");
       status.innerText = "⚠ Сообщение слишком короткое или длинное.";
       return;
     }
@@ -114,7 +106,7 @@ firebase.auth().onAuthStateChanged(user => {
         message,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
-      console.log("Документ успешно добавлен:", docRef.id);
+      console.log("Документ добавлен:", docRef.id); // лог для разработчика
       status.innerText = "✔ Спасибо! Сообщение отправлено!";
       form.reset();
       startCooldown();
