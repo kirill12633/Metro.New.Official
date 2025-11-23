@@ -587,39 +587,47 @@
             }
         }
 
-        // Загрузка тикетов
+        // ВРЕМЕННАЯ ВЕРСИЯ - РАБОТАЕТ БЕЗ ИНДЕКСА
         async function loadTickets() {
             const statusFilter = document.getElementById('statusFilter').value;
             const ticketsList = document.getElementById('ticketsList');
             ticketsList.innerHTML = '<div class="loading">🔄 Загрузка тикетов...</div>';
             
             try {
-                let query = db.collection('tickets');
-                
-                if (statusFilter !== 'all') {
-                    query = query.where('status', '==', statusFilter);
-                }
-                
-                query = query.orderBy('createdAt', 'desc');
-                
-                const snapshot = await query.get();
+                // Загружаем ВСЕ тикеты без фильтрации
+                const snapshot = await db.collection('tickets').get();
                 
                 if (snapshot.empty) {
                     ticketsList.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <h3>Тикетов не найдено</h3>
-                            <p>Нет обращений с выбранным статусом</p>
+                            <p>Нет обращений в базе данных</p>
                         </div>
                     `;
                     return;
                 }
                 
-                let ticketsHTML = '';
-                
+                // Фильтруем и сортируем на клиенте
+                const tickets = [];
                 snapshot.forEach((doc) => {
                     const ticket = doc.data();
-                    const ticketId = doc.id;
+                    // Фильтрация по статусу
+                    if (statusFilter === 'all' || ticket.status === statusFilter) {
+                        tickets.push({
+                            id: doc.id,
+                            ...ticket
+                        });
+                    }
+                });
+                
+                // Сортировка по дате (новые сверху)
+                tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                let ticketsHTML = '';
+                
+                tickets.forEach((ticket) => {
+                    const ticketId = ticket.id;
                     
                     ticketsHTML += `
                         <div class="ticket-item">
@@ -677,7 +685,7 @@
                 });
                 
                 ticketsList.innerHTML = ticketsHTML;
-                loadStats(); // Обновляем статистику
+                loadStats();
                 
             } catch (error) {
                 console.error('❌ Ошибка загрузки тикетов:', error);
