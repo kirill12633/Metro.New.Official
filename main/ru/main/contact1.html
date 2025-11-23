@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Обратная связь | Метро New</title>
+    <title>Система обратной связи | Метро New</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- reCAPTCHA API v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7"></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     
     <style>
         :root {
@@ -44,13 +47,6 @@
             line-height: 1.6;
         }
         
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-        
         header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
@@ -59,6 +55,13 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
         }
         
         nav {
@@ -101,6 +104,7 @@
             padding: 0.5rem 1rem;
             border-radius: var(--radius-md);
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .nav-links a:hover {
@@ -112,18 +116,89 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
         
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+        
+        .auth-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 1;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
         main {
             padding: 2rem 0;
             min-height: calc(100vh - 150px);
         }
         
         .page-header {
-            background: linear-gradient(rgba(0, 82, 163, 0.8), rgba(0, 102, 204, 0.9)), url('https://placehold.co/1200x400/1a1a1a/FFFFFF?text=Обратная+связь') center/cover no-repeat;
+            background: linear-gradient(rgba(0, 82, 163, 0.8), rgba(0, 102, 204, 0.9)), url('https://placehold.co/1200x400/1a1a1a/FFFFFF?text=Система+обратной+связи') center/cover no-repeat;
             border-radius: var(--radius-xl);
             padding: 3rem 2rem;
             color: white;
             text-align: center;
             margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .page-header h1 {
@@ -136,17 +211,93 @@
         
         .page-header p {
             font-size: 1.2rem;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             opacity: 0.9;
         }
         
+        .announcement {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+        
+        .announcement h3 {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-radius: var(--radius-lg);
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .contact-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
         .contact-form {
-            background: white;
+            background-color: white;
             border-radius: var(--radius-xl);
             padding: 2.5rem;
             box-shadow: var(--shadow-md);
-            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+        
+        .contact-form h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
         }
         
         .form-group {
@@ -174,11 +325,6 @@
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-        }
-        
-        textarea.form-control {
-            resize: vertical;
-            min-height: 120px;
         }
         
         .form-row {
@@ -225,9 +371,11 @@
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s;
+            margin: 0 0.5rem;
+            box-shadow: var(--shadow-md);
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
-            box-shadow: var(--shadow-md);
+            font-size: 1rem;
             width: 100%;
         }
         
@@ -236,10 +384,270 @@
             box-shadow: var(--shadow-lg);
         }
         
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .contact-info {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+        
+        .contact-info h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .contact-method {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+        }
+        
+        .contact-method:hover {
+            background-color: var(--light);
+            transform: translateX(5px);
+        }
+        
+        .contact-method i {
+            color: var(--primary);
+            font-size: 1.5rem;
+            min-width: 40px;
+            padding-top: 0.2rem;
+        }
+        
+        .contact-method-content h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .contact-method-content p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        .ticket-status {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.4s;
+            animation-fill-mode: both;
+        }
+        
+        .ticket-status h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .status-check {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-check input {
+            flex: 1;
+        }
+        
+        .status-info {
+            background-color: var(--light);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: none;
+        }
+        
+        .status-info.active {
+            display: block;
+        }
+        
+        .ticket-details {
+            margin-top: 1rem;
+        }
+        
+        .ticket-field {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ticket-field strong {
+            min-width: 150px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        
+        .status-new {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .status-in-progress {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .status-resolved {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .status-closed {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+        
+        .process-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #ddd;
+            z-index: 1;
+        }
+        
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-step.active .step-icon {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .timeline-step.completed .step-icon {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .community {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.5s;
+            animation-fill-mode: both;
+        }
+        
+        .community h2 {
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        
+        .community p {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .social-link {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
         }
         
         .alert {
@@ -261,60 +669,20 @@
             color: var(--danger);
         }
         
-        .ticket-info {
-            background: #e8f4fd;
+        .security-notice {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
             border-radius: var(--radius-md);
-            padding: 1.5rem;
-            margin-top: 1.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
             border-left: 4px solid var(--primary);
         }
         
-        .ticket-id {
+        .masked-data {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: var(--radius-md);
             font-family: monospace;
-            background: var(--dark);
-            color: var(--secondary);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-        
-        .info-box {
-            background: #fff3cd;
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid var(--warning);
-        }
-        
-        .status-check {
-            background: white;
-            border-radius: var(--radius-xl);
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            margin-top: 2rem;
-        }
-        
-        .status-check-form {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .status-check-form input {
-            flex: 1;
-        }
-        
-        .status-result {
-            display: none;
-            background: var(--light);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-        
-        .status-result.active {
-            display: block;
+            color: var(--gray);
         }
         
         @media (max-width: 768px) {
@@ -332,12 +700,44 @@
                 font-size: 2rem;
             }
             
+            .page-header p {
+                font-size: 1rem;
+            }
+            
+            .contact-section {
+                grid-template-columns: 1fr;
+            }
+            
             .form-row {
                 grid-template-columns: 1fr;
             }
             
-            .status-check-form {
+            .status-check {
                 flex-direction: column;
+            }
+            
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .social-link {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+            
+            .footer-links {
+                gap: 1.5rem;
+            }
+            
+            .process-timeline {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .process-timeline::before {
+                display: none;
             }
         }
     </style>
@@ -352,9 +752,18 @@
                 </div>
                 <div class="nav-links">
                     <a href="index.html">Главная</a>
-                    <a href="contact.html" class="active">Обратная связь</a>
-                    <a href="control-center.html">Центр управления</a>
                     <a href="https://www.roblox.com/communities/34820737/RP-NEW">Игра</a>
+                    <a href="wiki.html">Wiki</a>
+                    <a href="news.html">Новости</a>
+                    <div class="dropdown">
+                        <a href="other.html" class="active">Другое</a>
+                        <div class="dropdown-content">
+                            <a href="sites.html">Наши сайты</a>
+                            <a href="contact.html">Контакты</a>
+                            <a href="faq.html">FAQ</a>
+                        </div>
+                    </div>
+                    <a href="control-center.html" class="auth-btn">Админ-панель</a>
                 </div>
             </nav>
         </div>
@@ -362,122 +771,216 @@
 
     <main class="container">
         <section class="page-header">
-            <h1>📨 Обратная связь</h1>
-            <p>Свяжитесь с администрацией проекта. Мы ответим в кратчайшие сроки!</p>
+            <h1>Система обратной связи</h1>
+            <p>Безопасная коммуникация между сотрудниками и руководством проекта</p>
         </section>
-
-        <div class="info-box">
-            <h3>📋 Важная информация</h3>
-            <p>Пожалуйста, заполните форму ниже для связи с администрацией проекта. Укажите актуальные контактные данные для обратной связи.</p>
+        
+        <div class="announcement">
+            <h3><i class="fas fa-bullhorn"></i> Важное объявление</h3>
+            <p><strong>Тема:</strong> Обновление по работе сайта и сбору контактных данных</p>
+            <p>Здравствуйте, коллеги! Вчера наш сайт начал функционировать, и с руководством проекта было принято решение начать сбор контактных данных сотрудников - в частности, адресов электронной почты.</p>
+            <p>Это делается для безопасности и для удобной коммуникации между игроками и руководством проекта. Пока сайт находится в стадии разработки, не обязательно отправлять данные всем - <strong>только тем, кто редко посещает Discord.</strong></p>
+            <p>Пожалуйста, воспользуйтесь формой ниже для передачи необходимых данных.</p>
         </div>
-
-        <div class="contact-form">
-            <h2>Форма обратной связи</h2>
-            <div id="alert-message" class="alert"></div>
-            
-            <form id="feedbackForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Ваше имя *</label>
-                        <input type="text" id="name" name="name" class="form-control" placeholder="Как к вам обращаться?" required>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="contact-form">Форма связи</div>
+            <div class="tab" data-tab="ticket-status">Проверить статус</div>
+            <div class="tab" data-tab="ticket-history">История обращений</div>
+        </div>
+        
+        <div class="tab-content active" id="contact-form">
+            <section class="contact-section">
+                <div class="contact-form">
+                    <h2>Форма обратной связи</h2>
+                    
+                    <div class="security-notice">
+                        <h4><i class="fas fa-shield-alt"></i> Защита данных</h4>
+                        <p>Ваши контактные данные защищены и не отображаются публично. Только администрация имеет доступ к полной информации.</p>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="email">Электронная почта *</label>
-                        <input type="email" id="email" name="email" class="form-control" placeholder="your@email.com" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="position">Ваша должность *</label>
-                        <select id="position" name="position" class="form-control" required>
-                            <option value="" disabled selected>Выберите должность</option>
-                            <option value="player">🎮 Игрок</option>
-                            <option value="developer">💻 Разработчик</option>
-                            <option value="moderator">🛡️ Модератор</option>
-                            <option value="admin">👑 Администратор</option>
-                            <option value="other">❓ Другое</option>
-                        </select>
+                    <div id="alert-message" class="alert"></div>
+                    
+                    <!-- HONEYPOT ПОЛЕ ДЛЯ БОТОВ -->
+                    <div style="display: none;">
+                        <label for="confirm_email">Подтвердите email</label>
+                        <input type="text" id="confirm_email" name="confirm_email">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="specialCode">Специальный код</label>
-                        <input type="text" id="specialCode" name="specialCode" class="form-control" placeholder="Если у вас есть спецкод">
-                    </div>
+                    <form id="contact-form-data">
+                        <div class="form-group">
+                            <label for="name">Ваше имя (как к вам обращаться) *</label>
+                            <input type="text" id="name" name="name" class="form-control" required 
+                                   minlength="2" maxlength="50"
+                                   placeholder="Только имя, без фамилии">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="position">Должность *</label>
+                            <select id="position" name="position" class="form-control" required>
+                                <option value="" disabled selected>Выберите вашу должность</option>
+                                <option value="player">Игрок</option>
+                                <option value="developer">Разработчик</option>
+                                <option value="moderator">Модератор</option>
+                                <option value="admin">Администратор</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="special-code">Специальный код (если есть)</label>
+                            <input type="text" id="special-code" name="special-code" class="form-control"
+                                   pattern="[A-Za-z0-9-]{0,20}"
+                                   placeholder="Только буквы, цифры и дефисы">
+                            <small style="color: var(--gray); font-size: 0.8rem;">Необязательное поле</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Электронная почта *</label>
+                            <input type="email" id="email" name="email" class="form-control" required
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                   placeholder="your@email.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-method">Другой метод связи (выберите один)</label>
+                            <select id="contact-method" name="contact-method" class="form-control">
+                                <option value="" disabled selected>Выберите метод связи</option>
+                                <option value="discord">Discord</option>
+                                <option value="telegram">Telegram</option>
+                                <option value="vk">VK</option>
+                                <option value="roblox">Roblox</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-details">Данные для выбранного метода связи</label>
+                            <input type="text" id="contact-details" name="contact-details" class="form-control" 
+                                   placeholder="Например: username#1234"
+                                   maxlength="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Сообщение *</label>
+                            <textarea id="message" name="message" class="form-control" rows="5" 
+                                      placeholder="Опишите ваш вопрос, предложение или проблему..." 
+                                      required minlength="10" maxlength="2000"></textarea>
+                            <small style="color: var(--gray); font-size: 0.8rem;">Минимум 10 символов</small>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="privacy-policy" name="privacy-policy" required>
+                            <label for="privacy-policy">Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политикой конфиденциальности</a> *</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms-of-service" name="terms-of-service" required>
+                            <label for="terms-of-service">Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательским соглашением</a> *</label>
+                        </div>
+                        
+                        <button type="submit" class="btn" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            Отправить сообщение
+                        </button>
+                    </form>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="contactMethod">Дополнительный способ связи</label>
-                        <select id="contactMethod" name="contactMethod" class="form-control">
-                            <option value="" selected>Не указывать</option>
-                            <option value="discord">Discord</option>
-                            <option value="telegram">Telegram</option>
-                            <option value="vk">VK</option>
-                            <option value="roblox">Roblox</option>
-                        </select>
+                <div class="contact-info">
+                    <h2>Другие способы связи</h2>
+                    <div class="contact-method">
+                        <i class="fab fa-discord"></i>
+                        <div class="contact-method-content">
+                            <h3>Discord</h3>
+                            <p>Присоединяйтесь к нашему Discord-серверу для общения с сообществом и получения помощи</p>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="contactDetails">Данные для связи</label>
-                        <input type="text" id="contactDetails" name="contactDetails" class="form-control" placeholder="username#1234 или @username">
+                    <div class="contact-method">
+                        <i class="fas fa-user-tie"></i>
+                        <div class="contact-method-content">
+                            <h3>Ответственный сотрудник</h3>
+                            <p>По вопросам сбора контактных данных обращайтесь к <strong>Kirill12633</strong> в Discord</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="contact-method-content">
+                            <h3>Безопасность данных</h3>
+                            <p>Все передаваемые данные защищены и используются исключительно для внутренней коммуникации. Email и специальные коды не отображаются публично.</p>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="message">Сообщение *</label>
-                    <textarea id="message" name="message" class="form-control" placeholder="Опишите ваш вопрос, предложение или проблему..." required></textarea>
-                </div>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" id="privacy-policy" name="privacy-policy" required>
-                    <label for="privacy-policy">
-                        Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политикой конфиденциальности</a> *
-                    </label>
-                </div>
-                
-                <div class="checkbox-group">
-                    <input type="checkbox" id="terms-of-service" name="terms-of-service" required>
-                    <label for="terms-of-service">
-                        Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательским соглашением</a> *
-                    </label>
-                </div>
-                
-                <button type="submit" class="btn" id="submitBtn">
-                    <i class="fas fa-paper-plane"></i>
-                    Отправить обращение
-                </button>
-            </form>
-            
-            <div id="ticketSuccess" style="display: none;">
-                <div class="ticket-info">
-                    <h3>✅ Обращение успешно отправлено!</h3>
-                    <p>Ваш номер тикета для отслеживания:</p>
-                    <div class="ticket-id" id="ticketNumber">MN-2024-001</div>
-                    <p style="margin-top: 1rem; font-size: 0.9rem;">
-                        Сохраните этот номер! С его помощью вы можете отслеживать статус обращения.
-                    </p>
-                </div>
-            </div>
+            </section>
         </div>
-
-        <div class="status-check">
-            <h2>🔍 Проверить статус обращения</h2>
-            <div class="status-check-form">
-                <input type="text" id="checkTicketId" class="form-control" placeholder="Введите номер тикета (например: MN-2024-001)">
-                <button class="btn" onclick="checkTicketStatus()" style="width: auto;">
-                    <i class="fas fa-search"></i> Проверить
-                </button>
-            </div>
-            <div class="status-result" id="statusResult">
-                <!-- Результат проверки статуса -->
-            </div>
+        
+        <div class="tab-content" id="ticket-status">
+            <section class="ticket-status">
+                <h2>Проверить статус обращения</h2>
+                <div class="security-notice">
+                    <p><i class="fas fa-info-circle"></i> Для защиты конфиденциальности отображаются только маскированные данные</p>
+                </div>
+                <div class="status-check">
+                    <input type="text" id="ticket-id" placeholder="Введите номер тикета (например: MN-2024-001)" class="form-control">
+                    <button class="btn btn-outline" id="check-status">Проверить</button>
+                </div>
+                <div class="status-info" id="status-info">
+                    <!-- Динамически загружаемая информация о статусе -->
+                </div>
+            </section>
         </div>
+        
+        <div class="tab-content" id="ticket-history">
+            <section class="ticket-status">
+                <h2>История ваших обращений</h2>
+                <div class="security-notice">
+                    <p><i class="fas fa-lock"></i> Доступ только к вашим обращениям по email. Данные защищены.</p>
+                </div>
+                <div class="status-check">
+                    <input type="email" id="user-email" placeholder="Введите ваш email" class="form-control">
+                    <button class="btn btn-outline" id="check-history">Показать историю</button>
+                </div>
+                <div class="status-info" id="history-info">
+                    <!-- Динамически загружаемая история обращений -->
+                </div>
+            </section>
+        </div>
+        
+        <section class="community">
+            <h2>Присоединяйтесь к нашему сообществу</h2>
+            <p>Следите за новостями, общайтесь с другими игроками и участвуйте в обсуждениях развития проекта</p>
+            <div class="social-links">
+                <a href="https://discord.com/invite/WjGZBs3HMX" class="social-link">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+                <a href="https://t.me/metronewroblox" class="social-link">
+                    <i class="fab fa-telegram"></i> Telegram
+                </a>
+                <a href="https://www.roblox.com/communities/34820737/RP-NEW" class="social-link">
+                    <i class="fab fa-roblox"></i> Roblox
+                </a>
+                <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" class="social-link">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+            </div>
+        </section>
     </main>
 
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://discord.com/invite/WjGZBs3HMX">О нас</a>
+                <a href="contact.html">Контакты</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/legal.html">Правовые документы</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html">Политика конфиденциальности</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html">Пользовательское соглашение</a>
+            </div>
+            <p class="copyright">© 2025 Метро New. Все права защищены.</p>
+        </div>
+    </footer>
+
     <script>
-        // ✅ ВАША КОНФИГУРАЦИЯ FIREBASE
+        // 🔥 КОНФИГУРАЦИЯ FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
             authDomain: "metro-new-85226.firebaseapp.com",
@@ -487,182 +990,497 @@
             appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        // Инициализация Firebase
+        // ИНИЦИАЛИЗАЦИЯ FIREBASE
         let db;
         try {
-            firebase.initializeApp(firebaseConfig);
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
             db = firebase.firestore();
-            console.log('✅ Firebase инициализирован');
+            console.log('✅ Firebase подключен');
         } catch (error) {
-            console.error('❌ Ошибка инициализации Firebase:', error);
+            console.error('❌ Ошибка Firebase:', error);
         }
 
-        // Генерация номера тикета
-        function generateTicketId() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
-            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            return `MN-${year}${month}${day}-${randomNum}`;
-        }
+        // 🛡️ СИСТЕМА БЕЗОПАСНОСТИ
+        const SecuritySystem = {
+            // Rate limiting
+            rateLimit: {
+                requests: {},
+                check(identifier, maxRequests = 5, windowMs = 900000) { // 5 запросов в 15 минут
+                    const now = Date.now();
+                    if (!this.requests[identifier]) {
+                        this.requests[identifier] = [];
+                    }
+                    
+                    this.requests[identifier] = this.requests[identifier].filter(time => now - time < windowMs);
+                    
+                    if (this.requests[identifier].length >= maxRequests) {
+                        return false;
+                    }
+                    
+                    this.requests[identifier].push(now);
+                    return true;
+                }
+            },
 
-        // Показать сообщение
-        function showAlert(message, type) {
-            const alert = document.getElementById('alert-message');
-            alert.textContent = message;
-            alert.className = 'alert';
-            
-            if (type === 'success') {
-                alert.classList.add('alert-success');
-            } else if (type === 'error') {
-                alert.classList.add('alert-error');
-            }
-            
-            alert.style.display = 'block';
-            
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 5000);
-        }
+            // Валидация данных
+            validateFormData(formData) {
+                const errors = [];
+                
+                // Валидация имени
+                if (!formData.name || formData.name.trim().length < 2) {
+                    errors.push('Имя должно содержать минимум 2 символа');
+                }
+                
+                // Валидация email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(formData.email)) {
+                    errors.push('Введите корректный email адрес');
+                }
+                
+                // Валидация сообщения
+                if (!formData.message || formData.message.trim().length < 10) {
+                    errors.push('Сообщение должно содержать минимум 10 символов');
+                }
+                
+                // Валидация специального кода
+                if (formData.specialCode && !/^[A-Za-z0-9-]{0,20}$/.test(formData.specialCode)) {
+                    errors.push('Специальный код содержит недопустимые символы');
+                }
+                
+                return errors;
+            },
 
-        // Отправка формы
-        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
-            
-            // Проверка согласий
-            if (!document.getElementById('privacy-policy').checked || 
-                !document.getElementById('terms-of-service').checked) {
-                showAlert('❌ Пожалуйста, согласитесь с Политикой конфиденциальности и Пользовательским соглашением', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить обращение';
-                return;
-            }
-            
-            try {
-                // Получение данных формы
-                const formData = {
-                    name: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    position: document.getElementById('position').value,
-                    specialCode: document.getElementById('specialCode').value || '',
-                    contactMethod: document.getElementById('contactMethod').value || '',
-                    contactDetails: document.getElementById('contactDetails').value || '',
-                    message: document.getElementById('message').value,
-                    status: 'new',
-                    createdAt: new Date().toISOString(),
-                    assignedTo: null,
-                    responses: []
+            // Маскирование конфиденциальных данных
+            maskSensitiveData(data) {
+                return {
+                    ...data,
+                    email: this.maskEmail(data.email),
+                    specialCode: data.specialCode ? '***' + data.specialCode.slice(-3) : 'Не указан',
+                    contactDetails: data.contactDetails ? '****' : 'Не указано'
+                };
+            },
+
+            maskEmail(email) {
+                const [local, domain] = email.split('@');
+                const maskedLocal = local.length > 2 
+                    ? local[0] + '*'.repeat(local.length - 2) + local[local.length - 1]
+                    : '*'.repeat(local.length);
+                return maskedLocal + '@' + domain;
+            },
+
+            // Обнаружение ботов (honeypot)
+            checkForBots(formData) {
+                // Проверка honeypot поля
+                if (document.getElementById('confirm_email').value) {
+                    return true; // Бот обнаружен
+                }
+                
+                // Проверка времени заполнения формы
+                const formFillTime = Date.now() - window.formStartTime;
+                if (formFillTime < 3000) { // Меньше 3 секунд - подозрительно
+                    return true;
+                }
+                
+                return false;
+            },
+
+            // Логирование безопасности
+            logSecurityEvent(action, details) {
+                const logEntry = {
+                    action,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    details: this.maskSensitiveData(details)
                 };
                 
-                const ticketId = generateTicketId();
+                console.log('🔐 Security Event:', logEntry);
                 
-                // Сохранение в Firebase
-                await db.collection('tickets').doc(ticketId).set(formData);
-                
-                // Успешная отправка
-                document.getElementById('feedbackForm').style.display = 'none';
-                document.getElementById('ticketSuccess').style.display = 'block';
-                document.getElementById('ticketNumber').textContent = ticketId;
-                
-                console.log('✅ Тикет создан:', ticketId);
-                
-            } catch (error) {
-                console.error('❌ Ошибка отправки:', error);
-                showAlert('❌ Ошибка при отправке обращения. Пожалуйста, попробуйте еще раз.', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить обращение';
+                // В будущем можно отправлять в отдельную коллекцию
+                try {
+                    db.collection('security_logs').add(logEntry);
+                } catch (error) {
+                    console.log('Security log failed:', error);
+                }
             }
-        });
+        };
 
-        // Проверка статуса тикета
-        async function checkTicketStatus() {
-            const ticketId = document.getElementById('checkTicketId').value.trim();
-            const statusResult = document.getElementById('statusResult');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Засекаем время начала заполнения формы
+            window.formStartTime = Date.now();
+
+            // Фиксируем меню "Другое" при клике
+            const dropdown = document.querySelector('.dropdown');
+            const dropdownContent = document.querySelector('.dropdown-content');
             
-            if (!ticketId) {
-                statusResult.innerHTML = '<p style="color: var(--danger);">❌ Введите номер тикета</p>';
-                statusResult.classList.add('active');
-                return;
+            dropdown.addEventListener('click', function(e) {
+                if (window.innerWidth > 768) {
+                    e.preventDefault();
+                    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+            
+            // Закрываем выпадающее меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdownContent.style.display = 'none';
+                }
+            });
+
+            // Система вкладок
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Убираем активный класс у всех вкладок и контента
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    // Добавляем активный класс к выбранной вкладке и контенту
+                    tab.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Анимация появления элементов при скролле
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Наблюдаем за анимированными элементами
+            document.querySelectorAll('.contact-form, .contact-info, .ticket-status, .community').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
+
+            // Обработка формы
+            const contactForm = document.getElementById('contact-form-data');
+            const alertMessage = document.getElementById('alert-message');
+            
+            contactForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('submitBtn');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка безопасности...';
+                
+                // 🔒 ПРОВЕРКА БЕЗОПАСНОСТИ
+                
+                // 1. Проверка honeypot и ботов
+                if (SecuritySystem.checkForBots()) {
+                    SecuritySystem.logSecurityEvent('bot_detected', {
+                        reason: 'honeypot_or_timing',
+                        formData: Object.fromEntries(new FormData(contactForm))
+                    });
+                    showAlert('❌ Обнаружена подозрительная активность. Пожалуйста, заполняйте форму внимательнее.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    return;
+                }
+                
+                // 2. Rate limiting
+                const userIdentifier = document.getElementById('email').value;
+                if (!SecuritySystem.rateLimit.check(userIdentifier)) {
+                    showAlert('❌ Слишком много запросов. Пожалуйста, подождите 15 минут.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    return;
+                }
+                
+                // 3. Проверка согласий
+                if (!document.getElementById('privacy-policy').checked || 
+                    !document.getElementById('terms-of-service').checked) {
+                    showAlert('❌ Пожалуйста, согласитесь с Политикой конфиденциальности и Пользовательским соглашением', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    return;
+                }
+                
+                // 4. Валидация данных
+                const formData = {
+                    name: document.getElementById('name').value.trim(),
+                    position: document.getElementById('position').value,
+                    specialCode: document.getElementById('special-code').value.trim(),
+                    email: document.getElementById('email').value.trim().toLowerCase(),
+                    contactMethod: document.getElementById('contact-method').value,
+                    contactDetails: document.getElementById('contact-details').value.trim(),
+                    message: document.getElementById('message').value.trim()
+                };
+                
+                const validationErrors = SecuritySystem.validateFormData(formData);
+                if (validationErrors.length > 0) {
+                    showAlert('❌ ' + validationErrors.join(', '), 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    return;
+                }
+                
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+                
+                try {
+                    // 5. reCAPTCHA проверка
+                    const token = await grecaptcha.execute('6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7', {action: 'contact'});
+                    
+                    // Подготовка данных для сохранения
+                    const ticketData = {
+                        ...formData,
+                        status: 'new',
+                        createdAt: new Date().toISOString(),
+                        assignedTo: null,
+                        responses: [],
+                        recaptchaToken: token,
+                        formFillTime: Date.now() - window.formStartTime,
+                        userAgent: navigator.userAgent
+                    };
+                    
+                    const ticketId = generateTicketId();
+                    
+                    // Сохранение в Firebase
+                    await db.collection('tickets').doc(ticketId).set(ticketData);
+                    
+                    // Логирование успешного создания
+                    SecuritySystem.logSecurityEvent('ticket_created', {
+                        ticketId,
+                        maskedData: SecuritySystem.maskSensitiveData(ticketData)
+                    });
+                    
+                    showAlert(`✅ Ваше сообщение успешно отправлено! Номер тикета: ${ticketId}. Мы свяжемся с вами в ближайшее время.`, 'success');
+                    contactForm.reset();
+                    window.formStartTime = Date.now(); // Сброс таймера
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка отправки:', error);
+                    SecuritySystem.logSecurityEvent('ticket_creation_failed', {
+                        error: error.message,
+                        formData: SecuritySystem.maskSensitiveData(formData)
+                    });
+                    showAlert('❌ Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте еще раз.', 'error');
+                }
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+            
+            // Генерация уникального ID тикета
+            function generateTicketId() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                return `MN-${year}${month}${day}-${randomNum}`;
             }
             
-            statusResult.innerHTML = '<p>🔍 Поиск тикета...</p>';
-            statusResult.classList.add('active');
-            
-            try {
-                const ticketDoc = await db.collection('tickets').doc(ticketId).get();
+            function showAlert(message, type) {
+                alertMessage.textContent = message;
+                alertMessage.className = 'alert';
                 
-                if (ticketDoc.exists) {
-                    const ticket = ticketDoc.data();
-                    const statusText = getStatusText(ticket.status);
-                    const positionText = getPositionText(ticket.position);
+                if (type === 'success') {
+                    alertMessage.classList.add('alert-success');
+                } else if (type === 'error') {
+                    alertMessage.classList.add('alert-error');
+                }
+                
+                alertMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Проверка статуса тикета (с маскированием данных)
+            document.getElementById('check-status').addEventListener('click', async function() {
+                const ticketId = document.getElementById('ticket-id').value.trim();
+                const statusInfo = document.getElementById('status-info');
+                
+                if (!ticketId) {
+                    statusInfo.innerHTML = '<p style="color: var(--danger);">Пожалуйста, введите номер тикета</p>';
+                    statusInfo.classList.add('active');
+                    return;
+                }
+                
+                // Rate limiting для проверки статуса
+                if (!SecuritySystem.rateLimit.check('status_check_' + ticketId, 10, 60000)) {
+                    statusInfo.innerHTML = '<p style="color: var(--danger);">Слишком много запросов. Подождите минуту.</p>';
+                    statusInfo.classList.add('active');
+                    return;
+                }
+                
+                try {
+                    const ticketDoc = await db.collection('tickets').doc(ticketId).get();
                     
-                    statusResult.innerHTML = `
-                        <h3>🎫 Тикет: ${ticketId}</h3>
-                        <div style="margin: 1rem 0;">
-                            <p><strong>👤 Имя:</strong> ${ticket.name}</p>
-                            <p><strong>💼 Должность:</strong> ${positionText}</p>
-                            <p><strong>📧 Email:</strong> ${ticket.email}</p>
-                            <p><strong>📅 Дата создания:</strong> ${new Date(ticket.createdAt).toLocaleString('ru-RU')}</p>
-                            <p><strong>📋 Статус:</strong> <span style="font-weight: bold;">${statusText}</span></p>
-                            ${ticket.assignedTo ? `<p><strong>👨‍💼 Назначено:</strong> ${ticket.assignedTo}</p>` : ''}
-                        </div>
-                        <div style="background: #f8f9fa; padding: 1rem; border-radius: var(--radius-md);">
-                            <strong>💬 Ваше сообщение:</strong>
-                            <p style="margin: 0.5rem 0 0 0;">${ticket.message}</p>
+                    if (ticketDoc.exists) {
+                        const ticket = ticketDoc.data();
+                        const maskedTicket = SecuritySystem.maskSensitiveData(ticket);
+                        const statusClass = `status-${ticket.status.replace(' ', '-')}`;
+                        
+                        statusInfo.innerHTML = `
+                            <div class="ticket-details">
+                                <h3>Информация о тикете: ${ticketId}</h3>
+                                <div class="ticket-field"><strong>Статус:</strong> <span class="status-badge ${statusClass}">${getStatusText(ticket.status)}</span></div>
+                                <div class="ticket-field"><strong>Имя:</strong> ${maskedTicket.name}</div>
+                                <div class="ticket-field"><strong>Должность:</strong> ${getPositionText(maskedTicket.position)}</div>
+                                <div class="ticket-field"><strong>Email:</strong> <span class="masked-data">${maskedTicket.email}</span></div>
+                                <div class="ticket-field"><strong>Спец. код:</strong> <span class="masked-data">${maskedTicket.specialCode}</span></div>
+                                <div class="ticket-field"><strong>Контакт:</strong> <span class="masked-data">${maskedTicket.contactDetails}</span></div>
+                                <div class="ticket-field"><strong>Сообщение:</strong> ${maskedTicket.message || 'Не указано'}</div>
+                                <div class="ticket-field"><strong>Дата создания:</strong> ${new Date(ticket.createdAt).toLocaleString('ru-RU')}</div>
+                            </div>
+                            ${renderTimeline(ticket.status)}
+                        `;
+                        
+                        SecuritySystem.logSecurityEvent('ticket_status_checked', { ticketId });
+                    } else {
+                        statusInfo.innerHTML = '<p style="color: var(--danger);">Тикет с таким номером не найден.</p>';
+                    }
+                    
+                    statusInfo.classList.add('active');
+                } catch (error) {
+                    console.error('Ошибка поиска тикета:', error);
+                    statusInfo.innerHTML = '<p style="color: var(--danger);">Ошибка при поиске тикета</p>';
+                    statusInfo.classList.add('active');
+                }
+            });
+            
+            // Проверка истории обращений по email (с маскированием)
+            document.getElementById('check-history').addEventListener('click', async function() {
+                const userEmail = document.getElementById('user-email').value.trim().toLowerCase();
+                const historyInfo = document.getElementById('history-info');
+                
+                if (!userEmail) {
+                    historyInfo.innerHTML = '<p style="color: var(--danger);">Пожалуйста, введите ваш email</p>';
+                    historyInfo.classList.add('active');
+                    return;
+                }
+                
+                // Rate limiting для истории
+                if (!SecuritySystem.rateLimit.check('history_' + userEmail, 5, 300000)) {
+                    historyInfo.innerHTML = '<p style="color: var(--danger);">Слишком много запросов. Подождите 5 минут.</p>';
+                    historyInfo.classList.add('active');
+                    return;
+                }
+                
+                try {
+                    const snapshot = await db.collection('tickets')
+                        .where('email', '==', userEmail)
+                        .get();
+                    
+                    if (snapshot.empty) {
+                        historyInfo.innerHTML = '<p>Обращений с таким email не найдено.</p>';
+                    } else {
+                        let historyHTML = '<h3>Ваши обращения:</h3>';
+                        const tickets = [];
+                        
+                        snapshot.forEach((doc) => {
+                            tickets.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+                        
+                        // Сортировка по дате
+                        tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        
+                        tickets.forEach(ticket => {
+                            const maskedTicket = SecuritySystem.maskSensitiveData(ticket);
+                            const statusClass = `status-${ticket.status.replace(' ', '-')}`;
+                            
+                            historyHTML += `
+                                <div class="ticket-details" style="margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; border-radius: var(--radius-md);">
+                                    <div class="ticket-field"><strong>Номер тикета:</strong> ${ticket.id}</div>
+                                    <div class="ticket-field"><strong>Статус:</strong> <span class="status-badge ${statusClass}">${getStatusText(ticket.status)}</span></div>
+                                    <div class="ticket-field"><strong>Сообщение:</strong> ${maskedTicket.message.substring(0, 100)}${maskedTicket.message.length > 100 ? '...' : ''}</div>
+                                    <div class="ticket-field"><strong>Дата создания:</strong> ${new Date(ticket.createdAt).toLocaleDateString('ru-RU')}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        historyInfo.innerHTML = historyHTML;
+                        
+                        SecuritySystem.logSecurityEvent('ticket_history_checked', { 
+                            email: SecuritySystem.maskEmail(userEmail),
+                            ticketCount: tickets.length 
+                        });
+                    }
+                    
+                    historyInfo.classList.add('active');
+                } catch (error) {
+                    console.error('Ошибка поиска истории:', error);
+                    historyInfo.innerHTML = '<p style="color: var(--danger);">Ошибка при поиске истории обращений</p>';
+                    historyInfo.classList.add('active');
+                }
+            });
+            
+            // Вспомогательные функции
+            function getStatusText(status) {
+                const statusMap = {
+                    'new': 'Новый',
+                    'in-progress': 'В обработке',
+                    'resolved': 'Решено',
+                    'closed': 'Закрыто'
+                };
+                return statusMap[status] || status;
+            }
+            
+            function getPositionText(position) {
+                const positionMap = {
+                    'player': 'Игрок',
+                    'developer': 'Разработчик',
+                    'moderator': 'Модератор',
+                    'admin': 'Администратор',
+                    'other': 'Другое'
+                };
+                return positionMap[position] || position;
+            }
+            
+            function renderTimeline(status) {
+                const steps = [
+                    { id: 'new', label: 'Создан', active: true },
+                    { id: 'in-progress', label: 'В обработке', active: status === 'in-progress' || status === 'resolved' || status === 'closed' },
+                    { id: 'resolved', label: 'Решен', active: status === 'resolved' || status === 'closed' },
+                    { id: 'closed', label: 'Закрыт', active: status === 'closed' }
+                ];
+                
+                let timelineHTML = '<div class="process-timeline">';
+                
+                steps.forEach(step => {
+                    let stepClass = '';
+                    if (step.active) {
+                        stepClass = status === 'closed' && step.id === 'closed' ? 'completed' : 'active';
+                    }
+                    
+                    timelineHTML += `
+                        <div class="timeline-step ${stepClass}">
+                            <div class="step-icon">${steps.indexOf(step) + 1}</div>
+                            <span>${step.label}</span>
                         </div>
                     `;
-                } else {
-                    statusResult.innerHTML = '<p style="color: var(--danger);">❌ Тикет с таким номером не найден</p>';
-                }
-            } catch (error) {
-                console.error('❌ Ошибка проверки:', error);
-                statusResult.innerHTML = '<p style="color: var(--danger);">❌ Ошибка при проверке статуса</p>';
+                });
+                
+                timelineHTML += '</div>';
+                return timelineHTML;
             }
-        }
 
-        // Вспомогательные функции
-        function getStatusText(status) {
-            const statusMap = {
-                'new': '🆕 Новый',
-                'in-progress': '🛠️ В обработке', 
-                'resolved': '✅ Решен',
-                'closed': '🔒 Закрыт'
-            };
-            return statusMap[status] || status;
-        }
-
-        function getPositionText(position) {
-            const positionMap = {
-                'player': '🎮 Игрок',
-                'developer': '💻 Разработчик',
-                'moderator': '🛡️ Модератор', 
-                'admin': '👑 Администратор',
-                'other': '❓ Другое'
-            };
-            return positionMap[position] || position;
-        }
-
-        // Автозаполнение контактных данных при выборе метода
-        document.getElementById('contactMethod').addEventListener('change', function() {
-            const method = this.value;
-            const detailsInput = document.getElementById('contactDetails');
-            
-            if (method === 'discord') {
-                detailsInput.placeholder = 'username#1234';
-            } else if (method === 'telegram') {
-                detailsInput.placeholder = '@username';
-            } else if (method === 'vk') {
-                detailsInput.placeholder = 'id123456789 или username';
-            } else if (method === 'roblox') {
-                detailsInput.placeholder = 'RobloxUsername';
-            } else {
-                detailsInput.placeholder = 'username#1234 или @username';
-            }
+            // Инициализация reCAPTCHA v3
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7', {action: 'contact'});
+            });
         });
     </script>
 </body>
