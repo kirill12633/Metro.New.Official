@@ -1,0 +1,24 @@
+name: Deploy Firebase
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      FIREBASE_AUTHDOMAIN: ${{ secrets.FIREBASE_AUTHDOMAIN }}
+      FIREBASE_DATABASEURL: ${{ secrets.FIREBASE_DATABASEURL }}
+      FIREBASE_PROJECTID: ${{ secrets.FIREBASE_PROJECTID }}
+      FIREBASE_STORAGEBUCKET: ${{ secrets.FIREBASE_STORAGEBUCKET }}
+      FIREBASE_MESSAGINGSENDERID: ${{ secrets.FIREBASE_MESSAGINGSENDERID }}
+      FIREBASE_APPID: ${{ secrets.FIREBASE_APPID }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Deploy to Firebase
+        run: npx firebase deploy --project $FIREBASE_PROJECTID
