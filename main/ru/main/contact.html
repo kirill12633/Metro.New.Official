@@ -6,7 +6,13 @@
     <title>Контакты - Метро New</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- reCAPTCHA API v2 -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-check-compat.js"></script>
+    <!-- reCAPTCHA v3 для App Check -->
+    <script src="https://www.google.com/recaptcha/api.js?render=ваш_recaptcha_v3_site_key"></script>
+    <!-- reCAPTCHA v2 для формы -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root {
@@ -289,6 +295,48 @@
             margin: 1.5rem 0;
             display: flex;
             justify-content: center;
+        }
+
+        /* Политика конфиденциальности */
+        .privacy-checkbox {
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .privacy-checkbox input[type="checkbox"] {
+            margin-top: 0.25rem;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .privacy-checkbox label {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+
+        .privacy-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .privacy-link:hover {
+            text-decoration: underline;
+        }
+
+        .checkbox-error {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .checkbox-error.show {
+            display: block;
         }
 
         /* Часто задаваемые вопросы */
@@ -593,17 +641,17 @@
             <h2>Форма обратной связи</h2>
             <form id="contact-form">
                 <div class="form-group">
-                    <label class="form-label">Ваше имя</label>
-                    <input type="text" class="form-input" name="name" placeholder="Введите ваше имя" required>
+                    <label class="form-label">Ваше имя *</label>
+                    <input type="text" class="form-input" name="name" placeholder="Введите ваше имя" required minlength="2" maxlength="50">
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Email адрес</label>
+                    <label class="form-label">Email адрес *</label>
                     <input type="email" class="form-input" name="email" placeholder="email@example.com" required>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Тема обращения</label>
+                    <label class="form-label">Тема обращения *</label>
                     <select class="form-select" name="topic" required>
                         <option value="">Выберите тему</option>
                         <option value="Техническая поддержка">Техническая поддержка</option>
@@ -615,9 +663,18 @@
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Сообщение</label>
-                    <textarea class="form-textarea" name="message" placeholder="Опишите ваш вопрос или предложение..." required></textarea>
+                    <label class="form-label">Сообщение *</label>
+                    <textarea class="form-textarea" name="message" placeholder="Опишите ваш вопрос или предложение..." required minlength="10" maxlength="2000"></textarea>
                 </div>
+                
+                <!-- Политика конфиденциальности -->
+                <div class="privacy-checkbox">
+                    <input type="checkbox" id="privacyAccepted" name="privacyAccepted" required>
+                    <label for="privacyAccepted">
+                        Я соглашаюсь с <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" class="privacy-link" target="_blank">Политикой конфиденциальности</a> и даю согласие на обработку моих персональных данных
+                    </label>
+                </div>
+                <div class="checkbox-error" id="privacyError">Необходимо принять политику конфиденциальности</div>
                 
                 <!-- reCAPTCHA v2 -->
                 <div class="g-recaptcha" data-sitekey="6Lfr5g0sAAAAANmMqIPHhQ6pvNa3YnVcXs3A4eR2"></div>
@@ -689,9 +746,29 @@
     </footer>
 
     <script>
+        // Firebase конфигурация
+        const firebaseConfig = {
+            apiKey: "ваш_настоящий_apiKey",
+            authDomain: "metro-new-contacts.firebaseapp.com",
+            projectId: "metro-new-contacts",
+            storageBucket: "metro-new-contacts.appspot.com",
+            messagingSenderId: "ваш_настоящий_senderId",
+            appId: "ваш_настоящий_appId"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Инициализация App Check с reCAPTCHA v3
+        const appCheck = firebase.appCheck();
+        appCheck.activate('ваш_recaptcha_v3_site_key', true);
+
         document.addEventListener('DOMContentLoaded', function() {
             const contactForm = document.getElementById('contact-form');
             const submitBtn = document.getElementById('submit-btn');
+            const privacyCheckbox = document.getElementById('privacyAccepted');
+            const privacyError = document.getElementById('privacyError');
 
             // Функция показа уведомлений
             function showNotification(message, type = 'success') {
@@ -715,14 +792,57 @@
                 }, 5000);
             }
 
+            // Валидация формы
+            function validateForm(formData) {
+                const errors = [];
+                
+                // Проверка имени
+                if (formData.get('name').length < 2 || formData.get('name').length > 50) {
+                    errors.push('Имя должно содержать от 2 до 50 символов');
+                }
+                
+                // Проверка email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(formData.get('email'))) {
+                    errors.push('Введите корректный email адрес');
+                }
+                
+                // Проверка сообщения
+                if (formData.get('message').length < 10 || formData.get('message').length > 2000) {
+                    errors.push('Сообщение должно содержать от 10 до 2000 символов');
+                }
+                
+                // Проверка политики конфиденциальности
+                if (!privacyCheckbox.checked) {
+                    privacyError.classList.add('show');
+                    errors.push('Необходимо принять политику конфиденциальности');
+                } else {
+                    privacyError.classList.remove('show');
+                }
+                
+                return errors;
+            }
+
             // Обработка отправки формы
             contactForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Проверяем reCAPTCHA
+                // Скрываем ошибку политики
+                privacyError.classList.remove('show');
+                
+                // Проверяем reCAPTCHA v2
                 const recaptchaResponse = grecaptcha.getResponse();
                 if (!recaptchaResponse) {
                     showNotification('Пожалуйста, подтвердите, что вы не робот', 'error');
+                    return;
+                }
+
+                // Валидация формы
+                const formData = new FormData(contactForm);
+                const validationErrors = validateForm(formData);
+                
+                if (validationErrors.length > 0) {
+                    showNotification(validationErrors[0], 'error');
                     return;
                 }
 
@@ -731,74 +851,62 @@
                 submitBtn.innerHTML = '<div class="loading"></div> Отправка...';
 
                 try {
-                    // Получаем данные формы
-                    const formData = new FormData(contactForm);
-                    const data = {
-                        name: formData.get('name'),
-                        email: formData.get('email'),
+                    // Получаем IP клиента
+                    const clientIP = await getClientIP();
+
+                    // Подготавливаем данные для Firestore
+                    const contactData = {
+                        name: formData.get('name').trim(),
+                        email: formData.get('email').trim(),
                         topic: formData.get('topic'),
-                        message: formData.get('message'),
-                        'g-recaptcha-response': recaptchaResponse
+                        message: formData.get('message').trim(),
+                        privacyAccepted: true,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'new',
+                        ip: clientIP,
+                        userAgent: navigator.userAgent,
+                        recaptchaV2: recaptchaResponse
                     };
 
-                    // Формируем сообщение для Discord
-                    const discordMessage = {
-                        embeds: [{
-                            title: "📧 Новое сообщение с сайта",
-                            color: 3447003,
-                            fields: [
-                                {
-                                    name: "👤 Имя",
-                                    value: data.name,
-                                    inline: true
-                                },
-                                {
-                                    name: "📧 Email",
-                                    value: data.email,
-                                    inline: true
-                                },
-                                {
-                                    name: "📋 Тема",
-                                    value: data.topic,
-                                    inline: true
-                                },
-                                {
-                                    name: "💬 Сообщение",
-                                    value: data.message.substring(0, 1000) // Ограничение длины
-                                }
-                            ],
-                            timestamp: new Date().toISOString(),
-                            footer: {
-                                text: "Метро New - Контактная форма"
-                            }
-                        }]
-                    };
+                    // Сохраняем в Firestore
+                    await db.collection('contacts').add(contactData);
 
-                    // Отправляем в Discord Webhook
-                    const response = await fetch('contact_Discord_Webhook', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(discordMessage)
-                    });
-
-                    if (response.ok) {
-                        showNotification('Сообщение успешно отправлено! Мы ответим вам в ближайшее время.', 'success');
-                        contactForm.reset();
-                        grecaptcha.reset();
-                    } else {
-                        throw new Error('Ошибка отправки');
-                    }
+                    showNotification('Сообщение успешно отправлено! Мы ответим вам в ближайшее время.', 'success');
+                    contactForm.reset();
+                    grecaptcha.reset();
+                    privacyCheckbox.checked = false;
 
                 } catch (error) {
-                    console.error('Ошибка:', error);
-                    showNotification('Произошла ошибка при отправке. Пожалуйста, попробуйте еще раз.', 'error');
+                    console.error('Ошибка при сохранении в базу данных:', error);
+                    
+                    if (error.code === 'permission-denied') {
+                        showNotification('Ошибка безопасности. Пожалуйста, обновите страницу и попробуйте снова.', 'error');
+                    } else {
+                        showNotification('Произошла ошибка при отправке. Пожалуйста, попробуйте еще раз.', 'error');
+                    }
                 } finally {
                     // Разблокируем кнопку отправки
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить сообщение';
                 }
+            });
+
+            // Функция для получения IP клиента
+            async function getClientIP() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    return data.ip;
+                } catch (error) {
+                    console.error('Ошибка при получении IP:', error);
+                    return 'unknown';
+                }
+            }
+
+            // Валидация в реальном времени
+            contactForm.addEventListener('input', function() {
+                const formData = new FormData(contactForm);
+                validateForm(formData);
             });
         });
     </script>
