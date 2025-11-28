@@ -1,20 +1,17 @@
-// ----------------------------------------------------------
-//  ЛОГГЕР — открытый вывод событий на страницу
-// ----------------------------------------------------------
+// -------------------------
+// Логгер на странице1
+// -------------------------
 function log(msg) {
     const box = document.getElementById("log");
     if (!box) return;
-
     const time = new Date().toLocaleTimeString();
     box.innerHTML += `[${time}] ${msg}<br>`;
     box.scrollTop = box.scrollHeight;
 }
 
-// ----------------------------------------------------------
-//  Инициализация Firebase
-// ----------------------------------------------------------
-log("Инициализация Firebase...");
-
+// -------------------------
+// Firebase config
+// -------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
@@ -26,20 +23,29 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ----------------------------------------------------------
-//  Установка локальной сессии (важно для GitHub Pages)
-// ----------------------------------------------------------
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .then(() => log("Persistence установлен: LOCAL"))
-  .catch(err => log("Ошибка persistence: " + err.message));
+// -------------------------
+// App Check (ReCAPTCHA v3)
+// -------------------------
+const appCheck = firebase.appCheck();
+appCheck.activate(
+    '6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo', // Вставь свой ReCAPTCHA v3 ключ
+    true // enableTokenAutoRefresh
+);
+log("App Check активирован");
 
-// ----------------------------------------------------------
-//  КНОПКА ВХОДА GOOGLE
-// ----------------------------------------------------------
+// -------------------------
+// Настройка persistence для GitHub Pages
+// -------------------------
+auth.setPersistence(firebase.auth.Auth.Persistence.NONE)
+    .then(() => log("Persistence: NONE"))
+    .catch(e => log("Persistence error: " + e.message));
+
+// -------------------------
+// Кнопка Google Login
+// -------------------------
 document.addEventListener("DOMContentLoaded", () => {
     log("Страница загружена.");
 
@@ -49,46 +55,39 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    googleBtn.onclick = () => {
-        log("Открываю окно Google Login...");
-
+    googleBtn.onclick = async () => {
+        log("▶ Открываю окно Google Login...");
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        auth.signInWithPopup(provider)
-            .then(result => {
-                const user = result.user;
-                log("✅ Вход выполнен!");
-                log("Email: " + user.email);
+        try {
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+            log("✅ Вход успешен");
+            log("Email: " + user.email);
 
-                // Сохраняем пользователя в базе wikiUsers
-                const userRef = db.collection("wikiUsers").doc(user.uid);
+            // Сохраняем пользователя в wikiUsers
+            const userRef = db.collection("wikiUsers").doc(user.uid);
+            await userRef.set({
+                email: user.email,
+                role: "user", // по умолчанию
+                lastLogin: new Date(),
+                ip: "auto"
+            }, { merge: true });
 
-                userRef.set({
-                    email: user.email,
-                    role: "user",        // по умолчанию
-                    lastLogin: new Date(),
-                    ip: "auto"
-                }, { merge: true })
-                .then(() => {
-                    log("Пользователь записан в Firestore.");
-                    log("Переход в wiki.html...");
-
-                    // Переход
-                    window.location.href = "wiki.html";
-                })
-                .catch(err => {
-                    log("Ошибка записи Firestore: " + err.message);
-                });
-            })
-            .catch(error => {
-                log("❌ Ошибка входа: " + error.message);
-            });
+            log("Пользователь записан в Firestore");
+            // Перейти на wiki.html
+            window.location.href = "wiki.html";
+        } catch (err) {
+            log("❌ Ошибка входа:");
+            log(err.message);
+            log("Код ошибки: " + err.code);
+        }
     };
 });
 
-// ----------------------------------------------------------
-//  ПРОВЕРКА СТАТУСА АВТОРИЗАЦИИ
-// ----------------------------------------------------------
+// -------------------------
+// Проверка статуса авторизации
+// -------------------------
 auth.onAuthStateChanged(user => {
     if (user) {
         log("✔ Пользователь авторизован: " + user.email);
