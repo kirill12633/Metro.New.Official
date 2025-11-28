@@ -1,36 +1,29 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Wiki – страница</title>
-  <link rel="stylesheet" href="style.css">
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<title>Wiki — Страница</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <a href="index.html">← Назад к списку</a>
-
-  <h1 id="pageTitle"></h1>
-
-  <div id="viewBox">
-    <h3>Просмотр</h3>
-    <pre id="viewContent"></pre>
-  </div>
-
-  <div id="wikiControls" style="display:none;">
-    <h3>Редактирование (только moderator / admin)</h3>
-    <textarea id="content" rows="20"></textarea><br>
-    <button onclick="savePage()">Сохранить</button>
-    <button onclick="deletePage()">Удалить страницу (только admin)</button>
-  </div>
-
-  <script src="app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      loadWikiPage(); // загрузить содержимое страницы
+<h1>Wiki</h1>
+<p>Вы авторизованы. Здесь будут страницы Wiki.</p>
+<div id="wikiPages"></div>
+<script src="app.js"></script>
+<script>
+async function loadPages() {
+    const db = firebase.firestore();
+    const snapshot = await db.collection("wikiPages").get();
+    const container = document.getElementById("wikiPages");
+    container.innerHTML = "";
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.innerHTML = `<h3>${data.title}</h3><p>${data.content}</p>`;
+        container.appendChild(div);
     });
-  </script>
+}
+loadPages();
+</script>
 </body>
 </html>
