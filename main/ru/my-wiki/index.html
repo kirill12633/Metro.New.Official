@@ -2,69 +2,71 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Wiki — Вход</title>
+<title>Google Login Test</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <style>
 body {
-    background: #222;
-    color: #fff;
     font-family: Arial, sans-serif;
-    text-align: center;
-    padding-top: 50px;
+    background: #f0f0f0;
+    padding: 40px;
 }
-
-h1 {
-    margin-bottom: 20px;
-}
-
-button {
-    background: #0a84ff;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-button:hover {
-    background: #006fe0;
-}
-
 #log {
-    background: #111;
-    color: #0f0;
-    padding: 10px;
-    height: 250px;
-    overflow-y: auto;
-    font-family: monospace;
-    border: 1px solid #0f0;
-    margin-top: 30px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    white-space: pre-line;
+}
+button {
+    padding: 10px 20px;
+    font-size: 16px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Добро пожаловать в Wiki</h1>
-<p>Войдите через Google, чтобы продолжить</p>
+<h1>Тест Google Login</h1>
 
-<button id="googleLogin">Войти через Google</button>
+<button id="loginBtn">Войти через Google</button>
 
 <div id="log"></div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+// 🔥 ВСТАВЬ СВОЙ firebaseConfig СЮДА
+const firebaseConfig = {
+  apiKey: "ТВОЙ_API_KEY",
+  authDomain: "ТВОЙ_authDomain",
+  projectId: "ТВОЙ_projectId"
+};
 
-<!-- Твой скрипт -->
-<script src="app.js"></script>
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+
+function log(msg) {
+    document.getElementById("log").innerText += msg + "\n";
+}
+
+document.getElementById("loginBtn").onclick = async () => {
+    log("▶ Окно авторизации открывается...");
+
+    try {
+        const result = await auth.signInWithPopup(provider);
+        log("✅ Авторизация успешна!");
+        log("Пользователь: " + result.user.email);
+    } catch (err) {
+        log("❌ Ошибка:");
+        log(err.message);
+        log("Код ошибки: " + err.code);
+    }
+};
+</script>
 
 </body>
 </html>
