@@ -1,1 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статья - Моя Вики</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>📖 Моя Вики</h1>
+        <nav>
+            <a href="index.html">← Назад к списку</a>
+            <a href="#" id="edit-link">Редактировать</a>
+        </nav>
+    </header>
+    
+    <main>
+        <article>
+            <h1 id="article-title">Загрузка...</h1>
+            <div id="article-content">
+                <p>Загрузка содержимого...</p>
+            </div>
+        </article>
+        
+        <div id="article-meta">
+            <!-- Мета-информация будет здесь -->
+        </div>
+    </main>
 
+    <!-- Подключаем скрипты -->
+    <script type="module">
+        // Импортируем Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Конфигурация Firebase (ЗАМЕНИТЕ НА СВОЮ!)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализируем Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Получаем pageName из URL параметров
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('page');
+
+        const articleTitle = document.getElementById('article-title');
+        const articleContent = document.getElementById('article-content');
+        const articleMeta = document.getElementById('article-meta');
+        const editLink = document.getElementById('edit-link');
+
+        async function loadArticle() {
+            if (!pageId) {
+                showError("Статья не найдена", "Не указан идентификатор страницы.");
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "pages", pageId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const pageData = docSnap.data();
+                    
+                    // Заполняем содержимое
+                    articleTitle.textContent = pageData.pageName || 'Без названия';
+                    articleContent.innerHTML = pageData.content || '<p>Содержимое отсутствует.</p>';
+                    
+                    // Форматируем дату
+                    const timestamp = pageData.timestamp?.toDate 
+                        ? new Date(pageData.timestamp.toDate()).toLocaleString('ru-RU')
+                        : 'Дата неизвестна';
+                    
+                    // Заполняем мета-информацию
+                    articleMeta.innerHTML = `
+                        <hr>
+                        <div class="meta-info">
+                            <p><strong>Создано:</strong> ${pageData.createdBy || 'Неизвестно'}</p>
+                            <p><strong>Редактировал:</strong> ${pageData.editedBy || pageData.createdBy || 'Неизвестно'}</p>
+                            <p><strong>Обновлено:</strong> ${timestamp}</p>
+                            ${pageData.ip ? `<p><strong>IP:</strong> ${pageData.ip}</p>` : ''}
+                        </div>
+                    `;
+                    
+                    // Настраиваем ссылку редактирования
+                    if (editLink) {
+                        editLink.href = `edit.html?page=${pageId}`;
+                    }
+                    
+                } else {
+                    showError("Статья не найдена", `Статья с ID "${pageId}" не существует. <a href="edit.html?page=${pageId}">Создать эту статью?</a>`);
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки статьи:", error);
+                showError("Ошибка", "Произошла ошибка при загрузке статьи.");
+            }
+        }
+
+        function showError(title, message) {
+            if (articleTitle) articleTitle.textContent = title;
+            if (articleContent) articleContent.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Загружаем статью при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadArticle);
+    </script>
+</body>
+</html>
