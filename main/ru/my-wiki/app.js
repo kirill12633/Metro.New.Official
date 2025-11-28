@@ -1,5 +1,9 @@
+// ==========================
+// Wiki App - Firebase + Google Login + App Check
+// ==========================
+
 // -------------------------
-// Логгер на странице1
+// Логгер на странице
 // -------------------------
 function log(msg) {
     const box = document.getElementById("log");
@@ -8,6 +12,11 @@ function log(msg) {
     box.innerHTML += `[${time}] ${msg}<br>`;
     box.scrollTop = box.scrollHeight;
 }
+
+// -------------------------
+// Включаем App Check Debug mode
+// -------------------------
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 
 // -------------------------
 // Firebase config
@@ -23,18 +32,16 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // -------------------------
-// App Check (ReCAPTCHA v3)
+// App Check
 // -------------------------
 const appCheck = firebase.appCheck();
-appCheck.activate(
-    '6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo', // Вставь свой ReCAPTCHA v3 ключ
-    true // enableTokenAutoRefresh
-);
-log("App Check активирован");
+appCheck.activate('unused', true); // ключ не нужен для Debug mode
+log("App Check Debug mode включён");
 
 // -------------------------
 // Настройка persistence для GitHub Pages
