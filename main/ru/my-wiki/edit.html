@@ -1,1 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование - Моя Вики</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .edit-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #save-btn:hover {
+            background-color: #45a049;
+        }
+        
+        #cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #cancel-btn:hover {
+            background-color: #da190b;
+        }
+        
+        #preview-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        #preview-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .preview-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #2196F3;
+            display: none;
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>✏️ Редактор Вики</h1>
+        <nav>
+            <a href="index.html">← Назад к списку</a>
+            <a href="#" id="view-link">Просмотреть статью</a>
+        </nav>
+    </header>
+    
+    <main>
+        <form id="edit-form" class="edit-form">
+            <div class="form-group">
+                <label for="pageName">Название страницы:</label>
+                <input type="text" id="pageName" required placeholder="Введите название статьи">
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Содержимое (поддерживает HTML):</label>
+                <textarea id="content" required placeholder="Введите содержимое статьи..."></textarea>
+                <div class="char-count">
+                    <span id="char-count">0</span> символов
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="editedBy">Ваше имя:</label>
+                <input type="text" id="editedBy" required placeholder="Введите ваше имя">
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" id="save-btn">💾 Сохранить страницу</button>
+                <button type="button" id="preview-btn">👁️ Предпросмотр</button>
+                <button type="button" id="cancel-btn">❌ Отмена</button>
+            </div>
+        </form>
+        
+        <div id="preview-section" class="preview-section">
+            <h3>Предпросмотр:</h3>
+            <div id="preview-content"></div>
+        </div>
+        
+        <div id="message"></div>
+    </main>
 
+    <script type="module">
+        // Импортируем Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Конфигурация Firebase (ЗАМЕНИТЕ НА СВОЮ!)
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Инициализируем Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Получаем элементы DOM
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('page');
+        const isEditMode = !!pageId;
+
+        const form = document.getElementById('edit-form');
+        const pageNameInput = document.getElementById('pageName');
+        const contentInput = document.getElementById('content');
+        const editedByInput = document.getElementById('editedBy');
+        const messageDiv = document.getElementById('message');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const previewBtn = document.getElementById('preview-btn');
+        const previewSection = document.getElementById('preview-section');
+        const previewContent = document.getElementById('preview-content');
+        const viewLink = document.getElementById('view-link');
+        const charCount = document.getElementById('char-count');
+        const saveBtn = document.getElementById('save-btn');
+
+        // Функция для генерации ID из названия
+        function generatePageId(pageName) {
+            return pageName
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9а-яё-]/g, '')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+        }
+
+        // Загружаем статью для редактирования
+        async function loadArticleForEdit() {
+            try {
+                const docRef = doc(db, "pages", pageId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const pageData = docSnap.data();
+                    pageNameInput.value = pageData.pageName || '';
+                    contentInput.value = pageData.content || '';
+                    editedByInput.value = pageData.editedBy || pageData.createdBy || '';
+                    updateCharCount();
+                    
+                    // Обновляем ссылку для просмотра
+                    viewLink.href = `article.html?page=${pageId}`;
+                } else {
+                    showMessage("Статья не найдена. Создаем новую.", 'error');
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки статьи:", error);
+                showMessage("Ошибка загрузки статьи.", 'error');
+            }
+        }
+
+        // Обновление счетчика символов
+        function updateCharCount() {
+            charCount.textContent = contentInput.value.length;
+        }
+
+        // Показать/скрыть предпросмотр
+        function togglePreview() {
+            if (previewSection.style.display === 'block') {
+                previewSection.style.display = 'none';
+                previewBtn.textContent = '👁️ Предпросмотр';
+            } else {
+                previewContent.innerHTML = contentInput.value || '<p>Введите текст для предпросмотра...</p>';
+                previewSection.style.display = 'block';
+                previewBtn.textContent = '📝 Редактировать';
+            }
+        }
+
+        // Показать сообщение
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = type === 'success' ? 'message-success' : 'message-error';
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, type === 'success' ? 2000 : 5000);
+        }
+
+        // Обработчик отправки формы
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const pageName = pageNameInput.value.trim();
+            const content = contentInput.value.trim();
+            const editedBy = editedByInput.value.trim();
+            
+            if (!pageName || !content || !editedBy) {
+                showMessage("Заполните все поля.", 'error');
+                return;
+            }
+
+            // Показываем загрузку
+            saveBtn.innerHTML = '⏳ Сохранение...';
+            saveBtn.disabled = true;
+
+            try {
+                const finalPageId = isEditMode ? pageId : generatePageId(pageName);
+                
+                const pageData = {
+                    pageName: pageName,
+                    content: content,
+                    editedBy: editedBy,
+                    timestamp: serverTimestamp()
+                };
+
+                // Если это создание новой статьи, добавляем createdBy
+                if (!isEditMode) {
+                    pageData.createdBy = editedBy;
+                }
+
+                await setDoc(doc(db, "pages", finalPageId), pageData, { merge: true });
+                
+                showMessage("✅ Страница успешно сохранена!", 'success');
+                
+                // Перенаправляем на страницу статьи через 1.5 секунды
+                setTimeout(() => {
+                    window.location.href = `article.html?page=${finalPageId}`;
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Ошибка сохранения:", error);
+                showMessage("❌ Ошибка сохранения страницы: " + error.message, 'error');
+                
+                // Возвращаем нормальное состояние кнопки
+                saveBtn.innerHTML = '💾 Сохранить страницу';
+                saveBtn.disabled = false;
+            }
+        }
+
+        // Обработчик отмены
+        function handleCancel() {
+            if (isEditMode && pageId) {
+                window.location.href = `article.html?page=${pageId}`;
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            // Устанавливаем заголовок в зависимости от режима
+            if (isEditMode) {
+                document.querySelector('h1').textContent = '✏️ Редактирование статьи';
+                loadArticleForEdit();
+            } else {
+                document.querySelector('h1').textContent = '📄 Создание новой статьи';
+                viewLink.style.display = 'none';
+            }
+
+            // Слушатели событий
+            form.addEventListener('submit', handleSubmit);
+            cancelBtn.addEventListener('click', handleCancel);
+            previewBtn.addEventListener('click', togglePreview);
+            contentInput.addEventListener('input', updateCharCount);
+
+            // Инициализируем счетчик символов
+            updateCharCount();
+        });
+    </script>
+</body>
+</html>
