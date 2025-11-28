@@ -5,304 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактор Вики</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        header {
-            background: #2c3e50;
-            color: white;
-            padding: 25px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo h1 {
-            font-size: 24px;
-            font-weight: 600;
-        }
-        
-        .logo-icon {
-            font-size: 28px;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .nav-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .main-content {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 30px;
-        }
-        
-        .editor-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .sidebar {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-        
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 15px;
-            font-family: inherit;
-            transition: all 0.3s;
-            background: white;
-        }
-        
-        input[type="text"]:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        textarea {
-            min-height: 300px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-        
-        .char-count {
-            text-align: right;
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-        
-        button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #45a049;
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .btn-preview {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .btn-preview:hover {
-            background: #0b7dda;
-        }
-        
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        .message-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .message-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .preview-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .preview-title {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-        
-        .recent-articles {
-            margin-top: 25px;
-        }
-        
-        .article-list {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .article-item {
-            padding: 10px;
-            border-bottom: 1px solid #e9ecef;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .article-item:hover {
-            background: #e9ecef;
-        }
-        
-        .article-item:last-child {
-            border-bottom: none;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-box {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #e9ecef;
-        }
-        
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-        }
+        /* Стили остаются такими же как в предыдущей версии */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        header { background: #2c3e50; color: white; padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo h1 { font-size: 24px; font-weight: 600; }
+        .logo-icon { font-size: 28px; }
+        .nav-buttons { display: flex; gap: 10px; }
+        .nav-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.3s; }
+        .nav-btn:hover { background: rgba(255,255,255,0.2); }
+        .main-content { padding: 30px; display: grid; grid-template-columns: 1fr 300px; gap: 30px; }
+        .editor-section, .sidebar { background: #f8f9fa; padding: 25px; border-radius: 10px; border: 1px solid #e9ecef; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; font-size: 14px; }
+        input[type="text"], textarea { width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 15px; font-family: inherit; transition: all 0.3s; background: white; }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        textarea { min-height: 300px; resize: vertical; line-height: 1.6; }
+        .char-count { text-align: right; font-size: 12px; color: #6c757d; margin-top: 5px; }
+        .button-group { display: flex; gap: 12px; margin-top: 25px; }
+        button { padding: 12px 25px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-primary:hover { background: #45a049; transform: translateY(-1px); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-preview { background: #2196F3; color: white; }
+        .btn-preview:hover { background: #0b7dda; }
+        .message { padding: 15px; border-radius: 8px; margin: 20px 0; display: none; }
+        .message-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .preview-section { background: white; padding: 25px; border-radius: 10px; border: 2px solid #e9ecef; margin-top: 20px; display: none; }
+        .preview-title { color: #2c3e50; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .recent-articles { margin-top: 25px; }
+        .article-list { max-height: 200px; overflow-y: auto; }
+        .article-item { padding: 10px; border-bottom: 1px solid #e9ecef; cursor: pointer; transition: background 0.3s; }
+        .article-item:hover { background: #e9ecef; }
+        .article-item:last-child { border-bottom: none; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-box { background: white; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e9ecef; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #667eea; }
+        .stat-label { font-size: 12px; color: #6c757d; margin-top: 5px; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } header { flex-direction: column; gap: 15px; text-align: center; } .button-group { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -400,6 +147,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, serverTimestamp, orderBy, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
 
         // Конфигурация Firebase
         const firebaseConfig = {
@@ -414,6 +162,18 @@
         // Инициализация Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Инициализация App Check
+        let appCheck;
+        try {
+            appCheck = initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider('6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo'), // Замените на ваш ключ
+                isTokenAutoRefreshEnabled: true
+            });
+            console.log('App Check инициализирован');
+        } catch (error) {
+            console.warn('App Check не инициализирован:', error);
+        }
 
         // Элементы DOM
         const form = document.getElementById('edit-form');
@@ -492,6 +252,7 @@
         // Загрузить статистику и статьи
         async function loadStatsAndArticles() {
             try {
+                console.log('Загрузка статей...');
                 const querySnapshot = await getDocs(query(collection(db, "pages"), orderBy("timestamp", "desc")));
                 const articles = [];
                 const today = new Date();
@@ -539,8 +300,11 @@
                     });
                 }
 
+                console.log('Статьи загружены:', articles.length);
+
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
+                showMessage(`Ошибка загрузки: ${error.message}`, 'error');
             }
         }
 
@@ -609,6 +373,7 @@
                     pageData.createdBy = editedBy;
                 }
 
+                console.log('Сохранение статьи:', pageId, pageData);
                 await setDoc(doc(db, "pages", pageId), pageData, { merge: true });
                 
                 showMessage(`✅ Статья "${pageName}" успешно сохранена!`, 'success');
@@ -642,6 +407,8 @@
             
             // Инициализируем счетчик
             updateCharCount();
+
+            console.log('Приложение инициализировано');
         });
     </script>
 </body>
