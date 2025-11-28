@@ -1,47 +1,70 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Wiki – вход и создание страниц</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Wiki — Вход</title>
 
-  <!-- Firebase (compat версии, чтобы было проще) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<style>
+body {
+    background: #222;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding-top: 50px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+button {
+    background: #0a84ff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+button:hover {
+    background: #006fe0;
+}
+
+#log {
+    background: #111;
+    color: #0f0;
+    padding: 10px;
+    height: 250px;
+    overflow-y: auto;
+    font-family: monospace;
+    border: 1px solid #0f0;
+    margin-top: 30px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+</style>
 </head>
+
 <body>
-  <h1>Моя Wiki</h1>
 
-  <div id="auth">
-    <button onclick="login()">Войти через Google</button>
-  </div>
+<h1>Добро пожаловать в Wiki</h1>
+<p>Войдите через Google, чтобы продолжить</p>
 
-  <div id="userInfo" style="display:none;">
-    <p>Вы вошли как: <span id="userEmail"></span></p>
-    <p>Роль: <span id="userRole"></span></p>
-    <button onclick="logout()">Выйти</button>
-  </div>
+<button id="googleLogin">Войти через Google</button>
 
-  <hr>
+<div id="log"></div>
 
-  <div id="actions" style="display:none;">
-    <h2>Создать новую страницу</h2>
-    <input type="text" id="newPageName" placeholder="Название страницы">
-    <button onclick="createPage()">Создать</button>
-  </div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-  <hr>
+<!-- Твой скрипт -->
+<script src="app.js"></script>
 
-  <h2>Список страниц</h2>
-  <ul id="pageList"></ul>
-
-  <script src="app.js"></script>
-  <script>
-    // после загрузки страницы – подгрузить список страниц
-    document.addEventListener('DOMContentLoaded', () => {
-      loadPageList();
-    });
-  </script>
 </body>
 </html>
