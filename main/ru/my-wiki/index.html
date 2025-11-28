@@ -1,28 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="utf-8">
-<title>Wiki Login</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Wiki – вход и создание страниц</title>
+  <link rel="stylesheet" href="style.css">
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.8/firebase-firestore.js"></script>
+  <!-- Firebase (compat версии, чтобы было проще) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <h1>Моя Wiki</h1>
 
-<h1>Добро пожаловать в Wiki</h1>
-
-<div id="auth">
+  <div id="auth">
     <button onclick="login()">Войти через Google</button>
-</div>
+  </div>
 
-<div id="actions" style="display:none;">
-    <input type="text" id="newPageName" placeholder="Название новой страницы">
-    <button onclick="createPage()">Создать страницу</button>
-</div>
+  <div id="userInfo" style="display:none;">
+    <p>Вы вошли как: <span id="userEmail"></span></p>
+    <p>Роль: <span id="userRole"></span></p>
+    <button onclick="logout()">Выйти</button>
+  </div>
 
-<script src="app.js"></script>
+  <hr>
+
+  <div id="actions" style="display:none;">
+    <h2>Создать новую страницу</h2>
+    <input type="text" id="newPageName" placeholder="Название страницы">
+    <button onclick="createPage()">Создать</button>
+  </div>
+
+  <hr>
+
+  <h2>Список страниц</h2>
+  <ul id="pageList"></ul>
+
+  <script src="app.js"></script>
+  <script>
+    // после загрузки страницы – подгрузить список страниц
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPageList();
+    });
+  </script>
 </body>
 </html>
