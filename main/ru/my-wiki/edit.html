@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1Редактор Вики</title>
+    <title>Редактор Вики</title>
     <style>
-        /* Стили остаются такими же как в предыдущей версии */
+        /* Стили остаются прежними */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
@@ -167,7 +167,7 @@
         let appCheck;
         try {
             appCheck = initializeAppCheck(app, {
-                provider: new ReCaptchaV3Provider('6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo'), // Замените на ваш ключ
+                provider: new ReCaptchaV3Provider('6LcBcSgqAAAAAFhVSEwZaM8j6cY3N0MqJ3e6O6t7'),
                 isTokenAutoRefreshEnabled: true
             });
             console.log('App Check инициализирован');
@@ -193,6 +193,18 @@
         let currentPageId = null;
         const urlParams = new URLSearchParams(window.location.search);
         const editPageId = urlParams.get('edit');
+
+        // Функция для получения IP пользователя
+        async function getUserIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.warn('Не удалось получить IP:', error);
+                return 'unknown';
+            }
+        }
 
         // Функция для генерации ID из названия
         function generatePageId(pageName) {
@@ -252,8 +264,8 @@
         // Загрузить статистику и статьи
         async function loadStatsAndArticles() {
             try {
-                console.log('Загрузка статей...');
-                const querySnapshot = await getDocs(query(collection(db, "pages"), orderBy("timestamp", "desc")));
+                console.log('Загрузка статей из коллекции wikiPages...');
+                const querySnapshot = await getDocs(query(collection(db, "wikiPages"), orderBy("timestamp", "desc")));
                 const articles = [];
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -293,6 +305,7 @@
                             <div style="font-size: 12px; color: #666;">
                                 ${article.createdBy || 'Неизвестно'} • 
                                 ${article.timestamp?.toDate ? new Date(article.timestamp.toDate()).toLocaleDateString('ru-RU') : 'Дата неизвестна'}
+                                ${article.ip ? `• IP: ${article.ip}` : ''}
                             </div>
                         `;
                         articleItem.onclick = () => loadArticleForEdit(article.id);
@@ -311,8 +324,8 @@
         // Загрузить статью для редактирования
         async function loadArticleForEdit(pageId) {
             try {
-                const docRef = doc(db, "pages", pageId);
-                const docSnap = await getDocs(collection(db, "pages"));
+                const docRef = doc(db, "wikiPages", pageId);
+                const docSnap = await getDocs(collection(db, "wikiPages"));
                 
                 let foundArticle = null;
                 docSnap.forEach((doc) => {
@@ -360,11 +373,13 @@
 
             try {
                 const pageId = currentPageId || generatePageId(pageName);
+                const userIP = await getUserIP();
                 
                 const pageData = {
                     pageName: pageName,
                     content: content,
                     editedBy: editedBy,
+                    ip: userIP,
                     timestamp: serverTimestamp()
                 };
 
@@ -373,8 +388,8 @@
                     pageData.createdBy = editedBy;
                 }
 
-                console.log('Сохранение статьи:', pageId, pageData);
-                await setDoc(doc(db, "pages", pageId), pageData, { merge: true });
+                console.log('Сохранение статьи в wikiPages:', pageId, pageData);
+                await setDoc(doc(db, "wikiPages", pageId), pageData, { merge: true });
                 
                 showMessage(`✅ Статья "${pageName}" успешно сохранена!`, 'success');
                 currentPageId = pageId;
@@ -408,7 +423,7 @@
             // Инициализируем счетчик
             updateCharCount();
 
-            console.log('Приложение инициализировано');
+            console.log('Приложение инициализировано с коллекцией wikiPages');
         });
     </script>
 </body>
