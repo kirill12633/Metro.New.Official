@@ -1,68 +1,130 @@
-// ===== Firebase config =====
+// ===== Firebase config (твой реальный) =====
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
-  projectId: "metro-new-85226",
   databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+  projectId: "metro-new-85226",
   storageBucket: "metro-new-85226.firebasestorage.app",
   messagingSenderId: "905640751733",
   appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
 
-// ===== Firebase init =====
+// ===== Инициализация Firebase =====
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ===== Авторизация =====
+// ===== Авторизация через Google =====
 function login() {
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
 }
 
 function logout() {
   auth.signOut();
 }
 
-// ===== Проверка авторизации =====
-auth.onAuthStateChanged(async user => {
-  if (user) {
-    // Скрываем кнопку входа
-    document.getElementById('auth')?.style.display = 'none';
-    document.getElementById('actions')?.style.display = 'block';
-
-    // Проверяем есть ли пользователь в базе
-    const userDoc = await db.collection("wikiUsers").doc(user.uid).get();
-    if (!userDoc.exists) {
-      // создаем нового пользователя с ролью user
-      await db.collection("wikiUsers").doc(user.uid).set({
-        email: user.email,
-        role: "user"  // по умолчанию обычный пользователь
-      });
-    }
-  } else {
-    document.getElementById('auth')?.style.display = 'block';
-    document.getElementById('actions')?.style.display = 'none';
-  }
-});
-
-// ===== Получение внешнего IP =====
+// ===== Получение IP =====
 async function getUserIP() {
   try {
     const resp = await fetch("https://api.ipify.org?format=json");
     const data = await resp.json();
     return data.ip;
-  } catch {
+  } catch (e) {
     return "unknown";
   }
 }
 
-// ===== Создание новой страницы =====
+// ===== Обработчик смены авторизации =====
+auth.onAuthStateChanged(async (user) => {
+  const authBlock = document.getElementById('auth');
+  const actionsBlock = document.getElementById('actions');
+  const userInfo = document.getElementById('userInfo');
+  const emailSpan = document.getElementById('userEmail');
+  const roleSpan = document.getElementById('userRole');
+
+  if (!user) {
+    // Не авторизован
+    if (authBlock) authBlock.style.display = 'block';
+    if (actionsBlock) actionsBlock.style.display = 'none';
+    if (userInfo) userInfo.style.display = 'none';
+    return;
+  }
+
+  // Авторизован
+  if (authBlock) authBlock.style.display = 'none';
+  if (userInfo) userInfo.style.display = 'block';
+
+  // Создаём запись о пользователе, если её ещё нет
+  const userRef = db.collection("wikiUsers").doc(user.uid);
+  const snap = await userRef.get();
+  if (!snap.exists) {
+    await userRef.set({
+      email: user.email,
+      role: "user" // по умолчанию
+    });
+  }
+
+  // Читаем актуальную роль
+  const userData = (await userRef.get()).data();
+  const role = userData.role || "user";
+
+  if (emailSpan) emailSpan.textContent = user.email;
+  if (roleSpan) roleSpan.textContent = role;
+
+  // На index.html – показываем блок действий
+  if (actionsBlock) {
+    actionsBlock.style.display = 'block';
+  }
+
+  // На wiki.html – если есть wikiControls, проверяем роль
+  const wikiControls = document.getElementById("wikiControls");
+  if (wikiControls && ["admin", "moderator"].includes(role)) {
+    wikiControls.style.display = "block";
+  }
+});
+
+// ===== Список страниц на index.html =====
+async function loadPageList() {
+  const listElem = document.getElementById("pageList");
+  if (!listElem) return;
+
+  listElem.innerHTML = "...загружаю страницы...";
+
+  const snap = await db.collection("wikiPages").orderBy("timestamp", "desc").get();
+  listElem.innerHTML = "";
+
+  if (snap.empty) {
+    listElem.innerHTML = "<li>Пока нет страниц</li>";
+    return;
+  }
+
+  snap.forEach(doc => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = `wiki.html?page=${encodeURIComponent(doc.id)}`;
+    a.textContent = doc.id;
+    li.appendChild(a);
+    listElem.appendChild(li);
+  });
+}
+
+// ===== Создание новой страницы (index.html) =====
 async function createPage() {
-  const pageName = document.getElementById('newPageName').value.trim();
-  if (!pageName) return alert("Введите название страницы");
+  const input = document.getElementById('newPageName');
+  if (!input) return;
+
+  const pageName = input.value.trim();
+  if (!pageName) {
+    alert("Введите название страницы");
+    return;
+  }
 
   const user = auth.currentUser;
-  if (!user) return alert("Сначала войдите");
+  if (!user) {
+    alert("Сначала войдите через Google");
+    return;
+  }
 
   const ip = await getUserIP();
 
@@ -74,73 +136,97 @@ async function createPage() {
     ip: ip
   });
 
-  alert("Страница создана!");
   window.location.href = `wiki.html?page=${encodeURIComponent(pageName)}`;
 }
 
-// ===== Загрузка страницы wiki =====
-async function loadPage() {
+// ===== Загрузка страницы wiki (wiki.html) =====
+async function loadWikiPage() {
   const params = new URLSearchParams(window.location.search);
   const pageName = params.get("page");
   if (!pageName) return;
 
-  document.getElementById("pageTitle").innerText = pageName;
+  const titleElem = document.getElementById("pageTitle");
+  const viewContent = document.getElementById("viewContent");
+  const editArea = document.getElementById("content");
+
+  if (titleElem) titleElem.textContent = pageName;
 
   const doc = await db.collection("wikiPages").doc(pageName).get();
-  if (doc.exists) {
-    document.getElementById("content").value = doc.data().content;
-  } else {
-    document.getElementById("content").value = "";
+  if (!doc.exists) {
+    const text = "Страница ещё не существует (но файл для неё уже можно сохранить).";
+    if (viewContent) viewContent.textContent = text;
+    if (editArea) editArea.value = "";
+    return;
   }
 
-  const user = auth.currentUser;
-  if (user) {
-    const roleDoc = await db.collection("wikiUsers").doc(user.uid).get();
-    const role = roleDoc.data()?.role;
-    if (["admin", "moderator"].includes(role)) {
-      document.getElementById("wikiControls").style.display = "block";
-    }
-  }
+  const data = doc.data();
+  if (viewContent) viewContent.textContent = data.content || "";
+  if (editArea) editArea.value = data.content || "";
 }
 
-// ===== Сохранение страницы =====
+// ===== Сохранение страницы (wiki.html, только moderator/admin) =====
 async function savePage() {
   const user = auth.currentUser;
-  if (!user) return alert("Войдите чтобы редактировать");
-
-  const pageName = document.getElementById("pageTitle").innerText;
-  const content = document.getElementById("content").value;
-  const ip = await getUserIP();
-
-  const roleDoc = await db.collection("wikiUsers").doc(user.uid).get();
-  const role = roleDoc.data()?.role;
-  if (!["admin","moderator"].includes(role)) {
-    return alert("У вас нет прав редактировать страницу");
+  if (!user) {
+    alert("Войдите, чтобы редактировать");
+    return;
   }
 
-  await db.collection("wikiPages").doc(pageName).update({
-    content: content,
+  // проверяем роль
+  const userRef = db.collection("wikiUsers").doc(user.uid);
+  const snap = await userRef.get();
+  const role = snap.data()?.role || "user";
+
+  if (!["admin", "moderator"].includes(role)) {
+    alert("У вас нет прав редактировать эту страницу");
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const pageName = params.get("page");
+  if (!pageName) return;
+
+  const editArea = document.getElementById("content");
+  if (!editArea) return;
+
+  const ip = await getUserIP();
+
+  await db.collection("wikiPages").doc(pageName).set({
+    content: editArea.value,
     editedBy: user.email,
     timestamp: Date.now(),
     ip: ip
-  });
+  }, { merge: true });
 
-  alert("Сохранено!");
+  alert("Сохранено");
+  const viewContent = document.getElementById("viewContent");
+  if (viewContent) viewContent.textContent = editArea.value;
 }
 
-// ===== Удаление страницы =====
+// ===== Удаление страницы (только admin) =====
 async function deletePage() {
   const user = auth.currentUser;
-  if (!user) return alert("Войдите чтобы удалять");
+  if (!user) {
+    alert("Войдите, чтобы удалять");
+    return;
+  }
 
-  const pageName = document.getElementById("pageTitle").innerText;
+  const userRef = db.collection("wikiUsers").doc(user.uid);
+  const snap = await userRef.get();
+  const role = snap.data()?.role || "user";
 
-  const roleDoc = await db.collection("wikiUsers").doc(user.uid).get();
-  const role = roleDoc.data()?.role;
+  if (role !== "admin") {
+    alert("Только admin может удалять страницы");
+    return;
+  }
 
-  if (role !== "admin") return alert("Только админ может удалять страницы");
+  const params = new URLSearchParams(window.location.search);
+  const pageName = params.get("page");
+  if (!pageName) return;
+
+  if (!confirm(`Точно удалить страницу "${pageName}"?`)) return;
 
   await db.collection("wikiPages").doc(pageName).delete();
-  alert("Страница удалена!");
+  alert("Страница удалена");
   window.location.href = "index.html";
 }
