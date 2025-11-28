@@ -1,22 +1,427 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Wiki — Вход</title>
-<link rel="stylesheet" href="style.css">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-check-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя Вики - Главная</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .hero p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .article-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid #667eea;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .article-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .article-card h3 a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .article-card h3 a:hover {
+            color: #667eea;
+        }
+        
+        .article-meta {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .article-preview {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .create-new {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .create-btn {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+        
+        .create-btn:hover {
+            background: #45a049;
+        }
+        
+        .search-box {
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: #667eea;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
 </head>
 <body>
-<h1>Добро пожаловать в Wiki</h1>
-<p>Войдите через Google, чтобы продолжить</p>
-<button id="googleLogin">Войти через Google</button>
-<div id="log"></div>
+    <header>
+        <div class="hero">
+            <h1>📚 Моя Вики</h1>
+            <p>База знаний и полезной информации</p>
+        </div>
+        
+        <nav>
+            <a href="index.html" class="active">🏠 Главная</a>
+            <a href="edit.html">📝 Создать статью</a>
+            <a href="wiki.html">ℹ️ О вики</a>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="search-box">
+            <input type="text" id="search-input" class="search-input" placeholder="🔍 Поиск статей...">
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Все статьи</button>
+            <button class="filter-btn" data-filter="recent">Недавние</button>
+            <button class="filter-btn" data-filter="popular">Популярные</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-articles">0</div>
+                <div class="stat-label">Всего статей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="today-articles">0</div>
+                <div class="stat-label">Сегодня</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-authors">0</div>
+                <div class="stat-label">Авторов</div>
+            </div>
+        </div>
+        
+        <div class="create-new">
+            <a href="edit.html" class="create-btn">+ Создать новую статью</a>
+        </div>
+        
+        <div id="articles-container">
+            <div class="loading" id="loading-state">
+                <p>🔄 Загрузка статей...</p>
+            </div>
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <h3>😔 Статьи не найдены</h3>
+                <p>Будьте первым, кто создаст статью в этой вики!</p>
+                <a href="edit.html" class="create-btn" style="margin-top: 15px;">Создать первую статью</a>
+            </div>
+            <div id="articles-grid" class="articles-grid" style="display: none;"></div>
+        </div>
+    </main>
 
-<script src="app.js"></script>
+    <script type="module">
+        // Импортируем Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Конфигурация Firebase (ЗАМЕНИТЕ НА СВОЮ!)
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Инициализируем Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Получаем элементы DOM
+        const articlesGrid = document.getElementById('articles-grid');
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('search-input');
+        const totalArticles = document.getElementById('total-articles');
+        const todayArticles = document.getElementById('today-articles');
+        const totalAuthors = document.getElementById('total-authors');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        let allArticles = [];
+        let filteredArticles = [];
+
+        // Функция для загрузки статей
+        async function loadArticles() {
+            try {
+                const q = query(collection(db, "pages"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                allArticles = [];
+                const authors = new Set();
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                let todayCount = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const articleData = doc.data();
+                    const article = {
+                        id: doc.id,
+                        ...articleData,
+                        timestamp: articleData.timestamp?.toDate?.() || new Date()
+                    };
+                    
+                    allArticles.push(article);
+                    
+                    // Считаем авторов
+                    if (articleData.createdBy) authors.add(articleData.createdBy);
+                    if (articleData.editedBy) authors.add(articleData.editedBy);
+                    
+                    // Считаем статьи за сегодня
+                    const articleDate = new Date(article.timestamp);
+                    articleDate.setHours(0, 0, 0, 0);
+                    if (articleDate.getTime() === today.getTime()) {
+                        todayCount++;
+                    }
+                });
+
+                // Обновляем статистику
+                totalArticles.textContent = allArticles.length;
+                todayArticles.textContent = todayCount;
+                totalAuthors.textContent = authors.size;
+
+                // Показываем все статьи
+                filteredArticles = [...allArticles];
+                displayArticles(filteredArticles);
+
+            } catch (error) {
+                console.error("Ошибка загрузки статей:", error);
+                loadingState.innerHTML = '<p>❌ Ошибка загрузки статей</p>';
+            }
+        }
+
+        // Функция для отображения статей
+        function displayArticles(articles) {
+            loadingState.style.display = 'none';
+            
+            if (articles.length === 0) {
+                emptyState.style.display = 'block';
+                articlesGrid.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            articlesGrid.style.display = 'grid';
+            articlesGrid.innerHTML = '';
+
+            articles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                
+                // Создаем превью содержимого (убираем HTML теги)
+                const contentPreview = article.content 
+                    ? article.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...'
+                    : 'Содержимое отсутствует';
+                
+                // Форматируем дату
+                const date = new Date(article.timestamp).toLocaleDateString('ru-RU');
+                
+                articleCard.innerHTML = `
+                    <h3><a href="article.html?page=${article.id}">${article.pageName || 'Без названия'}</a></h3>
+                    <div class="article-meta">
+                        <div>✍️ ${article.editedBy || article.createdBy || 'Неизвестно'}</div>
+                        <div>📅 ${date}</div>
+                    </div>
+                    <div class="article-preview">${contentPreview}</div>
+                `;
+                
+                articlesGrid.appendChild(articleCard);
+            });
+        }
+
+        // Функция поиска
+        function performSearch(searchTerm) {
+            if (!searchTerm.trim()) {
+                filteredArticles = [...allArticles];
+            } else {
+                filteredArticles = allArticles.filter(article => 
+                    (article.pageName && article.pageName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (article.content && article.content.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (article.createdBy && article.createdBy.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+            }
+            displayArticles(filteredArticles);
+        }
+
+        // Функция фильтрации
+        function applyFilter(filterType) {
+            switch(filterType) {
+                case 'recent':
+                    // Последние 10 статей
+                    filteredArticles = allArticles.slice(0, 10);
+                    break;
+                case 'popular':
+                    // Сортируем по длине содержимого (как пример популярности)
+                    filteredArticles = [...allArticles].sort((a, b) => 
+                        (b.content?.length || 0) - (a.content?.length || 0)
+                    ).slice(0, 10);
+                    break;
+                default:
+                    filteredArticles = [...allArticles];
+            }
+            displayArticles(filteredArticles);
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            // Загружаем статьи
+            loadArticles();
+
+            // Поиск
+            searchInput.addEventListener('input', (e) => {
+                performSearch(e.target.value);
+            });
+
+            // Фильтры
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    applyFilter(btn.dataset.filter);
+                });
+            });
+
+            // Быстрые клавиши
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === '/') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    performSearch('');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
