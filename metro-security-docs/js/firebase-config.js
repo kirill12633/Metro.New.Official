@@ -1,4 +1,4 @@
-// Firebase configuration with App Check
+// Firebase configuration for GitHub deployment
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
@@ -10,43 +10,194 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Initialize Firestore
+const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const storage = firebase.storage();
 
-// Initialize App Check with reCAPTCHA Enterprise v3
+// Initialize App Check
 const appCheck = firebase.appCheck();
 appCheck.activate('6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo', true);
 
-// App Check provider
-const provider = new firebase.appCheck.ReCaptchaEnterpriseProvider(
-    '6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo'
-);
-
-// Cloud Firestore collections
+// Firestore collections with proper paths
 const collections = {
-    USERS: 'users',
-    DOCUMENTS: 'documents',
-    SESSIONS: 'sessions',
-    AUDIT_LOGS: 'audit_logs',
-    SECURITY_EVENTS: 'security_events',
-    SETTINGS: 'settings',
-    ACCESS_CONTROLS: 'access_controls'
+    USERS: db.collection('metro-security-docs').doc('system').collection('users'),
+    DOCUMENTS: db.collection('metro-security-docs').doc('system').collection('documents'),
+    SESSIONS: db.collection('metro-security-docs').doc('system').collection('sessions'),
+    AUDIT_LOGS: db.collection('metro-security-docs').doc('system').collection('audit_logs'),
+    SECURITY_EVENTS: db.collection('metro-security-docs').doc('system').collection('security_events'),
+    SETTINGS: db.collection('metro-security-docs').doc('system').collection('settings')
 };
 
-// Security settings
-const SECURITY_SETTINGS = {
+// Helper functions for Firestore operations
+class FirebaseHelper {
+    // Get user document
+    static async getUserDoc(userId) {
+        const userDoc = await collections.USERS.doc(userId).get();
+        return userDoc.exists ? userDoc.data() : null;
+    }
+
+    // Get user with full data
+    static async getUserWithData(userId) {
+        const user = auth.currentUser;
+        if (!user || user.uid !== userId) return null;
+        
+        const userData = await this.getUserDoc(userId);
+        return userData ? { ...user, ...userData } : null;
+    }
+
+    // Get all users (admin only)
+    static async getAllUsers() {
+        const snapshot = await collections.USERS.get();
+        const users = [];
+        snapshot.forEach(doc => {
+            users.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        return users;
+    }
+
+    // Get documents with access control
+    static async getDocumentsForUser(userId, userRole) {
+        const allowedLevels = this.getAllowedAccessLevels(userRole);
+        
+        const snapshot = await collections.DOCUMENTS
+            .where('accessLevel', 'in', allowedLevels)
+            .orderBy('uploadDate', 'desc')
+            .get();
+        
+        const documents = [];
+        snapshot.forEach(doc => {
+            documents.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        return documents;
+    }
+
+    // Get allowed access levels based on role
+    static getAllowedAccessLevels(userRole) {
+        const levels = ['public'];
+        
+        if (['viewer', 'manager', 'admin', 'auditor'].includes(userRole)) {
+            levels.push('internal');
+        }
+        
+        if (['manager', 'admin', 'auditor'].includes(userRole)) {
+            levels.push('confidential');
+        }
+        
+        if (['admin', 'auditor'].includes(userRole)) {
+            levels.push('secret', 'top_secret');
+        }
+        
+        return levels;
+    }
+
+    // Check document access
+    static async checkDocumentAccess(documentId, userId) {
+        const userDoc = await this.getUserDoc(userId);
+        if (!userDoc) return false;
+        
+        const docSnapshot = await collections.DOCUMENTS.doc(documentId).get();
+        if (!docSnapshot.exists) return false;
+        
+        const docData = docSnapshot.data();
+        const allowedLevels = this.getAllowedAccessLevels(userDoc.role);
+        
+        return allowedLevels.includes(docData.accessLevel);
+    }
+
+    // Create audit log
+    static async createAuditLog(data) {
+        return await collections.AUDIT_LOGS.add({
+            ...data,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
+
+    // Create security event
+    static async createSecurityEvent(eventType, userId, details, severity = 'medium') {
+        return await collections.SECURITY_EVENTS.add({
+            eventType,
+            userId,
+            details,
+            severity,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            ipAddress: await this.getIPAddress()
+        });
+    }
+
+    // Get IP address
+    static async getIPAddress() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch {
+            return 'unknown';
+        }
+    }
+
+    // Update document view count
+    static async incrementDocumentView(documentId) {
+        const docRef = collections.DOCUMENTS.doc(documentId);
+        await docRef.update({
+            viewCount: firebase.firestore.FieldValue.increment(1),
+            lastViewed: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
+
+    // Create session
+    static async createSession(userId, sessionData) {
+        const sessionId = this.generateId();
+        await collections.SESSIONS.doc(sessionId).set({
+            sessionId,
+            userId,
+            ...sessionData,
+            startTime: firebase.firestore.FieldValue.serverTimestamp(),
+            active: true
+        });
+        return sessionId;
+    }
+
+    // End session
+    static async endSession(sessionId) {
+        await collections.SESSIONS.doc(sessionId).update({
+            active: false,
+            endTime: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
+
+    // Generate unique ID
+    static generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // Get settings
+    static async getSettings(docId) {
+        const snapshot = await collections.SETTINGS.doc(docId).get();
+        return snapshot.exists ? snapshot.data() : {};
+    }
+
+    // Update settings
+    static async updateSettings(docId, data) {
+        await collections.SETTINGS.doc(docId).set(data, { merge: true });
+    }
+}
+
+// Security configuration
+const SECURITY_CONFIG = {
     SESSION_TIMEOUT: 30 * 60 * 1000, // 30 минут
     MAX_LOGIN_ATTEMPTS: 5,
-    PASSWORD_MIN_LENGTH: 8,
     ALLOWED_FILE_TYPES: ['pdf', 'docx', 'doc', 'xlsx', 'pptx', 'jpg', 'png', 'jpeg'],
     MAX_FILE_SIZE: 50 * 1024 * 1024 // 50MB
 };
 
-// User roles
+// User roles constants
 const USER_ROLES = {
     ADMIN: 'admin',
     MANAGER: 'manager',
@@ -55,7 +206,7 @@ const USER_ROLES = {
     GUEST: 'guest'
 };
 
-// Document access levels
+// Access levels constants
 const ACCESS_LEVELS = {
     PUBLIC: 'public',
     INTERNAL: 'internal',
@@ -64,148 +215,42 @@ const ACCESS_LEVELS = {
     TOP_SECRET: 'top_secret'
 };
 
-// Initialize security rules
-function initializeSecurityRules() {
-    // Enable offline persistence
-    db.enablePersistence()
-        .catch((err) => {
-            console.error('Ошибка включения оффлайн режима:', err.code);
-        });
-
-    // Security rules validation
-    db.settings({
-        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-    });
-}
-
-// Get current user with App Check verification
-async function getCurrentUserWithVerification() {
+// Initialize Firestore settings
+async function initializeFirestore() {
     try {
-        // Verify App Check token
-        const appCheckToken = await appCheck.getToken();
+        // Enable offline persistence
+        await db.enablePersistence();
         
-        if (!appCheckToken) {
-            throw new Error('Не удалось получить токен App Check');
+        // Initialize default settings if not exists
+        const securitySettings = await FirebaseHelper.getSettings('security');
+        if (!securitySettings.sessionTimeout) {
+            await FirebaseHelper.updateSettings('security', {
+                sessionTimeout: SECURITY_CONFIG.SESSION_TIMEOUT,
+                maxLoginAttempts: SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS,
+                strictGeolocation: false,
+                watermarkEnabled: true,
+                geolocationEnabled: true
+            });
         }
 
-        const user = auth.currentUser;
-        if (!user) return null;
-
-        // Verify user in Firestore
-        const userDoc = await db.collection(collections.USERS)
-            .doc(user.uid)
-            .get();
-
-        if (!userDoc.exists) {
-            await auth.signOut();
-            return null;
-        }
-
-        return {
-            ...user,
-            ...userDoc.data(),
-            uid: user.uid
-        };
     } catch (error) {
-        console.error('Ошибка верификации пользователя:', error);
-        return null;
+        console.error('Firestore initialization error:', error);
     }
 }
 
-// Verify document access with App Check
-async function verifyDocumentAccess(documentId, userId) {
-    try {
-        // Get App Check token
-        const appCheckToken = await appCheck.getToken();
-        
-        // Check user permissions
-        const userDoc = await db.collection(collections.USERS)
-            .doc(userId)
-            .get();
-        
-        if (!userDoc.exists) return false;
-
-        const userData = userDoc.data();
-        
-        // Get document
-        const documentDoc = await db.collection(collections.DOCUMENTS)
-            .doc(documentId)
-            .get();
-        
-        if (!documentDoc.exists) return false;
-
-        const documentData = documentDoc.data();
-        
-        // Check access level
-        return checkAccessLevel(userData.role, documentData.accessLevel);
-    } catch (error) {
-        console.error('Ошибка проверки доступа:', error);
-        return false;
-    }
-}
-
-// Check access level based on role
-function checkAccessLevel(userRole, documentAccessLevel) {
-    const roleHierarchy = {
-        [USER_ROLES.ADMIN]: 5,
-        [USER_ROLES.MANAGER]: 4,
-        [USER_ROLES.AUDITOR]: 3,
-        [USER_ROLES.VIEWER]: 2,
-        [USER_ROLES.GUEST]: 1
-    };
-
-    const accessHierarchy = {
-        [ACCESS_LEVELS.TOP_SECRET]: 5,
-        [ACCESS_LEVELS.SECRET]: 4,
-        [ACCESS_LEVELS.CONFIDENTIAL]: 3,
-        [ACCESS_LEVELS.INTERNAL]: 2,
-        [ACCESS_LEVELS.PUBLIC]: 1
-    };
-
-    const userLevel = roleHierarchy[userRole] || 1;
-    const requiredLevel = accessHierarchy[documentAccessLevel] || 1;
-
-    return userLevel >= requiredLevel;
-}
-
-// Generate unique ID
-function generateUniqueId() {
-    return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-}
-
-// Format date for Firestore
-function formatFirestoreDate(date = new Date()) {
-    return firebase.firestore.Timestamp.fromDate(date);
-}
-
-// Get current timestamp
-function getCurrentTimestamp() {
-    return formatFirestoreDate();
-}
-
-// Export modules
-window.firebaseConfig = {
+// Export everything
+window.firebaseApp = {
+    app,
     db,
     auth,
     storage,
     collections,
-    SECURITY_SETTINGS,
+    FirebaseHelper,
+    SECURITY_CONFIG,
     USER_ROLES,
     ACCESS_LEVELS,
-    getCurrentUserWithVerification,
-    verifyDocumentAccess,
-    generateUniqueId,
-    getCurrentTimestamp
+    initializeFirestore
 };
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
-    initializeSecurityRules();
-});
-
-// Экспорт
-window.firebaseApp = app;
-window.firebaseAuth = auth;
-window.firebaseDB = db;
-window.firebaseStorage = storage;
-window.firebaseFunctions = functions;
+document.addEventListener('DOMContentLoaded', initializeFirestore);
