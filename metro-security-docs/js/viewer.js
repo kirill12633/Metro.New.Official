@@ -1,4 +1,4 @@
-class DocumentViewer {
+class DocumentViewerManager {
     constructor() {
         this.currentDocument = null;
         this.documents = [];
@@ -13,59 +13,25 @@ class DocumentViewer {
     async init() {
         await this.loadDocuments();
         this.setupEventListeners();
+        this.setupRealTimeUpdates();
     }
 
     async loadDocuments() {
         try {
-            const user = await firebaseConfig.getCurrentUserWithVerification();
+            const user = authManager.getCurrentUser();
             if (!user) return;
 
-            // Get documents accessible to user
-            const snapshot = await firebaseConfig.db
-                .collection(firebaseConfig.collections.DOCUMENTS)
-                .where('accessLevel', 'in', this.getAllowedAccessLevels(user.role))
-                .orderBy('uploadDate', 'desc')
-                .get();
-
-            this.documents = [];
-            snapshot.forEach(doc => {
-                this.documents.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-
+            this.documents = await firebaseApp.FirebaseHelper.getDocumentsForUser(user.uid, user.role);
             this.renderDocumentList();
             
-            // Load first document if available
             if (this.documents.length > 0) {
                 await this.loadDocument(this.documents[0].id);
             }
 
         } catch (error) {
             console.error('Error loading documents:', error);
+            this.showError('Ошибка загрузки документов');
         }
-    }
-
-    getAllowedAccessLevels(userRole) {
-        const levels = [firebaseConfig.ACCESS_LEVELS.PUBLIC];
-        
-        if (userRole === firebaseConfig.USER_ROLES.VIEWER || 
-            userRole === firebaseConfig.USER_ROLES.MANAGER ||
-            userRole === firebaseConfig.USER_ROLES.ADMIN) {
-            levels.push(firebaseConfig.ACCESS_LEVELS.INTERNAL);
-        }
-        
-        if (userRole === firebaseConfig.USER_ROLES.MANAGER ||
-            userRole === firebaseConfig.USER_ROLES.ADMIN) {
-            levels.push(firebaseConfig.ACCESS_LEVELS.CONFIDENTIAL);
-        }
-        
-        if (userRole === firebaseConfig.USER_ROLES.ADMIN) {
-            levels.push(firebaseConfig.ACCESS_LEVELS.SECRET, firebaseConfig.ACCESS_LEVELS.TOP_SECRET);
-        }
-
-        return levels;
     }
 
     renderDocumentList() {
@@ -75,89 +41,55 @@ class DocumentViewer {
         container.innerHTML = '';
         
         this.documents.forEach(doc => {
-            const item = document.createElement('div');
-            item.className = 'document-item';
-            item.dataset.id = doc.id;
-            
-            const icon = this.getDocumentIcon(doc.type);
-            const uploadDate = doc.uploadDate?.toDate().toLocaleDateString('ru-RU') || 'Неизвестно';
-            
-            item.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    <span class="doc-icon">${icon}</span>
-                    <div>
-                        <div class="doc-name">${doc.name}</div>
-                        <div class="doc-meta">
-                            <span>${doc.type.toUpperCase()}</span>
-                            <span>${uploadDate}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="doc-access" style="margin-top: 5px; font-size: 0.8em; color: ${this.getAccessLevelColor(doc.accessLevel)}">
-                    ${this.getAccessLevelText(doc.accessLevel)}
-                </div>
-            `;
-
-            item.onclick = () => this.loadDocument(doc.id);
+            const item = this.createDocumentItem(doc);
             container.appendChild(item);
         });
     }
 
-    getDocumentIcon(type) {
-        const icons = {
-            'pdf': '📕',
-            'docx': '📘',
-            'doc': '📗',
-            'xlsx': '📊',
-            'pptx': '📑',
-            'jpg': '🖼️',
-            'png': '🖼️',
-            'jpeg': '🖼️'
-        };
-        return icons[type] || '📄';
-    }
+    createDocumentItem(doc) {
+        const item = document.createElement('div');
+        item.className = 'document-item';
+        item.dataset.id = doc.id;
+        
+        const icon = this.getDocumentIcon(doc.type);
+        const uploadDate = doc.uploadDate?.toDate().toLocaleDateString('ru-RU') || 'Неизвестно';
+        const size = this.formatFileSize(doc.size);
+        
+        item.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                <span class="doc-icon">${icon}</span>
+                <div style="flex: 1;">
+                    <div class="doc-name">${doc.name}</div>
+                    <div class="doc-meta">
+                        <span>${doc.type.toUpperCase()} • ${size}</span>
+                        <span>${uploadDate}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="doc-access" style="margin-top: 5px; font-size: 0.8em; color: ${this.getAccessLevelColor(doc.accessLevel)}">
+                ${this.getAccessLevelText(doc.accessLevel)}
+            </div>
+        `;
 
-    getAccessLevelColor(level) {
-        const colors = {
-            [firebaseConfig.ACCESS_LEVELS.PUBLIC]: '#27ae60',
-            [firebaseConfig.ACCESS_LEVELS.INTERNAL]: '#3498db',
-            [firebaseConfig.ACCESS_LEVELS.CONFIDENTIAL]: '#f39c12',
-            [firebaseConfig.ACCESS_LEVELS.SECRET]: '#e74c3c',
-            [firebaseConfig.ACCESS_LEVELS.TOP_SECRET]: '#c0392b'
-        };
-        return colors[level] || '#95a5a6';
-    }
-
-    getAccessLevelText(level) {
-        const texts = {
-            [firebaseConfig.ACCESS_LEVELS.PUBLIC]: 'Публичный',
-            [firebaseConfig.ACCESS_LEVELS.INTERNAL]: 'Внутренний',
-            [firebaseConfig.ACCESS_LEVELS.CONFIDENTIAL]: 'Конфиденциально',
-            [firebaseConfig.ACCESS_LEVELS.SECRET]: 'Секретно',
-            [firebaseConfig.ACCESS_LEVELS.TOP_SECRET]: 'Совершенно секретно'
-        };
-        return texts[level] || 'Неизвестно';
+        item.onclick = () => this.loadDocument(doc.id);
+        return item;
     }
 
     async loadDocument(documentId) {
         try {
-            const user = await firebaseConfig.getCurrentUserWithVerification();
+            const user = authManager.getCurrentUser();
             if (!user) return;
 
             // Check access
-            const hasAccess = await firebaseConfig.verifyDocumentAccess(documentId, user.uid);
+            const hasAccess = await firebaseApp.FirebaseHelper.checkDocumentAccess(documentId, user.uid);
             if (!hasAccess) {
-                alert('Доступ запрещен');
-                await authSystem.logSecurityEvent('access_denied', user.uid, `Попытка доступа к документу ${documentId}`);
+                await authManager.logSecurityEvent('access_denied', user.uid, `Попытка доступа к документу ${documentId}`);
+                this.showError('Доступ запрещен');
                 return;
             }
 
             // Get document data
-            const docRef = await firebaseConfig.db
-                .collection(firebaseConfig.collections.DOCUMENTS)
-                .doc(documentId)
-                .get();
-
+            const docRef = await firebaseApp.collections.DOCUMENTS.doc(documentId).get();
             if (!docRef.exists) {
                 throw new Error('Документ не найден');
             }
@@ -170,20 +102,25 @@ class DocumentViewer {
             // Update UI
             this.updateDocumentInfo();
             
-            // Log view
-            await this.logDocumentView(documentId);
+            // Update active item
+            this.updateActiveDocumentItem(documentId);
 
-            // Load content based on type
+            // Load content
             await this.loadDocumentContent();
+
+            // Increment view count
+            await firebaseApp.FirebaseHelper.incrementDocumentView(documentId);
+
+            // Log view
+            await authManager.logAudit('document_view', `Просмотр документа: ${this.currentDocument.name}`);
 
         } catch (error) {
             console.error('Error loading document:', error);
-            alert('Ошибка загрузки документа: ' + error.message);
+            this.showError('Ошибка загрузки документа: ' + error.message);
         }
     }
 
     async loadDocumentContent() {
-        const viewerArea = document.getElementById('viewer-content');
         const pdfViewer = document.getElementById('pdfViewer');
         const imageViewer = document.getElementById('imageViewer');
         const unsupportedViewer = document.getElementById('unsupportedViewer');
@@ -198,7 +135,7 @@ class DocumentViewer {
         const { type, storagePath } = this.currentDocument;
 
         // Get download URL
-        const fileRef = firebaseConfig.storage.ref().child(storagePath);
+        const fileRef = firebaseApp.storage.ref().child(storagePath);
         const url = await fileRef.getDownloadURL();
 
         if (type === 'pdf') {
@@ -209,13 +146,16 @@ class DocumentViewer {
             if (imageViewer) imageViewer.style.display = 'block';
         } else {
             // For other formats, show download option
-            if (unsupportedViewer) unsupportedViewer.style.display = 'block';
+            if (unsupportedViewer) {
+                unsupportedViewer.style.display = 'block';
+                document.getElementById('unsupportedFileName').textContent = this.currentDocument.name;
+            }
         }
     }
 
     async loadPDF(url) {
         try {
-            // Using pdf.js for PDF rendering
+            // Using pdf.js
             const loadingTask = pdfjsLib.getDocument(url);
             this.pdfDoc = await loadingTask.promise;
             this.totalPages = this.pdfDoc.numPages;
@@ -224,6 +164,7 @@ class DocumentViewer {
             await this.renderPDFPage();
         } catch (error) {
             console.error('Error loading PDF:', error);
+            this.showError('Ошибка загрузки PDF');
         }
     }
 
@@ -243,7 +184,7 @@ class DocumentViewer {
         }).promise;
 
         // Apply watermark
-        await watermarkSystem.applyWatermarkToCanvas(canvas);
+        await watermarkManager.applyWatermarkToCanvas(canvas, authManager.getCurrentUser());
     }
 
     async loadImage(url) {
@@ -252,7 +193,7 @@ class DocumentViewer {
         
         img.onload = async () => {
             // Apply watermark
-            await watermarkSystem.applyWatermarkToImage(img);
+            await watermarkManager.applyWatermarkToImage(img, authManager.getCurrentUser());
         };
     }
 
@@ -266,7 +207,8 @@ class DocumentViewer {
             'infoSize': this.formatFileSize(this.currentDocument.size),
             'infoDate': this.currentDocument.uploadDate?.toDate().toLocaleDateString('ru-RU') || 'Неизвестно',
             'infoAccess': this.getAccessLevelText(this.currentDocument.accessLevel),
-            'infoLastView': this.currentDocument.lastViewed?.toDate().toLocaleString('ru-RU') || 'Не просматривался'
+            'infoLastView': this.currentDocument.lastViewed?.toDate().toLocaleString('ru-RU') || 'Не просматривался',
+            'infoViews': this.currentDocument.viewCount || 0
         };
 
         Object.entries(fields).forEach(([id, value]) => {
@@ -275,29 +217,17 @@ class DocumentViewer {
         });
     }
 
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-
-    async logDocumentView(documentId) {
-        const user = await firebaseConfig.getCurrentUserWithVerification();
-        if (!user) return;
-
-        // Update document view count
-        await firebaseConfig.db
-            .collection(firebaseConfig.collections.DOCUMENTS)
-            .doc(documentId)
-            .update({
-                lastViewed: firebaseConfig.getCurrentTimestamp(),
-                viewCount: firebase.firestore.FieldValue.increment(1)
-            });
-
-        // Log to audit
-        await authSystem.logActivity('document_view', `Просмотр документа: ${this.currentDocument.name}`);
+    updateActiveDocumentItem(documentId) {
+        // Remove active class from all items
+        document.querySelectorAll('.document-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to current item
+        const activeItem = document.querySelector(`.document-item[data-id="${documentId}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
+        }
     }
 
     setupEventListeners() {
@@ -319,6 +249,32 @@ class DocumentViewer {
         });
     }
 
+    setupRealTimeUpdates() {
+        // Listen for new documents
+        const user = authManager.getCurrentUser();
+        if (!user) return;
+
+        firebaseApp.collections.DOCUMENTS
+            .where('accessLevel', 'in', firebaseApp.FirebaseHelper.getAllowedAccessLevels(user.role))
+            .orderBy('uploadDate', 'desc')
+            .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const doc = {
+                            id: change.doc.id,
+                            ...change.doc.data()
+                        };
+                        
+                        // Add to local array
+                        this.documents.unshift(doc);
+                        
+                        // Update UI
+                        this.renderDocumentList();
+                    }
+                });
+            });
+    }
+
     filterDocuments(searchTerm) {
         const items = document.querySelectorAll('.document-item');
         items.forEach(item => {
@@ -329,21 +285,97 @@ class DocumentViewer {
     }
 
     filterByCategory(category) {
-        // Implement category filtering
-        console.log('Filter by category:', category);
+        const items = document.querySelectorAll('.document-item');
+        
+        items.forEach(item => {
+            const accessLevel = item.querySelector('.doc-access').textContent;
+            const shouldShow = category === 'Все документы' || 
+                             this.getAccessLevelFromText(accessLevel) === category;
+            
+            item.style.display = shouldShow ? 'flex' : 'none';
+        });
+    }
+
+    // Utility functions
+    getDocumentIcon(type) {
+        const icons = {
+            'pdf': '📕',
+            'docx': '📘',
+            'doc': '📗',
+            'xlsx': '📊',
+            'pptx': '📑',
+            'jpg': '🖼️',
+            'png': '🖼️',
+            'jpeg': '🖼️'
+        };
+        return icons[type] || '📄';
+    }
+
+    getAccessLevelColor(level) {
+        const colors = {
+            [firebaseApp.ACCESS_LEVELS.PUBLIC]: '#27ae60',
+            [firebaseApp.ACCESS_LEVELS.INTERNAL]: '#3498db',
+            [firebaseApp.ACCESS_LEVELS.CONFIDENTIAL]: '#f39c12',
+            [firebaseApp.ACCESS_LEVELS.SECRET]: '#e74c3c',
+            [firebaseApp.ACCESS_LEVELS.TOP_SECRET]: '#c0392b'
+        };
+        return colors[level] || '#95a5a6';
+    }
+
+    getAccessLevelText(level) {
+        const texts = {
+            [firebaseApp.ACCESS_LEVELS.PUBLIC]: 'Публичный',
+            [firebaseApp.ACCESS_LEVELS.INTERNAL]: 'Внутренний',
+            [firebaseApp.ACCESS_LEVELS.CONFIDENTIAL]: 'Конфиденциально',
+            [firebaseApp.ACCESS_LEVELS.SECRET]: 'Секретно',
+            [firebaseApp.ACCESS_LEVELS.TOP_SECRET]: 'Совершенно секретно'
+        };
+        return texts[level] || 'Неизвестно';
+    }
+
+    getAccessLevelFromText(text) {
+        const reverseMap = {
+            'Публичный': firebaseApp.ACCESS_LEVELS.PUBLIC,
+            'Внутренний': firebaseApp.ACCESS_LEVELS.INTERNAL,
+            'Конфиденциально': firebaseApp.ACCESS_LEVELS.CONFIDENTIAL,
+            'Секретно': firebaseApp.ACCESS_LEVELS.SECRET,
+            'Совершенно секретно': firebaseApp.ACCESS_LEVELS.TOP_SECRET
+        };
+        return reverseMap[text] || text;
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        
+        // Add to viewer
+        const viewer = document.querySelector('.viewer-content');
+        if (viewer) {
+            viewer.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
     }
 
     // Viewer controls
     zoomIn() {
         this.zoomLevel = Math.min(this.zoomLevel + 0.25, 3);
         this.updateZoom();
-        this.renderPDFPage();
+        if (this.pdfDoc) this.renderPDFPage();
     }
 
     zoomOut() {
         this.zoomLevel = Math.max(this.zoomLevel - 0.25, 0.5);
         this.updateZoom();
-        this.renderPDFPage();
+        if (this.pdfDoc) this.renderPDFPage();
     }
 
     updateZoom() {
@@ -364,11 +396,11 @@ class DocumentViewer {
     async printDoc() {
         if (!this.currentDocument) return;
         
-        await authSystem.logActivity('print_attempt', `Попытка печати: ${this.currentDocument.name}`);
+        await authManager.logAudit('print_attempt', `Попытка печати: ${this.currentDocument.name}`);
         
         // Check if printing is allowed
-        if (this.currentDocument.accessLevel === firebaseConfig.ACCESS_LEVELS.TOP_SECRET) {
-            alert('Печать запрещена для документов этого уровня');
+        if (this.currentDocument.accessLevel === firebaseApp.ACCESS_LEVELS.TOP_SECRET) {
+            this.showError('Печать запрещена для документов этого уровня');
             return;
         }
 
@@ -378,55 +410,22 @@ class DocumentViewer {
     async downloadDoc() {
         if (!this.currentDocument) return;
 
-        await authSystem.logActivity('download_attempt', `Попытка скачивания: ${this.currentDocument.name}`);
+        await authManager.logAudit('download_attempt', `Попытка скачивания: ${this.currentDocument.name}`);
         
-        // For PDF and images, open in new tab with watermark
-        if (['pdf', 'jpg', 'png', 'jpeg'].includes(this.currentDocument.type)) {
-            const fileRef = firebaseConfig.storage.ref().child(this.currentDocument.storagePath);
-            const url = await fileRef.getDownloadURL();
-            window.open(url, '_blank');
-        } else {
-            // For other formats, trigger download
-            this.forceDownload();
-        }
-    }
-
-    async forceDownload() {
-        if (!this.currentDocument) return;
-
-        const fileRef = firebaseConfig.storage.ref().child(this.currentDocument.storagePath);
+        const fileRef = firebaseApp.storage.ref().child(this.currentDocument.storagePath);
         const url = await fileRef.getDownloadURL();
         
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = this.currentDocument.name;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        await authSystem.logActivity('document_download', `Скачивание: ${this.currentDocument.name}`);
-    }
-}
-
-// Initialize document viewer
-const documentViewer = new DocumentViewer();
-
-// Global functions for HTML
-function goBack() {
-    window.history.back();
-}
-
-function startSessionTimer() {
-    // Session timer is managed by authSystem
-}
-
-// Export
-window.documentViewer = documentViewer;
-window.goBack = goBack;
-window.startSessionTimer = startSessionTimer;
-window.zoomIn = () => documentViewer.zoomIn();
-window.zoomOut = () => documentViewer.zoomOut();
-window.rotateDoc = () => documentViewer.rotateDoc();
-window.printDoc = () => documentViewer.printDoc();
-window.downloadDoc = () => documentViewer.downloadDoc();
-window.forceDownload = () => documentViewer.forceDownload();
+        // For security, open in new tab with watermark
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(`
+            <html>
+                <head>
+                    <title>${this.currentDocument.name}</title>
+                    <style>
+                        body { margin: 0; padding: 20px; background: #f5f5f5; }
+                        .watermarked { opacity: 0.1; position: fixed; z-index: 1000; }
+                    </style>
+                </head>
+                <body>
+                    <div class="watermarked">${authManager.getCurrentUser()?.email} | ${new Date().toLocaleString()} | Metro Security</div>
+                    <iframe src="${url}" width="100%" height="95%" style="border:
