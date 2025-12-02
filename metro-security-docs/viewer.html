@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro Security Docs | Просмотр</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/viewer.css">
+    <link rel="icon" href="assets/logo.png">
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Top Bar -->
+        <header class="viewer-header">
+            <div class="header-left">
+                <button onclick="goBack()" class="btn-back">← Назад</button>
+                <h2 id="documentTitle">Загрузка документа...</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-info-small">
+                    <span id="viewerUser">Пользователь</span>
+                    <button onclick="logout()" class="btn-logout-small">Выйти</button>
+                </div>
+                <div class="session-timer">
+                    <span>Сессия: </span>
+                    <span id="sessionTimer">29:59</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="viewer-main">
+            <!-- Sidebar with documents list -->
+            <aside class="documents-sidebar">
+                <div class="sidebar-search">
+                    <input type="text" placeholder="Поиск документов..." id="docSearch">
+                    <button class="btn-search">🔍</button>
+                </div>
+                
+                <div class="categories">
+                    <h4>Категории</h4>
+                    <button class="category-btn active">Все документы</button>
+                    <button class="category-btn">Технические</button>
+                    <button class="category-btn">Операционные</button>
+                    <button class="category-btn">Безопасность</button>
+                    <button class="category-btn">Конфиденциальные</button>
+                </div>
+
+                <div class="documents-list" id="documentsList">
+                    <!-- Загружается через JS -->
+                </div>
+            </aside>
+
+            <!-- Document Viewer -->
+            <main class="document-viewer">
+                <div class="viewer-toolbar">
+                    <button class="tool-btn" onclick="zoomIn()">+</button>
+                    <button class="tool-btn" onclick="zoomOut()">-</button>
+                    <button class="tool-btn" onclick="rotateDoc()">↻</button>
+                    <button class="tool-btn" onclick="printDoc()" id="printBtn">🖨️</button>
+                    <button class="tool-btn" onclick="downloadDoc()" id="downloadBtn">⬇️</button>
+                    <span class="tool-separator">|</span>
+                    <span>Масштаб: <span id="zoomLevel">100%</span></span>
+                    <span class="watermark-status">Водяной знак: <span id="watermarkStatus">активен</span></span>
+                </div>
+
+                <div class="viewer-content">
+                    <!-- PDF Viewer -->
+                    <div id="pdfViewer" class="viewer-area">
+                        <canvas id="pdfCanvas"></canvas>
+                        <div class="watermark-overlay" id="watermarkOverlay"></div>
+                    </div>
+
+                    <!-- Image Viewer -->
+                    <div id="imageViewer" class="viewer-area" style="display:none;">
+                        <img id="imageDisplay" src="" alt="Document Image">
+                        <div class="watermark-overlay" id="imageWatermark"></div>
+                    </div>
+
+                    <!-- Unsupported format -->
+                    <div id="unsupportedViewer" class="viewer-area" style="display:none;">
+                        <div class="unsupported-message">
+                            <h3>Формат не поддерживается для просмотра</h3>
+                            <p>Доступно только скачивание с водяными знаками</p>
+                            <button onclick="forceDownload()" class="btn-download">Скачать с водяным знаком</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="document-info">
+                    <h4>Информация о документе</h4>
+                    <table>
+                        <tr>
+                            <td>Название:</td>
+                            <td id="infoTitle">-</td>
+                        </tr>
+                        <tr>
+                            <td>Тип:</td>
+                            <td id="infoType">-</td>
+                        </tr>
+                        <tr>
+                            <td>Размер:</td>
+                            <td id="infoSize">-</td>
+                        </tr>
+                        <tr>
+                            <td>Дата загрузки:</td>
+                            <td id="infoDate">-</td>
+                        </tr>
+                        <tr>
+                            <td>Уровень доступа:</td>
+                            <td id="infoAccess">-</td>
+                        </tr>
+                        <tr>
+                            <td>Последний просмотр:</td>
+                            <td id="infoLastView">-</td>
+                        </td>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- Security Warning -->
+        <div class="security-warning">
+            <p>⚠️ Внимание! Все действия отслеживаются и записываются в систему аудита. 
+               Запрещено копирование, печать и распространение документов без авторизации.</p>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/viewer.js"></script>
+    <script src="js/watermark.js"></script>
+    <script src="js/security.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkViewerAccess();
+            loadDocuments();
+            startSessionTimer();
+        });
+    </script>
+</body>
+</html>
