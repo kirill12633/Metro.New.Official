@@ -3,72 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1Metro Security Docs | Вход</title>
+    <title>Metro Security Docs | Вход</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="assets/logo.png">
     <style>
-        .password-container {
-            position: relative;
-        }
-        
+        /* Стили остаются теми же */
+        .password-container { position: relative; }
         .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2em;
-            padding: 5px;
-            color: #666;
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; font-size: 1.2em;
+            padding: 5px; color: #666;
         }
-        
         .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-            vertical-align: middle;
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,.3); border-radius: 50%;
+            border-top-color: #fff; animation: spin 1s ease-in-out infinite;
+            margin-left: 10px; vertical-align: middle;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .login-footer {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .login-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; }
         .debug-info {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 10px;
-            display: none;
+            background: #f8f9fa; padding: 10px; border-radius: 5px;
+            font-size: 0.8em; color: #666; margin-top: 10px; display: none;
         }
-        
         .debug-toggle {
-            background: none;
-            border: none;
-            color: #3498db;
-            font-size: 0.8em;
-            cursor: pointer;
-            padding: 5px 0;
-            margin-top: 10px;
+            background: none; border: none; color: #3498db;
+            font-size: 0.8em; cursor: pointer; padding: 5px 0; margin-top: 10px;
         }
+        .message { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
     </style>
 </head>
 <body>
@@ -84,8 +50,9 @@
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" required 
-                           placeholder="user@metro-security.ru"
-                           autocomplete="username">
+                           placeholder="test@example.com"
+                           autocomplete="username"
+                           value="test@example.com">
                 </div>
 
                 <div class="form-group">
@@ -94,18 +61,12 @@
                         <input type="password" id="password" required 
                                minlength="6"
                                placeholder="Введите пароль"
-                               autocomplete="current-password">
+                               autocomplete="current-password"
+                               value="test123">
                         <button type="button" class="toggle-password" id="togglePassword">
                             👁️
                         </button>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="twoFactorCode">Код 2FA (если включен)</label>
-                    <input type="text" id="twoFactorCode" 
-                           placeholder="000000" maxlength="6"
-                           pattern="\d{6}">
                 </div>
 
                 <div class="form-options">
@@ -122,7 +83,7 @@
                 
                 <div class="login-footer">
                     <div id="loginMessage" class="message"></div>
-                    <p>Для доступа к системе требуется авторизация</p>
+                    <p>Для теста используйте: test@example.com / test123</p>
                     
                     <button type="button" class="debug-toggle" id="debugToggle">
                         Показать отладочную информацию
@@ -131,6 +92,7 @@
                     <div class="debug-info" id="debugInfo">
                         <strong>Отладка:</strong>
                         <div id="debugStatus">Проверка соединения...</div>
+                        <div id="debugDetails"></div>
                     </div>
                 </div>
             </form>
@@ -139,33 +101,32 @@
                 <h4>Требования безопасности:</h4>
                 <ul>
                     <li>Пароль должен содержать минимум 6 символов</li>
-                    <li>Сессия автоматически завершится через 30 минут бездействия</li>
-                    <li>Все действия логируются в системе аудита</li>
                     <li>После 5 неудачных попыток аккаунт блокируется</li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Подключаем Firebase -->
+    <!-- Подключаем Firebase 9 (compat версия для простоты) -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 
     <script>
         // ============================================
-        // КОНФИГУРАЦИЯ FIREBASE
+        // ВАША КОНФИГУРАЦИЯ FIREBASE
         // ============================================
-        // ⚠️ ВАЖНО: Замените эти значения на ваши из Firebase Console!
         const firebaseConfig = {
-          apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-          authDomain: "metro-new-85226.firebaseapp.com",
-          databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
-          projectId: "metro-new-85226",
-          storageBucket: "metro-new-85226.firebasestorage.app",
-          messagingSenderId: "905640751733",
-          appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
+
+        console.log("🚀 Начинаем инициализацию Firebase...");
 
         // ============================================
         // ИНИЦИАЛИЗАЦИЯ
@@ -173,27 +134,23 @@
         let auth, db;
         
         try {
-            // Проверяем, не инициализирован ли Firebase уже
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-                console.log("✅ Firebase инициализирован");
-            } else {
-                console.log("✅ Firebase уже был инициализирован");
-            }
+            // Инициализируем Firebase
+            firebase.initializeApp(firebaseConfig);
+            console.log("✅ Firebase инициализирован");
             
             auth = firebase.auth();
             db = firebase.firestore();
             
-            // Обновляем статус отладки
-            updateDebugStatus("✅ Firebase подключен");
+            updateDebugStatus("✅ Firebase подключен к проекту: metro-new-85226");
             
         } catch (error) {
             console.error("❌ Ошибка инициализации Firebase:", error);
             updateDebugStatus("❌ Ошибка Firebase: " + error.message);
+            showMessage("Ошибка подключения к системе безопасности", "error");
         }
 
         // ============================================
-        // DOM ЭЛЕМЕНТЫ И ПЕРЕМЕННЫЕ
+        // DOM ЭЛЕМЕНТЫ
         // ============================================
         const loginForm = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
@@ -205,9 +162,9 @@
         const debugToggle = document.getElementById('debugToggle');
         const debugInfo = document.getElementById('debugInfo');
         const debugStatus = document.getElementById('debugStatus');
+        const debugDetails = document.getElementById('debugDetails');
 
         let loginAttempts = 0;
-        const MAX_ATTEMPTS = 5;
 
         // ============================================
         // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
@@ -215,48 +172,52 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log("📄 Страница входа загружена");
             
+            // Инициализируем обработчики событий
+            initEventListeners();
+            
             // Проверяем, авторизован ли пользователь
             if (auth) {
                 auth.onAuthStateChanged(handleAuthStateChange);
             }
             
-            // Тест подключения к Firebase
-            testFirebaseConnection();
+            // Тест подключения
+            setTimeout(testFirebaseConnection, 1000);
         });
 
         // ============================================
-        // ОБРАБОТЧИКИ СОБЫТИЙ
+        // ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
         // ============================================
-        // Переключение видимости пароля
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-        });
+        function initEventListeners() {
+            // Переключение видимости пароля
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+            });
 
-        // Отладочная информация
-        debugToggle.addEventListener('click', function() {
-            const isHidden = debugInfo.style.display === 'none';
-            debugInfo.style.display = isHidden ? 'block' : 'none';
-            this.textContent = isHidden ? 
-                'Скрыть отладочную информацию' : 
-                'Показать отладочную информацию';
-        });
+            // Отладочная информация
+            debugToggle.addEventListener('click', function() {
+                const isHidden = debugInfo.style.display === 'none';
+                debugInfo.style.display = isHidden ? 'block' : 'none';
+                this.textContent = isHidden ? 
+                    'Скрыть отладочную информацию' : 
+                    'Показать отладочную информацию';
+            });
 
-        // Обработка формы входа
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            await handleLogin();
-        });
+            // Обработка формы входа
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await handleLogin();
+            });
+        }
 
         // ============================================
-        // ОСНОВНЫЕ ФУНКЦИИ
+        // ОСНОВНАЯ ФУНКЦИЯ ВХОДА
         // ============================================
         async function handleLogin() {
             // Получаем данные из формы
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const twoFactorCode = document.getElementById('twoFactorCode').value.trim();
             const rememberMe = document.getElementById('rememberMe').checked;
 
             // Базовая валидация
@@ -270,75 +231,50 @@
                 return;
             }
 
-            // Проверка количества попыток
-            if (loginAttempts >= MAX_ATTEMPTS) {
-                showMessage('Аккаунт временно заблокирован. Обратитесь к администратору.', 'error');
-                return;
-            }
-
             // Показываем загрузку
             setLoading(true);
-            updateDebugStatus(`Попытка входа: ${email}`);
+            updateDebugDetails(`Попытка входа для: ${email}`);
 
             try {
                 // Настройка persistence (запомнить меня)
-                const persistence = rememberMe ? 
-                    firebase.auth.Auth.Persistence.LOCAL : 
-                    firebase.auth.Auth.Persistence.SESSION;
-                
-                await auth.setPersistence(persistence);
+                if (rememberMe) {
+                    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                } else {
+                    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+                }
 
                 // Попытка входа
+                updateDebugDetails("Выполняем вход через Firebase Auth...");
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                updateDebugStatus(`✅ Успешный вход: ${user.email}`);
-                console.log("✅ Пользователь авторизован:", user.uid);
-
-                // Проверяем, есть ли пользователь в Firestore
-                try {
-                    const userDoc = await db.collection('metro-security-docs')
-                        .doc('system')
-                        .collection('users')
-                        .doc(user.uid)
-                        .get();
-
-                    if (!userDoc.exists) {
-                        // Создаем запись пользователя если её нет
-                        await createUserInFirestore(user, email);
-                    } else {
-                        // Обновляем последний вход
-                        await updateLastLogin(user.uid);
-                    }
-                } catch (firestoreError) {
-                    console.warn("⚠️ Ошибка Firestore, но вход успешен:", firestoreError);
-                    // Продолжаем, так как аутентификация прошла успешно
-                }
-
-                // Успешный вход
+                console.log("✅ Успешный вход! Пользователь:", user.uid, user.email);
+                updateDebugDetails(`✅ Успех! ID: ${user.uid}`);
+                
+                // Сбрасываем счетчик попыток
                 loginAttempts = 0;
-                showMessage('✅ Вход выполнен успешно! Перенаправление...', 'success');
+                
+                // Показываем успешное сообщение
+                showMessage(`✅ Вход выполнен! Добро пожаловать, ${user.email}`, 'success');
+                updateDebugStatus("✅ Авторизация успешна");
                 
                 // Перенаправляем через 1 секунду
                 setTimeout(() => {
-                    redirectAfterLogin();
+                    window.location.href = 'viewer.html';
                 }, 1000);
 
             } catch (error) {
                 // Ошибка входа
                 loginAttempts++;
                 console.error("❌ Ошибка входа:", error.code, error.message);
+                updateDebugDetails(`❌ Ошибка: ${error.code} - ${error.message}`);
                 
                 // Определяем сообщение об ошибке
                 let errorMessage = getErrorMessage(error.code);
-                updateDebugStatus(`❌ Ошибка: ${error.code}`);
-                
                 showMessage(errorMessage, 'error');
                 
-                // Предупреждение о последней попытке
-                if (MAX_ATTEMPTS - loginAttempts === 1) {
-                    showMessage('Внимание! Следующая неудачная попытка заблокирует аккаунт', 'warning');
-                }
+                // Обновляем статус
+                updateDebugStatus(`❌ Ошибка авторизации (попытка ${loginAttempts})`);
                 
             } finally {
                 setLoading(false);
@@ -351,58 +287,17 @@
         function handleAuthStateChange(user) {
             if (user) {
                 console.log("ℹ️ Пользователь уже авторизован:", user.email);
-                // Если пользователь уже авторизован, перенаправляем
+                updateDebugStatus("ℹ️ Пользователь уже авторизован");
+                
+                // Если пользователь уже авторизован, предлагаем перейти
                 setTimeout(() => {
-                    redirectAfterLogin();
+                    if (confirm("Вы уже авторизованы. Перейти в систему?")) {
+                        window.location.href = 'viewer.html';
+                    }
                 }, 500);
-            }
-        }
-
-        async function createUserInFirestore(user, email) {
-            try {
-                await db.collection('metro-security-docs')
-                    .doc('system')
-                    .collection('users')
-                    .doc(user.uid)
-                    .set({
-                        email: email,
-                        role: 'viewer', // Роль по умолчанию
-                        active: true,
-                        twoFactorEnabled: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        loginCount: 1,
-                        displayName: email.split('@')[0]
-                    });
-                console.log("✅ Пользователь создан в Firestore");
-            } catch (error) {
-                console.error("❌ Ошибка создания пользователя в Firestore:", error);
-            }
-        }
-
-        async function updateLastLogin(userId) {
-            try {
-                await db.collection('metro-security-docs')
-                    .doc('system')
-                    .collection('users')
-                    .doc(userId)
-                    .update({
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        loginCount: firebase.firestore.FieldValue.increment(1)
-                    });
-            } catch (error) {
-                console.error("❌ Ошибка обновления lastLogin:", error);
-            }
-        }
-
-        function redirectAfterLogin() {
-            // Проверяем, куда перенаправлять
-            const user = auth.currentUser;
-            
-            if (user) {
-                // В реальной системе здесь бы проверялась роль из Firestore
-                // Сейчас просто перенаправляем на viewer
-                window.location.href = 'viewer.html';
+            } else {
+                console.log("ℹ️ Пользователь не авторизован");
+                updateDebugStatus("ℹ️ Требуется авторизация");
             }
         }
 
@@ -414,7 +309,7 @@
             // Блокируем/разблокируем поля формы
             const formInputs = loginForm.querySelectorAll('input, button');
             formInputs.forEach(input => {
-                if (input !== loginBtn) {
+                if (input !== loginBtn && input !== togglePassword) {
                     input.disabled = isLoading;
                 }
             });
@@ -424,18 +319,19 @@
             loginMessage.textContent = text;
             loginMessage.className = 'message ' + type;
             loginMessage.style.display = 'block';
-            
-            // Автоскрытие успешных сообщений
-            if (type === 'success') {
-                setTimeout(() => {
-                    loginMessage.style.display = 'none';
-                }, 3000);
-            }
         }
 
         function updateDebugStatus(text) {
             if (debugStatus) {
                 debugStatus.textContent = text;
+            }
+        }
+
+        function updateDebugDetails(text) {
+            if (debugDetails) {
+                const time = new Date().toLocaleTimeString();
+                debugDetails.innerHTML += `<div>[${time}] ${text}</div>`;
+                debugDetails.scrollTop = debugDetails.scrollHeight;
             }
         }
 
@@ -451,11 +347,11 @@
                 'auth/weak-password': 'Пароль слишком слабый'
             };
             
-            return errorMessages[errorCode] || `Ошибка: ${errorCode}`;
+            return errorMessages[errorCode] || `Ошибка входа: ${errorCode}`;
         }
 
         async function testFirebaseConnection() {
-            updateDebugStatus("Тестируем подключение...");
+            updateDebugDetails("Начинаем тест подключения...");
             
             try {
                 // Проверяем доступность Firebase
@@ -464,27 +360,29 @@
                     return;
                 }
                 
+                updateDebugDetails("✅ Firebase Apps: " + firebase.apps.length);
+                
                 // Проверяем аутентификацию
                 const authCheck = typeof auth !== 'undefined';
+                updateDebugDetails(`✅ Auth: ${authCheck ? 'Доступен' : 'Недоступен'}`);
                 
-                // Проверяем Firestore
-                let firestoreCheck = false;
-                if (db) {
-                    try {
-                        await db.collection('test').limit(0).get();
-                        firestoreCheck = true;
-                    } catch (e) {
-                        firestoreCheck = false;
-                    }
+                // Проверяем текущего пользователя
+                const currentUser = auth.currentUser;
+                updateDebugDetails(`✅ Текущий пользователь: ${currentUser ? currentUser.email : 'Нет'}`);
+                
+                // Пробуем простой запрос к Firestore
+                try {
+                    await db.collection('_test_connection').limit(0).get();
+                    updateDebugDetails("✅ Firestore: Подключение успешно");
+                    updateDebugStatus("✅ Все системы готовы к работе");
+                } catch (firestoreError) {
+                    updateDebugDetails(`⚠️ Firestore: ${firestoreError.message}`);
+                    updateDebugStatus("⚠️ Firestore требует настройки правил");
                 }
                 
-                updateDebugStatus(
-                    `✅ Подключение: Auth=${authCheck ? 'OK' : 'FAIL'}, ` +
-                    `Firestore=${firestoreCheck ? 'OK' : 'FAIL'}`
-                );
-                
             } catch (error) {
-                updateDebugStatus(`❌ Ошибка теста: ${error.message}`);
+                updateDebugDetails(`❌ Ошибка теста: ${error.message}`);
+                updateDebugStatus("❌ Проблемы с подключением");
             }
         }
     </script>
