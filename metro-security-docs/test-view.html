@@ -1,63 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Тест просмотрщика</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        .document { border: 1px solid #ccc; padding: 20px; margin: 10px; }
-    </style>
-</head>
-<body>
-    <h2>Тестовая страница просмотрщика</h2>
-    
-    <div id="userInfo"></div>
-    
-    <button onclick="showUser()">Показать пользователя</button>
-    <button onclick="logout()">Выйти</button>
-    
-    <div class="document">
-        <h3>Тестовый документ</h3>
-        <p>Если вы видите этот текст - система работает!</p>
-    </div>
+<h1>Тест авторизации</h1>
+<div id="status">Загрузка...</div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    
-    <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-        authDomain: "metro-new-85226.firebaseapp.com",
-        databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
-        projectId: "metro-new-85226",
-        storageBucket: "metro-new-85226.firebasestorage.app",
-        messagingSenderId: "905640751733",
-        appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
-    };
-        
-        firebase.initializeApp(firebaseConfig);
-        
-        function showUser() {
-            const user = firebase.auth().currentUser;
-            if (user) {
-                document.getElementById('userInfo').innerHTML = `
-                    <h3>✅ Авторизован!</h3>
-                    <p>Email: ${user.email}</p>
-                    <p>ID: ${user.uid}</p>
-                `;
-            } else {
-                document.getElementById('userInfo').innerHTML = `
-                    <h3>❌ Не авторизован</h3>
-                `;
-            }
-        }
-        
-        function logout() {
-            firebase.auth().signOut();
-            window.location.href = 'login.html';
-        }
-        
-        // Автоматически показываем пользователя при загрузке
-        firebase.auth().onAuthStateChanged(showUser);
-    </script>
-</body>
-</html>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script>
+const firebaseConfig = { /* ваша конфигурация */ };
+firebase.initializeApp(firebaseConfig);
+
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        document.getElementById('status').innerHTML = 
+            `<span style="color:green">✅ Вошли как: ${user.email}</span>`;
+    } else {
+        document.getElementById('status').innerHTML = 
+            `<span style="color:red">❌ Не авторизован</span>`;
+    }
+});
+</script>
