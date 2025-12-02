@@ -428,4 +428,31 @@ class DocumentViewerManager {
                 </head>
                 <body>
                     <div class="watermarked">${authManager.getCurrentUser()?.email} | ${new Date().toLocaleString()} | Metro Security</div>
-                    <iframe src="${url}" width="100%" height="95%" style="border:
+                    <iframe src="${url}" width="100%" height="95%" style="border: none;"></iframe>
+                </body>
+            </html>
+        `);
+    }
+}
+
+// Initialize document viewer
+const documentViewer = new DocumentViewerManager();
+
+// Global functions for HTML
+function goBack() {
+    window.history.back();
+}
+
+function startSessionTimer() {
+    // Managed by authManager
+}
+
+// Export
+window.documentViewer = documentViewer;
+window.goBack = goBack;
+window.startSessionTimer = startSessionTimer;
+window.zoomIn = () => documentViewer.zoomIn();
+window.zoomOut = () => documentViewer.zoomOut();
+window.rotateDoc = () => documentViewer.rotateDoc();
+window.printDoc = () => documentViewer.printDoc();
+window.downloadDoc = () => documentViewer.downloadDoc();
