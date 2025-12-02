@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro Security Docs | Вход</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="assets/logo.png">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="assets/logo.png" alt="Logo" class="login-logo">
+                <h2>Вход в систему</h2>
+                <p>Доступ только для авторизованного персонала</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Электронная почта</label>
+                    <input type="email" id="email" required placeholder="user@metro-security.ru">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" required minlength="8">
+                </div>
+
+                <div class="form-group">
+                    <label for="twoFactorCode">Код 2FA (если включен)</label>
+                    <input type="text" id="twoFactorCode" placeholder="000000" maxlength="6">
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Запомнить меня</span>
+                    </label>
+                    <a href="#" class="forgot-link">Забыли пароль?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Войти</button>
+                
+                <div class="login-footer">
+                    <p id="loginMessage" class="message"></p>
+                    <p>Для доступа к системе требуется авторизация через Active Directory</p>
+                </div>
+            </form>
+
+            <div class="security-info">
+                <h4>Требования безопасности:</h4>
+                <ul>
+                    <li>Пароль должен содержать минимум 8 символов</li>
+                    <li>Используйте комбинацию букв, цифр и специальных символов</li>
+                    <li>Сессия автоматически завершится через 30 минут бездействия</li>
+                    <li>Все действия логируются в системе аудита</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/geolocation.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await loginUser();
+        });
+    </script>
+</body>
+</html>
