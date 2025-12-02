@@ -1,269 +1,320 @@
-// Основная система безопасности
-
+// Security system with Firestore integration
 class SecuritySystem {
     constructor() {
-        this.db = firebaseDB;
-        this.auth = firebaseAuth;
-        this.storage = firebaseStorage;
+        this.suspiciousActivities = [];
+        this.init();
     }
-    
-    // Проверка доступа к документу
-    async checkDocumentAccess(documentId) {
-        const user = this.auth.currentUser;
-        if (!user) return false;
+
+    async init() {
+        // Monitor security events in real-time
+        this.setupSecurityMonitoring();
+    }
+
+    async setupSecurityMonitoring() {
+        // Real-time listener for security events
+        firebaseConfig.db
+            .collection(firebaseConfig.collections.SECURITY_EVENTS)
+            .orderBy('timestamp', 'desc')
+            .limit(50)
+            .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const event = change.doc.data();
+                        this.handleSecurityEvent(event);
+                    }
+                });
+            });
+    }
+
+    async handleSecurityEvent(event) {
+        console.log('Security Event:', event);
         
-        try {
-            // Получаем данные пользователя
-            const userDoc = await this.db.collection('users').doc(user.uid).get();
-            if (!userDoc.exists) return false;
-            
-            const userData = userDoc.data();
-            
-            // Получаем данные документа
-            const documentDoc = await this.db.collection('documents').doc(documentId).get();
-            if (!documentDoc.exists) return false;
-            
-            const documentData = documentDoc.data();
-            
-            // Проверка ролей
-            if (userData.role === 'admin') return true;
-            if (userData.role === 'manager' && documentData.department === userData.department) return true;
-            if (userData.role === 'employee' && documentData.department === userData.department) {
-                return documentData.accessLevel === 'department' || documentData.accessLevel === 'public';
-            }
-            
-            return false;
-        } catch (error) {
-            console.error('Ошибка проверки доступа:', error);
-            return false;
+        // Add to local array for dashboard
+        this.suspiciousActivities.unshift(event);
+        if (this.suspiciousActivities.length > 100) {
+            this.suspiciousActivities.pop();
+        }
+
+        // Update dashboard if open
+        this.updateSecurityDashboard();
+
+        // Take action based on severity
+        switch (event.severity) {
+            case 'high':
+                await this.handleHighSeverityEvent(event);
+                break;
+            case 'medium':
+                await this.handleMediumSeverityEvent(event);
+                break;
         }
     }
-    
-    // Геолокационный контроль
-    async checkGeolocation() {
+
+    async handleHighSeverityEvent(event) {
+        // Block user session if multiple failed logins
+        if (event.eventType === 'blocked_login' || event.eventType === 'access_denied') {
+            await this.blockUser(event.userId);
+        }
+
+        // Send immediate notification
+        await this.sendEmergencyAlert(event);
+    }
+
+    async handleMediumSeverityEvent(event) {
+        // Log and monitor
+        console.warn('Medium security event:', event);
+    }
+
+    async blockUser(userId) {
         try {
-            const ip = await this.getClientIP();
-            
-            // Получаем геоданные
-            const response = await fetch(`https://ipapi.co/${ip}/json/`);
-            const geoData = await response.json();
-            
-            // Разрешенные страны
-            const allowedCountries = ['RU', 'BY', 'KZ'];
-            
-            if (!allowedCountries.includes(geoData.country_code)) {
-                await this.logSecurityEvent('geoblock', {
-                    ip: ip,
-                    country: geoData.country_name,
-                    reason: 'Доступ запрещен из вашей страны'
+            // Update user status in Firestore
+            await firebaseConfig.db
+                .collection(firebaseConfig.collections.USERS)
+                .doc(userId)
+                .update({
+                    blocked: true,
+                    blockedAt: firebaseConfig.getCurrentTimestamp(),
+                    blockedReason: 'Подозрительная активность'
                 });
+
+            // Terminate all active sessions
+            const sessionsSnapshot = await firebaseConfig.db
+                .collection(firebaseConfig.collections.SESSIONS)
+                .where('userId', '==', userId)
+                .where('active', '==', true)
+                .get();
+
+            const batch = firebaseConfig.db.batch();
+            sessionsSnapshot.forEach((doc) => {
+                batch.update(doc.ref, {
+                    active: false,
+                    terminatedBy: 'security_system',
+                    terminatedAt: firebaseConfig.getCurrentTimestamp()
+                });
+            });
+            await batch.commit();
+
+        } catch (error) {
+            console.error('Error blocking user:', error);
+        }
+    }
+
+    async sendEmergencyAlert(event) {
+        // Here you would integrate with email/SMS/telegram notifications
+        console.log('EMERGENCY ALERT:', event);
+        
+        // For demo, just show browser notification
+        if (Notification.permission === 'granted') {
+            new Notification('⚠️ Событие безопасности', {
+                body: `${event.eventType}: ${event.details}`,
+                icon: 'assets/logo.png'
+            });
+        }
+    }
+
+    updateSecurityDashboard() {
+        const alertCount = document.getElementById('alertCount');
+        const activeAlerts = document.getElementById('activeAlerts');
+        const accessAttempts = document.getElementById('accessAttempts');
+
+        if (alertCount) {
+            const highSeverityCount = this.suspiciousActivities
+                .filter(e => e.severity === 'high').length;
+            alertCount.textContent = highSeverityCount;
+        }
+
+        if (activeAlerts) {
+            const recentAlerts = this.suspiciousActivities
+                .filter(e => new Date() - e.timestamp.toDate() < 3600000).length;
+            activeAlerts.textContent = recentAlerts;
+        }
+
+        if (accessAttempts) {
+            const failedLogins = this.suspiciousActivities
+                .filter(e => e.eventType === 'failed_login').length;
+            accessAttempts.textContent = failedLogins;
+        }
+    }
+
+    // Document access control
+    async checkDocumentAccess(documentId, userId) {
+        return await firebaseConfig.verifyDocumentAccess(documentId, userId);
+    }
+
+    // IP whitelisting/blacklisting
+    async checkIPAccess(ipAddress) {
+        const settingsDoc = await firebaseConfig.db
+            .collection(firebaseConfig.collections.SETTINGS)
+            .doc('ip_filters')
+            .get();
+
+        if (!settingsDoc.exists) return true;
+
+        const settings = settingsDoc.data();
+        
+        // Check blacklist
+        if (settings.blacklist && settings.blacklist.includes(ipAddress)) {
+            await authSystem.logSecurityEvent('blocked_ip', 'system', `IP заблокирован: ${ipAddress}`);
+            return false;
+        }
+
+        // Check whitelist if enabled
+        if (settings.whitelistEnabled && settings.whitelist && !settings.whitelist.includes(ipAddress)) {
+            await authSystem.logSecurityEvent('unauthorized_ip', 'system', `IP не в whitelist: ${ipAddress}`);
+            return false;
+        }
+
+        return true;
+    }
+
+    // Time-based access control
+    async checkTimeAccess() {
+        const settingsDoc = await firebaseConfig.db
+            .collection(firebaseConfig.collections.SETTINGS)
+            .doc('access_hours')
+            .get();
+
+        if (!settingsDoc.exists) return true;
+
+        const settings = settingsDoc.data();
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentDay = now.getDay(); // 0 - Sunday, 6 - Saturday
+
+        if (settings.enabled) {
+            // Check day restrictions
+            if (settings.allowedDays && !settings.allowedDays.includes(currentDay)) {
                 return false;
             }
-            
-            return {
-                allowed: true,
-                ip: ip,
-                country: geoData.country_name,
-                city: geoData.city,
-                isp: geoData.org
-            };
-        } catch (error) {
-            console.error('Ошибка геолокации:', error);
-            return { allowed: true, error: 'Не удалось определить местоположение' };
-        }
-    }
-    
-    // Водяные знаки
-    async applyWatermark(canvas, documentId) {
-        const user = this.auth.currentUser;
-        if (!user) return;
-        
-        const ctx = canvas.getContext('2d');
-        const width = canvas.width;
-        const height = canvas.height;
-        
-        // Получаем данные для водяного знака
-        const ip = await this.getClientIP();
-        const date = new Date().toLocaleString('ru-RU');
-        const userEmail = user.email;
-        
-        // Создаем водяной знак
-        ctx.save();
-        ctx.globalAlpha = 0.3;
-        ctx.font = '20px Arial';
-        ctx.fillStyle = '#000000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        // Поворачиваем текст
-        ctx.translate(width / 2, height / 2);
-        ctx.rotate(-Math.PI / 4);
-        
-        // Множественный текст
-        for (let i = -2; i <= 2; i++) {
-            for (let j = -2; j <= 2; j++) {
-                ctx.fillText(`${userEmail} • ${date} • ${ip}`, i * 300, j * 200);
+
+            // Check time restrictions
+            if (currentHour < settings.startHour || currentHour >= settings.endHour) {
+                return false;
             }
         }
-        
-        ctx.restore();
-        
-        // Логируем применение водяного знака
-        await this.logSecurityEvent('watermark_applied', {
-            documentId: documentId,
-            userEmail: userEmail,
-            ip: ip
-        });
+
+        return true;
     }
-    
-    // Защита от скачивания
-    protectFromDownload(elementId) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        // Блокировка контекстного меню
-        element.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            this.showSecurityMessage('Скачивание документа запрещено');
-            return false;
-        });
-        
-        // Блокировка клавиш PrintScreen
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'PrintScreen') {
-                e.preventDefault();
-                this.takeAntiScreenshot();
-            }
-            
-            // Ctrl+S, Ctrl+P
-            if (e.ctrlKey && (e.key === 's' || e.key === 'p')) {
-                e.preventDefault();
-                this.showSecurityMessage('Сохранение и печать заблокированы');
-            }
-        });
-        
-        // Защита от скриншотов через devtools
-        this.detectDevTools();
-    }
-    
-    // Анти-скриншот
-    takeAntiScreenshot() {
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            z-index: 999999;
-        `;
-        overlay.innerHTML = '<div>СКРИНШОТЫ ЗАПРЕЩЕНЫ</div>';
-        
-        document.body.appendChild(overlay);
-        
-        setTimeout(() => overlay.remove(), 1000);
-    }
-    
-    // Детект DevTools
-    detectDevTools() {
-        const element = new Image();
-        Object.defineProperty(element, 'id', {
-            get: () => {
-                this.showSecurityMessage('Обнаружены инструменты разработчика');
-            }
-        });
-        
-        console.log('%c', element);
-    }
-    
-    // Система аудита
-    async logSecurityEvent(action, data = {}) {
-        const user = this.auth.currentUser;
-        
-        const logEntry = {
-            userId: user?.uid || 'anonymous',
-            userEmail: user?.email || 'guest',
-            action: action,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            ip: await this.getClientIP(),
+
+    // Device fingerprinting
+    generateDeviceFingerprint() {
+        const fingerprint = {
             userAgent: navigator.userAgent,
-            data: data
+            language: navigator.language,
+            screenResolution: `${window.screen.width}x${window.screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            platform: navigator.platform,
+            cookiesEnabled: navigator.cookieEnabled,
+            doNotTrack: navigator.doNotTrack
         };
-        
-        await this.db.collection('security_logs').add(logEntry);
-        
-        // Критичные события - отправляем алерт
-        if (this.isCriticalEvent(action)) {
-            await this.sendAlert(action, logEntry);
-        }
+
+        return btoa(JSON.stringify(fingerprint));
     }
-    
-    // Отправка алертов
-    async sendAlert(action, data) {
-        await this.db.collection('alerts').add({
-            type: 'security_alert',
-            action: action,
-            data: data,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            read: false,
-            severity: 'high'
+
+    // Validate file upload
+    validateFileUpload(file) {
+        const maxSize = firebaseConfig.SECURITY_SETTINGS.MAX_FILE_SIZE;
+        const allowedTypes = firebaseConfig.SECURITY_SETTINGS.ALLOWED_FILE_TYPES;
+        
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        
+        if (!allowedTypes.includes(fileExtension)) {
+            return {
+                valid: false,
+                error: `Тип файла .${fileExtension} не поддерживается`
+            };
+        }
+
+        if (file.size > maxSize) {
+            return {
+                valid: false,
+                error: `Размер файла превышает ${maxSize / 1024 / 1024}MB`
+            };
+        }
+
+        // Check for malicious file names
+        const maliciousPatterns = /\.\.\/|\.\.\\|<\/|javascript:|vbscript:/i;
+        if (maliciousPatterns.test(file.name)) {
+            return {
+                valid: false,
+                error: 'Недопустимое имя файла'
+            };
+        }
+
+        return { valid: true };
+    }
+
+    // Encrypt sensitive data (client-side demo)
+    async encryptData(data, password) {
+        const encoder = new TextEncoder();
+        const dataBuffer = encoder.encode(JSON.stringify(data));
+        
+        // Generate key from password
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw',
+            encoder.encode(password),
+            { name: 'PBKDF2' },
+            false,
+            ['deriveKey']
+        );
+
+        const key = await crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt: encoder.encode('metro-security-salt'),
+                iterations: 100000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encrypted = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv },
+            key,
+            dataBuffer
+        );
+
+        return {
+            iv: Array.from(iv),
+            data: Array.from(new Uint8Array(encrypted))
+        };
+    }
+
+    // Generate security report
+    async generateSecurityReport(startDate, endDate) {
+        const report = {
+            generatedAt: firebaseConfig.getCurrentTimestamp(),
+            period: { startDate, endDate },
+            summary: {},
+            events: []
+        };
+
+        // Get security events
+        const eventsSnapshot = await firebaseConfig.db
+            .collection(firebaseConfig.collections.SECURITY_EVENTS)
+            .where('timestamp', '>=', firebaseConfig.formatFirestoreDate(startDate))
+            .where('timestamp', '<=', firebaseConfig.formatFirestoreDate(endDate))
+            .get();
+
+        eventsSnapshot.forEach(doc => {
+            report.events.push(doc.data());
         });
-    }
-    
-    // Получение IP
-    async getClientIP() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            return data.ip;
-        } catch {
-            return 'unknown';
-        }
-    }
-    
-    // Показать сообщение безопасности
-    showSecurityMessage(message) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'security-message';
-        msgDiv.textContent = message;
-        msgDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #e74c3c;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-        `;
-        
-        document.body.appendChild(msgDiv);
-        
-        setTimeout(() => {
-            msgDiv.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => msgDiv.remove(), 300);
-        }, 3000);
-    }
-    
-    // Критичные события
-    isCriticalEvent(action) {
-        const critical = [
-            'unauthorized_access',
-            'brute_force_detected',
-            'document_download_attempt',
-            'geoblock_violation'
-        ];
-        return critical.includes(action);
+
+        // Calculate statistics
+        report.summary.totalEvents = report.events.length;
+        report.summary.highSeverity = report.events.filter(e => e.severity === 'high').length;
+        report.summary.failedLogins = report.events.filter(e => e.eventType === 'failed_login').length;
+        report.summary.blockedAccess = report.events.filter(e => e.eventType === 'access_denied').length;
+
+        return report;
     }
 }
 
-// Инициализация системы безопасности
+// Initialize security system
 const securitySystem = new SecuritySystem();
+
+// Export
 window.securitySystem = securitySystem;
