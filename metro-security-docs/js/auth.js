@@ -1,55 +1,65 @@
-// Authentication system with App Check and Firestore
-class AuthSystem {
+class AuthManager {
     constructor() {
         this.currentUser = null;
-        this.loginAttempts = {};
+        this.loginAttempts = new Map();
+        this.sessionTimer = null;
         this.init();
     }
 
     async init() {
         // Monitor auth state
-        firebaseConfig.auth.onAuthStateChanged(async (user) => {
+        firebaseApp.auth.onAuthStateChanged(async (user) => {
             if (user) {
-                this.currentUser = await firebaseConfig.getCurrentUserWithVerification();
-                this.updateUI();
-                this.startSessionTimer();
-                await this.logActivity('login', 'Успешный вход в систему');
+                this.currentUser = await this.getUserData(user.uid);
+                await this.handleSuccessfulLogin(user.uid);
             } else {
                 this.currentUser = null;
-                this.updateUI();
+                this.clearSession();
             }
+            this.updateUI();
         });
     }
 
-    async loginUser(email, password, twoFactorCode = null) {
+    async getUserData(userId) {
         try {
-            // Verify App Check first
-            const appCheckToken = await firebase.appCheck().getToken();
-            if (!appCheckToken) {
-                throw new Error('Проверка безопасности не пройдена');
+            const userDoc = await firebaseApp.collections.USERS.doc(userId).get();
+            if (!userDoc.exists) {
+                await firebaseApp.auth.signOut();
+                return null;
             }
+            
+            const userData = userDoc.data();
+            const authUser = firebaseApp.auth.currentUser;
+            
+            return {
+                uid: userId,
+                email: authUser.email,
+                ...userData
+            };
+        } catch (error) {
+            console.error('Error getting user data:', error);
+            return null;
+        }
+    }
 
+    async login(email, password, twoFactorCode = null) {
+        try {
             // Check login attempts
-            if (this.loginAttempts[email] >= 5) {
+            const attempts = this.loginAttempts.get(email) || 0;
+            if (attempts >= firebaseApp.SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
                 await this.logSecurityEvent('blocked_login', email, 'Превышено количество попыток входа');
                 throw new Error('Аккаунт временно заблокирован. Обратитесь к администратору.');
             }
 
             // Sign in with Firebase Auth
-            const userCredential = await firebaseConfig.auth.signInWithEmailAndPassword(email, password);
-            
-            // Check if user exists in Firestore
-            const userDoc = await firebaseConfig.db
-                .collection(firebaseConfig.collections.USERS)
-                .doc(userCredential.user.uid)
-                .get();
+            const userCredential = await firebaseApp.auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
 
-            if (!userDoc.exists) {
-                await userCredential.user.delete();
+            // Verify user exists in Firestore
+            const userData = await this.getUserData(user.uid);
+            if (!userData) {
                 throw new Error('Пользователь не найден в системе');
             }
-
-            const userData = userDoc.data();
 
             // Check if account is active
             if (!userData.active) {
@@ -58,215 +68,127 @@ class AuthSystem {
 
             // Verify 2FA if enabled
             if (userData.twoFactorEnabled && twoFactorCode) {
-                const isValid = await this.verifyTwoFactor(userCredential.user.uid, twoFactorCode);
+                const isValid = await this.verifyTwoFactor(user.uid, twoFactorCode);
                 if (!isValid) {
                     throw new Error('Неверный код двухфакторной аутентификации');
                 }
             }
 
             // Update last login
-            await firebaseConfig.db
-                .collection(firebaseConfig.collections.USERS)
-                .doc(userCredential.user.uid)
-                .update({
-                    lastLogin: firebaseConfig.getCurrentTimestamp(),
-                    loginCount: (userData.loginCount || 0) + 1
-                });
-
-            // Create session record
-            await this.createSessionRecord(userCredential.user.uid);
+            await firebaseApp.collections.USERS.doc(user.uid).update({
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                loginCount: (userData.loginCount || 0) + 1
+            });
 
             // Reset login attempts
-            this.loginAttempts[email] = 0;
+            this.loginAttempts.delete(email);
 
-            return {
-                success: true,
-                user: {
-                    ...userCredential.user,
-                    ...userData
-                }
-            };
+            return { success: true, user: userData };
 
         } catch (error) {
             // Track failed attempts
-            this.loginAttempts[email] = (this.loginAttempts[email] || 0) + 1;
+            this.loginAttempts.set(email, (this.loginAttempts.get(email) || 0) + 1);
             
             await this.logSecurityEvent('failed_login', email, error.message);
             
-            return {
-                success: false,
-                error: error.message
-            };
+            return { success: false, error: error.message };
         }
     }
 
-    async createSessionRecord(userId) {
-        const sessionId = firebaseConfig.generateUniqueId();
-        const sessionData = {
-            sessionId,
-            userId,
-            startTime: firebaseConfig.getCurrentTimestamp(),
-            ipAddress: await this.getIPAddress(),
-            userAgent: navigator.userAgent,
-            active: true
-        };
-
-        await firebaseConfig.db
-            .collection(firebaseConfig.collections.SESSIONS)
-            .doc(sessionId)
-            .set(sessionData);
-
+    async handleSuccessfulLogin(userId) {
+        // Create session
+        const ip = await firebaseApp.FirebaseHelper.getIPAddress();
+        const sessionId = await firebaseApp.FirebaseHelper.createSession(userId, {
+            ipAddress: ip,
+            userAgent: navigator.userAgent
+        });
+        
         localStorage.setItem('metro_session_id', sessionId);
-        return sessionId;
+
+        // Start session timer
+        this.startSessionTimer();
+
+        // Log successful login
+        await this.logAudit('login', 'Успешный вход в систему');
     }
 
     async logout() {
         try {
             const sessionId = localStorage.getItem('metro_session_id');
             if (sessionId) {
-                await firebaseConfig.db
-                    .collection(firebaseConfig.collections.SESSIONS)
-                    .doc(sessionId)
-                    .update({
-                        endTime: firebaseConfig.getCurrentTimestamp(),
-                        active: false
-                    });
+                await firebaseApp.FirebaseHelper.endSession(sessionId);
             }
 
-            await this.logActivity('logout', 'Выход из системы');
+            await this.logAudit('logout', 'Выход из системы');
             
             // Clear all local data
             localStorage.removeItem('metro_session_id');
             sessionStorage.clear();
             
             // Sign out from Firebase
-            await firebaseConfig.auth.signOut();
+            await firebaseApp.auth.signOut();
             
             // Redirect to login
             window.location.href = 'login.html';
             
         } catch (error) {
-            console.error('Ошибка выхода:', error);
-        }
-    }
-
-    async getIPAddress() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            return data.ip;
-        } catch (error) {
-            return 'unknown';
+            console.error('Logout error:', error);
         }
     }
 
     async verifyTwoFactor(userId, code) {
-        // Здесь должна быть интеграция с 2FA сервисом
-        // Для демо используем статический код
-        const userDoc = await firebaseConfig.db
-            .collection(firebaseConfig.collections.USERS)
-            .doc(userId)
-            .get();
-
+        // For demo - in production use proper 2FA service
+        const userDoc = await firebaseApp.collections.USERS.doc(userId).get();
         const userData = userDoc.data();
-        return code === userData.twoFactorBackupCode; // Только для демо
+        return code === userData.twoFactorBackupCode; // Only for demo
     }
 
-    async logActivity(action, details) {
+    async logAudit(action, details) {
         if (!this.currentUser) return;
 
-        const logData = {
+        await firebaseApp.FirebaseHelper.createAuditLog({
             userId: this.currentUser.uid,
             userEmail: this.currentUser.email,
             action,
             details,
-            timestamp: firebaseConfig.getCurrentTimestamp(),
-            ipAddress: await this.getIPAddress(),
+            ipAddress: await firebaseApp.FirebaseHelper.getIPAddress(),
             userAgent: navigator.userAgent
-        };
-
-        await firebaseConfig.db
-            .collection(firebaseConfig.collections.AUDIT_LOGS)
-            .add(logData);
-    }
-
-    async logSecurityEvent(eventType, userId, details) {
-        const eventData = {
-            eventType,
-            userId,
-            details,
-            timestamp: firebaseConfig.getCurrentTimestamp(),
-            ipAddress: await this.getIPAddress(),
-            severity: this.getEventSeverity(eventType)
-        };
-
-        await firebaseConfig.db
-            .collection(firebaseConfig.collections.SECURITY_EVENTS)
-            .add(eventData);
-
-        // Send notification for critical events
-        if (eventData.severity === 'high') {
-            await this.notifyAdmins(eventType, details);
-        }
-    }
-
-    getEventSeverity(eventType) {
-        const severityMap = {
-            'failed_login': 'medium',
-            'blocked_login': 'high',
-            'access_denied': 'high',
-            'suspicious_activity': 'high',
-            'data_export': 'low',
-            'document_view': 'low'
-        };
-        return severityMap[eventType] || 'low';
-    }
-
-    async notifyAdmins(eventType, details) {
-        // Get all admins
-        const adminsSnapshot = await firebaseConfig.db
-            .collection(firebaseConfig.collections.USERS)
-            .where('role', '==', firebaseConfig.USER_ROLES.ADMIN)
-            .get();
-
-        adminsSnapshot.forEach(async (adminDoc) => {
-            await this.sendNotification(adminDoc.id, eventType, details);
         });
     }
 
-    async sendNotification(userId, title, message) {
-        // Здесь должна быть интеграция с системой уведомлений
-        // Для демо просто сохраняем в Firestore
-        const notificationData = {
-            userId,
-            title,
-            message,
-            read: false,
-            timestamp: firebaseConfig.getCurrentTimestamp()
-        };
-
-        await firebaseConfig.db
-            .collection('notifications')
-            .add(notificationData);
+    async logSecurityEvent(eventType, userId, details, severity = 'medium') {
+        await firebaseApp.FirebaseHelper.createSecurityEvent(eventType, userId, details, severity);
     }
 
     startSessionTimer() {
-        const timeout = firebaseConfig.SECURITY_SETTINGS.SESSION_TIMEOUT;
+        const timeout = firebaseApp.SECURITY_CONFIG.SESSION_TIMEOUT;
         
+        if (this.sessionTimer) {
+            clearTimeout(this.sessionTimer);
+        }
+
         this.sessionTimer = setTimeout(async () => {
-            await this.logActivity('session_timeout', 'Сессия истекла по таймауту');
+            await this.logAudit('session_timeout', 'Сессия истекла по таймауту');
             await this.logout();
         }, timeout);
 
         // Reset timer on user activity
-        document.addEventListener('mousemove', this.resetSessionTimer.bind(this));
-        document.addEventListener('keypress', this.resetSessionTimer.bind(this));
+        const resetTimer = () => {
+            if (this.sessionTimer) {
+                clearTimeout(this.sessionTimer);
+                this.startSessionTimer();
+            }
+        };
+
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+        document.addEventListener('click', resetTimer);
     }
 
-    resetSessionTimer() {
+    clearSession() {
         if (this.sessionTimer) {
             clearTimeout(this.sessionTimer);
-            this.startSessionTimer();
+            this.sessionTimer = null;
         }
     }
 
@@ -278,17 +200,19 @@ class AuthSystem {
 
         if (this.currentUser) {
             if (loginLink) loginLink.style.display = 'none';
-            if (adminLink && this.currentUser.role === firebaseConfig.USER_ROLES.ADMIN) {
+            if (adminLink && this.currentUser.role === firebaseApp.USER_ROLES.ADMIN) {
                 adminLink.style.display = 'block';
             }
             
-            // Update user info in UI
-            const userElements = document.querySelectorAll('[id$="UserName"], [id$="UserEmail"]');
+            // Update user info
+            const userElements = document.querySelectorAll('[id*="User"]');
             userElements.forEach(el => {
                 if (el.id.includes('Name')) {
-                    el.textContent = this.currentUser.displayName || this.currentUser.email;
+                    el.textContent = this.currentUser.displayName || this.currentUser.email.split('@')[0];
                 } else if (el.id.includes('Email')) {
                     el.textContent = this.currentUser.email;
+                } else if (el.id.includes('Role')) {
+                    el.textContent = this.getRoleText(this.currentUser.role);
                 }
             });
         } else {
@@ -303,9 +227,23 @@ class AuthSystem {
         });
     }
 
+    getRoleText(role) {
+        const roles = {
+            [firebaseApp.USER_ROLES.ADMIN]: 'Администратор',
+            [firebaseApp.USER_ROLES.MANAGER]: 'Менеджер',
+            [firebaseApp.USER_ROLES.VIEWER]: 'Просмотрщик',
+            [firebaseApp.USER_ROLES.AUDITOR]: 'Аудитор',
+            [firebaseApp.USER_ROLES.GUEST]: 'Гость'
+        };
+        return roles[role] || role;
+    }
+
     async checkAdminAccess() {
-        if (!this.currentUser || this.currentUser.role !== firebaseConfig.USER_ROLES.ADMIN) {
-            await this.logSecurityEvent('access_denied', 'anonymous', 'Попытка доступа к админ-панели');
+        if (!this.currentUser || this.currentUser.role !== firebaseApp.USER_ROLES.ADMIN) {
+            await this.logSecurityEvent('access_denied', 
+                this.currentUser?.uid || 'anonymous', 
+                'Попытка доступа к админ-панели'
+            );
             window.location.href = 'index.html';
             return false;
         }
@@ -319,26 +257,30 @@ class AuthSystem {
         }
         return true;
     }
+
+    getCurrentUser() {
+        return this.currentUser;
+    }
 }
 
-// Initialize auth system
-const authSystem = new AuthSystem();
+// Initialize auth manager
+const authManager = new AuthManager();
 
-// Global functions for HTML onclick handlers
+// Global functions for HTML
 async function loginUser() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const twoFactorCode = document.getElementById('twoFactorCode')?.value;
     const messageEl = document.getElementById('loginMessage');
 
-    const result = await authSystem.loginUser(email, password, twoFactorCode);
+    const result = await authManager.login(email, password, twoFactorCode);
 
     if (result.success) {
         messageEl.textContent = 'Вход выполнен успешно!';
         messageEl.className = 'message success';
         
         setTimeout(() => {
-            if (result.user.role === firebaseConfig.USER_ROLES.ADMIN) {
+            if (result.user.role === firebaseApp.USER_ROLES.ADMIN) {
                 window.location.href = 'admin.html';
             } else {
                 window.location.href = 'viewer.html';
@@ -351,23 +293,23 @@ async function loginUser() {
 }
 
 function logout() {
-    authSystem.logout();
+    authManager.logout();
 }
 
 function checkAuthState() {
-    authSystem.updateUI();
+    authManager.updateUI();
 }
 
 function checkAdminAccess() {
-    return authSystem.checkAdminAccess();
+    return authManager.checkAdminAccess();
 }
 
 function checkViewerAccess() {
-    return authSystem.checkViewerAccess();
+    return authManager.checkViewerAccess();
 }
 
 // Export
-window.authSystem = authSystem;
+window.authManager = authManager;
 window.loginUser = loginUser;
 window.logout = logout;
 window.checkAuthState = checkAuthState;
