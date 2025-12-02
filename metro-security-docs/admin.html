@@ -3,302 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель | Метро Безопасность</title>
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Chart.js для графиков -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- CSS -->
+    <title>Metro Security Docs | Админ-панель</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="assets/logo.png">
 </head>
 <body>
-    <!-- App Check Badge -->
-    <div id="appCheckBadge" class="app-check-badge">
-        <i class="fas fa-shield-alt"></i> Админ-режим
-    </div>
-    
-    <!-- Шапка админки -->
-    <header class="admin-header">
-        <div class="admin-nav">
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> На главную
-            </a>
-            <h1><i class="fas fa-cogs"></i> Панель администратора</h1>
-            <button onclick="authSystem.logout()" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Выйти
-            </button>
-        </div>
-    </header>
-    
-    <!-- Основной контент -->
-    <main class="admin-content">
-        <!-- Вкладки -->
-        <div class="admin-tabs">
-            <button class="tab-btn active" onclick="showTab('dashboard')">
-                <i class="fas fa-tachometer-alt"></i> Дашборд
-            </button>
-            <button class="tab-btn" onclick="showTab('users')">
-                <i class="fas fa-users"></i> Пользователи
-            </button>
-            <button class="tab-btn" onclick="showTab('documents')">
-                <i class="fas fa-file-alt"></i> Документы
-            </button>
-            <button class="tab-btn" onclick="showTab('security')">
-                <i class="fas fa-shield-alt"></i> Безопасность
-            </button>
-            <button class="tab-btn" onclick="showTab('logs')">
-                <i class="fas fa-history"></i> Логи
-            </button>
-        </div>
-        
-        <!-- Контент вкладок -->
-        <div class="tab-content" id="tabContent">
-            <!-- Дашборд -->
-            <div id="dashboardTab" class="tab-pane active">
-                <div class="stats-overview">
-                    <div class="stat-card">
-                        <h3>Всего пользователей</h3>
-                        <div class="stat-number" id="totalUsers">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Активных сегодня</h3>
-                        <div class="stat-number" id="activeToday">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Всего документов</h3>
-                        <div class="stat-number" id="totalDocuments">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Попыток взлома</h3>
-                        <div class="stat-number" id="securityAttempts">0</div>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h3>Админ-панель</h3>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active">
+                    <span>📊</span> Дашборд
+                </a>
+                <a href="#users" class="nav-item">
+                    <span>👥</span> Пользователи
+                </a>
+                <a href="#documents" class="nav-item">
+                    <span>📁</span> Документы
+                </a>
+                <a href="#security" class="nav-item">
+                    <span>🛡️</span> Безопасность
+                </a>
+                <a href="#audit" class="nav-item">
+                    <span>📋</span> Аудит
+                </a>
+                <a href="#settings" class="nav-item">
+                    <span>⚙️</span> Настройки
+                </a>
+            </nav>
+            
+            <div class="user-info">
+                <div class="user-avatar">AD</div>
+                <div class="user-details">
+                    <strong id="adminName">Администратор</strong>
+                    <small>admin@metro-security.ru</small>
+                    <button onclick="logout()" class="btn-logout">Выйти</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1 id="pageTitle">Дашборд системы</h1>
+                <div class="header-actions">
+                    <button class="btn-alert" id="alertBtn">
+                        🔔 <span id="alertCount">0</span>
+                    </button>
+                    <div class="system-status">
+                        <span class="status-dot active"></span>
+                        <span>Система активна</span>
                     </div>
                 </div>
-                
-                <div class="charts-grid">
-                    <div class="chart-container">
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-section active" id="dashboardSection">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Активные сессии</h3>
+                        <p class="stat-number" id="activeSessions">12</p>
+                        <small>+2 за последний час</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Документов в системе</h3>
+                        <p class="stat-number" id="totalDocs">1,245</p>
+                        <small>PDF, DOCX, изображения</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Попыток доступа</h3>
+                        <p class="stat-number warning" id="accessAttempts">3</p>
+                        <small>За последние 24 часа</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Активных тревог</h3>
+                        <p class="stat-number danger" id="activeAlerts">1</p>
+                        <small>Требуют внимания</small>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
                         <h3>Активность пользователей</h3>
                         <canvas id="activityChart"></canvas>
                     </div>
-                    <div class="chart-container">
-                        <h3>Доступ к документам</h3>
-                        <canvas id="documentsChart"></canvas>
+                    <div class="chart-card">
+                        <h3>География доступа</h3>
+                        <div id="geoMap"></div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Последние действия</h3>
+                    <div class="activity-list" id="recentActivity">
+                        <!-- Загружается через JS -->
                     </div>
                 </div>
             </div>
-            
-            <!-- Пользователи -->
-            <div id="usersTab" class="tab-pane">
-                <div class="section-header">
-                    <h2>Управление пользователями</h2>
-                    <button onclick="showAddUserModal()" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Добавить пользователя
-                    </button>
-                </div>
-                
-                <div class="users-table-container">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>Имя</th>
-                                <th>Роль</th>
-                                <th>Отдел</th>
-                                <th>Дата регистрации</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Загружается через JS -->
-                        </tbody>
-                    </table>
-                </div>
+
+            <!-- Users Management -->
+            <div class="content-section" id="usersSection">
+                <h2>Управление пользователями</h2>
+                <!-- Контент будет загружен через JS -->
             </div>
-            
-            <!-- Документы -->
-            <div id="documentsTab" class="tab-pane">
-                <div class="section-header">
-                    <h2>Управление документами</h2>
-                    <button onclick="showUploadDocumentModal()" class="btn btn-primary">
-                        <i class="fas fa-upload"></i> Загрузить документ
-                    </button>
-                </div>
-                
-                <div class="documents-table-container">
-                    <table class="documents-table">
-                        <thead>
-                            <tr>
-                                <th>Код</th>
-                                <th>Название</th>
-                                <th>Тип</th>
-                                <th>Уровень доступа</th>
-                                <th>Отдел</th>
-                                <th>Дата</th>
-                                <th>Скачиваний</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody id="documentsTableBody">
-                            <!-- Загружается через JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Безопасность -->
-            <div id="securityTab" class="tab-pane">
-                <div class="security-section">
-                    <h2><i class="fas fa-shield-alt"></i> Настройки безопасности</h2>
-                    
-                    <div class="security-settings">
-                        <div class="setting-card">
-                            <h3><i class="fas fa-globe"></i> Геолокация</h3>
-                            <div class="setting-content">
-                                <p>Разрешенные страны:</p>
-                                <div class="countries-list" id="allowedCountries">
-                                    <!-- Список стран -->
-                                </div>
-                                <button onclick="editAllowedCountries()" class="btn btn-secondary">
-                                    <i class="fas fa-edit"></i> Изменить
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-card">
-                            <h3><i class="fas fa-clock"></i> Время доступа</h3>
-                            <div class="setting-content">
-                                <p>Доступ разрешен с 8:00 до 20:00</p>
-                                <div class="time-controls">
-                                    <input type="time" id="startTime" value="08:00">
-                                    <span>до</span>
-                                    <input type="time" id="endTime" value="20:00">
-                                </div>
-                                <button onclick="updateAccessTime()" class="btn btn-secondary">
-                                    <i class="fas fa-save"></i> Сохранить
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-card">
-                            <h3><i class="fas fa-exclamation-triangle"></i> Блокировки</h3>
-                            <div class="setting-content">
-                                <div class="blocked-ips" id="blockedIPs">
-                                    <!-- Заблокированные IP -->
-                                </div>
-                                <button onclick="showIPBlockModal()" class="btn btn-danger">
-                                    <i class="fas fa-ban"></i> Заблокировать IP
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="security-alerts">
-                        <h3><i class="fas fa-bell"></i> Последние алерты</h3>
-                        <div class="alerts-list" id="alertsList">
-                            <!-- Алерты -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Логи -->
-            <div id="logsTab" class="tab-pane">
-                <div class="logs-section">
-                    <h2><i class="fas fa-history"></i> Журнал аудита</h2>
-                    
-                    <div class="logs-controls">
-                        <div class="filter-group">
-                            <label>Тип действия:</label>
-                            <select id="logActionFilter">
-                                <option value="all">Все</option>
-                                <option value="login">Вход</option>
-                                <option value="document_view">Просмотр документов</option>
-                                <option value="security">Безопасность</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label>Дата с:</label>
-                            <input type="date" id="logDateFrom">
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label>Дата по:</label>
-                            <input type="date" id="logDateTo">
-                        </div>
-                        
-                        <button onclick="loadLogs()" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Поиск
-                        </button>
-                        
-                        <button onclick="exportLogs()" class="btn btn-secondary">
-                            <i class="fas fa-download"></i> Экспорт
-                        </button>
-                    </div>
-                    
-                    <div class="logs-table-container">
-                        <table class="logs-table">
-                            <thead>
-                                <tr>
-                                    <th>Время</th>
-                                    <th>Пользователь</th>
-                                    <th>Действие</th>
-                                    <th>IP адрес</th>
-                                    <th>Статус</th>
-                                    <th>Детали</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logsTableBody">
-                                <!-- Логи -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="pagination" id="logsPagination">
-                        <!-- Пагинация -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Модальные окна -->
-    <div id="addUserModal" class="modal"></div>
-    <div id="editUserModal" class="modal"></div>
-    <div id="uploadDocumentModal" class="modal"></div>
-    <div id="editDocumentModal" class="modal"></div>
-    <div id="ipBlockModal" class="modal"></div>
-    
-    <!-- Скрипты -->
+
+            <!-- Другие секции -->
+        </main>
+    </div>
+
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/security.js"></script>
-    <script src="js/admin.js"></script>
-    
+    <script src="js/audit.js"></script>
+    <script src="js/dashboard.js"></script>
     <script>
         // Проверка прав администратора
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = firebaseAuth.currentUser;
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            const userDoc = await firebaseDB.collection('users').doc(user.uid).get();
-            if (!userDoc.exists || userDoc.data().role !== 'admin') {
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Инициализация админки
-            initializeAdmin();
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAccess();
+            loadDashboardData();
         });
     </script>
 </body>
