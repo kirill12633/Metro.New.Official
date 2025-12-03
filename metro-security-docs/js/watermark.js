@@ -1,21 +1,38 @@
+// js/watermark.js
 class WatermarkSystem {
     constructor() {
-        this.watermarkText = '';
+        this.watermarkElement = null;
+        this.userInfo = null;
         this.init();
     }
 
     async init() {
-        await this.generateWatermarkText();
+        // Получаем информацию о пользователе
+        await this.loadUserInfo();
+        // Создаем водяной знак
+        this.createWatermark();
+        // Защищаем от удаления
+        this.protectWatermark();
     }
 
-    async generateWatermarkText() {
-        const user = await firebaseConfig.getCurrentUserWithVerification();
+    async loadUserInfo() {
+        const user = firebase.auth().currentUser;
         if (!user) return;
 
-        const timestamp = new Date().toLocaleString('ru-RU');
-        const ip = await this.getIPAddress();
-        
-        this.watermarkText = `${user.email} | ${timestamp} | ${ip} | Metro Security Docs`;
+        try {
+            const ip = await this.getIPAddress();
+            const timestamp = new Date().toLocaleString('ru-RU');
+            
+            this.userInfo = {
+                email: user.email,
+                userId: user.uid,
+                ip: ip,
+                timestamp: timestamp,
+                userAgent: navigator.userAgent
+            };
+        } catch (error) {
+            console.error('Ошибка загрузки информации:', error);
+        }
     }
 
     async getIPAddress() {
@@ -28,126 +45,83 @@ class WatermarkSystem {
         }
     }
 
-    async applyWatermarkToCanvas(canvas) {
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const { width, height } = canvas;
-
-        // Save original state
-        ctx.save();
-        
-        // Set watermark properties
-        ctx.globalAlpha = 0.1;
-        ctx.font = '20px Arial';
-        ctx.fillStyle = '#ff0000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Rotate for diagonal watermark
-        ctx.translate(width / 2, height / 2);
-        ctx.rotate(-Math.PI / 4);
-
-        // Fill entire canvas with watermark
-        const textWidth = ctx.measureText(this.watermarkText).width;
-        const spacing = 200;
-
-        for (let x = -width; x < width * 2; x += textWidth + spacing) {
-            for (let y = -height; y < height * 2; y += 100) {
-                ctx.fillText(this.watermarkText, x, y);
-            }
+    createWatermark() {
+        // Удаляем старый водяной знак если есть
+        if (this.watermarkElement) {
+            this.watermarkElement.remove();
         }
 
-        // Restore context
-        ctx.restore();
-    }
-
-    async applyWatermarkToImage(imgElement) {
-        if (!imgElement) return;
-
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        // Создаем новый водяной знак
+        this.watermarkElement = document.createElement('div');
+        this.watermarkElement.id = 'security-watermark';
         
-        canvas.width = imgElement.width;
-        canvas.height = imgElement.height;
-
-        // Draw original image
-        ctx.drawImage(imgElement, 0, 0);
-
-        // Apply watermark
-        ctx.globalAlpha = 0.1;
-        ctx.font = '30px Arial';
-        ctx.fillStyle = '#ff0000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Rotate text
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(-Math.PI / 4);
-
-        const textWidth = ctx.measureText(this.watermarkText).width;
-        const spacing = 300;
-
-        for (let x = -canvas.width; x < canvas.width * 2; x += textWidth + spacing) {
-            for (let y = -canvas.height; y < canvas.height * 2; y += 150) {
-                ctx.fillText(this.watermarkText, x, y);
-            }
-        }
-
-        // Replace image with watermarked version
-        imgElement.src = canvas.toDataURL('image/png');
-    }
-
-    createDynamicWatermark() {
-        const watermarkDiv = document.createElement('div');
-        watermarkDiv.id = 'dynamic-watermark';
-        watermarkDiv.style.cssText = `
+        const watermarkText = this.userInfo 
+            ? `${this.userInfo.email} | ${this.userInfo.ip} | ${this.userInfo.timestamp}`
+            : 'Metro Security Docs | Конфиденциально';
+        
+        this.watermarkElement.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 9999;
-            opacity: 0.05;
+            z-index: 999999;
+            opacity: 0.15;
             background: repeating-linear-gradient(
                 45deg,
                 transparent,
-                transparent 100px,
-                rgba(255,0,0,0.1) 100px,
-                rgba(255,0,0,0.1) 200px
+                transparent 150px,
+                rgba(255, 0, 0, 0.1) 150px,
+                rgba(255, 0, 0, 0.1) 300px
             );
         `;
 
-        // Add user info as watermark
+        // Добавляем текстовый водяной знак
         const textOverlay = document.createElement('div');
         textOverlay.style.cssText = `
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 24px;
-            color: rgba(255,0,0,0.3);
+            font-size: 28px;
+            color: rgba(255, 0, 0, 0.4);
             white-space: nowrap;
             font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
         `;
-        textOverlay.textContent = this.watermarkText;
+        textOverlay.textContent = watermarkText;
 
-        watermarkDiv.appendChild(textOverlay);
-        document.body.appendChild(watermarkDiv);
+        // Добавляем скрытый водяной знак для PDF
+        const hiddenWatermark = document.createElement('div');
+        hiddenWatermark.style.cssText = `
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1px;
+            color: transparent;
+            user-select: none;
+        `;
+        hiddenWatermark.textContent = `METRO_SECURITY:${btoa(JSON.stringify(this.userInfo))}`;
 
-        // Prevent removal
-        this.protectWatermark(watermarkDiv);
+        this.watermarkElement.appendChild(textOverlay);
+        this.watermarkElement.appendChild(hiddenWatermark);
+        document.body.appendChild(this.watermarkElement);
     }
 
-    protectWatermark(element) {
-        // MutationObserver to prevent removal
+    protectWatermark() {
+        // Защита от удаления через MutationObserver
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.removedNodes.length) {
                     mutation.removedNodes.forEach((node) => {
-                        if (node === element || node.contains?.(element)) {
-                            document.body.appendChild(element);
+                        if (node === this.watermarkElement || node.contains?.(this.watermarkElement)) {
+                            console.warn('⚠️ Попытка удаления водяного знака!');
+                            document.body.appendChild(this.watermarkElement);
+                            
+                            // Логируем попытку удаления
+                            this.logSecurityEvent('watermark_removal_attempt');
                         }
                     });
                 }
@@ -156,74 +130,77 @@ class WatermarkSystem {
 
         observer.observe(document.body, { childList: true });
 
-        // Prevent right-click and copy
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        // Защита от копирования
         document.addEventListener('copy', (e) => {
             e.preventDefault();
-            alert('Копирование запрещено');
+            this.logSecurityEvent('copy_attempt');
+            alert('⚠️ Копирование запрещено системой безопасности!');
+        });
+
+        // Защита от скриншотов (частичная)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+                e.preventDefault();
+                this.logSecurityEvent('print_attempt');
+                alert('⚠️ Печать документов разрешена только администратором!');
+            }
+            
+            // Блокировка PrintScreen
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+                this.logSecurityEvent('screenshot_attempt');
+                alert('⚠️ Создание скриншотов запрещено!');
+            }
         });
     }
 
-    generateHiddenWatermark(data) {
-        // Create steganography-like watermark
-        const encoder = new TextEncoder();
-        const dataBuffer = encoder.encode(JSON.stringify(data));
-        
-        // Convert to binary string
-        let binary = '';
-        for (let byte of dataBuffer) {
-            binary += byte.toString(2).padStart(8, '0');
-        }
+    async logSecurityEvent(eventType) {
+        try {
+            const user = firebase.auth().currentUser;
+            if (!user) return;
 
-        // Return as invisible Unicode characters
-        let hiddenWatermark = '';
-        for (let i = 0; i < binary.length; i += 2) {
-            const bits = binary.substr(i, 2);
-            const codePoint = 0x200B + parseInt(bits, 2); // Use zero-width spaces
-            hiddenWatermark += String.fromCodePoint(codePoint);
+            const ip = await this.getIPAddress();
+            
+            await firebase.firestore().collection('security_events').add({
+                eventType: eventType,
+                userId: user.uid,
+                userEmail: user.email,
+                ipAddress: ip,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userAgent: navigator.userAgent,
+                severity: 'high',
+                details: 'Попытка обхода системы безопасности'
+            });
+        } catch (error) {
+            console.error('Ошибка логирования:', error);
         }
-
-        return hiddenWatermark;
     }
 
-    extractHiddenWatermark(text) {
-        // Extract hidden watermark from text
-        const chars = Array.from(text);
-        let binary = '';
+    // Динамическое обновление водяного знака
+    updateWatermark(newInfo = {}) {
+        this.userInfo = { ...this.userInfo, ...newInfo };
+        this.createWatermark();
+    }
 
-        for (let char of chars) {
-            const codePoint = char.codePointAt(0);
-            if (codePoint >= 0x200B && codePoint <= 0x200F) {
-                const bits = (codePoint - 0x200B).toString(2).padStart(2, '0');
-                binary += bits;
-            }
+    // Удаление водяного знака (только для админа)
+    removeWatermark() {
+        if (this.watermarkElement) {
+            this.watermarkElement.remove();
+            this.watermarkElement = null;
         }
-
-        // Convert binary back to data
-        const bytes = [];
-        for (let i = 0; i < binary.length; i += 8) {
-            const byte = binary.substr(i, 8);
-            if (byte.length === 8) {
-                bytes.push(parseInt(byte, 2));
-            }
-        }
-
-        const decoder = new TextDecoder();
-        return JSON.parse(decoder.decode(new Uint8Array(bytes)));
     }
 }
 
-// Initialize watermark system
-const watermarkSystem = new WatermarkSystem();
+// Инициализация системы водяных знаков
+let watermarkSystem = null;
 
-// Apply watermark on page load
 document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname.includes('viewer.html')) {
         setTimeout(() => {
-            watermarkSystem.createDynamicWatermark();
+            watermarkSystem = new WatermarkSystem();
         }, 1000);
     }
 });
 
-// Export
-window.watermarkSystem = watermarkSystem;
+// Экспорт для использования в других файлах
+window.WatermarkSystem = WatermarkSystem;
