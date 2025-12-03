@@ -2,389 +2,192 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro Security Docs | Вход</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" href="assets/logo.png">
+    <title>Metro Login Test</title>
     <style>
-        /* Стили остаются теми же */
-        .password-container { position: relative; }
-        .toggle-password {
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer; font-size: 1.2em;
-            padding: 5px; color: #666;
+        body {
+            font-family: Arial;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
         }
-        .spinner {
-            display: inline-block; width: 20px; height: 20px;
-            border: 3px solid rgba(255,255,255,.3); border-radius: 50%;
-            border-top-color: #fff; animation: spin 1s ease-in-out infinite;
-            margin-left: 10px; vertical-align: middle;
+        .login-box {
+            border: 1px solid #ccc;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .hidden { display: none !important; }
-        .login-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; }
-        .debug-info {
-            background: #f8f9fa; padding: 10px; border-radius: 5px;
-            font-size: 0.8em; color: #666; margin-top: 10px; display: none;
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-        .debug-toggle {
-            background: none; border: none; color: #3498db;
-            font-size: 0.8em; cursor: pointer; padding: 5px 0; margin-top: 10px;
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
         }
-        .message { padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button:hover {
+            background: #3498db;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <img src="assets/logo.png" alt="Logo" class="login-logo">
-                <h2>Вход в систему</h2>
-                <p>Доступ только для авторизованного персонала</p>
-            </div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Электронная почта</label>
-                    <input type="email" id="email" required 
-                           placeholder="test@example.com"
-                           autocomplete="username"
-                           value="test@example.com">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Пароль</label>
-                    <div class="password-container">
-                        <input type="password" id="password" required 
-                               minlength="6"
-                               placeholder="Введите пароль"
-                               autocomplete="current-password"
-                               value="test123">
-                        <button type="button" class="toggle-password" id="togglePassword">
-                            👁️
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-options">
-                    <label class="checkbox">
-                        <input type="checkbox" id="rememberMe">
-                        <span>Запомнить меня</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn-login" id="loginBtn">
-                    <span id="loginBtnText">Войти</span>
-                    <div class="spinner hidden" id="loginSpinner"></div>
-                </button>
-                
-                <div class="login-footer">
-                    <div id="loginMessage" class="message"></div>
-                    <p>Для теста используйте: test@example.com / test123</p>
-                    
-                    <button type="button" class="debug-toggle" id="debugToggle">
-                        Показать отладочную информацию
-                    </button>
-                    
-                    <div class="debug-info" id="debugInfo">
-                        <strong>Отладка:</strong>
-                        <div id="debugStatus">Проверка соединения...</div>
-                        <div id="debugDetails"></div>
-                    </div>
-                </div>
-            </form>
-
-            <div class="security-info">
-                <h4>Требования безопасности:</h4>
-                <ul>
-                    <li>Пароль должен содержать минимум 6 символов</li>
-                    <li>После 5 неудачных попыток аккаунт блокируется</li>
-                </ul>
-            </div>
+    <div class="login-box">
+        <h2>🚇 Metro Security - Тест входа</h2>
+        
+        <div id="status">Загрузка...</div>
+        
+        <input type="email" id="email" placeholder="Email" value="test@example.com">
+        <input type="password" id="password" placeholder="Password" value="test123">
+        
+        <button onclick="login()">Войти</button>
+        
+        <div id="result" class="message"></div>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #666;">
+            <p><strong>Тестовые данные:</strong> test@example.com / test123</p>
+            <p><strong>Проект:</strong> metro-new-85226</p>
         </div>
     </div>
 
-    <!-- Подключаем Firebase 9 (compat версия для простоты) -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <!-- Подключаем Firebase 8 (самая стабильная версия) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <script>
-        // ============================================
-        // ВАША КОНФИГУРАЦИЯ FIREBASE
-        // ============================================
+        // ==================== ВАША КОНФИГУРАЦИЯ ====================
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
             authDomain: "metro-new-85226.firebaseapp.com",
-            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
             projectId: "metro-new-85226",
             storageBucket: "metro-new-85226.firebasestorage.app",
             messagingSenderId: "905640751733",
             appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        console.log("🚀 Начинаем инициализацию Firebase...");
+        console.log("🔥 Начинаем инициализацию...");
 
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ
-        // ============================================
-        let auth, db;
-        
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
         try {
             // Инициализируем Firebase
             firebase.initializeApp(firebaseConfig);
-            console.log("✅ Firebase инициализирован");
-            
-            auth = firebase.auth();
-            db = firebase.firestore();
-            
-            updateDebugStatus("✅ Firebase подключен к проекту: metro-new-85226");
-            
+            console.log("✅ Firebase инициализирован!");
+            document.getElementById('status').innerHTML = 
+                '<span style="color:green">✅ Firebase подключен</span>';
         } catch (error) {
-            console.error("❌ Ошибка инициализации Firebase:", error);
-            updateDebugStatus("❌ Ошибка Firebase: " + error.message);
-            showMessage("Ошибка подключения к системе безопасности", "error");
+            console.error("❌ Ошибка инициализации:", error);
+            document.getElementById('status').innerHTML = 
+                `<span style="color:red">❌ Ошибка: ${error.message}</span>`;
         }
 
-        // ============================================
-        // DOM ЭЛЕМЕНТЫ
-        // ============================================
-        const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginBtnText = document.getElementById('loginBtnText');
-        const loginSpinner = document.getElementById('loginSpinner');
-        const loginMessage = document.getElementById('loginMessage');
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        const debugToggle = document.getElementById('debugToggle');
-        const debugInfo = document.getElementById('debugInfo');
-        const debugStatus = document.getElementById('debugStatus');
-        const debugDetails = document.getElementById('debugDetails');
+        // Получаем auth объект
+        const auth = firebase.auth();
 
-        let loginAttempts = 0;
-
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("📄 Страница входа загружена");
-            
-            // Инициализируем обработчики событий
-            initEventListeners();
-            
-            // Проверяем, авторизован ли пользователь
-            if (auth) {
-                auth.onAuthStateChanged(handleAuthStateChange);
-            }
-            
-            // Тест подключения
-            setTimeout(testFirebaseConnection, 1000);
-        });
-
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
-        // ============================================
-        function initEventListeners() {
-            // Переключение видимости пароля
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.type === 'password' ? 'text' : 'password';
-                passwordInput.type = type;
-                this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-            });
-
-            // Отладочная информация
-            debugToggle.addEventListener('click', function() {
-                const isHidden = debugInfo.style.display === 'none';
-                debugInfo.style.display = isHidden ? 'block' : 'none';
-                this.textContent = isHidden ? 
-                    'Скрыть отладочную информацию' : 
-                    'Показать отладочную информацию';
-            });
-
-            // Обработка формы входа
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                await handleLogin();
-            });
-        }
-
-        // ============================================
-        // ОСНОВНАЯ ФУНКЦИЯ ВХОДА
-        // ============================================
-        async function handleLogin() {
-            // Получаем данные из формы
-            const email = document.getElementById('email').value.trim();
+        // ==================== ФУНКЦИЯ ВХОДА ====================
+        async function login() {
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-
-            // Базовая валидация
-            if (!email || !password) {
-                showMessage('Заполните email и пароль', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showMessage('Пароль должен быть не менее 6 символов', 'error');
-                return;
-            }
-
-            // Показываем загрузку
-            setLoading(true);
-            updateDebugDetails(`Попытка входа для: ${email}`);
-
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = "Выполняется вход...";
+            resultDiv.className = "message";
+            
+            console.log("🔄 Пытаемся войти с:", email);
+            
             try {
-                // Настройка persistence (запомнить меня)
-                if (rememberMe) {
-                    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-                } else {
-                    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
-                }
-
-                // Попытка входа
-                updateDebugDetails("Выполняем вход через Firebase Auth...");
+                // Пробуем войти
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                console.log("✅ Успешный вход! Пользователь:", user.uid, user.email);
-                updateDebugDetails(`✅ Успех! ID: ${user.uid}`);
+                console.log("✅ УСПЕХ! Пользователь:", user.uid);
                 
-                // Сбрасываем счетчик попыток
-                loginAttempts = 0;
+                resultDiv.innerHTML = `
+                    <span style="color:green">
+                    ✅ Вход выполнен!<br>
+                    Email: ${user.email}<br>
+                    ID: ${user.uid}<br>
+                    Перенаправление через 2 секунды...
+                    </span>
+                `;
+                resultDiv.className = "message success";
                 
-                // Показываем успешное сообщение
-                showMessage(`✅ Вход выполнен! Добро пожаловать, ${user.email}`, 'success');
-                updateDebugStatus("✅ Авторизация успешна");
-                
-                // Перенаправляем через 1 секунду
+                // Перенаправляем через 2 секунды
                 setTimeout(() => {
                     window.location.href = 'viewer.html';
-                }, 1000);
-
+                }, 2000);
+                
             } catch (error) {
-                // Ошибка входа
-                loginAttempts++;
                 console.error("❌ Ошибка входа:", error.code, error.message);
-                updateDebugDetails(`❌ Ошибка: ${error.code} - ${error.message}`);
                 
-                // Определяем сообщение об ошибке
-                let errorMessage = getErrorMessage(error.code);
-                showMessage(errorMessage, 'error');
+                let errorMessage = "Ошибка: ";
+                switch(error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = "Пользователь не найден. Создайте его в Firebase Console";
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = "Неверный пароль";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "Неверный формат email";
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = "Слишком много попыток. Попробуйте позже";
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
                 
-                // Обновляем статус
-                updateDebugStatus(`❌ Ошибка авторизации (попытка ${loginAttempts})`);
-                
-            } finally {
-                setLoading(false);
+                resultDiv.innerHTML = `<span style="color:red">❌ ${errorMessage}</span>`;
+                resultDiv.className = "message error";
             }
         }
 
-        // ============================================
-        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        // ============================================
-        function handleAuthStateChange(user) {
+        // ==================== ПРОВЕРКА АВТОРИЗАЦИИ ====================
+        auth.onAuthStateChanged((user) => {
+            console.log("📊 Состояние авторизации:", user ? "Есть пользователь" : "Нет пользователя");
+            
             if (user) {
-                console.log("ℹ️ Пользователь уже авторизован:", user.email);
-                updateDebugStatus("ℹ️ Пользователь уже авторизован");
+                console.log("ℹ️ Уже авторизован как:", user.email);
+                document.getElementById('status').innerHTML = 
+                    `<span style="color:green">✅ Уже авторизован: ${user.email}</span>`;
                 
-                // Если пользователь уже авторизован, предлагаем перейти
+                // Если уже авторизован, предлагаем перейти
                 setTimeout(() => {
                     if (confirm("Вы уже авторизованы. Перейти в систему?")) {
                         window.location.href = 'viewer.html';
                     }
-                }, 500);
+                }, 1000);
+            }
+        });
+
+        // ==================== ТЕСТ ПОДКЛЮЧЕНИЯ ====================
+        console.log("🔍 Проверяем конфигурацию...");
+        console.log("Project ID:", firebaseConfig.projectId);
+        console.log("API Key:", firebaseConfig.apiKey ? "Есть" : "Нет");
+        
+        // Простой тест через 3 секунды после загрузки
+        setTimeout(() => {
+            const user = auth.currentUser;
+            if (user) {
+                console.log("✅ Текущий пользователь:", user.email);
             } else {
-                console.log("ℹ️ Пользователь не авторизован");
-                updateDebugStatus("ℹ️ Требуется авторизация");
+                console.log("ℹ️ Нет текущего пользователя");
             }
-        }
-
-        function setLoading(isLoading) {
-            loginBtn.disabled = isLoading;
-            loginBtnText.textContent = isLoading ? 'Выполняется вход...' : 'Войти';
-            loginSpinner.classList.toggle('hidden', !isLoading);
-            
-            // Блокируем/разблокируем поля формы
-            const formInputs = loginForm.querySelectorAll('input, button');
-            formInputs.forEach(input => {
-                if (input !== loginBtn && input !== togglePassword) {
-                    input.disabled = isLoading;
-                }
-            });
-        }
-
-        function showMessage(text, type) {
-            loginMessage.textContent = text;
-            loginMessage.className = 'message ' + type;
-            loginMessage.style.display = 'block';
-        }
-
-        function updateDebugStatus(text) {
-            if (debugStatus) {
-                debugStatus.textContent = text;
-            }
-        }
-
-        function updateDebugDetails(text) {
-            if (debugDetails) {
-                const time = new Date().toLocaleTimeString();
-                debugDetails.innerHTML += `<div>[${time}] ${text}</div>`;
-                debugDetails.scrollTop = debugDetails.scrollHeight;
-            }
-        }
-
-        function getErrorMessage(errorCode) {
-            const errorMessages = {
-                'auth/invalid-email': 'Неверный формат email',
-                'auth/user-disabled': 'Аккаунт отключен',
-                'auth/user-not-found': 'Пользователь не найден',
-                'auth/wrong-password': 'Неверный пароль',
-                'auth/too-many-requests': 'Слишком много попыток. Попробуйте позже',
-                'auth/network-request-failed': 'Ошибка сети. Проверьте подключение',
-                'auth/operation-not-allowed': 'Метод входа не разрешен',
-                'auth/weak-password': 'Пароль слишком слабый'
-            };
-            
-            return errorMessages[errorCode] || `Ошибка входа: ${errorCode}`;
-        }
-
-        async function testFirebaseConnection() {
-            updateDebugDetails("Начинаем тест подключения...");
-            
-            try {
-                // Проверяем доступность Firebase
-                if (!firebase.apps.length) {
-                    updateDebugStatus("❌ Firebase не инициализирован");
-                    return;
-                }
-                
-                updateDebugDetails("✅ Firebase Apps: " + firebase.apps.length);
-                
-                // Проверяем аутентификацию
-                const authCheck = typeof auth !== 'undefined';
-                updateDebugDetails(`✅ Auth: ${authCheck ? 'Доступен' : 'Недоступен'}`);
-                
-                // Проверяем текущего пользователя
-                const currentUser = auth.currentUser;
-                updateDebugDetails(`✅ Текущий пользователь: ${currentUser ? currentUser.email : 'Нет'}`);
-                
-                // Пробуем простой запрос к Firestore
-                try {
-                    await db.collection('_test_connection').limit(0).get();
-                    updateDebugDetails("✅ Firestore: Подключение успешно");
-                    updateDebugStatus("✅ Все системы готовы к работе");
-                } catch (firestoreError) {
-                    updateDebugDetails(`⚠️ Firestore: ${firestoreError.message}`);
-                    updateDebugStatus("⚠️ Firestore требует настройки правил");
-                }
-                
-            } catch (error) {
-                updateDebugDetails(`❌ Ошибка теста: ${error.message}`);
-                updateDebugStatus("❌ Проблемы с подключением");
-            }
-        }
+        }, 3000);
     </script>
 </body>
 </html>
