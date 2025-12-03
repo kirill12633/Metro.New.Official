@@ -340,6 +340,13 @@
             </div>
         </div>
         
+        <!-- Кнопка для быстрого входа -->
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="btn btn-primary" onclick="loginToSystem()">
+                🔑 Быстрый вход (admin@metro-security.ru)
+            </button>
+        </div>
+        
         <!-- Результаты -->
         <div id="result" class="result"></div>
         
@@ -394,36 +401,19 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Временные правила для разработки - разрешить все
+    // Временные правила для отладки - разрешить все
     match /{document=**} {
       allow read, write: if true;
     }
-    
-    // ИЛИ безопасные правила с проверкой авторизации:
-    /*
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Правила для продакшн:
-    /*
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null;
-    }
-    
-    match /documents/{documentId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        request.auth.token.email.matches('.*@metro-security\\.ru$');
-    }
-    */
   }
 }</textarea>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn" onclick="closeModal('rulesModal')">Закрыть</button>
                 <button type="button" class="btn btn-primary" onclick="copyRules()">📋 Копировать правила</button>
+                <button type="button" class="btn btn-success" onclick="window.open('https://console.firebase.google.com/project/_/firestore/rules', '_blank')">
+                    📝 Открыть в консоли
+                </button>
             </div>
         </div>
     </div>
@@ -446,17 +436,13 @@ service cloud.firestore {
         };
 
         // ==================== ИНИЦИАЛИЗАЦИЯ ====================
-        let auth, db, appCheck;
+        let auth, db;
         
         try {
             // Инициализируем Firebase
             firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             db = firebase.firestore();
-            
-            // Инициализируем App Check
-            appCheck = firebase.appCheck();
-            appCheck.activate('6Ld9uw0sAAAAAMTSxQ9Vxd0LhEcwweHGF-DWdZIo', true);
             
             console.log("✅ Firebase инициализирован");
             updateDebugInfo("Firebase инициализирован успешно");
@@ -532,30 +518,24 @@ service cloud.firestore {
                             <span class="status-value bad">❌ НЕ АВТОРИЗОВАН</span>
                         </div>
                         <div class="status-item">
-                            <button class="btn btn-primary" onclick="window.location.href='login.html'">
-                                🔑 Войти в систему
+                            <button class="btn btn-primary" onclick="loginToSystem()">
+                                🔑 Войти как администратор
                             </button>
                         </div>
                     `;
                 }
                 
-                // Проверяем App Check
-                try {
-                    const token = await appCheck.getToken();
-                    statusHTML += `
-                        <div class="status-item">
-                            <span class="status-label">🛡️ App Check:</span>
-                            <span class="status-value good">✅ АКТИВЕН</span>
-                        </div>
-                    `;
-                } catch (appCheckError) {
-                    statusHTML += `
-                        <div class="status-item">
-                            <span class="status-label">🛡️ App Check:</span>
-                            <span class="status-value bad">⚠️ ПРОБЛЕМА: ${appCheckError.message}</span>
-                        </div>
-                    `;
-                }
+                // Информация о подключении
+                statusHTML += `
+                    <div class="status-item">
+                        <span class="status-label">🌐 Проект:</span>
+                        <span class="status-value">${firebaseConfig.projectId}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">🛡️ App Check:</span>
+                        <span class="status-value bad">⚠️ ОТКЛЮЧЕН для отладки</span>
+                    </div>
+                `;
                 
                 statusDiv.innerHTML = statusHTML;
                 
@@ -569,11 +549,97 @@ service cloud.firestore {
             }
         }
 
+        // Вход в систему
+        async function loginToSystem() {
+            try {
+                showResult('Попытка входа в систему...', '');
+                
+                const email = "admin@metro-security.ru";
+                const password = "Admin123!";
+                
+                await auth.signInWithEmailAndPassword(email, password);
+                
+                showResult('✅ Успешный вход в систему! Теперь вы можете исправить права.', 'success');
+                loadSystemStatus();
+                
+            } catch (error) {
+                // Если пользователя нет, создадим его
+                if (error.code === 'auth/user-not-found') {
+                    await createTestAdmin();
+                } else {
+                    showResult(`❌ Ошибка входа: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Создание тестового администратора
+        async function createTestAdmin() {
+            try {
+                showResult('Создание тестового администратора...', '');
+                
+                const email = "admin@metro-security.ru";
+                const password = "Admin123!";
+                const name = "Системный администратор";
+                
+                // Создаем пользователя
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Ждем немного перед записью в Firestore
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Пробуем записать с несколькими попытками
+                let success = false;
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        await db.collection('users').doc(user.uid).set({
+                            email: email,
+                            role: "admin",
+                            active: true,
+                            displayName: name,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                            permissions: ["all"]
+                        }, { merge: true });
+                        
+                        success = true;
+                        break;
+                    } catch (firestoreError) {
+                        console.log(`Попытка ${i + 1} не удалась:`, firestoreError);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+                
+                if (success) {
+                    showResult(`
+                        ✅ Тестовый администратор создан!
+                        <br><br>
+                        <strong>Данные для входа:</strong>
+                        <br>📧 Email: ${email}
+                        <br>🔑 Пароль: ${password}
+                        <br>👑 Роль: Администратор
+                        <br><br>
+                        <button onclick="fixAdminRights()" class="btn btn-primary">
+                            Установить права администратора
+                        </button>
+                    `, 'success');
+                    
+                    // Обновляем статус
+                    setTimeout(loadSystemStatus, 1000);
+                } else {
+                    showResult('⚠️ Пользователь создан, но запись в Firestore не удалась. Используйте кнопку "Исправить права".', 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Ошибка создания администратора: ${error.message}`, 'error');
+            }
+        }
+
         // Исправление прав админа
         async function fixAdminRights() {
             const user = auth.currentUser;
             if (!user) {
-                showResult('❌ Сначала войдите в систему!', 'error');
+                showResult('❌ Сначала войдите в систему! <button onclick="loginToSystem()" class="btn btn-primary" style="margin-left: 10px;">Войти</button>', 'error');
                 return;
             }
             
@@ -585,44 +651,72 @@ service cloud.firestore {
             spinner.style.display = 'block';
             
             try {
-                // Создаем или обновляем запись пользователя
-                await db.collection('users').doc(user.uid).set({
+                // Используем более простую структуру данных
+                const userData = {
                     email: user.email || "admin@metro-security.ru",
                     role: "admin",
                     active: true,
                     displayName: user.displayName || "Системный администратор",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    twoFactorEnabled: false,
-                    permissions: ["all"]
-                }, { merge: true });
+                    lastUpdate: new Date().toISOString(),
+                    uid: user.uid
+                };
                 
-                showResult(`
-                    ✅ Права администратора успешно установлены!
-                    <br><br>
-                    <strong>Данные пользователя:</strong>
-                    <br>👤 Email: ${user.email}
-                    <br>👑 Роль: Администратор
-                    <br>🆔 ID: ${user.uid.substring(0, 10)}...
-                    <br><br>
-                    Теперь вы можете <a href="admin.html" style="color: #3498db; font-weight: bold;">перейти в админ-панель</a>
-                `, 'success');
+                // Пробуем несколько раз на случай временных ошибок
+                let success = false;
+                let lastError = null;
                 
-                // Обновляем статус
-                setTimeout(loadSystemStatus, 1000);
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        await db.collection('users').doc(user.uid).set(userData, { merge: true });
+                        success = true;
+                        break;
+                    } catch (error) {
+                        lastError = error;
+                        console.log(`Попытка ${i + 1} не удалась:`, error);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+                
+                if (success) {
+                    showResult(`
+                        ✅ Права администратора успешно установлены!
+                        <br><br>
+                        <strong>Данные пользователя:</strong>
+                        <br>👤 Email: ${user.email}
+                        <br>👑 Роль: Администратор
+                        <br>🆔 ID: ${user.uid.substring(0, 10)}...
+                        <br><br>
+                        <button onclick="window.location.href='admin.html'" class="btn btn-primary">
+                            Перейти в админ-панель
+                        </button>
+                    `, 'success');
+                    
+                    // Обновляем статус
+                    setTimeout(loadSystemStatus, 1000);
+                } else {
+                    throw lastError;
+                }
                 
             } catch (error) {
                 showResult(`
-                    ❌ Ошибка установки прав:<br>
-                    <strong>${error.code}: ${error.message}</strong>
+                    ❌ Ошибка установки прав:
+                    <br><strong>${error.code}: ${error.message}</strong>
                     <br><br>
-                    <em>Возможные причины:</em>
-                    <br>1. Ошибка правил Firestore
-                    <br>2. Проблема с App Check
-                    <br>3. Нет доступа к коллекции users
+                    <em>Рекомендации:</em>
+                    <br>1. Проверьте правила Firestore (должны быть открыты)
+                    <br>2. Временно отключите App Check в Firebase Console
+                    <br>3. Проверьте настройки CORS
+                    <br><br>
+                    <button onclick="showRulesModal()" class="btn">
+                        ⚙️ Показать рекомендуемые правила
+                    </button>
                 `, 'error');
                 
-                updateDebugInfo(`Ошибка fixAdminRights: ${JSON.stringify(error, null, 2)}`);
+                updateDebugInfo(`Ошибка fixAdminRights: ${JSON.stringify({
+                    code: error.code,
+                    message: error.message,
+                    details: error.stack
+                }, null, 2)}`);
             } finally {
                 buttonText.textContent = 'Исправить права';
                 spinner.style.display = 'none';
@@ -638,30 +732,49 @@ service cloud.firestore {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Добавляем в Firestore
-                await db.collection('users').doc(user.uid).set({
-                    email: email,
-                    role: "admin",
-                    active: true,
-                    displayName: name,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    twoFactorEnabled: false
-                });
+                // Ждем немного перед записью в Firestore
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                showResult(`
-                    ✅ Администратор создан успешно!
-                    <br><br>
-                    <strong>Данные для входа:</strong>
-                    <br>📧 Email: ${email}
-                    <br>🔑 Пароль: ${password}
-                    <br>👑 Роль: Администратор
-                    <br><br>
-                    <strong>⚠️ Сохраните эти данные!</strong>
-                `, 'success');
+                // Добавляем в Firestore с несколькими попытками
+                let success = false;
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        await db.collection('users').doc(user.uid).set({
+                            email: email,
+                            role: "admin",
+                            active: true,
+                            displayName: name,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                            twoFactorEnabled: false
+                        });
+                        
+                        success = true;
+                        break;
+                    } catch (firestoreError) {
+                        console.log(`Попытка ${i + 1} не удалась:`, firestoreError);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
                 
-                // Выходим из созданного аккаунта
-                await auth.signOut();
+                if (success) {
+                    showResult(`
+                        ✅ Администратор создан успешно!
+                        <br><br>
+                        <strong>Данные для входа:</strong>
+                        <br>📧 Email: ${email}
+                        <br>🔑 Пароль: ${password}
+                        <br>👑 Роль: Администратор
+                        <br><br>
+                        <strong>⚠️ Сохраните эти данные!</strong>
+                    `, 'success');
+                    
+                    // Выходим из созданного аккаунта
+                    await auth.signOut();
+                    
+                } else {
+                    showResult('⚠️ Пользователь создан в Auth, но запись в Firestore не удалась', 'error');
+                }
                 
             } catch (error) {
                 showResult(`
@@ -682,7 +795,7 @@ service cloud.firestore {
                 // Тест 2: Запись данных
                 const testDoc = await db.collection('test').add({
                     test: "Тестовые данные",
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: new Date().toISOString(),
                     userId: auth.currentUser?.uid || 'anonymous'
                 });
                 
@@ -709,8 +822,12 @@ service cloud.firestore {
                     <br><br>
                     <em>Рекомендации:</em>
                     <br>1. Проверьте правила доступа в Firebase Console
-                    <br>2. Убедитесь что App Check настроен правильно
+                    <br>2. Временно отключите App Check
                     <br>3. Проверьте подключение к интернету
+                    <br><br>
+                    <button onclick="showRulesModal()" class="btn">
+                        ⚙️ Показать рекомендуемые правила
+                    </button>
                 `, 'error');
                 
                 updateDebugInfo(`Ошибка testFirestore: ${JSON.stringify(error, null, 2)}`);
@@ -797,15 +914,15 @@ service cloud.firestore {
                 loadSystemStatus();
             });
             
-            // Тест App Check
-            setTimeout(async () => {
-                try {
-                    const token = await appCheck.getToken();
-                    updateDebugInfo(`App Check токен получен: ${token.token.substring(0, 50)}...`);
-                } catch (error) {
-                    updateDebugInfo(`Ошибка App Check: ${error.message}`);
+            // Логируем все ошибки Firebase
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    console.log("✅ Пользователь авторизован:", user.email);
                 }
-            }, 2000);
+            }, (error) => {
+                console.error("❌ Ошибка авторизации:", error);
+                updateDebugInfo(`Ошибка авторизации: ${error.message}`);
+            });
         });
     </script>
 </body>
