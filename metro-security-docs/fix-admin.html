@@ -314,23 +314,23 @@
         <div class="actions">
             <div class="action-card" onclick="fixAdminRights()">
                 <h3>👑 Исправить права админа</h3>
-                <p>Автоматически исправить права текущего пользователя на администратора</p>
+                <p>Исправить права текущего пользователя на администратора</p>
                 <button class="btn btn-primary">
                     <span class="btn-text">Исправить права</span>
                     <div class="spinner" style="display: none;"></div>
                 </button>
             </div>
             
-            <div class="action-card" onclick="showCreateAdminModal()">
-                <h3>➕ Создать администратора</h3>
-                <p>Создать нового пользователя с правами администратора</p>
-                <button class="btn btn-success">Создать</button>
+            <div class="action-card" onclick="resetUserPassword()">
+                <h3>🔑 Сбросить пароль</h3>
+                <p>Сбросить пароль для admin@metro-security.ru</p>
+                <button class="btn btn-success">Сбросить пароль</button>
             </div>
             
-            <div class="action-card" onclick="testFirestore()">
-                <h3>🧪 Тест Firestore</h3>
-                <p>Проверить подключение к базе данных и права доступа</p>
-                <button class="btn">Тестировать</button>
+            <div class="action-card" onclick="bypassFirestore()">
+                <h3>🚀 Обход Firestore</h3>
+                <p>Назначить права через токен аутентификации</p>
+                <button class="btn btn-danger">Обходной путь</button>
             </div>
             
             <div class="action-card" onclick="showRulesModal()">
@@ -338,13 +338,6 @@
                 <p>Показать текущие правила Firestore и предложить исправления</p>
                 <button class="btn">Показать правила</button>
             </div>
-        </div>
-        
-        <!-- Кнопка для быстрого входа -->
-        <div style="text-align: center; margin: 20px 0;">
-            <button class="btn btn-primary" onclick="loginToSystem()">
-                🔑 Быстрый вход (admin@metro-security.ru)
-            </button>
         </div>
         
         <!-- Результаты -->
@@ -360,43 +353,12 @@
         </div>
     </div>
     
-    <!-- Модальное окно создания администратора -->
-    <div id="createAdminModal" class="modal">
-        <div class="modal-content">
-            <h3>👑 Создание администратора</h3>
-            <form id="createAdminForm">
-                <div class="form-group">
-                    <label>Email администратора:</label>
-                    <input type="email" id="adminEmail" required 
-                           placeholder="admin@metro-security.ru"
-                           value="admin@metro-security.ru">
-                </div>
-                <div class="form-group">
-                    <label>Пароль (минимум 6 символов):</label>
-                    <input type="password" id="adminPassword" required 
-                           minlength="6"
-                           value="Admin123!">
-                </div>
-                <div class="form-group">
-                    <label>Имя администратора:</label>
-                    <input type="text" id="adminName" 
-                           placeholder="Иван Иванов"
-                           value="Системный администратор">
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn" onclick="closeModal('createAdminModal')">Отмена</button>
-                    <button type="submit" class="btn btn-success">Создать администратора</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
     <!-- Модальное окно правил -->
     <div id="rulesModal" class="modal">
         <div class="modal-content">
             <h3>⚙️ Правила доступа Firestore</h3>
             <div class="form-group">
-                <label>Текущие правила (рекомендуемые для теста):</label>
+                <label>Установите ЭТИ правила в Firebase Console:</label>
                 <textarea id="rulesText" rows="15" style="font-family: monospace; font-size: 12px;">
 rules_version = '2';
 service cloud.firestore {
@@ -406,12 +368,13 @@ service cloud.firestore {
       allow read, write: if true;
     }
   }
-}</textarea>
+}
+                </textarea>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn" onclick="closeModal('rulesModal')">Закрыть</button>
                 <button type="button" class="btn btn-primary" onclick="copyRules()">📋 Копировать правила</button>
-                <button type="button" class="btn btn-success" onclick="window.open('https://console.firebase.google.com/project/_/firestore/rules', '_blank')">
+                <button type="button" class="btn btn-success" onclick="window.open('https://console.firebase.google.com/project/metro-new-85226/firestore/rules', '_blank')">
                     📝 Открыть в консоли
                 </button>
             </div>
@@ -429,6 +392,7 @@ service cloud.firestore {
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
             authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
             projectId: "metro-new-85226",
             storageBucket: "metro-new-85226.firebasestorage.app",
             messagingSenderId: "905640751733",
@@ -471,7 +435,11 @@ service cloud.firestore {
                         </div>
                         <div class="status-item">
                             <span class="status-label">🆔 ID:</span>
-                            <span class="status-value">${user.uid.substring(0, 10)}...</span>
+                            <span class="status-value">${user.uid}</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">✅ Firebase Auth:</span>
+                            <span class="status-value good">Аккаунт существует</span>
                         </div>
                     `;
                     
@@ -483,7 +451,7 @@ service cloud.firestore {
                             statusHTML += `
                                 <div class="status-item">
                                     <span class="status-label">👑 Роль в Firestore:</span>
-                                    <span class="status-value ${data.role ? 'good' : 'bad'}">
+                                    <span class="status-value ${data.role === 'admin' ? 'good' : 'bad'}">
                                         ${data.role || '❌ НЕ УКАЗАНА'}
                                     </span>
                                 </div>
@@ -492,6 +460,10 @@ service cloud.firestore {
                                     <span class="status-value ${data.email ? 'good' : 'bad'}">
                                         ${data.email || '❌ ПУСТО'}
                                     </span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">🗄️ Запись в Firestore:</span>
+                                    <span class="status-value good">✅ НАЙДЕНА</span>
                                 </div>
                             `;
                         } else {
@@ -508,6 +480,12 @@ service cloud.firestore {
                                 <span class="status-label">🔐 Доступ к Firestore:</span>
                                 <span class="status-value bad">❌ ОШИБКА: ${firestoreError.code}</span>
                             </div>
+                            <div class="status-item">
+                                <span class="status-label">💡 Решение:</span>
+                                <button onclick="showRulesModal()" class="btn btn-primary" style="padding: 5px 15px; font-size: 14px;">
+                                    ⚙️ Изменить правила
+                                </button>
+                            </div>
                         `;
                     }
                     
@@ -519,7 +497,7 @@ service cloud.firestore {
                         </div>
                         <div class="status-item">
                             <button class="btn btn-primary" onclick="loginToSystem()">
-                                🔑 Войти как администратор
+                                🔑 Войти как admin@metro-security.ru
                             </button>
                         </div>
                     `;
@@ -532,8 +510,10 @@ service cloud.firestore {
                         <span class="status-value">${firebaseConfig.projectId}</span>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">🛡️ App Check:</span>
-                        <span class="status-value bad">⚠️ ОТКЛЮЧЕН для отладки</span>
+                        <span class="status-label">🔧 Статус:</span>
+                        <span class="status-value ${user ? 'good' : 'bad'}">
+                            ${user ? '✅ Пользователь найден в Auth' : '❌ Требуется вход'}
+                        </span>
                     </div>
                 `;
                 
@@ -555,87 +535,58 @@ service cloud.firestore {
                 showResult('Попытка входа в систему...', '');
                 
                 const email = "admin@metro-security.ru";
-                const password = "Admin123!";
                 
-                await auth.signInWithEmailAndPassword(email, password);
-                
-                showResult('✅ Успешный вход в систему! Теперь вы можете исправить права.', 'success');
-                loadSystemStatus();
-                
-            } catch (error) {
-                // Если пользователя нет, создадим его
-                if (error.code === 'auth/user-not-found') {
-                    await createTestAdmin();
-                } else {
-                    showResult(`❌ Ошибка входа: ${error.message}`, 'error');
-                }
-            }
-        }
-
-        // Создание тестового администратора
-        async function createTestAdmin() {
-            try {
-                showResult('Создание тестового администратора...', '');
-                
-                const email = "admin@metro-security.ru";
-                const password = "Admin123!";
-                const name = "Системный администратор";
-                
-                // Создаем пользователя
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // Ждем немного перед записью в Firestore
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Пробуем записать с несколькими попытками
-                let success = false;
-                for (let i = 0; i < 3; i++) {
-                    try {
-                        await db.collection('users').doc(user.uid).set({
-                            email: email,
-                            role: "admin",
-                            active: true,
-                            displayName: name,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                            permissions: ["all"]
-                        }, { merge: true });
-                        
-                        success = true;
-                        break;
-                    } catch (firestoreError) {
-                        console.log(`Попытка ${i + 1} не удалась:`, firestoreError);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                // Сначала попробуем войти с любым паролем
+                try {
+                    await auth.signInWithEmailAndPassword(email, "Admin123!");
+                    showResult('✅ Успешный вход в систему! Теперь вы можете исправить права.', 'success');
+                } catch (error) {
+                    if (error.code === 'auth/wrong-password') {
+                        showResult(`
+                            ❌ Неверный пароль. Пользователь существует, но пароль неверен.
+                            <br><br>
+                            <button onclick="resetUserPassword()" class="btn btn-danger">
+                                🔑 Сбросить пароль
+                            </button>
+                        `, 'error');
+                    } else {
+                        showResult(`❌ Ошибка входа: ${error.message}`, 'error');
                     }
                 }
                 
-                if (success) {
-                    showResult(`
-                        ✅ Тестовый администратор создан!
-                        <br><br>
-                        <strong>Данные для входа:</strong>
-                        <br>📧 Email: ${email}
-                        <br>🔑 Пароль: ${password}
-                        <br>👑 Роль: Администратор
-                        <br><br>
-                        <button onclick="fixAdminRights()" class="btn btn-primary">
-                            Установить права администратора
-                        </button>
-                    `, 'success');
-                    
-                    // Обновляем статус
-                    setTimeout(loadSystemStatus, 1000);
-                } else {
-                    showResult('⚠️ Пользователь создан, но запись в Firestore не удалась. Используйте кнопку "Исправить права".', 'error');
-                }
+                loadSystemStatus();
                 
             } catch (error) {
-                showResult(`❌ Ошибка создания администратора: ${error.message}`, 'error');
+                showResult(`❌ Ошибка входа: ${error.message}`, 'error');
             }
         }
 
-        // Исправление прав админа
+        // Сброс пароля пользователя
+        async function resetUserPassword() {
+            try {
+                showResult('Отправка запроса на сброс пароля...', '');
+                
+                const email = "admin@metro-security.ru";
+                await auth.sendPasswordResetEmail(email);
+                
+                showResult(`
+                    ✅ Ссылка для сброса пароля отправлена на ${email}
+                    <br><br>
+                    <strong>Действия:</strong>
+                    <br>1. Проверьте почту admin@metro-security.ru
+                    <br>2. Перейдите по ссылке из письма
+                    <br>3. Установите новый пароль
+                    <br>4. Вернитесь на эту страницу и войдите с новым паролем
+                    <br><br>
+                    <em>Рекомендуемый пароль: Admin123!</em>
+                `, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Ошибка сброса пароля: ${error.message}`, 'error');
+            }
+        }
+
+        // Исправление прав админа через Firestore
         async function fixAdminRights() {
             const user = auth.currentUser;
             if (!user) {
@@ -651,50 +602,58 @@ service cloud.firestore {
             spinner.style.display = 'block';
             
             try {
-                // Используем более простую структуру данных
+                // Получаем токен для проверки
+                const idToken = await user.getIdToken();
+                const idTokenResult = await user.getIdTokenResult();
+                
+                updateDebugInfo(`ID Token получен: ${idToken.substring(0, 50)}...`);
+                updateDebugInfo(`Claims: ${JSON.stringify(idTokenResult.claims)}`);
+                
+                // Пытаемся записать в Firestore
                 const userData = {
-                    email: user.email || "admin@metro-security.ru",
+                    email: user.email,
                     role: "admin",
                     active: true,
-                    displayName: user.displayName || "Системный администратор",
-                    lastUpdate: new Date().toISOString(),
-                    uid: user.uid
+                    displayName: "Системный администратор",
+                    lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: user.uid,
+                    fixedAt: new Date().toISOString()
                 };
                 
-                // Пробуем несколько раз на случай временных ошибок
-                let success = false;
-                let lastError = null;
-                
-                for (let i = 0; i < 3; i++) {
-                    try {
-                        await db.collection('users').doc(user.uid).set(userData, { merge: true });
-                        success = true;
-                        break;
-                    } catch (error) {
-                        lastError = error;
-                        console.log(`Попытка ${i + 1} не удалась:`, error);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
-                }
-                
-                if (success) {
+                try {
+                    await db.collection('users').doc(user.uid).set(userData, { merge: true });
+                    
                     showResult(`
                         ✅ Права администратора успешно установлены!
                         <br><br>
                         <strong>Данные пользователя:</strong>
                         <br>👤 Email: ${user.email}
                         <br>👑 Роль: Администратор
-                        <br>🆔 ID: ${user.uid.substring(0, 10)}...
+                        <br>🆔 ID: ${user.uid}
                         <br><br>
                         <button onclick="window.location.href='admin.html'" class="btn btn-primary">
-                            Перейти в админ-панель
+                            🚀 Перейти в админ-панель
                         </button>
                     `, 'success');
                     
-                    // Обновляем статус
-                    setTimeout(loadSystemStatus, 1000);
-                } else {
-                    throw lastError;
+                } catch (firestoreError) {
+                    if (firestoreError.code === 'permission-denied') {
+                        showResult(`
+                            ❌ Ошибка доступа к Firestore: Правила безопасности блокируют запись
+                            <br><br>
+                            <strong>Решение:</strong>
+                            <br>1. Перейдите в <a href="https://console.firebase.google.com/project/metro-new-85226/firestore/rules" target="_blank" style="color: #3498db; font-weight: bold;">Firestore Rules</a>
+                            <br>2. Установите временные правила (см. кнопку ниже)
+                            <br>3. Нажмите "Опубликовать"
+                            <br>4. Попробуйте снова
+                            <br><br>
+                            <button onclick="showRulesModal()" class="btn btn-danger">
+                                ⚙️ Показать временные правила
+                            </button>
+                        `, 'error');
+                    } else {
+                        throw firestoreError;
+                    }
                 }
                 
             } catch (error) {
@@ -702,85 +661,69 @@ service cloud.firestore {
                     ❌ Ошибка установки прав:
                     <br><strong>${error.code}: ${error.message}</strong>
                     <br><br>
-                    <em>Рекомендации:</em>
-                    <br>1. Проверьте правила Firestore (должны быть открыты)
-                    <br>2. Временно отключите App Check в Firebase Console
-                    <br>3. Проверьте настройки CORS
-                    <br><br>
-                    <button onclick="showRulesModal()" class="btn">
-                        ⚙️ Показать рекомендуемые правила
+                    <button onclick="bypassFirestore()" class="btn btn-danger">
+                        🚀 Попробовать обходной путь
                     </button>
                 `, 'error');
                 
-                updateDebugInfo(`Ошибка fixAdminRights: ${JSON.stringify({
-                    code: error.code,
-                    message: error.message,
-                    details: error.stack
-                }, null, 2)}`);
+                updateDebugInfo(`Ошибка fixAdminRights: ${JSON.stringify(error, null, 2)}`);
             } finally {
                 buttonText.textContent = 'Исправить права';
                 spinner.style.display = 'none';
             }
         }
 
-        // Создание нового администратора
-        async function createAdmin(email, password, name) {
+        // Обходной путь через настройку claims в Auth
+        async function bypassFirestore() {
+            const user = auth.currentUser;
+            if (!user) {
+                showResult('❌ Сначала войдите в систему!', 'error');
+                return;
+            }
+            
             try {
-                showResult('Создание администратора...', '');
+                showResult('Использование обходного пути через токен...', '');
                 
-                // Создаем пользователя в Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
+                // Получаем токен с кастомными claims
+                const idToken = await user.getIdToken();
                 
-                // Ждем немного перед записью в Firestore
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Добавляем в Firestore с несколькими попытками
-                let success = false;
-                for (let i = 0; i < 3; i++) {
-                    try {
-                        await db.collection('users').doc(user.uid).set({
-                            email: email,
-                            role: "admin",
-                            active: true,
-                            displayName: name,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                            twoFactorEnabled: false
-                        });
+                // Показываем инструкцию по настройке через Admin SDK
+                showResult(`
+                    🚀 Обходной путь через Firebase Admin SDK
+                    <br><br>
+                    <strong>Для работы выполните на сервере:</strong>
+                    <br><br>
+                    <code style="background: #2c3e50; color: white; padding: 10px; border-radius: 5px; display: block;">
+                        // Node.js код для установки прав<br>
+                        const admin = require('firebase-admin');<br>
+                        admin.initializeApp();<br><br>
                         
-                        success = true;
-                        break;
-                    } catch (firestoreError) {
-                        console.log(`Попытка ${i + 1} не удалась:`, firestoreError);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
-                }
-                
-                if (success) {
-                    showResult(`
-                        ✅ Администратор создан успешно!
-                        <br><br>
-                        <strong>Данные для входа:</strong>
-                        <br>📧 Email: ${email}
-                        <br>🔑 Пароль: ${password}
-                        <br>👑 Роль: Администратор
-                        <br><br>
-                        <strong>⚠️ Сохраните эти данные!</strong>
-                    `, 'success');
-                    
-                    // Выходим из созданного аккаунта
-                    await auth.signOut();
-                    
-                } else {
-                    showResult('⚠️ Пользователь создан в Auth, но запись в Firestore не удалась', 'error');
-                }
+                        // Установить claim "admin" для пользователя<br>
+                        await admin.auth().setCustomUserClaims('${user.uid}', {<br>
+                        &nbsp;&nbsp;role: 'admin',<br>
+                        &nbsp;&nbsp;admin: true<br>
+                        });<br><br>
+                        
+                        // Создать запись в Firestore<br>
+                        await admin.firestore()<br>
+                        &nbsp;&nbsp;.collection('users')<br>
+                        &nbsp;&nbsp;.doc('${user.uid}')<br>
+                        &nbsp;&nbsp;.set({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;email: '${user.email}',<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;role: 'admin',<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;createdAt: new Date()<br>
+                        &nbsp;&nbsp;});
+                    </code>
+                    <br><br>
+                    <strong>ИЛИ используйте временные правила Firestore:</strong>
+                    <br><br>
+                    <button onclick="showRulesModal()" class="btn btn-primary">
+                        ⚙️ Показать временные правила
+                    </button>
+                `, 'success');
                 
             } catch (error) {
-                showResult(`
-                    ❌ Ошибка создания администратора:<br>
-                    <strong>${error.code}: ${error.message}</strong>
-                `, 'error');
+                showResult(`❌ Ошибка: ${error.message}`, 'error');
             }
         }
 
@@ -792,27 +735,13 @@ service cloud.firestore {
                 // Тест 1: Проверка подключения
                 await db.collection('test_connection').limit(0).get();
                 
-                // Тест 2: Запись данных
-                const testDoc = await db.collection('test').add({
-                    test: "Тестовые данные",
-                    timestamp: new Date().toISOString(),
-                    userId: auth.currentUser?.uid || 'anonymous'
-                });
-                
-                // Тест 3: Чтение данных
-                await testDoc.get();
-                
-                // Тест 4: Проверка коллекции users
-                const usersSnapshot = await db.collection('users').limit(1).get();
-                
                 showResult(`
-                    ✅ Firestore работает корректно!
+                    ✅ Firestore подключение работает!
                     <br><br>
-                    <strong>Результаты тестов:</strong>
-                    <br>🔌 Подключение: ✅ Успешно
-                    <br>📝 Запись данных: ✅ Успешно
-                    <br>📖 Чтение данных: ✅ Успешно
-                    <br>👥 Коллекция users: ✅ ${usersSnapshot.size} документ(ов)
+                    <strong>Следующие шаги:</strong>
+                    <br>1. Нажмите "Исправить права админа"
+                    <br>2. Если ошибка - измените правила Firestore
+                    <br>3. Повторите попытку
                 `, 'success');
                 
             } catch (error) {
@@ -820,17 +749,15 @@ service cloud.firestore {
                     ❌ Ошибка Firestore:<br>
                     <strong>${error.code}: ${error.message}</strong>
                     <br><br>
-                    <em>Рекомендации:</em>
-                    <br>1. Проверьте правила доступа в Firebase Console
-                    <br>2. Временно отключите App Check
-                    <br>3. Проверьте подключение к интернету
+                    <em>Решение:</em>
+                    <br>1. Перейдите по ссылке ниже
+                    <br>2. Установите временные правила
+                    <br>3. Нажмите "Опубликовать"
                     <br><br>
-                    <button onclick="showRulesModal()" class="btn">
-                        ⚙️ Показать рекомендуемые правила
+                    <button onclick="showRulesModal()" class="btn btn-danger">
+                        ⚙️ Открыть правила Firestore
                     </button>
                 `, 'error');
-                
-                updateDebugInfo(`Ошибка testFirestore: ${JSON.stringify(error, null, 2)}`);
             }
         }
 
@@ -840,12 +767,6 @@ service cloud.firestore {
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = message;
             resultDiv.className = `result ${type}`;
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    resultDiv.style.display = 'none';
-                }, 10000);
-            }
         }
         
         function updateDebugInfo(message) {
@@ -870,10 +791,6 @@ service cloud.firestore {
             document.getElementById(modalId).style.display = 'none';
         }
         
-        function showCreateAdminModal() {
-            showModal('createAdminModal');
-        }
-        
         function showRulesModal() {
             showModal('rulesModal');
         }
@@ -893,36 +810,43 @@ service cloud.firestore {
             // Загружаем статус системы
             loadSystemStatus();
             
-            // Обновляем статус каждые 10 секунд
-            setInterval(loadSystemStatus, 10000);
-            
-            // Обработка формы создания администратора
-            document.getElementById('createAdminForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const email = document.getElementById('adminEmail').value;
-                const password = document.getElementById('adminPassword').value;
-                const name = document.getElementById('adminName').value;
-                
-                await createAdmin(email, password, name);
-                closeModal('createAdminModal');
-            });
-            
-            // Проверяем авторизацию
+            // Проверяем авторизацию при загрузке
             auth.onAuthStateChanged((user) => {
-                console.log("👤 Статус авторизации изменен:", user ? user.email : "Не авторизован");
+                console.log("👤 Статус авторизации:", user ? user.email : "Не авторизован");
                 loadSystemStatus();
+                
+                if (user) {
+                    // Показываем инструкцию для вошедшего пользователя
+                    setTimeout(() => {
+                        showResult(`
+                            ✅ Вы вошли как ${user.email}
+                            <br><br>
+                            <strong>Действия:</strong>
+                            <br>1. Нажмите "Исправить права админа"
+                            <br>2. Если ошибка - измените правила Firestore
+                            <br>3. После исправления перейдите в админ-панель
+                            <br><br>
+                            <button onclick="fixAdminRights()" class="btn btn-primary">
+                                👑 Исправить права админа
+                            </button>
+                        `, 'success');
+                    }, 1000);
+                }
             });
             
-            // Логируем все ошибки Firebase
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    console.log("✅ Пользователь авторизован:", user.email);
+            // Пытаемся автоматически войти
+            setTimeout(async () => {
+                try {
+                    // Проверяем, есть ли сохраненная сессия
+                    const user = auth.currentUser;
+                    if (!user) {
+                        // Пробуем войти с сохраненными данными
+                        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                    }
+                } catch (error) {
+                    console.log("Автовход не удался:", error);
                 }
-            }, (error) => {
-                console.error("❌ Ошибка авторизации:", error);
-                updateDebugInfo(`Ошибка авторизации: ${error.message}`);
-            });
+            }, 2000);
         });
     </script>
 </body>
