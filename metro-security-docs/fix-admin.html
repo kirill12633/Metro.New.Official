@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Исправить администратора</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .card { border: 1px solid #ccc; padding: 20px; margin: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h2>🔧 Исправить данные администратора</h2>
+    
+    <div id="userInfo" class="card">
+        Загрузка данных пользователя...
+    </div>
+    
+    <div class="card">
+        <h3>Исправить данные:</h3>
+        <input type="email" id="fixEmail" placeholder="admin@metro-security.ru">
+        <br><br>
+        <select id="fixRole">
+            <option value="admin">Администратор</option>
+            <option value="manager">Менеджер</option>
+            <option value="viewer">Пользователь</option>
+        </select>
+        <br><br>
+        <button onclick="fixUserData()">Исправить данные</button>
+        <button onclick="makeMeAdmin()" style="background: red; color: white;">Сделать меня админом</button>
+    </div>
+    
+    <div id="result" class="card"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Загружаем данные текущего пользователя
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log("👤 Текущий пользователь:", user.uid, user.email);
+                
+                // Показываем информацию
+                document.getElementById('userInfo').innerHTML = `
+                    <h3>Информация о пользователе:</h3>
+                    <p><strong>ID:</strong> ${user.uid}</p>
+                    <p><strong>Email (Auth):</strong> ${user.email || 'Нет'}</p>
+                    <p><strong>Провайдер:</strong> ${user.providerId}</p>
+                `;
+                
+                // Загружаем данные из Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const data = userDoc.data();
+                    document.getElementById('userInfo').innerHTML += `
+                        <h3>Данные из Firestore:</h3>
+                        <p><strong>Email:</strong> ${data.email || '❌ ПУСТО!'}</p>
+                        <p><strong>Роль:</strong> ${data.role || '❌ ПУСТО!'}</p>
+                        <p><strong>Активен:</strong> ${data.active ? '✅ Да' : '❌ Нет'}</p>
+                        <p><strong>2FA:</strong> ${data.twoFactorEnabled ? '✅ Включен' : '❌ Выключен'}</p>
+                    `;
+                    
+                    // Заполняем форму текущими значениями
+                    document.getElementById('fixEmail').value = data.email || user.email || '';
+                    document.getElementById('fixRole').value = data.role || 'admin';
+                } else {
+                    document.getElementById('userInfo').innerHTML += `
+                        <p style="color: red;">❌ Запись не найдена в Firestore!</p>
+                    `;
+                }
+                
+            } else {
+                document.getElementById('userInfo').innerHTML = `
+                    <p style="color: red;">❌ Вы не авторизованы!</p>
+                    <button onclick="window.location.href='login.html'">Войти</button>
+                `;
+            }
+        });
+
+        async function fixUserData() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Сначала войдите в систему!");
+                return;
+            }
+            
+            const newEmail = document.getElementById('fixEmail').value;
+            const newRole = document.getElementById('fixRole').value;
+            
+            try {
+                // Обновляем данные в Firestore
+                await db.collection('users').doc(user.uid).update({
+                    email: newEmail,
+                    role: newRole,
+                    twoFactorEnabled: false,
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('result').innerHTML = `
+                    <div class="success">
+                        ✅ Данные обновлены успешно!
+                        <p><strong>Email:</strong> ${newEmail}</p>
+                        <p><strong>Роль:</strong> ${newRole}</p>
+                        <p>Теперь вы можете войти в админ-панель.</p>
+                    </div>
+                `;
+                
+                // Проверяем обновленные данные
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div class="error">
+                        ❌ Ошибка: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function makeMeAdmin() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            if (!confirm("Вы уверены, что хотите стать администратором?")) return;
+            
+            try {
+                // Обновляем данные
+                await db.collection('users').doc(user.uid).update({
+                    email: user.email,
+                    role: "admin",
+                    twoFactorEnabled: false,
+                    displayName: "Администратор системы"
+                });
+                
+                alert("✅ Теперь вы администратор! Обновите страницу.");
+                window.location.reload();
+                
+            } catch (error) {
+                alert(`❌ Ошибка: ${error.message}`);
+            }
+        }
+
+        // Автоматически делаем текущего пользователя админом если у него пустая роль
+        async function autoFixIfNeeded() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                
+                // Если email или role пустые - исправляем
+                if (!data.email || !data.role) {
+                    console.log("🔄 Автоматически исправляю данные пользователя...");
+                    
+                    await db.collection('users').doc(user.uid).update({
+                        email: user.email || "admin@metro-security.ru",
+                        role: data.role || "admin",
+                        twoFactorEnabled: false
+                    });
+                    
+                    alert("✅ Данные пользователя исправлены автоматически!");
+                    window.location.reload();
+                }
+            }
+        }
+
+        // Запускаем автоматическую проверку
+        setTimeout(autoFixIfNeeded, 3000);
+    </script>
+</body>
+</html>
