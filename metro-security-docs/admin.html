@@ -3,130 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro Security Docs | Админ-панель</title>
+    <title>Metro Security | Админ-панель</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/admin.css">
     <link rel="icon" href="assets/logo.png">
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
+        <!-- Боковая панель -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="assets/logo.png" alt="Logo" class="sidebar-logo">
                 <h3>Админ-панель</h3>
+                <p id="adminEmail">admin@metro.ru</p>
             </div>
             
             <nav class="sidebar-nav">
-                <a href="#dashboard" class="nav-item active">
-                    <span>📊</span> Дашборд
-                </a>
-                <a href="#users" class="nav-item">
-                    <span>👥</span> Пользователи
-                </a>
-                <a href="#documents" class="nav-item">
-                    <span>📁</span> Документы
-                </a>
-                <a href="#security" class="nav-item">
-                    <span>🛡️</span> Безопасность
-                </a>
-                <a href="#audit" class="nav-item">
-                    <span>📋</span> Аудит
-                </a>
-                <a href="#settings" class="nav-item">
-                    <span>⚙️</span> Настройки
-                </a>
+                <button class="nav-btn active" data-section="dashboard">
+                    📊 Дашборд
+                </button>
+                <button class="nav-btn" data-section="users">
+                    👥 Пользователи
+                </button>
+                <button class="nav-btn" data-section="documents">
+                    📁 Документы
+                </button>
+                <button class="nav-btn" data-section="audit">
+                    📋 Аудит
+                </button>
+                <button class="nav-btn" data-section="security">
+                    🛡️ Безопасность
+                </button>
+                <button class="nav-btn" data-section="system">
+                    ⚙️ Система
+                </button>
             </nav>
             
-            <div class="user-info">
-                <div class="user-avatar">AD</div>
-                <div class="user-details">
-                    <strong id="adminName">Администратор</strong>
-                    <small>admin@metro-security.ru</small>
-                    <button onclick="logout()" class="btn-logout">Выйти</button>
+            <div class="sidebar-footer">
+                <button onclick="logout()" class="btn-logout">🚪 Выйти</button>
+                <div class="system-status">
+                    <span class="status-dot active"></span>
+                    <span>Система активна</span>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Основное содержимое -->
         <main class="admin-main">
+            <!-- Шапка -->
             <header class="admin-header">
                 <h1 id="pageTitle">Дашборд системы</h1>
                 <div class="header-actions">
-                    <button class="btn-alert" id="alertBtn">
-                        🔔 <span id="alertCount">0</span>
-                    </button>
-                    <div class="system-status">
-                        <span class="status-dot active"></span>
-                        <span>Система активна</span>
+                    <div class="search-box">
+                        <input type="text" id="globalSearch" placeholder="Поиск...">
+                        <button>🔍</button>
+                    </div>
+                    <div class="notifications">
+                        <button class="btn-notification" id="notificationBtn">
+                            🔔 <span class="badge" id="notificationCount">0</span>
+                        </button>
                     </div>
                 </div>
             </header>
 
-            <!-- Dashboard Content -->
-            <div class="content-section active" id="dashboardSection">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Активные сессии</h3>
-                        <p class="stat-number" id="activeSessions">12</p>
-                        <small>+2 за последний час</small>
+            <!-- Контентные секции -->
+            <div class="content-area">
+                <!-- Дашборд -->
+                <section id="dashboardSection" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>👥 Пользователи</h3>
+                            <p class="stat-number" id="totalUsers">0</p>
+                            <div class="stat-details">
+                                <span>Активных: <span id="activeUsers">0</span></span>
+                                <span>Админов: <span id="adminUsers">0</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <h3>📁 Документы</h3>
+                            <p class="stat-number" id="totalDocuments">0</p>
+                            <div class="stat-details">
+                                <span>PDF: <span id="pdfCount">0</span></span>
+                                <span>DOCX: <span id="docxCount">0</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <h3>📊 Активность</h3>
+                            <p class="stat-number" id="todayLogins">0</p>
+                            <div class="stat-details">
+                                <span>Сегодня: <span id="todayViews">0</span></span>
+                                <span>Неделя: <span id="weekViews">0</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card warning">
+                            <h3>⚠️ Инциденты</h3>
+                            <p class="stat-number" id="securityIncidents">0</p>
+                            <div class="stat-details">
+                                <span>За день: <span id="todayIncidents">0</span></span>
+                                <span>За неделю: <span id="weekIncidents">0</span></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Документов в системе</h3>
-                        <p class="stat-number" id="totalDocs">1,245</p>
-                        <small>PDF, DOCX, изображения</small>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Попыток доступа</h3>
-                        <p class="stat-number warning" id="accessAttempts">3</p>
-                        <small>За последние 24 часа</small>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Активных тревог</h3>
-                        <p class="stat-number danger" id="activeAlerts">1</p>
-                        <small>Требуют внимания</small>
-                    </div>
-                </div>
 
-                <div class="charts-container">
-                    <div class="chart-card">
-                        <h3>Активность пользователей</h3>
-                        <canvas id="activityChart"></canvas>
+                    <!-- Графики -->
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>📈 Активность пользователей</h3>
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>🌍 География доступа</h3>
+                            <div id="accessMap"></div>
+                        </div>
                     </div>
-                    <div class="chart-card">
-                        <h3>География доступа</h3>
-                        <div id="geoMap"></div>
-                    </div>
-                </div>
 
-                <div class="recent-activity">
-                    <h3>Последние действия</h3>
-                    <div class="activity-list" id="recentActivity">
-                        <!-- Загружается через JS -->
+                    <!-- Последние события -->
+                    <div class="recent-activity">
+                        <h3>⚡ Последние события</h3>
+                        <div class="activity-list" id="recentActivity"></div>
                     </div>
-                </div>
+                </section>
+
+                <!-- Управление пользователями -->
+                <section id="usersSection" class="content-section">
+                    <div class="section-header">
+                        <h2>👥 Управление пользователями</h2>
+                        <button class="btn-primary" onclick="showAddUserModal()">
+                            + Добавить пользователя
+                        </button>
+                    </div>
+                    
+                    <div class="filters">
+                        <input type="text" id="userSearch" placeholder="Поиск по email или имени..." oninput="searchUsers()">
+                        <select id="roleFilter" onchange="filterUsers()">
+                            <option value="all">Все роли</option>
+                            <option value="admin">Администраторы</option>
+                            <option value="manager">Менеджеры</option>
+                            <option value="viewer">Пользователи</option>
+                        </select>
+                        <select id="statusFilter" onchange="filterUsers()">
+                            <option value="all">Все статусы</option>
+                            <option value="active">Активные</option>
+                            <option value="inactive">Неактивные</option>
+                            <option value="blocked">Заблокированные</option>
+                        </select>
+                    </div>
+                    
+                    <div class="users-table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Имя</th>
+                                    <th>Роль</th>
+                                    <th>Статус</th>
+                                    <th>Последний вход</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Данные загружаются через JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Управление документами -->
+                <section id="documentsSection" class="content-section">
+                    <div class="section-header">
+                        <h2>📁 Управление документами</h2>
+                        <button class="btn-primary" onclick="showUploadModal()">
+                            📤 Загрузить документ
+                        </button>
+                    </div>
+                    
+                    <div class="filters">
+                        <input type="text" id="documentSearch" placeholder="Поиск документов..." oninput="searchDocuments()">
+                        <select id="typeFilter" onchange="filterDocuments()">
+                            <option value="all">Все типы</option>
+                            <option value="pdf">PDF</option>
+                            <option value="docx">DOCX</option>
+                            <option value="jpg">Изображения</option>
+                        </select>
+                        <select id="accessFilter" onchange="filterDocuments()">
+                            <option value="all">Все уровни доступа</option>
+                            <option value="public">Публичный</option>
+                            <option value="internal">Внутренний</option>
+                            <option value="confidential">Конфиденциальный</option>
+                            <option value="secret">Секретный</option>
+                        </select>
+                    </div>
+                    
+                    <div class="documents-grid" id="documentsGrid">
+                        <!-- Документы загружаются через JS -->
+                    </div>
+                </section>
+
+                <!-- Аудит и логи -->
+                <section id="auditSection" class="content-section">
+                    <div class="section-header">
+                        <h2>📋 Система аудита</h2>
+                        <div class="header-actions">
+                            <button class="btn-secondary" onclick="exportAuditLogs()">
+                                📥 Экспорт логов
+                            </button>
+                            <button class="btn-secondary" onclick="clearOldLogs()">
+                                🗑️ Очистить старые
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <input type="text" id="auditSearch" placeholder="Поиск по действию или email..." oninput="searchAuditLogs()">
+                        <select id="actionFilter" onchange="filterAuditLogs()">
+                            <option value="all">Все действия</option>
+                            <option value="login">Входы</option>
+                            <option value="logout">Выходы</option>
+                            <option value="view">Просмотры</option>
+                            <option value="download">Скачивания</option>
+                            <option value="security">События безопасности</option>
+                        </select>
+                        <input type="date" id="dateFrom" onchange="filterAuditLogs()">
+                        <input type="date" id="dateTo" onchange="filterAuditLogs()">
+                    </div>
+                    
+                    <div class="audit-table-container">
+                        <table class="data-table" id="auditTable">
+                            <thead>
+                                <tr>
+                                    <th>Время</th>
+                                    <th>Пользователь</th>
+                                    <th>Действие</th>
+                                    <th>Детали</th>
+                                    <th>IP адрес</th>
+                                    <th>Устройство</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody">
+                                <!-- Логи загружаются через JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination" id="auditPagination"></div>
+                </section>
+
+                <!-- Безопасность -->
+                <section id="securitySection" class="content-section">
+                    <h2>🛡️ Настройки безопасности</h2>
+                    <div class="security-settings">
+                        <div class="setting-card">
+                            <h3>🔐 Политика паролей</h3>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="strongPasswords" checked>
+                                    Требовать сложные пароли
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>Минимальная длина пароля:</label>
+                                <input type="number" id="minPasswordLength" value="8" min="6" max="32">
+                            </div>
+                            <div class="setting-item">
+                                <label>Срок действия пароля (дней):</label>
+                                <input type="number" id="passwordExpiry" value="90" min="30" max="365">
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3>🕒 Сессии</h3>
+                            <div class="setting-item">
+                                <label>Таймаут сессии (минут):</label>
+                                <input type="number" id="sessionTimeout" value="30" min="5" max="480">
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="singleSession" checked>
+                                    Только одна активная сессия
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="autoLogout" checked>
+                                    Автоматический выход при бездействии
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3>🌍 Контроль доступа</h3>
+                            <div class="setting-item">
+                                <label>Белый список IP:</label>
+                                <textarea id="ipWhitelist" rows="3" placeholder="Введите IP адреса, каждый с новой строки"></textarea>
+                            </div>
+                            <div class="setting-item">
+                                <label>Черный список IP:</label>
+                                <textarea id="ipBlacklist" rows="3" placeholder="Введите IP для блокировки"></textarea>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="enableGeolocation">
+                                    Контроль по геолокации
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h3>📝 Водяные знаки</h3>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="enableWatermark" checked>
+                                    Включить водяные знаки
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>Информация в водяном знаке:</label>
+                                <select id="watermarkInfo" multiple>
+                                    <option value="email" selected>Email пользователя</option>
+                                    <option value="ip" selected>IP адрес</option>
+                                    <option value="timestamp" selected>Дата и время</option>
+                                    <option value="document">Название документа</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Прозрачность водяного знака:</label>
+                                <input type="range" id="watermarkOpacity" min="1" max="50" value="15">
+                                <span id="opacityValue">15%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-actions">
+                        <button class="btn-primary" onclick="saveSecuritySettings()">💾 Сохранить настройки</button>
+                        <button class="btn-secondary" onclick="resetSecuritySettings()">🔄 Сбросить</button>
+                    </div>
+                </section>
+
+                <!-- Системные настройки -->
+                <section id="systemSection" class="content-section">
+                    <h2>⚙️ Системные настройки</h2>
+                    <!-- Настройки системы -->
+                </section>
             </div>
-
-            <!-- Users Management -->
-            <div class="content-section" id="usersSection">
-                <h2>Управление пользователями</h2>
-                <!-- Контент будет загружен через JS -->
-            </div>
-
-            <!-- Другие секции -->
         </main>
     </div>
 
+    <!-- Модальные окна -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ Добавить пользователя</h3>
+                <button class="close-modal" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label>Email пользователя *</label>
+                        <input type="email" id="newUserEmail" required placeholder="user@metro-security.ru">
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль *</label>
+                        <input type="password" id="newUserPassword" required minlength="6">
+                        <div class="password-strength" id="passwordStrength"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Имя пользователя</label>
+                        <input type="text" id="newUserName" placeholder="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label>Роль *</label>
+                        <select id="newUserRole" required>
+                            <option value="viewer">Пользователь</option>
+                            <option value="manager">Менеджер</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="sendWelcomeEmail">
+                            Отправить приветственное письмо
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('addUserModal')">Отмена</button>
+                        <button type="submit" class="btn-primary">Создать пользователя</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно загрузки документа -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📤 Загрузка документа</h3>
+                <button class="close-modal" onclick="closeModal('uploadModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label>Выберите файл *</label>
+                        <input type="file" id="documentFile" accept=".pdf,.doc,.docx,.xlsx,.jpg,.png" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название документа *</label>
+                        <input type="text" id="documentTitle" required placeholder="Технический регламент">
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea id="documentDescription" rows="3" placeholder="Описание документа"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Уровень доступа *</label>
+                        <select id="documentAccess" required>
+                            <option value="public">Публичный</option>
+                            <option value="internal">Внутренний</option>
+                            <option value="confidential">Конфиденциальный</option>
+                            <option value="secret">Секретный</option>
+                            <option value="top_secret">Совершенно секретный</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Теги (через запятую)</label>
+                        <input type="text" id="documentTags" placeholder="технический, безопасность, метрополитен">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('uploadModal')">Отмена</button>
+                        <button type="submit" class="btn-primary">Загрузить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    
+    <!-- Подключаем наши скрипты -->
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/security.js"></script>
-    <script src="js/audit.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="js/admin-system.js"></script>
+    <script src="js/audit-logger.js"></script>
+    
     <script>
         // Проверка прав администратора
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAdminAccess();
-            loadDashboardData();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAdminAccess();
+            await loadDashboardData();
+            setupNavigation();
         });
     </script>
 </body>
