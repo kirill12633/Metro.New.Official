@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const MODAL_VERSION = '2.0';
-    const REDIRECT_LOGO_URL = 'main/ru/main/profile/metro-new-official-1.html'; // куда будет переходить при клике на логотип
+    const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/main/profile/metro-new-official-1.html'; // куда будет переходить при клике на логотип
 
     // Проверка локальной версии согласия
     let acceptedVersion = localStorage.getItem('privacy_modal_version');
