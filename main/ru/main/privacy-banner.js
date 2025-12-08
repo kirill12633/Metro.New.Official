@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const MODAL_VERSION = '1.0';
+    const REDIRECT_LOGO_URL = 'about.html'; // куда будет переходить при клике на логотип
 
     // Проверка локальной версии согласия
-    // Если хотите показывать каждый раз, закомментируйте следующую строку
-    // let acceptedVersion = localStorage.getItem('privacy_modal_version');
-    // if (acceptedVersion === MODAL_VERSION) return;
+    let acceptedVersion = localStorage.getItem('privacy_modal_version');
+    if (acceptedVersion === MODAL_VERSION) return;
 
     // Определяем язык
     let lang = navigator.language.startsWith('en') ? 'en' : 'ru';
@@ -61,6 +61,35 @@ document.addEventListener('DOMContentLoaded', function() {
     modal.style.transform = 'scale(0.8)';
     modal.style.transition = 'transform 0.3s ease';
 
+    // Селектор языка
+    const langSelector = document.createElement('div');
+    langSelector.style.position = 'absolute';
+    langSelector.style.top = '10px';
+    langSelector.style.right = '15px';
+    langSelector.style.display = 'flex';
+    langSelector.style.gap = '5px';
+
+    ['ru','en'].forEach(l => {
+        const btn = document.createElement('button');
+        btn.textContent = l.toUpperCase();
+        btn.style.padding = '3px 6px';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '5px';
+        btn.style.cursor = 'pointer';
+        btn.style.backgroundColor = l===lang?'#0066CC':'#DDD';
+        btn.style.color = l===lang?'#fff':'#333';
+        btn.addEventListener('click', () => {
+            lang = l;
+            text.innerHTML = texts[lang].message;
+            button.textContent = texts[lang].button;
+            Array.from(langSelector.children).forEach(b => {
+                b.style.backgroundColor = b.textContent.toLowerCase()===lang?'#0066CC':'#DDD';
+                b.style.color = b.textContent.toLowerCase()===lang?'#fff':'#333';
+            });
+        });
+        langSelector.appendChild(btn);
+    });
+
     // Логотип + галочка
     const logoDiv = document.createElement('div');
     logoDiv.style.display = 'flex';
@@ -68,6 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
     logoDiv.style.justifyContent = 'center';
     logoDiv.style.gap = '10px';
     logoDiv.style.marginBottom = '20px';
+    logoDiv.style.cursor = 'pointer';
+    logoDiv.addEventListener('click', () => {
+        window.location.href = REDIRECT_LOGO_URL;
+    });
 
     const logo = document.createElement('span');
     logo.textContent = 'Метро New';
@@ -114,40 +147,10 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.style.opacity = '0';
         modal.style.transform = 'scale(0.8)';
         setTimeout(() => overlay.remove(), 300);
-        // Сохраняем версию, если нужно
-        // localStorage.setItem('privacy_modal_version', MODAL_VERSION);
+        localStorage.setItem('privacy_modal_version', MODAL_VERSION);
     });
 
-    // Селектор языка
-    const langSelector = document.createElement('div');
-    langSelector.style.position = 'absolute';
-    langSelector.style.top = '10px';
-    langSelector.style.right = '15px';
-    langSelector.style.display = 'flex';
-    langSelector.style.gap = '5px';
-
-    ['ru','en'].forEach(l => {
-        const btn = document.createElement('button');
-        btn.textContent = l.toUpperCase();
-        btn.style.padding = '3px 6px';
-        btn.style.border = 'none';
-        btn.style.borderRadius = '5px';
-        btn.style.cursor = 'pointer';
-        btn.style.backgroundColor = l===lang?'#0066CC':'#DDD';
-        btn.style.color = l===lang?'#fff':'#333';
-        btn.addEventListener('click', () => {
-            lang = l;
-            text.innerHTML = texts[lang].message;
-            button.textContent = texts[lang].button;
-            Array.from(langSelector.children).forEach(b => {
-                b.style.backgroundColor = b.textContent.toLowerCase()===lang?'#0066CC':'#DDD';
-                b.style.color = b.textContent.toLowerCase()===lang?'#fff':'#333';
-            });
-        });
-        langSelector.appendChild(btn);
-    });
-
-    // Добавляем элементы
+    // Добавляем элементы в модальное окно
     modal.appendChild(langSelector);
     modal.appendChild(logoDiv);
     modal.appendChild(text);
