@@ -1,383 +1,218 @@
 // ============================================
 // СИСТЕМА ПРЕДУПРЕЖДЕНИЯ О ВНЕШНИХ ССЫЛКАХ
-// Для защиты пользователей Metro New
+// Простая и рабочая версия
 // ============================================
 
 (function() {
     'use strict';
     
-    // Конфигурация
+    console.log('🚀 Запуск системы предупреждения о внешних ссылках...');
+    
+    // Настройки
     const CONFIG = {
-        // Белый список наших доменов
-        ourDomains: [
-            'metronew.dev',
-            'metro-new.ru',
-            'localhost',
-            '127.0.0.1'
-        ],
+        // Наш сайт (текущий домен)
+        ourDomain: window.location.hostname,
         
-        // Предупреждаем о всех внешних ссылках
-        warnAllExternal: true,
-        
-        // Не показывать предупреждение для этих доменов
+        // Доверенные сайты (без предупреждения)
         trustedDomains: [
             'discord.com',
             'roblox.com',
+            'robloxgames.com',
             'github.com',
-            'youtube.com'
+            'youtube.com',
+            'youtu.be',
+            'twitter.com',
+            'x.com',
+            'vk.com',
+            'web.telegram.org'
         ],
         
-        // Тексты
+        // Сообщения
         messages: {
             title: '⚠️ Внимание: Внешняя ссылка',
-            message: 'Вы покидаете официальный сайт Metro New. Мы не можем гарантировать безопасность внешних ресурсов.',
-            details: `Вы переходите по ссылке: <br><strong id="warning-url"></strong><br><br>
-                     <strong>Важно:</strong><br>
-                     • На внешних сайтах действуют свои правила<br>
-                     • Мы не несем ответственности за контент других сайтов<br>
-                     • Будьте осторожны при вводе личных данных<br>
-                     • Проверяйте адресную строку браузера`,
-            stayBtn: 'Остаться на сайте',
-            proceedBtn: 'Перейти (на свой страх и риск)',
-            rememberCheckbox: 'Запомнить выбор для этого сайта'
-        },
-        
-        // Настройки localStorage
-        storageKey: 'metro_external_links_settings'
+            text: 'Вы собираетесь перейти на другой сайт. Мы не контролируем контент на внешних ресурсах.',
+            stay: 'Остаться здесь',
+            proceed: 'Перейти (на свой риск)',
+            url: 'Ссылка: '
+        }
     };
     
-    // Проверяем, является ли ссылка внешней
-    function isExternalLink(url) {
-        if (!url) return false;
+    // Проверяем, внешняя ли ссылка
+    function isExternalLink(href) {
+        if (!href) return false;
         
         try {
-            const urlObj = new URL(url, window.location.origin);
-            const currentHost = window.location.hostname;
-            const targetHost = urlObj.hostname;
+            // Если это якорная ссылка (#) или javascript:
+            if (href.startsWith('#') || href.startsWith('javascript:')) {
+                return false;
+            }
             
-            // Проверяем наш ли это домен
-            for (const domain of CONFIG.ourDomains) {
-                if (currentHost.includes(domain) || targetHost.includes(domain)) {
-                    return false;
-                }
+            // Если это относительная ссылка
+            if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
+                return false;
+            }
+            
+            // Создаем URL объект
+            let url;
+            try {
+                url = new URL(href);
+            } catch (e) {
+                // Если не валидный URL, вероятно относительная ссылка
+                return false;
+            }
+            
+            const targetHost = url.hostname;
+            const currentHost = CONFIG.ourDomain;
+            
+            console.log(`🔗 Проверка ссылки: ${href}`);
+            console.log(`🏠 Наш домен: ${currentHost}`);
+            console.log(`🎯 Целевой домен: ${targetHost}`);
+            
+            // Если это наш домен
+            if (targetHost === currentHost || 
+                targetHost.endsWith('.' + currentHost) || 
+                currentHost.endsWith('.' + targetHost)) {
+                console.log('✅ Это наш домен');
+                return false;
             }
             
             // Проверяем доверенные домены
-            for (const domain of CONFIG.trustedDomains) {
-                if (targetHost.includes(domain)) {
+            for (const trusted of CONFIG.trustedDomains) {
+                if (targetHost === trusted || 
+                    targetHost.endsWith('.' + trusted) ||
+                    targetHost.includes(trusted)) {
+                    console.log(`✅ Доверенный домен: ${trusted}`);
                     return false;
                 }
             }
             
-            // Если домен не наш и не доверенный - это внешняя ссылка
-            return targetHost && targetHost !== currentHost;
-        } catch (e) {
+            console.log('🚨 Это внешняя ссылка!');
+            return true;
+            
+        } catch (error) {
+            console.warn('Ошибка проверки ссылки:', error);
             return false;
         }
     }
     
-    // Получаем настройки из localStorage
-    function getSettings() {
-        try {
-            const settings = localStorage.getItem(CONFIG.storageKey);
-            return settings ? JSON.parse(settings) : {};
-        } catch (e) {
-            return {};
-        }
-    }
-    
-    // Сохраняем настройки в localStorage
-    function saveSettings(settings) {
-        try {
-            localStorage.setItem(CONFIG.storageKey, JSON.stringify(settings));
-        } catch (e) {
-            console.warn('Не удалось сохранить настройки');
-        }
-    }
-    
-    // Показываем предупреждение
-    function showWarning(url, originalEvent) {
-        // Если пользователь уже разрешил этот домен
-        const settings = getSettings();
-        const urlObj = new URL(url);
-        const domain = urlObj.hostname;
-        
-        if (settings.allowedDomains && settings.allowedDomains.includes(domain)) {
-            proceedToUrl(url);
-            return;
-        }
-        
-        // Отменяем стандартное действие
-        if (originalEvent) {
-            originalEvent.preventDefault();
-            originalEvent.stopPropagation();
+    // Создаем модальное окно
+    function createModal(url) {
+        // Удаляем старую модалку если есть
+        const oldModal = document.getElementById('external-warning-modal');
+        if (oldModal) {
+            document.body.removeChild(oldModal);
         }
         
         // Создаем модальное окно
-        createWarningModal(url);
-    }
-    
-    // Создаем модальное окно предупреждения
-    function createWarningModal(url) {
-        // Удаляем старые модалки
-        const oldModal = document.getElementById('metro-external-warning');
-        if (oldModal) oldModal.remove();
+        const modal = document.createElement('div');
+        modal.id = 'external-warning-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        `;
         
-        // Создаем HTML
-        const modalHTML = `
-            <div id="metro-external-warning" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.85);
-                z-index: 1000000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                animation: fadeIn 0.3s ease;
+        // Содержимое модалки
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                max-width: 500px;
+                width: 90%;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s ease;
             ">
-                <div style="
-                    background: white;
-                    border-radius: 15px;
-                    max-width: 500px;
-                    width: 100%;
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                    overflow: hidden;
-                    animation: slideUp 0.3s ease;
+                <h2 style="
+                    color: #d35400;
+                    margin-top: 0;
+                    margin-bottom: 20px;
+                    font-size: 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
                 ">
-                    <!-- Заголовок -->
-                    <div style="
-                        background: linear-gradient(135deg, #ff6b6b, #ffa726);
+                    <span>⚠️</span>
+                    <span>${CONFIG.messages.title}</span>
+                </h2>
+                
+                <p style="
+                    color: #333;
+                    line-height: 1.6;
+                    margin-bottom: 20px;
+                    font-size: 16px;
+                ">
+                    ${CONFIG.messages.text}
+                </p>
+                
+                <div style="
+                    background: #fff8e1;
+                    border-left: 4px solid #f39c12;
+                    padding: 15px;
+                    margin-bottom: 25px;
+                    border-radius: 0 4px 4px 0;
+                ">
+                    <strong style="color: #d35400;">${CONFIG.messages.url}</strong>
+                    <span style="
+                        color: #2c3e50;
+                        word-break: break-all;
+                        font-size: 14px;
+                    ">${url}</span>
+                </div>
+                
+                <div style="
+                    display: flex;
+                    gap: 15px;
+                    margin-top: 30px;
+                ">
+                    <button id="stay-btn" style="
+                        flex: 1;
+                        padding: 14px;
+                        background: #ecf0f1;
+                        border: 2px solid #bdc3c7;
+                        border-radius: 8px;
+                        color: #2c3e50;
+                        font-weight: bold;
+                        font-size: 16px;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                    ">
+                        ${CONFIG.messages.stay}
+                    </button>
+                    
+                    <button id="proceed-btn" style="
+                        flex: 1;
+                        padding: 14px;
+                        background: #e74c3c;
+                        border: 2px solid #c0392b;
+                        border-radius: 8px;
                         color: white;
-                        padding: 20px;
-                        text-align: center;
+                        font-weight: bold;
+                        font-size: 16px;
+                        cursor: pointer;
+                        transition: all 0.3s;
                     ">
-                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">
-                            ⚠️
-                        </div>
-                        <div style="font-size: 18px; font-weight: 600;">
-                            ${CONFIG.messages.title}
-                        </div>
-                    </div>
-                    
-                    <!-- Сообщение -->
-                    <div style="padding: 25px;">
-                        <div style="
-                            font-size: 16px;
-                            color: #333;
-                            line-height: 1.6;
-                            margin-bottom: 20px;
-                        ">
-                            ${CONFIG.messages.message}
-                        </div>
-                        
-                        <div style="
-                            background: #fff8e1;
-                            border-left: 4px solid #ffa726;
-                            padding: 15px;
-                            margin-bottom: 20px;
-                            border-radius: 0 8px 8px 0;
-                        ">
-                            ${CONFIG.messages.details}
-                        </div>
-                        
-                        <!-- Чекбокс "Запомнить" -->
-                        <div style="margin-bottom: 25px;">
-                            <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" id="remember-choice" style="
-                                    margin-right: 10px;
-                                    width: 18px;
-                                    height: 18px;
-                                ">
-                                <span style="color: #666; font-size: 14px;">
-                                    ${CONFIG.messages.rememberCheckbox}
-                                </span>
-                            </label>
-                        </div>
-                        
-                        <!-- Кнопки -->
-                        <div style="display: flex; gap: 15px;">
-                            <button id="stay-btn" style="
-                                flex: 1;
-                                background: #f8f9fa;
-                                border: 2px solid #dee2e6;
-                                color: #495057;
-                                padding: 14px;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                font-family: inherit;
-                                font-weight: 600;
-                                font-size: 16px;
-                                transition: all 0.3s;
-                            ">
-                                ${CONFIG.messages.stayBtn}
-                            </button>
-                            
-                            <button id="proceed-btn" style="
-                                flex: 1;
-                                background: #dc3545;
-                                border: 2px solid #dc3545;
-                                color: white;
-                                padding: 14px;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                font-family: inherit;
-                                font-weight: 600;
-                                font-size: 16px;
-                                transition: all 0.3s;
-                            ">
-                                ${CONFIG.messages.proceedBtn}
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Предупреждение внизу -->
-                    <div style="
-                        background: #f8f9fa;
-                        border-top: 1px solid #dee2e6;
-                        padding: 15px;
-                        text-align: center;
-                        font-size: 12px;
-                        color: #666;
-                    ">
-                        <strong>Внимание:</strong> Мы не контролируем контент на других сайтах
-                    </div>
+                        ${CONFIG.messages.proceed}
+                    </button>
                 </div>
             </div>
         `;
         
-        // Добавляем в DOM
-        const modalContainer = document.createElement('div');
-        modalContainer.innerHTML = modalHTML;
-        document.body.appendChild(modalContainer.firstElementChild);
-        document.body.style.overflow = 'hidden';
-        
-        // Устанавливаем URL
-        setTimeout(() => {
-            document.getElementById('warning-url').textContent = url;
-        }, 100);
-        
-        // Назначаем обработчики
-        setTimeout(() => {
-            document.getElementById('stay-btn').addEventListener('click', closeWarning);
-            document.getElementById('proceed-btn').addEventListener('click', () => proceedWithWarning(url));
-            
-            // Закрытие по клику вне модалки
-            document.getElementById('metro-external-warning').addEventListener('click', function(e) {
-                if (e.target === this) closeWarning();
-            });
-            
-            // Закрытие по ESC
-            document.addEventListener('keydown', handleEscape);
-        }, 100);
-    }
-    
-    // Обработка нажатия ESC
-    function handleEscape(e) {
-        if (e.key === 'Escape') {
-            closeWarning();
-        }
-    }
-    
-    // Закрыть предупреждение
-    function closeWarning() {
-        const modal = document.getElementById('metro-external-warning');
-        if (modal) {
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                if (modal.parentNode) {
-                    modal.parentNode.removeChild(modal);
-                }
-                document.body.style.overflow = '';
-                document.removeEventListener('keydown', handleEscape);
-            }, 300);
-        }
-    }
-    
-    // Перейти с учетом предупреждения
-    function proceedWithWarning(url) {
-        const remember = document.getElementById('remember-choice')?.checked;
-        
-        if (remember) {
-            const settings = getSettings();
-            const urlObj = new URL(url);
-            const domain = urlObj.hostname;
-            
-            if (!settings.allowedDomains) {
-                settings.allowedDomains = [];
-            }
-            
-            if (!settings.allowedDomains.includes(domain)) {
-                settings.allowedDomains.push(domain);
-                saveSettings(settings);
-            }
-        }
-        
-        proceedToUrl(url);
-    }
-    
-    // Перейти по URL
-    function proceedToUrl(url) {
-        closeWarning();
-        
-        // Добавляем небольшой таймаут для плавности
-        setTimeout(() => {
-            window.location.href = url;
-        }, 100);
-    }
-    
-    // Вешаем обработчики на все внешние ссылки
-    function attachLinkListeners() {
-        // Находим все ссылки
-        const links = document.querySelectorAll('a[href]');
-        
-        links.forEach(link => {
-            const href = link.getAttribute('href');
-            
-            if (isExternalLink(href)) {
-                // Добавляем иконку внешней ссылки
-                if (!link.querySelector('.external-link-icon')) {
-                    const icon = document.createElement('span');
-                    icon.className = 'external-link-icon';
-                    icon.innerHTML = ' ↗';
-                    icon.style.cssText = `
-                        font-size: 12px;
-                        color: #666;
-                        margin-left: 2px;
-                    `;
-                    link.appendChild(icon);
-                }
-                
-                // Добавляем атрибут для стилизации
-                link.setAttribute('data-external-link', 'true');
-                
-                // Вешаем обработчик
-                link.addEventListener('click', function(e) {
-                    // Если это не новая вкладка
-                    if (!link.target || link.target === '_self') {
-                        showWarning(href, e);
-                    }
-                });
-            }
-        });
-    }
-    
-    // Добавляем стили для внешних ссылок
-    function addStyles() {
+        // Добавляем анимацию
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            
             @keyframes slideUp {
                 from {
                     opacity: 0;
-                    transform: translateY(20px);
+                    transform: translateY(30px);
                 }
                 to {
                     opacity: 1;
@@ -385,51 +220,143 @@
                 }
             }
             
-            /* Стили для внешних ссылок */
-            a[data-external-link="true"] {
-                position: relative;
-            }
-            
-            a[data-external-link="true"]:after {
-                content: '';
-                position: absolute;
-                bottom: -2px;
-                left: 0;
-                right: 0;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, #0066cc, transparent);
-                opacity: 0.5;
-            }
-            
-            a[data-external-link="true"]:hover:after {
-                opacity: 1;
-            }
-            
-            /* Кнопки в модалке */
             #stay-btn:hover {
-                background: #e9ecef !important;
+                background: #d5dbdb !important;
                 transform: translateY(-2px);
             }
             
             #proceed-btn:hover {
-                background: #c82333 !important;
+                background: #c0392b !important;
                 transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+                box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
             }
         `;
         document.head.appendChild(style);
+        
+        // Добавляем модалку в DOM
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        // Назначаем обработчики
+        setTimeout(() => {
+            document.getElementById('stay-btn').addEventListener('click', function() {
+                closeModal();
+            });
+            
+            document.getElementById('proceed-btn').addEventListener('click', function() {
+                window.location.href = url;
+            });
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Закрытие по ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        }, 100);
+        
+        return modal;
     }
     
-    // Инициализация
-    function init() {
-        addStyles();
-        attachLinkListeners();
+    // Закрываем модалку
+    function closeModal() {
+        const modal = document.getElementById('external-warning-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.style.transition = 'opacity 0.3s ease';
+            
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    document.body.removeChild(modal);
+                }
+                document.body.style.overflow = '';
+            }, 300);
+        }
+    }
+    
+    // Обработчик клика по ссылке
+    function handleLinkClick(e) {
+        const link = e.currentTarget;
+        const href = link.getAttribute('href');
         
-        // Также обрабатываем динамически добавляемые ссылки
+        if (!href) return;
+        
+        console.log(`🖱️ Клик по ссылке: ${href}`);
+        
+        // Если это внешняя ссылка и не открывается в новой вкладке
+        if (isExternalLink(href) && (!link.target || link.target === '_self')) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🛑 Остановлен переход по внешней ссылке');
+            
+            // Показываем предупреждение
+            createModal(href);
+            return false;
+        }
+        
+        // Если ссылка открывается в новой вкладке, пропускаем
+        console.log('✅ Ссылка открывается в новой вкладке или это внутренняя ссылка');
+        return true;
+    }
+    
+    // Добавляем обработчики ко всем ссылкам
+    function attachListeners() {
+        console.log('🔍 Поиск всех ссылок на странице...');
+        
+        // Находим ВСЕ ссылки
+        const allLinks = document.querySelectorAll('a[href]');
+        console.log(`📊 Найдено ссылок: ${allLinks.length}`);
+        
+        let externalCount = 0;
+        
+        allLinks.forEach((link, index) => {
+            const href = link.getAttribute('href');
+            
+            if (isExternalLink(href)) {
+                externalCount++;
+                
+                // Добавляем иконку внешней ссылки
+                if (!link.querySelector('.ext-icon')) {
+                    const icon = document.createElement('span');
+                    icon.className = 'ext-icon';
+                    icon.innerHTML = ' ↗';
+                    icon.style.cssText = `
+                        font-size: 12px;
+                        color: #e74c3c;
+                        margin-left: 3px;
+                        font-weight: bold;
+                    `;
+                    link.appendChild(icon);
+                }
+                
+                // Добавляем стиль для внешних ссылок
+                link.style.cssText += `
+                    border-bottom: 1px dashed #e74c3c;
+                    position: relative;
+                `;
+                
+                // Добавляем обработчик
+                link.addEventListener('click', handleLinkClick);
+                
+                console.log(`🔗 Внешняя ссылка ${externalCount}: ${href}`);
+            }
+        });
+        
+        console.log(`🎯 Всего внешних ссылок: ${externalCount}`);
+        
+        // Также обрабатываем динамически добавленные ссылки
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.addedNodes.length) {
-                    attachLinkListeners();
+                    console.log('🔄 Обнаружены новые элементы, проверяем ссылки...');
+                    setTimeout(attachListeners, 100);
                 }
             });
         });
@@ -438,24 +365,44 @@
             childList: true,
             subtree: true
         });
+    }
+    
+    // Запуск
+    function init() {
+        console.log('🚀 Инициализация системы предупреждения...');
         
-        console.log('🚇 Metro New: Система защиты от внешних ссылок активирована');
+        // Ждем полной загрузки DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('📄 DOM загружен, запускаем...');
+                setTimeout(attachListeners, 500);
+            });
+        } else {
+            console.log('📄 DOM уже загружен, запускаем...');
+            setTimeout(attachListeners, 500);
+        }
     }
     
-    // Запускаем
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    // Запускаем сразу
+    init();
     
-    // Экспортируем API
-    window.MetroLinkWarning = {
-        showWarning: showWarning,
-        closeWarning: closeWarning,
+    // Экспортируем функции для отладки
+    window.MetroLinkProtection = {
         isExternalLink: isExternalLink,
-        getSettings: getSettings,
-        saveSettings: saveSettings
+        showWarning: function(url) {
+            createModal(url);
+        },
+        testLinks: function() {
+            const links = document.querySelectorAll('a[href]');
+            console.log('=== ТЕСТ ССЫЛОК ===');
+            links.forEach((link, i) => {
+                const href = link.getAttribute('href');
+                console.log(`${i + 1}. ${href} - внешняя: ${isExternalLink(href)}`);
+            });
+        }
     };
+    
+    console.log('✅ Система предупреждения инициализирована');
+    console.log('Для теста в консоли: MetroLinkProtection.testLinks()');
     
 })();
