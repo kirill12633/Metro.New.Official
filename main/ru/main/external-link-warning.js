@@ -1,92 +1,87 @@
 // ============================================
-// СИСТЕМА ПРЕДУПРЕЖДЕНИЯ О ВНЕШНИХ ССЫЛКАХ
-// Простая и рабочая версия
+// ПРОЗРАЧНЫЙ БАННЕР С ЛИЦЕНЗИЕЙ
+// Лицензия на использование для проекта Метро NEW
+// Дата: 09.12.2025
+// Скрипт принадлежит проекту Метро NEW
 // ============================================
 
 (function() {
     'use strict';
     
-    console.log('🚀 Запуск системы предупреждения о внешних ссылках...');
+    console.log('🚇 Metro NEW: Защита ссылок активирована');
     
     // Настройки
     const CONFIG = {
-        // Наш сайт (текущий домен)
+        license: {
+            project: "Metro NEW",
+            date: "09.12.2025",
+            owner: "Проект Metro NEW",
+            version: "1.0"
+        },
+        
+        // Наш домен
         ourDomain: window.location.hostname,
         
-        // Доверенные сайты (без предупреждения)
-        trustedDomains: [
-            'discord.com',
+        // Не проверяем эти домены
+        skipDomains: [
             'roblox.com',
-            'robloxgames.com',
-            'github.com',
+            'discord.gg',
+            'discord.com',
             'youtube.com',
             'youtu.be',
-            'twitter.com',
-            'x.com',
+            'github.com',
             'vk.com',
             'web.telegram.org'
         ],
         
         // Сообщения
         messages: {
-            title: '⚠️ Внимание: Внешняя ссылка',
-            text: 'Вы собираетесь перейти на другой сайт. Мы не контролируем контент на внешних ресурсах.',
-            stay: 'Остаться здесь',
-            proceed: 'Перейти (на свой риск)',
-            url: 'Ссылка: '
+            title: "Внешний переход",
+            question: "Вы хотите перейти на сайт:",
+            warning: "Мы не отвечаем за вашу безопасность",
+            warning2: "На сайте могут быть другие правила",
+            yes: "Да, перейти",
+            no: "Нет, остаться"
         }
     };
     
-    // Проверяем, внешняя ли ссылка
+    // Проверяем внешняя ли ссылка
     function isExternalLink(href) {
-        if (!href) return false;
+        if (!href || typeof href !== 'string') return false;
         
         try {
-            // Если это якорная ссылка (#) или javascript:
+            // Пропускаем якоря и javascript
             if (href.startsWith('#') || href.startsWith('javascript:')) {
                 return false;
             }
             
-            // Если это относительная ссылка
+            // Пропускаем относительные
             if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
                 return false;
             }
             
-            // Создаем URL объект
+            // Создаем URL
             let url;
             try {
                 url = new URL(href);
-            } catch (e) {
-                // Если не валидный URL, вероятно относительная ссылка
+            } catch {
                 return false;
             }
             
             const targetHost = url.hostname;
-            const currentHost = CONFIG.ourDomain;
             
-            console.log(`🔗 Проверка ссылки: ${href}`);
-            console.log(`🏠 Наш домен: ${currentHost}`);
-            console.log(`🎯 Целевой домен: ${targetHost}`);
-            
-            // Если это наш домен
-            if (targetHost === currentHost || 
-                targetHost.endsWith('.' + currentHost) || 
-                currentHost.endsWith('.' + targetHost)) {
-                console.log('✅ Это наш домен');
+            // Пропускаем наш домен
+            if (targetHost === CONFIG.ourDomain) {
                 return false;
             }
             
-            // Проверяем доверенные домены
-            for (const trusted of CONFIG.trustedDomains) {
-                if (targetHost === trusted || 
-                    targetHost.endsWith('.' + trusted) ||
-                    targetHost.includes(trusted)) {
-                    console.log(`✅ Доверенный домен: ${trusted}`);
+            // Пропускаем доверенные домены
+            for (const domain of CONFIG.skipDomains) {
+                if (targetHost.includes(domain)) {
                     return false;
                 }
             }
             
-            console.log('🚨 Это внешняя ссылка!');
             return true;
             
         } catch (error) {
@@ -95,120 +90,179 @@
         }
     }
     
-    // Создаем модальное окно
-    function createModal(url) {
-        // Удаляем старую модалку если есть
-        const oldModal = document.getElementById('external-warning-modal');
-        if (oldModal) {
-            document.body.removeChild(oldModal);
-        }
+    // Создаем стеклянный баннер
+    function createGlassBanner(url) {
+        // Удаляем старый баннер
+        const oldBanner = document.getElementById('metro-glass-banner');
+        if (oldBanner) oldBanner.remove();
         
-        // Создаем модальное окно
-        const modal = document.createElement('div');
-        modal.id = 'external-warning-modal';
-        modal.style.cssText = `
+        // Создаем баннер
+        const banner = document.createElement('div');
+        banner.id = 'metro-glass-banner';
+        
+        // Стиль баннера (стекло)
+        banner.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 999999;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
+            animation: fadeIn 0.3s ease;
         `;
         
-        // Содержимое модалки
-        modal.innerHTML = `
+        // Содержимое (стеклянная карточка)
+        banner.innerHTML = `
             <div style="
-                background: white;
-                border-radius: 12px;
-                padding: 30px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 20px;
+                padding: 40px;
                 max-width: 500px;
                 width: 90%;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                animation: slideUp 0.3s ease;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                text-align: center;
+                color: white;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                animation: slideUp 0.4s ease;
             ">
-                <h2 style="
-                    color: #d35400;
-                    margin-top: 0;
-                    margin-bottom: 20px;
-                    font-size: 24px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <span>⚠️</span>
-                    <span>${CONFIG.messages.title}</span>
-                </h2>
-                
-                <p style="
-                    color: #333;
-                    line-height: 1.6;
-                    margin-bottom: 20px;
-                    font-size: 16px;
-                ">
-                    ${CONFIG.messages.text}
-                </p>
-                
+                <!-- Заголовок -->
                 <div style="
-                    background: #fff8e1;
-                    border-left: 4px solid #f39c12;
-                    padding: 15px;
-                    margin-bottom: 25px;
-                    border-radius: 0 4px 4px 0;
+                    font-size: 28px;
+                    font-weight: 300;
+                    margin-bottom: 30px;
+                    color: rgba(255, 255, 255, 0.9);
+                    letter-spacing: 1px;
                 ">
-                    <strong style="color: #d35400;">${CONFIG.messages.url}</strong>
-                    <span style="
-                        color: #2c3e50;
-                        word-break: break-all;
-                        font-size: 14px;
-                    ">${url}</span>
+                    ${CONFIG.messages.title}
                 </div>
                 
+                <!-- Вопрос -->
+                <div style="
+                    font-size: 18px;
+                    margin-bottom: 20px;
+                    color: rgba(255, 255, 255, 0.8);
+                ">
+                    ${CONFIG.messages.question}
+                </div>
+                
+                <!-- URL -->
+                <div style="
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin: 20px 0;
+                    word-break: break-all;
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                    color: #4d94ff;
+                ">
+                    ${url}
+                </div>
+                
+                <!-- Предупреждения -->
+                <div style="
+                    background: rgba(255, 100, 100, 0.1);
+                    border-left: 3px solid rgba(255, 100, 100, 0.5);
+                    padding: 15px;
+                    margin: 25px 0;
+                    text-align: left;
+                    border-radius: 0 8px 8px 0;
+                ">
+                    <div style="
+                        color: rgba(255, 200, 200, 0.9);
+                        font-size: 14px;
+                        margin-bottom: 8px;
+                    ">
+                        ⚠️ ${CONFIG.messages.warning}
+                    </div>
+                    <div style="
+                        color: rgba(255, 200, 200, 0.7);
+                        font-size: 14px;
+                    ">
+                        ⚠️ ${CONFIG.messages.warning2}
+                    </div>
+                </div>
+                
+                <!-- Кнопки -->
                 <div style="
                     display: flex;
-                    gap: 15px;
+                    gap: 20px;
                     margin-top: 30px;
                 ">
-                    <button id="stay-btn" style="
+                    <button id="metro-no-btn" style="
                         flex: 1;
-                        padding: 14px;
-                        background: #ecf0f1;
-                        border: 2px solid #bdc3c7;
-                        border-radius: 8px;
-                        color: #2c3e50;
-                        font-weight: bold;
+                        padding: 16px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        border-radius: 12px;
+                        color: white;
                         font-size: 16px;
                         cursor: pointer;
                         transition: all 0.3s;
+                        font-weight: 500;
                     ">
-                        ${CONFIG.messages.stay}
+                        ${CONFIG.messages.no}
                     </button>
                     
-                    <button id="proceed-btn" style="
+                    <button id="metro-yes-btn" style="
                         flex: 1;
-                        padding: 14px;
-                        background: #e74c3c;
-                        border: 2px solid #c0392b;
-                        border-radius: 8px;
+                        padding: 16px;
+                        background: linear-gradient(135deg, rgba(77, 148, 255, 0.8), rgba(0, 102, 204, 0.8));
+                        border: 1px solid rgba(77, 148, 255, 0.3);
+                        border-radius: 12px;
                         color: white;
-                        font-weight: bold;
                         font-size: 16px;
                         cursor: pointer;
                         transition: all 0.3s;
+                        font-weight: 500;
+                        box-shadow: 0 4px 15px rgba(77, 148, 255, 0.3);
                     ">
-                        ${CONFIG.messages.proceed}
+                        ${CONFIG.messages.yes}
                     </button>
+                </div>
+                
+                <!-- Лицензия -->
+                <div style="
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    font-size: 11px;
+                    color: rgba(255, 255, 255, 0.4);
+                    line-height: 1.5;
+                ">
+                    <div>--------------------------------</div>
+                    <div>Лицензия на использование для проекта ${CONFIG.license.project}</div>
+                    <div>Дата: ${CONFIG.license.date}</div>
+                    <div>Скрипт принадлежит проекту ${CONFIG.license.project}</div>
+                    <div>--------------------------------</div>
                 </div>
             </div>
         `;
         
-        // Добавляем анимацию
+        // Добавляем на страницу
+        document.body.appendChild(banner);
+        document.body.style.overflow = 'hidden';
+        
+        // Анимации
         const style = document.createElement('style');
         style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
             @keyframes slideUp {
                 from {
                     opacity: 0;
@@ -220,145 +274,173 @@
                 }
             }
             
-            #stay-btn:hover {
-                background: #d5dbdb !important;
+            #metro-no-btn:hover {
+                background: rgba(255, 255, 255, 0.2) !important;
                 transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(255, 255, 255, 0.1);
             }
             
-            #proceed-btn:hover {
-                background: #c0392b !important;
+            #metro-yes-btn:hover {
+                background: linear-gradient(135deg, rgba(77, 148, 255, 1), rgba(0, 102, 204, 1)) !important;
                 transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+                box-shadow: 0 8px 25px rgba(77, 148, 255, 0.5);
             }
         `;
         document.head.appendChild(style);
         
-        // Добавляем модалку в DOM
-        document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden';
-        
-        // Назначаем обработчики
+        // Обработчики
         setTimeout(() => {
-            document.getElementById('stay-btn').addEventListener('click', function() {
-                closeModal();
+            // Нет - закрыть
+            document.getElementById('metro-no-btn').addEventListener('click', () => {
+                closeBanner();
             });
             
-            document.getElementById('proceed-btn').addEventListener('click', function() {
+            // Да - перейти
+            document.getElementById('metro-yes-btn').addEventListener('click', () => {
                 window.location.href = url;
             });
             
-            // Закрытие по клику на фон
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    closeModal();
-                }
+            // Закрытие по ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeBanner();
             });
             
-            // Закрытие по ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeModal();
-                }
+            // Закрытие по клику на фон
+            banner.addEventListener('click', (e) => {
+                if (e.target === banner) closeBanner();
             });
         }, 100);
-        
-        return modal;
     }
     
-    // Закрываем модалку
-    function closeModal() {
-        const modal = document.getElementById('external-warning-modal');
-        if (modal) {
-            modal.style.opacity = '0';
-            modal.style.transition = 'opacity 0.3s ease';
+    // Закрыть баннер
+    function closeBanner() {
+        const banner = document.getElementById('metro-glass-banner');
+        if (banner) {
+            banner.style.opacity = '0';
+            banner.style.transition = 'opacity 0.3s ease';
             
             setTimeout(() => {
-                if (modal.parentNode) {
-                    document.body.removeChild(modal);
+                if (banner.parentNode) {
+                    banner.parentNode.removeChild(banner);
                 }
                 document.body.style.overflow = '';
             }, 300);
         }
     }
     
-    // Обработчик клика по ссылке
+    // Обработчик кликов
     function handleLinkClick(e) {
         const link = e.currentTarget;
         const href = link.getAttribute('href');
         
-        if (!href) return;
+        if (!href) return true;
         
-        console.log(`🖱️ Клик по ссылке: ${href}`);
-        
-        // Если это внешняя ссылка и не открывается в новой вкладке
-        if (isExternalLink(href) && (!link.target || link.target === '_self')) {
+        // Проверяем внешняя ли ссылка
+        if (isExternalLink(href)) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🛑 Остановлен переход по внешней ссылке');
             
-            // Показываем предупреждение
-            createModal(href);
+            // Показываем баннер
+            createGlassBanner(href);
             return false;
         }
         
-        // Если ссылка открывается в новой вкладке, пропускаем
-        console.log('✅ Ссылка открывается в новой вкладке или это внутренняя ссылка');
         return true;
     }
     
-    // Добавляем обработчики ко всем ссылкам
-    function attachListeners() {
-        console.log('🔍 Поиск всех ссылок на странице...');
+    // Добавляем обработчики
+    function setupLinks() {
+        console.log('🔗 Поиск ссылок на странице...');
         
-        // Находим ВСЕ ссылки
         const allLinks = document.querySelectorAll('a[href]');
-        console.log(`📊 Найдено ссылок: ${allLinks.length}`);
-        
         let externalCount = 0;
         
-        allLinks.forEach((link, index) => {
+        allLinks.forEach(link => {
             const href = link.getAttribute('href');
             
             if (isExternalLink(href)) {
                 externalCount++;
                 
-                // Добавляем иконку внешней ссылки
-                if (!link.querySelector('.ext-icon')) {
+                // Добавляем иконку
+                if (!link.querySelector('.metro-ext-icon')) {
                     const icon = document.createElement('span');
-                    icon.className = 'ext-icon';
+                    icon.className = 'metro-ext-icon';
                     icon.innerHTML = ' ↗';
                     icon.style.cssText = `
                         font-size: 12px;
-                        color: #e74c3c;
+                        color: #4d94ff;
+                        opacity: 0.7;
                         margin-left: 3px;
-                        font-weight: bold;
                     `;
                     link.appendChild(icon);
                 }
                 
-                // Добавляем стиль для внешних ссылок
+                // Стиль для внешних ссылок
                 link.style.cssText += `
-                    border-bottom: 1px dashed #e74c3c;
                     position: relative;
+                    transition: opacity 0.3s;
                 `;
                 
-                // Добавляем обработчик
-                link.addEventListener('click', handleLinkClick);
+                link.addEventListener('mouseenter', () => {
+                    link.style.opacity = '0.9';
+                });
                 
-                console.log(`🔗 Внешняя ссылка ${externalCount}: ${href}`);
+                link.addEventListener('mouseleave', () => {
+                    link.style.opacity = '1';
+                });
+                
+                // Обработчик клика
+                link.addEventListener('click', handleLinkClick);
             }
         });
         
-        console.log(`🎯 Всего внешних ссылок: ${externalCount}`);
+        console.log(`✅ Найдено внешних ссылок: ${externalCount}`);
+    }
+    
+    // Защита кода
+    function protectCode() {
+        // Запрещаем копирование кода
+        document.addEventListener('copy', (e) => {
+            if (window.location.href.includes('/external-link-warning.js')) {
+                e.preventDefault();
+                alert('Копирование кода защищено лицензией!');
+            }
+        });
         
-        // Также обрабатываем динамически добавленные ссылки
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length) {
-                    console.log('🔄 Обнаружены новые элементы, проверяем ссылки...');
-                    setTimeout(attachListeners, 100);
-                }
+        // Запрещаем просмотр исходного кода
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('script[src*="transparent-warning"]')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Шифрование в консоли
+        console.log(`%c🔒 ${CONFIG.license.project} - Защищенный скрипт`, 
+            'color: #4d94ff; font-size: 16px; font-weight: bold;');
+        console.log(`%cЛицензия: ${CONFIG.license.date} | Версия: ${CONFIG.license.version}`,
+            'color: #888; font-size: 12px;');
+    }
+    
+    // Инициализация
+    function init() {
+        console.log('🚇 Инициализация системы защиты ссылок...');
+        
+        // Защищаем код
+        protectCode();
+        
+        // Настраиваем ссылки
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(setupLinks, 1000);
             });
+        } else {
+            setTimeout(setupLinks, 1000);
+        }
+        
+        // Отслеживаем новые ссылки
+        const observer = new MutationObserver(() => {
+            setupLinks();
         });
         
         observer.observe(document.body, {
@@ -367,42 +449,19 @@
         });
     }
     
-    // Запуск
-    function init() {
-        console.log('🚀 Инициализация системы предупреждения...');
-        
-        // Ждем полной загрузки DOM
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('📄 DOM загружен, запускаем...');
-                setTimeout(attachListeners, 500);
-            });
-        } else {
-            console.log('📄 DOM уже загружен, запускаем...');
-            setTimeout(attachListeners, 500);
-        }
-    }
-    
-    // Запускаем сразу
+    // Запускаем
     init();
     
-    // Экспортируем функции для отладки
-    window.MetroLinkProtection = {
-        isExternalLink: isExternalLink,
-        showWarning: function(url) {
-            createModal(url);
+    // Экспортируем для отладки
+    window.MetroLinkGuard = {
+        version: CONFIG.license.version,
+        testLink: function(url) {
+            return isExternalLink(url);
         },
-        testLinks: function() {
-            const links = document.querySelectorAll('a[href]');
-            console.log('=== ТЕСТ ССЫЛОК ===');
-            links.forEach((link, i) => {
-                const href = link.getAttribute('href');
-                console.log(`${i + 1}. ${href} - внешняя: ${isExternalLink(href)}`);
-            });
-        }
+        showBanner: function(url) {
+            createGlassBanner(url);
+        },
+        licenseInfo: CONFIG.license
     };
-    
-    console.log('✅ Система предупреждения инициализирована');
-    console.log('Для теста в консоли: MetroLinkProtection.testLinks()');
     
 })();
