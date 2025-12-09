@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Метро New — Официальный профиль #1</title>
+    <title>Метро New — Профиль</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -17,7 +17,7 @@
             --light: #F8F9FA;
             --gray: #6C757D;
             --success: #28A745;
-            --warning: #FFC107;
+            --warning: #FFA500;
             --danger: #DC3545;
             --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
             --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
@@ -34,12 +34,214 @@
             color: var(--dark);
             line-height: 1.6;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .profile-container {
-            max-width: 1400px;
+        /* ШАПКА С ПАНЕЛЬЮ УПРАВЛЕНИЯ */
+        .site-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+
+        /* ПРАВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+
+        .notification-count.active {
+            display: flex;
+        }
+
+        /* ПАНЕЛЬ УВЕДОМЛЕНИЙ */
+        .notifications-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: 0;
+            width: 350px;
+            max-height: 500px;
+            overflow: hidden;
+            z-index: 2000;
+            display: none;
+        }
+
+        .notifications-panel.active {
+            display: block;
+        }
+
+        .notifications-header {
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background: rgba(0,102,204,0.05);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: var(--gray);
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+
+        /* КОНТЕЙНЕР ПРОФИЛЯ */
+        .profile-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 30px;
@@ -51,7 +253,7 @@
             }
         }
 
-        /* ЛЕВАЯ КОЛОНКА - ВСЯ ИНФОРМАЦИЯ */
+        /* ЛЕВАЯ КОЛОНКА - ИНФОРМАЦИЯ */
         .profile-sidebar {
             background: white;
             border-radius: var(--radius-xl);
@@ -60,7 +262,7 @@
             border: 1px solid rgba(0,0,0,0.05);
             height: fit-content;
             position: sticky;
-            top: 20px;
+            top: 90px;
         }
 
         .profile-header {
@@ -71,8 +273,8 @@
         }
 
         .profile-avatar {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             margin: 0 auto 15px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -81,317 +283,114 @@
             justify-content: center;
             color: var(--dark);
             font-weight: 800;
-            font-size: 36px;
-            box-shadow: 0 0 25px rgba(0,102,204,0.3);
-            border: 4px solid white;
+            font-size: 48px;
+            box-shadow: 0 0 30px rgba(0,102,204,0.3);
+            border: 5px solid white;
         }
 
         .profile-name {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 5px;
         }
 
         .profile-title {
-            font-size: 14px;
+            font-size: 16px;
             color: var(--gray);
             margin-bottom: 15px;
         }
 
-        /* СТАТУСНАЯ ЛИНИЯ */
-        .status-line {
+        /* БЕЙДЖИ СТАТУСА */
+        .status-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0 20px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-verified {
+            background: rgba(40,167,69,0.1);
+            color: var(--success);
+            border: 1px solid rgba(40,167,69,0.3);
+        }
+
+        .badge-official {
+            background: rgba(255,215,0,0.1);
+            color: #b8860b;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .badge-active {
+            background: rgba(0,102,204,0.1);
+            color: var(--primary);
+            border: 1px solid rgba(0,102,204,0.3);
+        }
+
+        /* СТАТИСТИКА */
+        .profile-stats {
             background: var(--light);
             border-radius: var(--radius-lg);
-            padding: 15px;
-            margin-bottom: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
             border: 1px solid rgba(0,0,0,0.08);
         }
 
-        .status-item {
+        .stat-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
             border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
-        .status-item:last-child {
+        .stat-item:last-child {
             margin-bottom: 0;
             padding-bottom: 0;
             border-bottom: none;
         }
 
-        .status-label {
-            font-size: 13px;
+        .stat-label {
+            font-size: 14px;
             color: var(--gray);
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .status-label i {
-            font-size: 14px;
+        .stat-label i {
+            font-size: 16px;
             color: var(--primary);
+            width: 20px;
         }
 
-        .status-value {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .status-badge {
-            background: rgba(40,167,69,0.1);
-            color: var(--success);
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid rgba(40,167,69,0.3);
-        }
-
-        /* БЕЙДЖИ УРОВНЕЙ */
-        .badges-section {
-            margin-bottom: 25px;
-        }
-
-        .section-title {
+        .stat-value {
             font-size: 16px;
             font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-title i {
-            font-size: 18px;
-        }
-
-        .badges-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .badge-item {
-            background: var(--light);
-            border-radius: var(--radius-md);
-            padding: 12px;
-            text-align: center;
-            border: 1px solid rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            cursor: help;
-        }
-
-        .badge-item:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary);
-        }
-
-        .badge-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .badge-name {
-            font-size: 12px;
-            font-weight: 600;
             color: var(--dark);
-            margin-bottom: 4px;
         }
 
-        .badge-desc {
-            font-size: 10px;
-            color: var(--gray);
-        }
-
-        /* ВЕРИФИКАЦИЯ */
-        .verification-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            margin-bottom: 20px;
-        }
-
-        .verification-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--light);
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
-            font-size: 12px;
-            font-weight: 500;
-            border: 1px solid rgba(0,0,0,0.08);
-        }
-
-        .verification-badge i {
-            color: var(--success);
-        }
-
-        /* ГРУППЫ (в левой колонке) */
-        .groups-section {
-            margin-top: 25px;
-        }
-
-        .groups-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .group-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--light);
-            border-radius: var(--radius-md);
-            border: 1px solid rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-
-        .group-item:hover {
-            transform: translateX(5px);
-            border-color: var(--primary);
-        }
-
-        .group-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark);
-            font-size: 16px;
-        }
-
-        .group-info {
-            flex: 1;
-        }
-
-        .group-name {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 14px;
-        }
-
-        .group-members {
-            font-size: 12px;
-            color: var(--gray);
-        }
-
-        /* ПРАВАЯ КОЛОНКА - ПУБЛИКАЦИИ И ДРУЗЬЯ */
+        /* ПРАВАЯ КОЛОНКА - ПОСТЫ */
         .profile-main {
             display: flex;
             flex-direction: column;
             gap: 30px;
         }
 
-        /* КНОПКА НОВОГО ПОСТА */
-        .new-post-card {
-            background: white;
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-md);
-            padding: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .new-post-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .new-post-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark);
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .new-post-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: var(--radius-lg);
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .new-post-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .new-post-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-        }
-
-        .post-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .post-btn {
-            background: var(--light);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: var(--radius-md);
-            padding: 8px 15px;
-            font-size: 14px;
-            color: var(--dark);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .post-btn:hover {
-            background: var(--primary-light);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .publish-btn {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: var(--dark);
-            border: none;
-            border-radius: var(--radius-md);
-            padding: 10px 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .publish-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* ПОСТЫ */
-        .posts-section {
+        /* ЗАГОЛОВОК С ПОСТАМИ */
+        .posts-header {
             background: white;
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-md);
@@ -399,50 +398,54 @@
             border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .section-header {
+        .posts-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light);
+            gap: 10px;
         }
 
-        .posts-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
+        .posts-description {
+            color: var(--gray);
+            font-size: 16px;
         }
 
+        /* КАРТОЧКА ПОСТА */
         .post-card {
-            background: var(--light);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            border: 1px solid rgba(0,0,0,0.08);
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 25px;
             transition: all 0.3s ease;
         }
 
         .post-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
         .post-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        .post-author-info {
+        .post-author {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
+            flex: 1;
         }
 
         .post-avatar {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             display: flex;
@@ -450,82 +453,85 @@
             justify-content: center;
             color: var(--dark);
             font-weight: bold;
+            font-size: 24px;
         }
 
-        .author-details {
-            display: flex;
-            flex-direction: column;
+        .author-info {
+            flex: 1;
         }
 
-        .post-author {
+        .author-name {
             font-weight: 600;
             color: var(--primary);
-            font-size: 16px;
+            font-size: 18px;
+            margin-bottom: 5px;
         }
 
-        .post-date {
-            font-size: 13px;
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
             color: var(--gray);
         }
 
-        .post-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            background: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: var(--radius-md);
-            padding: 5px 10px;
+        .post-type {
+            background: rgba(0,102,204,0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 999px;
             font-size: 12px;
-            color: var(--dark);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            font-weight: 600;
         }
 
-        .action-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+        .post-content {
+            margin-bottom: 25px;
         }
 
         .post-title {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--dark);
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
         .post-text {
             color: var(--dark);
-            line-height: 1.6;
-            margin-bottom: 15px;
-            font-size: 15px;
+            line-height: 1.7;
+            font-size: 16px;
+            white-space: pre-line;
         }
 
         .post-image {
             width: 100%;
-            border-radius: var(--radius-md);
-            margin-bottom: 15px;
             max-height: 400px;
             object-fit: cover;
+            border-radius: var(--radius-lg);
+            margin: 20px 0;
         }
 
+        /* СТАТИСТИКА ПОСТА */
         .post-stats {
             display: flex;
-            gap: 20px;
-            font-size: 14px;
-            color: var(--gray);
-            margin-bottom: 15px;
-            padding-top: 15px;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            margin-top: 20px;
             border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .stats-left {
+            display: flex;
+            gap: 25px;
         }
 
         .post-stat {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            color: var(--gray);
+            font-size: 15px;
             cursor: pointer;
             transition: color 0.3s ease;
         }
@@ -535,596 +541,890 @@
         }
 
         .post-stat i {
-            font-size: 16px;
+            font-size: 18px;
         }
 
-        .post-comments {
-            background: white;
+        /* КНОПКА КОММЕНТАРИЕВ (ОТКРЫВАЕТ МОДАЛКУ БЕЗОПАСНОСТИ) */
+        .comment-btn {
+            background: var(--light);
+            border: 1px solid rgba(0,0,0,0.1);
             border-radius: var(--radius-md);
-            padding: 15px;
-            margin-top: 15px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .comment-item {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .comment-item:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .comment-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            padding: 12px 20px;
+            font-size: 15px;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            width: 100%;
             justify-content: center;
+            margin-top: 15px;
+        }
+
+        .comment-btn:hover {
+            background: var(--primary);
             color: white;
-            font-weight: bold;
-            font-size: 14px;
+            border-color: var(--primary);
         }
 
-        .comment-content {
-            flex: 1;
+        .comment-btn.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
-        .comment-author {
-            font-weight: 600;
-            color: var(--primary);
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .comment-text {
-            font-size: 14px;
+        .comment-btn.disabled:hover {
+            background: var(--light);
             color: var(--dark);
-            line-height: 1.5;
+            border-color: rgba(0,0,0,0.1);
         }
 
-        .comment-date {
-            font-size: 12px;
-            color: var(--gray);
-            margin-top: 5px;
+        /* МОДАЛЬНОЕ ОКНО БЕЗОПАСНОСТИ */
+        .security-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
         }
 
-        /* ДРУЗЬЯ В ПРАВОЙ ЧАСТИ */
-        .friends-section {
+        .security-modal.active {
+            display: flex;
+        }
+
+        .security-box {
             background: white;
             border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-md);
-            padding: 25px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .friends-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .friend-card {
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
             text-align: center;
-            padding: 15px;
-            background: var(--light);
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
         }
 
-        .friend-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .friend-avatar {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 10px;
+        .security-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(0,102,204,0.1);
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
+            margin: 0 auto 20px;
+            color: var(--primary);
+            font-size: 36px;
         }
 
-        .friend-name {
-            font-weight: 600;
+        .security-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        .security-message {
             color: var(--dark);
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .security-features {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .security-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .security-feature i {
+            color: var(--success);
+        }
+
+        .security-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .security-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* ФУТЕР */
+        .site-footer {
+            background: var(--dark);
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            color: var(--secondary);
+        }
+
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .header-controls {
+                justify-content: center;
+            }
+            
+            .notifications-panel {
+                right: 10px;
+                left: 10px;
+                width: auto;
+            }
+            
+            .post-author {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .post-meta {
+                flex-wrap: wrap;
+            }
+            
+            .stats-left {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* ТЕМЫ (ПРЕВЬЮ) */
+        .theme-preview {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: 20px;
+            width: 300px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .theme-preview.active {
+            display: block;
+        }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .theme-option:hover {
+            background: var(--light);
+        }
+
+        .theme-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .theme-dark { background: #1a1a1a; }
+        .theme-light { background: #f8f9fa; border: 1px solid #dee2e6; }
+        .theme-blue { background: #0066cc; }
+        .theme-green { background: #28a745; }
+
+        /* ЯЗЫКИ (ПРЕВЬЮ) */
+        .language-preview {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: 20px;
+            width: 200px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .language-preview.active {
+            display: block;
+        }
+
+        .language-option {
+            padding: 10px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
             margin-bottom: 5px;
         }
 
-        .friend-role {
-            font-size: 12px;
-            color: var(--gray);
+        .language-option:hover {
+            background: var(--light);
+        }
+
+        .language-option.active {
+            background: var(--primary);
+            color: white;
         }
     </style>
 </head>
 <body>
+    <!-- ШАПКА С ПАНЕЛЬЮ -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="site-logo" onclick="window.location.href='index.html'">
+                <span class="logo-icon">M</span>
+                <span>Метро New</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="game.html" class="nav-link">Игра</a>
+                <a href="wiki.html" class="nav-link">Wiki</a>
+                <a href="news.html" class="nav-link">Новости</a>
+                <a href="profile.html" class="nav-link active">Профиль</a>
+            </nav>
+            
+            <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+            <div class="header-controls">
+                <button class="control-btn notification-badge" id="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notification-count">2</span>
+                </button>
+                <button class="control-btn" id="theme-btn" title="Сменить тему">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button class="control-btn" id="language-btn" title="Сменить язык">
+                    <i class="fas fa-globe"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ПАНЕЛЬ УВЕДОМЛЕНИЙ -->
+    <div class="notifications-panel" id="notifications-panel">
+        <div class="notifications-header">
+            <div class="notifications-title">Уведомления</div>
+            <button class="control-btn" onclick="clearNotifications()" style="background: none; color: white; padding: 0;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="notifications-list" id="notifications-list">
+            <div class="notification-item">
+                <div class="notification-header">
+                    <div class="notification-title">Новое обновление!</div>
+                    <div class="notification-time">10 мин назад</div>
+                </div>
+                <div class="notification-message">Вышло обновление v2.5 с новыми станциями</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-header">
+                    <div class="notification-title">Безопасность аккаунта</div>
+                    <div class="notification-time">1 час назад</div>
+                </div>
+                <div class="notification-message">Ваши данные в полной безопасности</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРЕВЬЮ ТЕМ -->
+    <div class="theme-preview" id="theme-preview">
+        <h3 style="margin-bottom: 15px; color: var(--primary);">Выберите тему:</h3>
+        <div class="theme-option" onclick="changeTheme('light')">
+            <div class="theme-color theme-light"></div>
+            <span>Светлая</span>
+        </div>
+        <div class="theme-option" onclick="changeTheme('dark')">
+            <div class="theme-color theme-dark"></div>
+            <span>Тёмная</span>
+        </div>
+        <div class="theme-option" onclick="changeTheme('blue')">
+            <div class="theme-color theme-blue"></div>
+            <span>Синяя</span>
+        </div>
+        <div class="theme-option" onclick="changeTheme('green')">
+            <div class="theme-color theme-green"></div>
+            <span>Зелёная</span>
+        </div>
+    </div>
+
+    <!-- ПРЕВЬЮ ЯЗЫКОВ -->
+    <div class="language-preview" id="language-preview">
+        <h3 style="margin-bottom: 15px; color: var(--primary);">Выберите язык:</h3>
+        <div class="language-option active" onclick="changeLanguage('ru')">Русский</div>
+        <div class="language-option" onclick="changeLanguage('en')">English</div>
+        <div class="language-option" onclick="changeLanguage('es')">Español</div>
+        <div class="language-option" onclick="changeLanguage('de')">Deutsch</div>
+    </div>
+
+    <!-- КОНТЕЙНЕР ПРОФИЛЯ -->
     <div class="profile-container">
-        <!-- ЛЕВАЯ КОЛОНКА - ВСЯ ИНФОРМАЦИЯ -->
+        <!-- ЛЕВАЯ КОЛОНКА -->
         <div class="profile-sidebar">
             <div class="profile-header">
                 <div class="profile-avatar">M</div>
                 <div class="profile-name">Метро New</div>
                 <div class="profile-title">Официальный профиль проекта</div>
                 
-                <div class="verification-badges">
-                    <div class="verification-badge">
+                <div class="status-badges">
+                    <span class="status-badge badge-verified">
                         <i class="fas fa-shield-check"></i>
-                        <span>Проверено</span>
-                    </div>
-                    <div class="verification-badge">
+                        Проверено
+                    </span>
+                    <span class="status-badge badge-official">
                         <i class="fas fa-star"></i>
-                        <span>Официальный</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- СТАТУСЫ -->
-            <div class="status-line">
-                <div class="status-item">
-                    <div class="status-label">
+                        Официальный
+                    </span>
+                    <span class="status-badge badge-active">
                         <i class="fas fa-circle"></i>
-                        Статус
-                    </div>
-                    <div class="status-badge">Активен</div>
+                        Активен
+                    </span>
                 </div>
-                <div class="status-item">
-                    <div class="status-label">
-                        <i class="fas fa-id-card"></i>
-                        ID профиля
-                    </div>
-                    <div class="status-value">metro-new-official-1</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-label">
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-label">
                         <i class="fas fa-calendar-alt"></i>
-                        Обновлено
+                        <span>На сайте с</span>
                     </div>
-                    <div class="status-value">12 декабря 2025</div>
+                    <div class="stat-value">2023 г.</div>
                 </div>
-                <div class="status-item">
-                    <div class="status-label">
-                        <i class="fas fa-code-branch"></i>
-                        Версия
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Публикаций</span>
                     </div>
-                    <div class="status-value">v1.0</div>
+                    <div class="stat-value">24</div>
                 </div>
-            </div>
-
-            <!-- УРОВНИ -->
-            <div class="badges-section">
-                <div class="section-title">
-                    <i class="fas fa-trophy"></i>
-                    Уровни
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-eye"></i>
+                        <span>Просмотры</span>
+                    </div>
+                    <div class="stat-value">48.2K</div>
                 </div>
-                <div class="badges-grid">
-                    <div class="badge-item" title="Основной разработчик проекта">
-                        <div class="badge-icon">👨‍💻</div>
-                        <div class="badge-name">Разработчик</div>
-                        <div class="badge-desc">Уровень 5</div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-heart"></i>
+                        <span>Лайки</span>
                     </div>
-                    <div class="badge-item" title="Проверенный официальный аккаунт">
-                        <div class="badge-icon">✅</div>
-                        <div class="badge-name">Верифицирован</div>
-                        <div class="badge-desc">Уровень 3</div>
-                    </div>
-                    <div class="badge-item" title="Активный участник 6+ месяцев">
-                        <div class="badge-icon">⭐</div>
-                        <div class="badge-name">Ветеран</div>
-                        <div class="badge-desc">Уровень 4</div>
-                    </div>
-                    <div class="badge-item" title="Администратор проекта">
-                        <div class="badge-icon">👑</div>
-                        <div class="badge-name">Админ</div>
-                        <div class="badge-desc">Уровень 6</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ВЕРИФИКАЦИЯ -->
-            <div class="badges-section">
-                <div class="section-title">
-                    <i class="fas fa-shield-alt"></i>
-                    Верификация
-                </div>
-                <div class="badges-grid">
-                    <div class="badge-item" title="Подтвержденный домен и SSL">
-                        <div class="badge-icon">🌐</div>
-                        <div class="badge-name">Домен</div>
-                        <div class="badge-desc">Подтвержден</div>
-                    </div>
-                    <div class="badge-item" title="Официальный Discord сервер">
-                        <div class="badge-icon">💬</div>
-                        <div class="badge-name">Discord</div>
-                        <div class="badge-desc">Верифицирован</div>
-                    </div>
-                    <div class="badge-item" title="Подтвержденная почта">
-                        <div class="badge-icon">📧</div>
-                        <div class="badge-name">Почта</div>
-                        <div class="badge-desc">Подтверждена</div>
-                    </div>
-                    <div class="badge-item" title="Безопасное соединение">
-                        <div class="badge-icon">🔒</div>
-                        <div class="badge-name">HTTPS</div>
-                        <div class="badge-desc">Активно</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ГРУППЫ -->
-            <div class="groups-section">
-                <div class="section-title">
-                    <i class="fas fa-layer-group"></i>
-                    Группы
-                </div>
-                <div class="groups-list">
-                    <div class="group-item">
-                        <div class="group-icon">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <div class="group-info">
-                            <div class="group-name">Разработчики</div>
-                            <div class="group-members">5 участников</div>
-                        </div>
-                    </div>
-                    <div class="group-item">
-                        <div class="group-icon">
-                            <i class="fas fa-paint-brush"></i>
-                        </div>
-                        <div class="group-info">
-                            <div class="group-name">Дизайнеры</div>
-                            <div class="group-members">3 участника</div>
-                        </div>
-                    </div>
-                    <div class="group-item">
-                        <div class="group-icon">
-                            <i class="fas fa-bug"></i>
-                        </div>
-                        <div class="group-info">
-                            <div class="group-name">Тестировщики</div>
-                            <div class="group-members">8 участников</div>
-                        </div>
-                    </div>
-                    <div class="group-item">
-                        <div class="group-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
-                        <div class="group-info">
-                            <div class="group-name">Модераторы</div>
-                            <div class="group-members">6 участников</div>
-                        </div>
-                    </div>
+                    <div class="stat-value">3.8K</div>
                 </div>
             </div>
         </div>
 
-        <!-- ПРАВАЯ КОЛОНКА - ПУБЛИКАЦИИ И ДРУЗЬЯ -->
+        <!-- ПРАВАЯ КОЛОНКА -->
         <div class="profile-main">
-            <!-- КНОПКА НОВОГО ПОСТА -->
-            <div class="new-post-card">
-                <div class="new-post-header">
-                    <div class="new-post-avatar">M</div>
-                    <textarea class="new-post-input" placeholder="Что нового в проекте Metro New?"></textarea>
-                </div>
-                <div class="new-post-actions">
-                    <div class="post-buttons">
-                        <button class="post-btn">
-                            <i class="fas fa-image"></i> Фото
-                        </button>
-                        <button class="post-btn">
-                            <i class="fas fa-video"></i> Видео
-                        </button>
-                        <button class="post-btn">
-                            <i class="fas fa-calendar-alt"></i> Событие
-                        </button>
-                    </div>
-                    <button class="publish-btn">Опубликовать</button>
-                </div>
+            <div class="posts-header">
+                <h1 class="posts-title">
+                    <i class="fas fa-newspaper"></i>
+                    Публикации проекта
+                </h1>
+                <p class="posts-description">
+                    Официальные новости, обновления и анонсы проекта Метро New
+                </p>
             </div>
 
-            <!-- ПОСТЫ -->
-            <div class="posts-section">
-                <div class="section-header">
-                    <h2 style="color: var(--primary); font-size: 22px;">Публикации</h2>
-                    <select style="padding: 8px 15px; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.1);">
-                        <option>Сначала новые</option>
-                        <option>Сначала популярные</option>
-                    </select>
-                </div>
-
-                <div class="posts-grid">
-                    <!-- ПОСТ 1 -->
-                    <div class="post-card">
-                        <div class="post-header">
-                            <div class="post-author-info">
-                                <div class="post-avatar">M</div>
-                                <div class="author-details">
-                                    <div class="post-author">Метро New</div>
-                                    <div class="post-date">12 декабря 2025 · 15:30</div>
-                                </div>
-                            </div>
-                            <div class="post-actions">
-                                <button class="action-btn"><i class="fas fa-ellipsis-h"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="post-title">🚇 Запуск официального профиля!</div>
-                        
-                        <div class="post-text">
-                            Приветствуем всех в нашем новом официальном профиле! 🎉 
-                            <br><br>
-                            Здесь мы будем публиковать:
-                            • Новости проекта
-                            • Обновления игры
-                            • Анонсы событий
-                            • Интересные факты о метро
-                            <br><br>
-                            Следите за обновлениями и делитесь своими идеями! 💡
-                        </div>
-                        
-                        <div class="post-stats">
-                            <div class="post-stat">
-                                <i class="fas fa-heart"></i> 142
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-comment"></i> 28
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-share"></i> 13
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-eye"></i> 2.4K
-                            </div>
-                        </div>
-
-                        <div class="post-comments">
-                            <div class="comment-item">
-                                <div class="comment-avatar">K</div>
-                                <div class="comment-content">
-                                    <div class="comment-author">Kirill</div>
-                                    <div class="comment-text">Отличный запуск! Ждем новых обновлений в игре 🚆</div>
-                                    <div class="comment-date">12 дек в 16:45</div>
-                                </div>
-                            </div>
-                            <div class="comment-item">
-                                <div class="comment-avatar">A</div>
-                                <div class="comment-content">
-                                    <div class="comment-author">Alex</div>
-                                    <div class="comment-text">Крутой дизайн профиля! Когда новая станция? 👀</div>
-                                    <div class="comment-date">12 дек в 17:20</div>
-                                </div>
+            <!-- ПОСТ 1 -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="post-avatar">M</div>
+                        <div class="author-info">
+                            <div class="author-name">Метро New</div>
+                            <div class="post-meta">
+                                <span class="post-date">15 декабря 2025 · 14:30</span>
+                                <span class="post-type">Обновление</span>
                             </div>
                         </div>
                     </div>
-
-                    <!-- ПОСТ 2 -->
-                    <div class="post-card">
-                        <div class="post-header">
-                            <div class="post-author-info">
-                                <div class="post-avatar">M</div>
-                                <div class="author-details">
-                                    <div class="post-author">Метро New</div>
-                                    <div class="post-date">10 декабря 2025 · 11:15</div>
-                                </div>
-                            </div>
-                            <div class="post-actions">
-                                <button class="action-btn"><i class="fas fa-ellipsis-h"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="post-title">🏗️ Новая станция "Комсомольская" в разработке</div>
-                        
-                        <div class="post-text">
-                            Работаем над добавлением новой станции! 🔨
-                            <br><br>
-                            Что будет в обновлении:
-                            ✅ Детализированная архитектура
-                            ✅ Реалистичное освещение
-                            ✅ Анимация пассажиров
-                            ✅ Новые звуковые эффекты
-                            <br><br>
-                            Станция будет доступна в начале января! 📅
-                        </div>
-                        
-                        <div class="post-stats">
-                            <div class="post-stat">
-                                <i class="fas fa-heart"></i> 289
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-comment"></i> 124
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-share"></i> 42
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-eye"></i> 5.7K
-                            </div>
-                        </div>
-
-                        <div class="post-comments">
-                            <div class="comment-item">
-                                <div class="comment-avatar">M</div>
-                                <div class="comment-content">
-                                    <div class="comment-author">Max</div>
-                                    <div class="comment-text">Ждем с нетерпением! Будет ли кольцевая линия? 🔴</div>
-                                    <div class="comment-date">10 дек в 12:30</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ПОСТ 3 -->
-                    <div class="post-card">
-                        <div class="post-header">
-                            <div class="post-author-info">
-                                <div class="post-avatar">M</div>
-                                <div class="author-details">
-                                    <div class="post-author">Метро New</div>
-                                    <div class="post-date">5 декабря 2025 · 14:00</div>
-                                </div>
-                            </div>
-                            <div class="post-actions">
-                                <button class="action-btn"><i class="fas fa-ellipsis-h"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="post-title">⚙️ Обновление системы поездов v2.1</div>
-                        
-                        <div class="post-text">
-                            Вышло крупное обновление физики и управления! 🚂
-                            <br><br>
-                            Нововведения:
-                            • Улучшена физика движения поездов
-                            • Добавлены новые звуки двигателя
-                            • Анимации открытия/закрытия дверей
-                            • Режим аварийного торможения
-                            • Система износа вагонов
-                            <br><br>
-                            Теперь управление стало еще реалистичнее! 🎮
-                        </div>
-                        
-                        <div class="post-stats">
-                            <div class="post-stat">
-                                <i class="fas fa-heart"></i> 456
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-comment"></i> 247
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-share"></i> 89
-                            </div>
-                            <div class="post-stat">
-                                <i class="fas fa-eye"></i> 12.3K
-                            </div>
-                        </div>
-
-                        <div class="post-comments">
-                            <div class="comment-item">
-                                <div class="comment-avatar">D</div>
-                                <div class="comment-content">
-                                    <div class="comment-author">David</div>
-                                    <div class="comment-text">Физика стала намного лучше! Теперь реально чувствуешь вес поезда 🚇</div>
-                                    <div class="comment-date">5 дек в 15:45</div>
-                                </div>
-                            </div>
-                            <div class="comment-item">
-                                <div class="comment-avatar">S</div>
-                                <div class="comment-content">
-                                    <div class="comment-author">Sofia</div>
-                                    <div class="comment-text">Звуки просто огонь! Как будто в реальном метро 🔥</div>
-                                    <div class="comment-date">5 дек в 16:20</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ДРУЗЬЯ -->
-            <div class="friends-section">
-                <div class="section-header">
-                    <h2 style="color: var(--primary); font-size: 22px;">Друзья и участники</h2>
-                    <button style="background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: var(--radius-md); cursor: pointer;">
-                        <i class="fas fa-user-plus"></i> Добавить
-                    </button>
                 </div>
                 
-                <div class="friends-grid">
-                    <div class="friend-card">
-                        <div class="friend-avatar">K</div>
-                        <div class="friend-name">Kirill</div>
-                        <div class="friend-role">Основатель</div>
-                    </div>
-                    <div class="friend-card">
-                        <div class="friend-avatar">A</div>
-                        <div class="friend-name">Alex</div>
-                        <div class="friend-role">Разработчик</div>
-                    </div>
-                    <div class="friend-card">
-                        <div class="friend-avatar">M</div>
-                        <div class="friend-name">Max</div>
-                        <div class="friend-role">Дизайнер</div>
-                    </div>
-                    <div class="friend-card">
-                        <div class="friend-avatar">D</div>
-                        <div class="friend-name">David</div>
-                        <div class="friend-role">Тестер</div>
-                    </div>
-                    <div class="friend-card">
-                        <div class="friend-avatar">S</div>
-                        <div class="friend-name">Sofia</div>
-                        <div class="friend-role">Модератор</div>
-                    </div>
-                    <div class="friend-card">
-                        <div class="friend-avatar">R</div>
-                        <div class="friend-name">Robert</div>
-                        <div class="friend-role">Картограф</div>
+                <div class="post-content">
+                    <h2 class="post-title">🎉 Обновление v2.5: Новые станции!</h2>
+                    
+                    <div class="post-text">
+                        Рады объявить о выходе обновления v2.5! Мы добавили:
+                        
+                        🚇 Новые станции:
+                        • "Комсомольская"
+                        • "Технопарк"
+                        
+                        🚂 Улучшения поездов:
+                        • Обновленная физика
+                        • Новые звуки
+                        
+                        🎮 Для игроков:
+                        • Оптимизация
+                        • Новые достижения
                     </div>
                 </div>
+
+                <div class="post-stats">
+                    <div class="stats-left">
+                        <div class="post-stat" onclick="showSecurityModal()">
+                            <i class="fas fa-comment"></i>
+                            <span>Комментарии</span>
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-eye"></i>
+                            <span>3,842 просмотра</span>
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-heart"></i>
+                            <span>256 лайков</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- КНОПКА КОММЕНТАРИЕВ -->
+                <button class="comment-btn disabled" onclick="showSecurityModal()">
+                    <i class="fas fa-comment-slash"></i>
+                    Комментарии временно отключены
+                </button>
+            </div>
+
+            <!-- ПОСТ 2 -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="post-avatar">M</div>
+                        <div class="author-info">
+                            <div class="author-name">Метро New</div>
+                            <div class="post-meta">
+                                <span class="post-date">10 декабря 2025 · 11:15</span>
+                                <span class="post-type">Новости</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post-content">
+                    <h2 class="post-title">🎄 Новогоднее обновление!</h2>
+                    
+                    <div class="post-text">
+                        Готовьтесь к праздникам! С 20 декабря:
+                        
+                        ✨ Что нового:
+                        • Праздничное освещение
+                        • Украшенные елки
+                        • Новогодние объявления
+                        
+                        🎁 Новогодний ивент:
+                        • Уникальные бейджи
+                        • Праздничные скины
+                        
+                        🎯 Задания:
+                        1. Проехать на новогоднем поезде
+                        2. Найти все украшенные елки
+                    </div>
+                </div>
+
+                <div class="post-stats">
+                    <div class="stats-left">
+                        <div class="post-stat" onclick="showSecurityModal()">
+                            <i class="fas fa-comment"></i>
+                            <span>Комментарии</span>
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-eye"></i>
+                            <span>2,154 просмотра</span>
+                        </div>
+                        <div class="post-stat">
+                            <i class="fas fa-heart"></i>
+                            <span>189 лайков</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- КНОПКА КОММЕНТАРИЕВ -->
+                <button class="comment-btn disabled" onclick="showSecurityModal()">
+                    <i class="fas fa-comment-slash"></i>
+                    Комментарии временно отключены
+                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Подсказки для бейджей
-            const badgeItems = document.querySelectorAll('.badge-item');
-            badgeItems.forEach(badge => {
-                badge.addEventListener('click', function() {
-                    const title = this.getAttribute('title');
-                    if (title) {
-                        alert(title);
-                    }
-                });
-            });
-
-            // Кнопка публикации поста
-            const publishBtn = document.querySelector('.publish-btn');
-            const postInput = document.querySelector('.new-post-input');
+    <!-- МОДАЛЬНОЕ ОКНО БЕЗОПАСНОСТИ -->
+    <div class="security-modal" id="security-modal">
+        <div class="security-box">
+            <div class="security-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
             
-            publishBtn.addEventListener('click', function() {
-                if (postInput.value.trim() === '') {
-                    alert('Введите текст поста!');
-                    return;
+            <h2 class="security-title">Безопасность данных</h2>
+            
+            <div class="security-message">
+                Комментарии временно отключены для обеспечения максимальной безопасности.
+                <br><br>
+                <strong>Мы не собираем ваши данные!</strong>
+            </div>
+            
+            <div class="security-features">
+                <div class="security-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Без отслеживания IP-адресов</span>
+                </div>
+                <div class="security-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Без сбора личной информации</span>
+                </div>
+                <div class="security-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Без cookies для отслеживания</span>
+                </div>
+                <div class="security-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Без передачи данных третьим лицам</span>
+                </div>
+            </div>
+            
+            <p style="color: var(--gray); margin: 20px 0; font-size: 14px;">
+                Система комментариев будет доступна после завершения работ по обеспечению безопасности.
+            </p>
+            
+            <button class="security-btn" onclick="closeSecurityModal()">
+                Понятно
+            </button>
+        </div>
+    </div>
+
+    <!-- ФУТЕР -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Политика приватности</a>
+                <a href="terms.html" class="footer-link">Пользовательское соглашение</a>
+                <a href="security.html" class="footer-link">Безопасность данных</a>
+                <a href="contact.html" class="footer-link">Контакты</a>
+            </div>
+            
+            <p class="copyright">
+                © 2025 Метро New. Все права защищены.<br>
+                <small>Мы не собираем и не храним ваши личные данные</small>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // УВЕДОМЛЕНИЯ
+        let notifications = [
+            {
+                id: 1,
+                title: "Новое обновление!",
+                message: "Вышло обновление v2.5 с новыми станциями",
+                time: "10 мин назад",
+                read: false
+            },
+            {
+                id: 2,
+                title: "Безопасность аккаунта",
+                message: "Ваши данные в полной безопасности",
+                time: "1 час назад",
+                read: false
+            }
+        ];
+
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notification-count');
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.add('active');
+            } else {
+                badge.classList.remove('active');
+            }
+        }
+
+        function updateNotificationsPanel() {
+            const container = document.getElementById('notifications-list');
+            container.innerHTML = '';
+            
+            notifications.forEach(notif => {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-time">${notif.time}</div>
+                    </div>
+                    <div class="notification-message">${notif.message}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function clearNotifications() {
+            notifications = [];
+            updateNotificationBadge();
+            updateNotificationsPanel();
+            document.getElementById('notifications-panel').classList.remove('active');
+        }
+
+        // ПАНЕЛЬ УВЕДОМЛЕНИЙ
+        document.getElementById('notification-btn').addEventListener('click', function() {
+            const panel = document.getElementById('notifications-panel');
+            panel.classList.toggle('active');
+            
+            // Закрываем другие панели
+            document.getElementById('theme-preview').classList.remove('active');
+            document.getElementById('language-preview').classList.remove('active');
+            
+            // Помечаем уведомления как прочитанные
+            notifications.forEach(notif => notif.read = true);
+            updateNotificationBadge();
+        });
+
+        // ТЕМЫ
+        document.getElementById('theme-btn').addEventListener('click', function() {
+            const panel = document.getElementById('theme-preview');
+            panel.classList.toggle('active');
+            
+            // Закрываем другие панели
+            document.getElementById('notifications-panel').classList.remove('active');
+            document.getElementById('language-preview').classList.remove('active');
+        });
+
+        function changeTheme(theme) {
+            let body = document.body;
+            
+            switch(theme) {
+                case 'dark':
+                    body.style.backgroundColor = '#1a1a1a';
+                    body.style.color = '#f8f9fa';
+                    break;
+                case 'blue':
+                    body.style.backgroundColor = '#e6f2ff';
+                    body.style.color = '#1a1a1a';
+                    break;
+                case 'green':
+                    body.style.backgroundColor = '#e6f4ea';
+                    body.style.color = '#1a1a1a';
+                    break;
+                default: // light
+                    body.style.backgroundColor = '#f8f9fa';
+                    body.style.color = '#1a1a1a';
+            }
+            
+            document.getElementById('theme-preview').classList.remove('active');
+            showMessage(`Тема изменена на ${theme}`);
+        }
+
+        // ЯЗЫКИ
+        document.getElementById('language-btn').addEventListener('click', function() {
+            const panel = document.getElementById('language-preview');
+            panel.classList.toggle('active');
+            
+            // Закрываем другие панели
+            document.getElementById('notifications-panel').classList.remove('active');
+            document.getElementById('theme-preview').classList.remove('active');
+        });
+
+        function changeLanguage(lang) {
+            const options = document.querySelectorAll('.language-option');
+            options.forEach(opt => opt.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // В реальном проекте здесь была бы загрузка перевода
+            switch(lang) {
+                case 'en':
+                    showMessage('Language changed to English');
+                    break;
+                case 'es':
+                    showMessage('Idioma cambiado a Español');
+                    break;
+                case 'de':
+                    showMessage('Sprache zu Deutsch geändert');
+                    break;
+                default: // ru
+                    showMessage('Язык изменён на Русский');
+            }
+            
+            document.getElementById('language-preview').classList.remove('active');
+        }
+
+        // МОДАЛЬНОЕ ОКНО БЕЗОПАСНОСТИ
+        function showSecurityModal() {
+            document.getElementById('security-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSecurityModal() {
+            document.getElementById('security-modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ЗАКРЫТИЕ ПАНЕЛЕЙ ПРИ КЛИКЕ ВНЕ ИХ
+        document.addEventListener('click', function(event) {
+            // Уведомления
+            const notificationsPanel = document.getElementById('notifications-panel');
+            const notificationsBtn = document.getElementById('notification-btn');
+            
+            if (notificationsPanel.classList.contains('active') && 
+                !notificationsPanel.contains(event.target) && 
+                !notificationsBtn.contains(event.target)) {
+                notificationsPanel.classList.remove('active');
+            }
+            
+            // Темы
+            const themePanel = document.getElementById('theme-preview');
+            const themeBtn = document.getElementById('theme-btn');
+            
+            if (themePanel.classList.contains('active') && 
+                !themePanel.contains(event.target) && 
+                !themeBtn.contains(event.target)) {
+                themePanel.classList.remove('active');
+            }
+            
+            // Языки
+            const languagePanel = document.getElementById('language-preview');
+            const languageBtn = document.getElementById('language-btn');
+            
+            if (languagePanel.classList.contains('active') && 
+                !languagePanel.contains(event.target) && 
+                !languageBtn.contains(event.target)) {
+                languagePanel.classList.remove('active');
+            }
+            
+            // Модалка безопасности
+            const securityModal = document.getElementById('security-modal');
+            if (securityModal.classList.contains('active') && 
+                event.target === securityModal) {
+                closeSecurityModal();
+            }
+        });
+
+        // ЗАКРЫТИЕ ПО ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.getElementById('notifications-panel').classList.remove('active');
+                document.getElementById('theme-preview').classList.remove('active');
+                document.getElementById('language-preview').classList.remove('active');
+                closeSecurityModal();
+            }
+        });
+
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        function showMessage(text) {
+            // Создаем временное уведомление
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--primary);
+                color: white;
+                padding: 12px 20px;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            message.textContent = text;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
+
+        // АНИМАЦИЯ
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
                 }
-                
-                alert('Пост опубликован!');
-                postInput.value = '';
-            });
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
-            // Лайки на постах
-            const likeButtons = document.querySelectorAll('.post-stat:nth-child(1)');
-            likeButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const likesText = this.querySelector('i').nextSibling;
-                    let likes = parseInt(likesText.textContent.trim());
-                    likes++;
-                    likesText.textContent = ` ${likes}`;
-                    
-                    this.style.color = 'var(--danger)';
-                    this.querySelector('i').style.color = 'var(--danger)';
+        // ИНИЦИАЛИЗАЦИЯ
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNotificationBadge();
+            updateNotificationsPanel();
+            
+            // Обновление статистики каждые 30 секунд
+            setInterval(() => {
+                const viewStats = document.querySelectorAll('.post-stat:nth-child(2) span');
+                viewStats.forEach(stat => {
+                    let views = parseInt(stat.textContent.replace(/\D/g, ''));
+                    views += Math.floor(Math.random() * 3) + 1;
+                    stat.textContent = views.toLocaleString() + ' просмотра';
                 });
-            });
-
-            // Подключение баннера приватности
-            const script = document.createElement('script');
-            script.src = 'privacy-banner.js';
-            document.body.appendChild(script);
+            }, 30000);
         });
     </script>
+    <!-- В самом низу, перед закрывающим тегом </body> -->
+<script src="privacy-banner.js"></script>
+    
 </body>
 </html>
