@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
             supportTitle: 'Нужна помощь?',
             supportText: 'Если у вас есть вопросы или вы нашли ошибку, прошу обратиться в',
             supportLink: 'Службу поддержки',
-            accountTitle: 'Хотите создать аккаунт в ВК?',
+            accountTitle: 'Хотите создать аккаунт на сайте?',
             accountText: 'Если вы хотите создать свой аккаунт, прошу написать в поддержку на официальную почту:',
             recaptchaError: 'Пожалуйста, подтвердите что вы не робот',
             loading: 'Загрузка...'
