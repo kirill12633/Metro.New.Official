@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const MODAL_VERSION = '0.1';
+    const MODAL_VERSION = '0.2';
     const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
     const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
     const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
