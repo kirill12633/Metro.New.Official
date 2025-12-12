@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const MODAL_VERSION = '1.1';
+    const MODAL_VERSION = '0.2';
     const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
     const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
     const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
@@ -14,36 +14,86 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const texts = {
         ru: {
-            title: 'Метро New',
-            message: 'Для использования приложения необходимо принять условия',
-            button: 'Принять и продолжить',
+            title: 'Добро пожаловать в Метро New',
+            message: `
+                Для использования нашего приложения вы должны принять условия 
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank" class="modal-link">Пользовательского соглашения</a> 
+                и <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank" class="modal-link">Политики конфиденциальности</a>. 
+                Мы собираем минимальные данные: IP и никнейм. Рекомендуемый возраст — от 13 лет.
+            `,
+            button: 'Согласен и продолжаю',
             buttonUnderage: 'Мне нет 13 лет',
             ageQuestion: 'Сколько вам лет?',
-            exitWarning: 'Приложение закроется через 5 секунд',
-            supportTitle: 'Поддержка',
-            supportText: 'Если есть вопросы, обращайтесь:',
-            accountText: 'Для создания аккаунта пишите:',
-            recaptchaError: 'Подтвердите, что вы не робот',
-            acceptNote: 'Нажимая "Принять", вы соглашаетесь с нашими правилами'
+            ageConfirm: 'Подтвердите, что вам 13 лет или больше',
+            securityNote: 'Ваши данные защищены',
+            exitWarning: 'Если вам нет 13 лет, приложение будет закрыто',
+            supportTitle: 'Нужна помощь?',
+            supportText: 'Если у вас есть вопросы или вы нашли ошибку, прошу обратиться в',
+            supportLink: 'Службу поддержки',
+            accountTitle: 'Хотите создать аккаунт на сайте?',
+            accountText: 'Если вы хотите создать свой аккаунт, прошу написать в поддержку на официальную почту:',
+            recaptchaError: 'Пожалуйста, подтвердите что вы не робот',
+            loading: 'Загрузка...'
         },
         en: {
-            title: 'Metro New',
-            message: 'To use the app you must accept the terms',
-            button: 'Accept and continue',
+            title: 'Welcome to Metro New',
+            message: `
+                To use our app, you must accept the 
+                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank" class="modal-link">Terms of Service</a> 
+                and <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank" class="modal-link">Privacy Policy</a>. 
+                We collect minimal data: IP and username. Recommended age — 13+.
+            `,
+            button: 'Agree and continue',
             buttonUnderage: "I'm under 13",
             ageQuestion: 'How old are you?',
-            exitWarning: 'App will close in 5 seconds',
-            supportTitle: 'Support',
-            supportText: 'If you have questions, contact:',
-            accountText: 'To create an account write to:',
-            recaptchaError: 'Confirm you are not a robot',
-            acceptNote: 'By clicking "Accept" you agree to our rules'
+            ageConfirm: 'Confirm you are 13 years or older',
+            securityNote: 'Your data is protected',
+            exitWarning: 'If you are under 13, the app will close',
+            supportTitle: 'Need help?',
+            supportText: 'If you have questions or found a bug, please contact',
+            supportLink: 'Support Service',
+            accountTitle: 'Want to create a VK account?',
+            accountText: 'If you want to create your own account, please write to support at official email:',
+            recaptchaError: 'Please confirm you are not a robot',
+            loading: 'Loading...'
         }
     };
 
     // ===== СОЗДАЕМ СТИЛИ =====
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
+        @keyframes floatIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(50px) rotateX(15deg);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.02) translateY(-5px) rotateX(0deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0) rotateX(0deg);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 102, 204, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 102, 204, 0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -54,101 +104,107 @@ document.addEventListener('DOMContentLoaded', function() {
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 99999;
-            padding: 20px;
-            font-family: 'Arial', sans-serif;
-            backdrop-filter: blur(5px);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            backdrop-filter: blur(10px);
+            perspective: 1000px;
         }
         
         .modal-container {
             background: linear-gradient(145deg, #ffffff, #f5f5f5);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 450px;
-            width: 100%;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25),
+            border-radius: 20px;
+            padding: 40px 35px;
+            max-width: 600px; /* УВЕЛИЧЕНА ШИРИНА */
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 
                         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            text-align: center;
             position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(0, 102, 204, 0.2);
+            font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+            color: #1A1A1A;
+            transform-origin: center;
+            animation: floatIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            border: 1px solid rgba(0, 102, 204, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
-        .modal-container::before {
-            content: '';
+        .security-badge {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #0066CC, #00CCFF, #0066CC);
+            top: 15px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #28A745;
+            font-weight: 600;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            animation: pulse 2s infinite;
+            z-index: 2;
+        }
+        
+        .security-badge::before {
+            content: '🔒';
+            font-size: 10px;
         }
         
         .modal-header {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding-top: 10px;
+        }
+        
+        .modal-header:hover {
+            transform: translateY(-3px);
         }
         
         .logo-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #0066CC;
-            margin-bottom: 8px;
+            font-size: 2.2rem; /* УВЕЛИЧЕН РАЗМЕР */
+            font-weight: 900;
+            background: linear-gradient(135deg, #0066CC, #0099FF, #00CCFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
             letter-spacing: -0.5px;
         }
         
-        .logo-subtitle {
-            font-size: 14px;
-            color: #666;
-            font-weight: 500;
-        }
-        
-        .modal-content-box {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .modal-message {
-            font-size: 15px;
-            color: #333;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .modal-links {
+        .verified-badge {
+            font-size: 0.9rem; /* УВЕЛИЧЕН РАЗМЕР */
+            color: #28A745;
+            font-weight: 700;
+            padding: 6px 14px;
+            background: rgba(40, 167, 69, 0.15);
+            border-radius: 20px;
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 15px 0;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid rgba(40, 167, 69, 0.3);
         }
         
-        .modal-links a {
-            color: #0066CC;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 8px 15px;
-            border-radius: 8px;
-            background: rgba(0, 102, 204, 0.08);
-            transition: all 0.2s;
+        .verified-badge::before {
+            content: '✓';
+            font-weight: bold;
+            font-size: 16px;
         }
         
-        .modal-links a:hover {
-            background: rgba(0, 102, 204, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        .age-section {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.1));
-            border: 2px solid #FFD700;
-            border-radius: 12px;
+        .age-check-section {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 15px;
             padding: 20px;
             margin: 20px 0;
+            border: 2px dashed #FFD700;
+            animation: slideDown 0.5s ease forwards;
         }
         
         .age-question {
@@ -156,24 +212,25 @@ document.addEventListener('DOMContentLoaded', function() {
             font-weight: 700;
             color: #0066CC;
             margin-bottom: 15px;
-            text-align: center;
         }
         
         .age-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 15px;
+            justify-content: center;
             margin-bottom: 10px;
         }
         
         .age-btn {
-            padding: 14px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 220px; /* УВЕЛИЧЕНА ШИРИНА */
         }
         
         .age-btn.yes {
@@ -190,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .age-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
         
         .age-btn:active {
@@ -198,94 +255,125 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         .age-warning {
-            font-size: 13px;
+            font-size: 12px;
             color: #FF6B35;
-            text-align: center;
-            font-weight: 600;
             margin-top: 10px;
-            background: rgba(255, 107, 53, 0.1);
-            padding: 8px;
-            border-radius: 8px;
+            font-weight: 600;
         }
         
         .recaptcha-section {
             background: #f8f9fa;
-            border-radius: 12px;
+            border-radius: 15px;
             padding: 20px;
             margin: 20px 0;
             border: 1px solid #dee2e6;
-            display: none;
-            justify-content: center;
-            align-items: center;
             min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
         }
         
         .recaptcha-error {
             color: #dc3545;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 10px;
+            font-size: 12px;
             font-weight: 600;
+            margin-top: 5px;
             display: none;
         }
         
-        .main-button-container {
-            margin: 25px 0 15px;
+        .modal-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #495057;
+            margin-bottom: 25px;
+            text-align: left;
+            padding: 0 5px;
         }
         
-        .main-button {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #0066CC, #0099FF);
-            color: white;
+        .modal-button {
+            padding: 16px 32px;
             border: none;
             border-radius: 12px;
-            font-size: 17px;
-            font-weight: 700;
+            background: linear-gradient(135deg, #FFD700, #FFC107);
+            color: #1A1A1A;
+            font-weight: 800;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+            width: 100%;
+            max-width: 400px; /* УВЕЛИЧЕНА ШИРИНА */
+            margin: 25px auto 30px;
+            display: block;
             position: relative;
             overflow: hidden;
         }
         
-        .main-button:hover:not(:disabled) {
-            background: linear-gradient(135deg, #0052a3, #0088e6);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.4);
+        .modal-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            transition: transform 0.6s;
         }
         
-        .main-button:disabled {
-            background: linear-gradient(135deg, #6c757d, #868e96);
+        .modal-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+        
+        .modal-button:hover::after {
+            transform: rotate(30deg) translateX(100%);
+        }
+        
+        .modal-button:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
         }
         
-        .accept-note {
-            font-size: 12px;
-            color: #666;
-            text-align: center;
+        .shake {
+            animation: shake 0.5s ease;
+        }
+        
+        .exit-timer {
+            font-size: 11px;
+            color: #FF6B35;
+            font-weight: 700;
             margin-top: 10px;
-            font-style: italic;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 5px 10px;
+            border-radius: 10px;
+            display: inline-block;
         }
         
         .footer-section {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e9ecef;
+            text-align: left;
         }
         
-        .footer-block {
+        .support-block, .account-block {
             background: rgba(0, 102, 204, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
             border-left: 4px solid #0066CC;
         }
         
         .footer-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: #0066CC;
             margin-bottom: 8px;
@@ -296,11 +384,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .footer-title::before {
             content: '💬';
+            font-size: 14px;
+        }
+        
+        .account-block .footer-title::before {
+            content: '👤';
         }
         
         .footer-text {
             font-size: 13px;
-            color: #555;
+            color: #495057;
             line-height: 1.5;
             margin-bottom: 8px;
         }
@@ -309,10 +402,10 @@ document.addEventListener('DOMContentLoaded', function() {
             color: #0066CC;
             font-weight: 600;
             text-decoration: none;
+            transition: all 0.2s;
             display: inline-block;
             padding: 2px 0;
             border-bottom: 1px dashed #0066CC;
-            transition: all 0.2s;
         }
         
         .footer-link:hover {
@@ -323,64 +416,77 @@ document.addEventListener('DOMContentLoaded', function() {
         .footer-email {
             color: #28A745;
             font-weight: 600;
+            font-family: monospace;
             background: rgba(40, 167, 69, 0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
             display: inline-block;
             margin-top: 5px;
-            font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             border: 1px solid rgba(40, 167, 69, 0.2);
-            cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .footer-email:hover {
-            background: rgba(40, 167, 69, 0.2);
+        .loading-dots {
+            display: inline-block;
+            font-size: 20px;
+            letter-spacing: 2px;
         }
         
-        .success-text {
-            color: #28A745;
-            font-weight: 600;
-            text-align: center;
-            font-size: 15px;
-            animation: fadeIn 0.3s;
+        .loading-dots span {
+            animation: blink 1.4s infinite;
+            animation-fill-mode: both;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
         }
         
-        @media (max-width: 500px) {
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+        
+        /* Стили для reCAPTCHA */
+        .g-recaptcha {
+            display: inline-block;
+            transform: scale(1.1);
+            transform-origin: center;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 650px) {
             .modal-container {
-                padding: 25px 20px;
+                width: 95%;
+                padding: 30px 20px;
             }
             
             .logo-title {
-                font-size: 28px;
+                font-size: 1.8rem;
             }
             
             .age-buttons {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .modal-links {
                 flex-direction: column;
                 align-items: center;
-                gap: 10px;
             }
             
-            .modal-links a {
+            .age-btn {
+                max-width: 100%;
                 width: 100%;
-                text-align: center;
+            }
+            
+            .g-recaptcha {
+                transform: scale(0.9);
             }
         }
     `;
     document.head.appendChild(styleSheet);
 
-    // ===== ЗАГРУЗКА RECAPTCHA =====
+    // ===== ЗАГРУЗКА GOOGLE RECAPTCHA =====
     function loadRecaptcha() {
         return new Promise((resolve) => {
             if (window.grecaptcha) {
@@ -393,8 +499,14 @@ document.addEventListener('DOMContentLoaded', function() {
             script.async = true;
             script.defer = true;
             
-            script.onload = resolve;
-            script.onerror = resolve;
+            script.onload = () => {
+                setTimeout(resolve, 500);
+            };
+            
+            script.onerror = () => {
+                console.error('Failed to load reCAPTCHA');
+                resolve();
+            };
             
             document.head.appendChild(script);
         });
@@ -409,51 +521,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.createElement('div');
     modal.className = 'modal-container';
 
+    // Бейдж безопасности
+    const securityBadge = document.createElement('div');
+    securityBadge.className = 'security-badge';
+    securityBadge.textContent = texts[lang].securityNote;
+
     // Заголовок
     const header = document.createElement('div');
     header.className = 'modal-header';
-    
+    header.addEventListener('click', () => {
+        window.open(REDIRECT_LOGO_URL, '_blank');
+    });
+
     const logoTitle = document.createElement('div');
     logoTitle.className = 'logo-title';
-    logoTitle.textContent = texts[lang].title;
-    
-    const logoSubtitle = document.createElement('div');
-    logoSubtitle.className = 'logo-subtitle';
-    logoSubtitle.textContent = lang === 'ru' ? 'Официальный проект' : 'Official project';
-    
+    logoTitle.textContent = 'Метро New';
+
+    const verifiedBadge = document.createElement('div');
+    verifiedBadge.className = 'verified-badge';
+    verifiedBadge.textContent = lang === 'ru' ? 'Официально' : 'Official';
+
     header.appendChild(logoTitle);
-    header.appendChild(logoSubtitle);
+    header.appendChild(verifiedBadge);
 
-    // Контент
-    const contentBox = document.createElement('div');
-    contentBox.className = 'modal-content-box';
-    
-    const message = document.createElement('div');
-    message.className = 'modal-message';
-    message.textContent = texts[lang].message;
-    
-    const links = document.createElement('div');
-    links.className = 'modal-links';
-    links.innerHTML = lang === 'ru' 
-        ? `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Правила</a>
-           <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Конфиденциальность</a>`
-        : `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Rules</a>
-           <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Privacy</a>`;
-    
-    contentBox.appendChild(message);
-    contentBox.appendChild(links);
+    // Контент соглашения
+    const content = document.createElement('div');
+    content.className = 'modal-content';
+    content.innerHTML = texts[lang].message;
 
-    // Возрастная проверка
+    // ===== ВОЗРАСТНАЯ ПРОВЕРКА =====
     const ageSection = document.createElement('div');
-    ageSection.className = 'age-section';
-    
+    ageSection.className = 'age-check-section';
+
     const ageQuestion = document.createElement('div');
     ageQuestion.className = 'age-question';
     ageQuestion.textContent = texts[lang].ageQuestion;
-    
+
     const ageButtons = document.createElement('div');
     ageButtons.className = 'age-buttons';
-    
+
     const ageYesBtn = document.createElement('button');
     ageYesBtn.className = 'age-btn yes';
     ageYesBtn.textContent = '13+';
@@ -461,11 +567,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const ageNoBtn = document.createElement('button');
     ageNoBtn.className = 'age-btn no';
     ageNoBtn.textContent = texts[lang].buttonUnderage;
-    
+
     const ageWarning = document.createElement('div');
     ageWarning.className = 'age-warning';
     ageWarning.textContent = texts[lang].exitWarning;
-    
+
     ageButtons.appendChild(ageYesBtn);
     ageButtons.appendChild(ageNoBtn);
     
@@ -473,37 +579,33 @@ document.addEventListener('DOMContentLoaded', function() {
     ageSection.appendChild(ageButtons);
     ageSection.appendChild(ageWarning);
 
-    // Recaptcha
+    // ===== GOOGLE RECAPTCHA СЕКЦИЯ =====
     const recaptchaSection = document.createElement('div');
     recaptchaSection.className = 'recaptcha-section';
+    recaptchaSection.id = 'recaptcha-container';
+    
+    const loadingText = document.createElement('div');
+    loadingText.className = 'loading-dots';
+    loadingText.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+    recaptchaSection.appendChild(loadingText);
     
     const recaptchaError = document.createElement('div');
     recaptchaError.className = 'recaptcha-error';
     recaptchaError.textContent = texts[lang].recaptchaError;
 
-    // Кнопка
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'main-button-container';
-    
+    // ===== ОСНОВНАЯ КНОПКА =====
     const mainButton = document.createElement('button');
-    mainButton.className = 'main-button';
+    mainButton.className = 'modal-button';
     mainButton.textContent = texts[lang].button;
     mainButton.disabled = true;
-    
-    const acceptNote = document.createElement('div');
-    acceptNote.className = 'accept-note';
-    acceptNote.textContent = texts[lang].acceptNote;
-    
-    buttonContainer.appendChild(mainButton);
-    buttonContainer.appendChild(acceptNote);
 
-    // Футер
+    // ===== НИЖНЯЯ СЕКЦИЯ (Support и Account) =====
     const footerSection = document.createElement('div');
     footerSection.className = 'footer-section';
-    
-    // Поддержка
+
+    // Блок поддержки
     const supportBlock = document.createElement('div');
-    supportBlock.className = 'footer-block';
+    supportBlock.className = 'support-block';
     
     const supportTitle = document.createElement('div');
     supportTitle.className = 'footer-title';
@@ -511,115 +613,162 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const supportText = document.createElement('div');
     supportText.className = 'footer-text';
-    supportText.innerHTML = `${texts[lang].supportText} <a href="${SUPPORT_URL}" target="_blank" class="footer-link">Support</a>`;
+    supportText.innerHTML = `${texts[lang].supportText} <a href="${SUPPORT_URL}" target="_blank" class="footer-link">${texts[lang].supportLink}</a>`;
     
     supportBlock.appendChild(supportTitle);
     supportBlock.appendChild(supportText);
-    
-    // Email
+
+    // Блок аккаунта ВК
     const accountBlock = document.createElement('div');
-    accountBlock.className = 'footer-block';
+    accountBlock.className = 'account-block';
+    
+    const accountTitle = document.createElement('div');
+    accountTitle.className = 'footer-title';
+    accountTitle.textContent = texts[lang].accountTitle;
     
     const accountText = document.createElement('div');
     accountText.className = 'footer-text';
-    accountText.textContent = texts[lang].accountText;
+    accountText.innerHTML = texts[lang].accountText;
     
     const emailElement = document.createElement('div');
     emailElement.className = 'footer-email';
     emailElement.textContent = OFFICIAL_EMAIL;
+    emailElement.style.cursor = 'pointer';
     emailElement.title = lang === 'ru' ? 'Кликните чтобы скопировать' : 'Click to copy';
     
     emailElement.addEventListener('click', () => {
         navigator.clipboard.writeText(OFFICIAL_EMAIL).then(() => {
             const originalText = emailElement.textContent;
-            emailElement.textContent = lang === 'ru' ? '✓ Скопировано!' : '✓ Copied!';
+            emailElement.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
             emailElement.style.background = 'rgba(40, 167, 69, 0.2)';
+            emailElement.style.color = '#28A745';
+            
             setTimeout(() => {
                 emailElement.textContent = originalText;
                 emailElement.style.background = 'rgba(40, 167, 69, 0.1)';
+                emailElement.style.color = '#28A745';
             }, 2000);
         });
     });
     
+    accountBlock.appendChild(accountTitle);
     accountBlock.appendChild(accountText);
     accountBlock.appendChild(emailElement);
-    
+
+    // Собираем футер
     footerSection.appendChild(supportBlock);
     footerSection.appendChild(accountBlock);
 
-    // Переменные
+    // ===== ПЕРЕМЕННЫЕ СОСТОЯНИЯ =====
     let ageConfirmed = false;
+    let recaptchaVerified = false;
     let recaptchaWidgetId = null;
 
-    // Инициализация Recaptcha
+    // ===== ИНИЦИАЛИЗАЦИЯ RECAPTCHA =====
     function initRecaptcha() {
         if (!window.grecaptcha || !window.grecaptcha.render) {
             setTimeout(initRecaptcha, 100);
             return;
         }
         
+        recaptchaSection.innerHTML = '';
         recaptchaWidgetId = grecaptcha.render(recaptchaSection, {
             sitekey: RECAPTCHA_SITE_KEY,
             theme: 'light',
             size: 'normal',
-            callback: function() {
-                mainButton.disabled = false;
+            callback: function(response) {
+                recaptchaVerified = true;
                 recaptchaError.style.display = 'none';
+                checkFormCompletion();
             },
             'expired-callback': function() {
-                mainButton.disabled = true;
+                recaptchaVerified = false;
+                checkFormCompletion();
             },
             'error-callback': function() {
+                recaptchaVerified = false;
                 recaptchaError.style.display = 'block';
-                mainButton.disabled = true;
+                checkFormCompletion();
             }
         });
     }
 
-    // Обработчики
+    // ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
     ageYesBtn.addEventListener('click', () => {
         ageConfirmed = true;
         ageSection.style.opacity = '0.6';
         ageSection.style.pointerEvents = 'none';
         
+        // Показываем reCAPTCHA
         recaptchaSection.style.display = 'flex';
+        setTimeout(() => {
+            recaptchaSection.style.opacity = '1';
+            recaptchaSection.style.transform = 'translateY(0)';
+        }, 10);
         
+        // Загружаем и инициализируем reCAPTCHA
         loadRecaptcha().then(() => {
-            setTimeout(initRecaptcha, 500);
+            initRecaptcha();
         });
+        
+        checkFormCompletion();
     });
 
     ageNoBtn.addEventListener('click', () => {
-        let seconds = 5;
-        ageWarning.classList.add('age-warning');
+        ageWarning.textContent = lang === 'ru' 
+            ? 'Приложение закроется через 5 секунд...' 
+            : 'App will close in 5 seconds...';
         
+        ageWarning.classList.add('exit-timer');
+        
+        let seconds = 5;
         const timer = setInterval(() => {
+            seconds--;
             ageWarning.textContent = lang === 'ru'
                 ? `Приложение закроется через ${seconds} секунд...`
                 : `App will close in ${seconds} seconds...`;
             
-            seconds--;
-            
-            if (seconds < 0) {
+            if (seconds <= 0) {
                 clearInterval(timer);
                 window.location.href = 'about:blank';
             }
         }, 1000);
     });
 
+    // Проверка готовности формы
+    function checkFormCompletion() {
+        mainButton.disabled = !(ageConfirmed && recaptchaVerified);
+    }
+
+    // Основная кнопка
     mainButton.addEventListener('click', () => {
-        if (!ageConfirmed || !grecaptcha || !grecaptcha.getResponse(recaptchaWidgetId)) {
-            recaptchaError.style.display = 'block';
-            recaptchaSection.style.border = '1px solid #dc3545';
-            setTimeout(() => {
-                recaptchaSection.style.border = '1px solid #dee2e6';
-            }, 1000);
+        if (!ageConfirmed || !recaptchaVerified) {
+            if (!recaptchaVerified) {
+                recaptchaError.style.display = 'block';
+                mainButton.classList.add('shake');
+                setTimeout(() => mainButton.classList.remove('shake'), 500);
+            }
             return;
         }
         
+        // Получаем токен reCAPTCHA
+        const recaptchaResponse = grecaptcha.getResponse(recaptchaWidgetId);
+        if (!recaptchaResponse) {
+            recaptchaError.style.display = 'block';
+            return;
+        }
+        
+        // Анимация принятия
+        mainButton.style.background = 'linear-gradient(135deg, #28A745, #20C997)';
         mainButton.textContent = lang === 'ru' ? '✓ Принято!' : '✓ Accepted!';
         mainButton.disabled = true;
-        mainButton.style.background = 'linear-gradient(135deg, #28A745, #20C997)';
+        
+        // Можно отправить токен на сервер для проверки
+        // fetch('/verify-recaptcha', {
+        //     method: 'POST',
+        //     body: JSON.stringify({ token: recaptchaResponse }),
+        //     headers: { 'Content-Type': 'application/json' }
+        // })
         
         setTimeout(() => {
             overlay.style.opacity = '0';
@@ -627,25 +776,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 overlay.remove();
                 document.body.style.overflow = '';
                 
+                // Сохраняем в localStorage
                 localStorage.setItem('privacy_modal_version', MODAL_VERSION);
                 localStorage.setItem('age_verified', 'true');
-                localStorage.setItem('agreement_date', new Date().toISOString());
+                localStorage.setItem('recaptcha_passed', 'true');
+                localStorage.setItem('verification_timestamp', Date.now().toString());
+                
             }, 300);
         }, 800);
     });
 
-    // Сборка
+    // ===== СОБИРАЕМ МОДАЛКУ =====
+    modal.appendChild(securityBadge);
     modal.appendChild(header);
-    modal.appendChild(contentBox);
+    modal.appendChild(content);
     modal.appendChild(ageSection);
     modal.appendChild(recaptchaSection);
     modal.appendChild(recaptchaError);
-    modal.appendChild(buttonContainer);
+    modal.appendChild(mainButton);
     modal.appendChild(footerSection);
     
     overlay.appendChild(modal);
 
-    // Закрытие
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ =====
+    setTimeout(() => {
+        overlay.style.opacity = '1';
+        
+        // Последовательное появление элементов
+        const elements = [header, content, ageSection, footerSection, mainButton];
+        elements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                el.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 300 + (index * 150));
+        });
+        
+    }, 100);
+
+    // Очистка при закрытии
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.style.opacity = '0';
