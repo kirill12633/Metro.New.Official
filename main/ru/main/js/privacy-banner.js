@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const MODAL_VERSION = '0.3';
+    const MODAL_VERSION = '1.0';
     const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
     const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
     const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
@@ -14,455 +14,270 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const texts = {
         ru: {
-            title: 'Добро пожаловать в Метро New',
-            message: `
-                Для использования нашего приложения вы должны принять условия 
-                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank" class="modal-link">Пользовательского соглашения</a> 
-                и <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank" class="modal-link">Политики конфиденциальности</a>. 
-                Мы собираем минимальные данные: IP и никнейм. Рекомендуемый возраст — от 13 лет.
-            `,
+            title: 'Метро New',
+            message: 'Для использования нашего приложения вы должны принять условия.',
             button: 'Принять и продолжить',
             buttonUnderage: 'Мне нет 13 лет',
             ageQuestion: 'Сколько вам лет?',
-            ageConfirm: 'Подтвердите, что вам 13 лет или больше',
             exitWarning: 'Если вам нет 13 лет, приложение будет закрыто',
             supportTitle: 'Нужна помощь?',
-            supportText: 'Если у вас есть вопросы или вы нашли ошибку, прошу обратиться в',
+            supportText: 'Если у вас есть вопросы, обратитесь в',
             supportLink: 'Службу поддержки',
-            accountTitle: 'Хотите создать аккаунт на сайте?',
-            accountText: 'Если вы хотите создать свой аккаунт, прошу написать в поддержку на официальную почту:',
-            recaptchaError: 'Пожалуйста, подтвердите что вы не робот',
+            accountTitle: 'Создать аккаунт на сайте?',
+            accountText: 'Если вы хотите создать свой аккаунт, напишите на почту:',
+            recaptchaError: 'Подтвердите, что вы не робот',
             loading: 'Загрузка...',
-            acceptNote: 'Нажимая "Принять и продолжить", вы соглашаетесь с нашими условиями'
+            acceptNote: 'Нажимая "Принять", вы соглашаетесь с нашими условиями'
         },
         en: {
-            title: 'Welcome to Metro New',
-            message: `
-                To use our app, you must accept the 
-                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank" class="modal-link">Terms of Service</a> 
-                and <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank" class="modal-link">Privacy Policy</a>. 
-                We collect minimal data: IP and username. Recommended age — 13+.
-            `,
+            title: 'Metro New',
+            message: 'To use our app, you must accept the terms.',
             button: 'Accept and continue',
             buttonUnderage: "I'm under 13",
             ageQuestion: 'How old are you?',
-            ageConfirm: 'Confirm you are 13 years or older',
             exitWarning: 'If you are under 13, the app will close',
             supportTitle: 'Need help?',
-            supportText: 'If you have questions or found a bug, please contact',
+            supportText: 'If you have questions, contact',
             supportLink: 'Support Service',
-            accountTitle: 'Want to create a VK account?',
-            accountText: 'If you want to create your own account, please write to support at official email:',
+            accountTitle: 'Create account on site?',
+            accountText: 'If you want to create your account, write to email:',
             recaptchaError: 'Please confirm you are not a robot',
             loading: 'Loading...',
-            acceptNote: 'By clicking "Accept and continue", you agree to our terms'
+            acceptNote: 'By clicking "Accept", you agree to our terms'
         }
     };
 
     // ===== СОЗДАЕМ СТИЛИ =====
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
-        :root {
-            --primary: #0066CC;
-            --primary-dark: #0052a3;
-            --primary-light: #4d94ff;
-            --secondary: #FFD700;
-            --secondary-dark: #e6c200;
-            --dark: #1A1A1A;
-            --light: #F8F9FA;
-            --gray: #6C757D;
-            --success: #28A745;
-            --danger: #FF6B35;
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
-            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 15px;
-        }
-        
-        @keyframes floatIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.9) translateY(30px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        @keyframes shine {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(200%) rotate(45deg); }
-        }
-        
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            animation: fadeIn 0.3s ease forwards;
-            backdrop-filter: blur(10px);
+            z-index: 99999;
+            padding: 20px;
+            font-family: Arial, sans-serif;
         }
         
         .modal-container {
             background: white;
-            border-radius: var(--radius-xl);
-            padding: 30px;
-            max-width: 550px;
-            width: 92%;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-            font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
-            animation: floatIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0;
-            border: 1px solid rgba(0, 102, 204, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
         .modal-header {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 10px;
-            border-radius: var(--radius-lg);
-            background: linear-gradient(135deg, rgba(0, 102, 204, 0.05), rgba(0, 153, 255, 0.05));
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .modal-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.8) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
         }
         
         .logo-title {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-            position: relative;
-            z-index: 1;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066CC;
         }
         
         .verified-badge {
-            font-size: 0.8rem;
-            color: var(--success);
-            font-weight: 700;
-            padding: 6px 12px;
-            background: rgba(40, 167, 69, 0.15);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 12px;
+            color: #28A745;
+            font-weight: bold;
+            padding: 4px 8px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 10px;
             border: 1px solid rgba(40, 167, 69, 0.3);
-            position: relative;
-            z-index: 1;
         }
         
-        .verified-badge::before {
-            content: '✓';
+        .modal-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #0066CC;
+        }
+        
+        .modal-links {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .modal-links a {
+            color: #0066CC;
+            text-decoration: none;
             font-weight: bold;
         }
         
+        .modal-links a:hover {
+            text-decoration: underline;
+        }
+        
         .age-check-section {
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px dashed var(--secondary);
-            animation: fadeIn 0.5s ease forwards;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
         }
         
         .age-question {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #0066CC;
+            margin-bottom: 10px;
             text-align: center;
         }
         
         .age-buttons {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             margin-bottom: 10px;
         }
         
         .age-btn {
-            padding: 12px 25px;
+            padding: 10px 20px;
             border: none;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 14px;
+            border-radius: 5px;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: 0.2s;
             flex: 1;
-            max-width: 200px;
-            min-height: 48px;
+            max-width: 150px;
         }
         
         .age-btn.yes {
-            background: linear-gradient(135deg, var(--success), #20C997);
+            background: #28A745;
             color: white;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         
         .age-btn.no {
-            background: linear-gradient(135deg, var(--danger), #FF8E53);
+            background: #dc3545;
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
         }
         
         .age-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .age-btn:active {
-            transform: translateY(-1px);
+            opacity: 0.9;
         }
         
         .age-warning {
             font-size: 12px;
-            color: var(--danger);
-            margin-top: 10px;
-            font-weight: 600;
+            color: #dc3545;
             text-align: center;
-            background: rgba(255, 107, 53, 0.1);
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
+            font-weight: bold;
+            margin-top: 5px;
         }
         
         .recaptcha-section {
             background: #f8f9fa;
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #dee2e6;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
             display: none;
+            justify-content: center;
         }
         
         .recaptcha-error {
             color: #dc3545;
             font-size: 12px;
-            font-weight: 600;
-            margin-top: 5px;
             text-align: center;
+            margin-top: 5px;
             display: none;
         }
         
-        .modal-content {
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--gray);
-            margin-bottom: 20px;
-            text-align: left;
-            padding: 0 5px;
-            background: var(--light);
-            padding: 15px;
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary);
-        }
-        
         .modal-button {
-            padding: 16px 32px;
-            border: none;
-            border-radius: var(--radius-lg);
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
             width: 100%;
-            margin: 25px auto 15px;
-            display: block;
-            position: relative;
-            overflow: hidden;
+            padding: 12px;
+            background: #0066CC;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: 0.2s;
         }
         
         .modal-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 102, 204, 0.4);
-            background: linear-gradient(135deg, var(--primary-dark), #004C99);
+            background: #0052a3;
         }
         
         .modal-button:disabled {
-            opacity: 0.6;
+            background: #6c757d;
             cursor: not-allowed;
-            transform: none !important;
-            background: linear-gradient(135deg, var(--gray), #6C757D);
         }
         
         .accept-note {
-            font-size: 12px;
-            color: var(--gray);
+            font-size: 11px;
+            color: #666;
             text-align: center;
-            margin-top: 10px;
-            font-style: italic;
-        }
-        
-        .exit-timer {
-            animation: pulse 1s infinite;
+            margin: 10px 0;
         }
         
         .footer-section {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-            text-align: left;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
         }
         
         .support-block, .account-block {
-            background: rgba(0, 102, 204, 0.05);
-            border-radius: var(--radius-md);
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 3px solid var(--primary);
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
         }
         
         .footer-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary);
+            font-weight: bold;
+            color: #0066CC;
             margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .footer-title::before {
-            content: '💬';
-            font-size: 12px;
-        }
-        
-        .account-block .footer-title::before {
-            content: '👤';
         }
         
         .footer-text {
-            font-size: 13px;
-            color: var(--gray);
-            line-height: 1.5;
-            margin-bottom: 8px;
+            color: #555;
+            margin-bottom: 5px;
         }
         
         .footer-link {
-            color: var(--primary);
-            font-weight: 600;
+            color: #0066CC;
+            font-weight: bold;
             text-decoration: none;
-            transition: all 0.2s;
-            display: inline-block;
-            padding: 2px 0;
-            border-bottom: 1px dashed var(--primary);
         }
         
         .footer-link:hover {
-            color: var(--primary-dark);
-            border-bottom: 1px solid var(--primary-dark);
+            text-decoration: underline;
         }
         
         .footer-email {
-            color: var(--success);
-            font-weight: 600;
-            font-family: monospace;
+            color: #28A745;
+            font-weight: bold;
             background: rgba(40, 167, 69, 0.1);
-            padding: 6px 10px;
-            border-radius: var(--radius-md);
+            padding: 5px 10px;
+            border-radius: 5px;
             display: inline-block;
             margin-top: 5px;
-            font-size: 12px;
-            border: 1px solid rgba(40, 167, 69, 0.2);
             cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .footer-email:hover {
-            background: rgba(40, 167, 69, 0.2);
-        }
-        
-        .loading-dots {
-            display: inline-block;
-            font-size: 20px;
-            letter-spacing: 2px;
-        }
-        
-        .loading-dots span {
-            animation: blink 1.4s infinite;
-            animation-fill-mode: both;
-        }
-        
-        .loading-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .loading-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes blink {
-            0% { opacity: 0.2; }
-            20% { opacity: 1; }
-            100% { opacity: 0.2; }
-        }
-        
-        .g-recaptcha {
-            display: inline-block;
-            transform: scale(0.95);
-            transform-origin: center;
-        }
-        
-        @media (max-width: 650px) {
+        @media (max-width: 600px) {
             .modal-container {
-                width: 95%;
-                padding: 20px 15px;
-            }
-            
-            .logo-title {
-                font-size: 1.6rem;
+                padding: 20px;
             }
             
             .age-buttons {
@@ -473,10 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .age-btn {
                 max-width: 100%;
                 width: 100%;
-            }
-            
-            .g-recaptcha {
-                transform: scale(0.85);
             }
         }
     `;
@@ -495,14 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
             script.async = true;
             script.defer = true;
             
-            script.onload = () => {
-                setTimeout(resolve, 500);
-            };
-            
-            script.onerror = () => {
-                console.error('Failed to load reCAPTCHA');
-                resolve();
-            };
+            script.onload = resolve;
+            script.onerror = resolve;
             
             document.head.appendChild(script);
         });
@@ -526,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const logoTitle = document.createElement('div');
     logoTitle.className = 'logo-title';
-    logoTitle.textContent = 'Метро New';
+    logoTitle.textContent = texts[lang].title;
 
     const verifiedBadge = document.createElement('div');
     verifiedBadge.className = 'verified-badge';
@@ -535,12 +340,19 @@ document.addEventListener('DOMContentLoaded', function() {
     header.appendChild(logoTitle);
     header.appendChild(verifiedBadge);
 
-    // Контент соглашения
+    // Контент
     const content = document.createElement('div');
     content.className = 'modal-content';
-    content.innerHTML = texts[lang].message;
+    content.textContent = texts[lang].message;
+    
+    // Ссылки
+    const links = document.createElement('div');
+    links.className = 'modal-links';
+    links.innerHTML = lang === 'ru' 
+        ? `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательское соглашение</a> | <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политика конфиденциальности</a>`
+        : `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Terms of Service</a> | <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Privacy Policy</a>`;
 
-    // ===== ВОЗРАСТНАЯ ПРОВЕРКА =====
+    // Возрастная проверка
     const ageSection = document.createElement('div');
     ageSection.className = 'age-check-section';
 
@@ -570,36 +382,31 @@ document.addEventListener('DOMContentLoaded', function() {
     ageSection.appendChild(ageButtons);
     ageSection.appendChild(ageWarning);
 
-    // ===== GOOGLE RECAPTCHA СЕКЦИЯ =====
+    // Recaptcha
     const recaptchaSection = document.createElement('div');
     recaptchaSection.className = 'recaptcha-section';
     recaptchaSection.id = 'recaptcha-container';
-    
-    const loadingText = document.createElement('div');
-    loadingText.className = 'loading-dots';
-    loadingText.innerHTML = '<span>.</span><span>.</span><span>.</span>';
-    recaptchaSection.appendChild(loadingText);
     
     const recaptchaError = document.createElement('div');
     recaptchaError.className = 'recaptcha-error';
     recaptchaError.textContent = texts[lang].recaptchaError;
 
-    // ===== ОСНОВНАЯ КНОПКА =====
+    // Основная кнопка
     const mainButton = document.createElement('button');
     mainButton.className = 'modal-button';
     mainButton.textContent = texts[lang].button;
     mainButton.disabled = true;
 
-    // Примечание о принятии условий
+    // Примечание
     const acceptNote = document.createElement('div');
     acceptNote.className = 'accept-note';
     acceptNote.textContent = texts[lang].acceptNote;
 
-    // ===== НИЖНЯЯ СЕКЦИЯ (Support и Account) =====
+    // Футер
     const footerSection = document.createElement('div');
     footerSection.className = 'footer-section';
 
-    // Блок поддержки
+    // Поддержка
     const supportBlock = document.createElement('div');
     supportBlock.className = 'support-block';
     
@@ -614,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
     supportBlock.appendChild(supportTitle);
     supportBlock.appendChild(supportText);
 
-    // Блок аккаунта
+    // Аккаунт
     const accountBlock = document.createElement('div');
     accountBlock.className = 'account-block';
     
@@ -624,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const accountText = document.createElement('div');
     accountText.className = 'footer-text';
-    accountText.innerHTML = texts[lang].accountText;
+    accountText.textContent = texts[lang].accountText;
     
     const emailElement = document.createElement('div');
     emailElement.className = 'footer-email';
@@ -635,11 +442,8 @@ document.addEventListener('DOMContentLoaded', function() {
         navigator.clipboard.writeText(OFFICIAL_EMAIL).then(() => {
             const originalText = emailElement.textContent;
             emailElement.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
-            emailElement.style.background = 'rgba(40, 167, 69, 0.3)';
-            
             setTimeout(() => {
                 emailElement.textContent = originalText;
-                emailElement.style.background = 'rgba(40, 167, 69, 0.1)';
             }, 2000);
         });
     });
@@ -652,118 +456,73 @@ document.addEventListener('DOMContentLoaded', function() {
     footerSection.appendChild(supportBlock);
     footerSection.appendChild(accountBlock);
 
-    // ===== ПЕРЕМЕННЫЕ СОСТОЯНИЯ =====
+    // Переменные состояния
     let ageConfirmed = false;
-    let recaptchaVerified = false;
     let recaptchaWidgetId = null;
 
-    // ===== ИНИЦИАЛИЗАЦИЯ RECAPTCHA =====
+    // Инициализация Recaptcha
     function initRecaptcha() {
         if (!window.grecaptcha || !window.grecaptcha.render) {
             setTimeout(initRecaptcha, 100);
             return;
         }
         
-        recaptchaSection.innerHTML = '';
         recaptchaWidgetId = grecaptcha.render(recaptchaSection, {
             sitekey: RECAPTCHA_SITE_KEY,
             theme: 'light',
             size: 'normal',
-            callback: function(response) {
-                recaptchaVerified = true;
+            callback: function() {
+                mainButton.disabled = false;
                 recaptchaError.style.display = 'none';
-                checkFormCompletion();
             },
             'expired-callback': function() {
-                recaptchaVerified = false;
-                checkFormCompletion();
+                mainButton.disabled = true;
             },
             'error-callback': function() {
-                recaptchaVerified = false;
                 recaptchaError.style.display = 'block';
-                checkFormCompletion();
+                mainButton.disabled = true;
             }
         });
     }
 
-    // ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
+    // Обработчики событий
     ageYesBtn.addEventListener('click', () => {
         ageConfirmed = true;
         ageSection.style.opacity = '0.6';
         ageSection.style.pointerEvents = 'none';
         
-        // Показываем reCAPTCHA
         recaptchaSection.style.display = 'flex';
-        setTimeout(() => {
-            recaptchaSection.style.opacity = '1';
-        }, 10);
         
-        // Загружаем и инициализируем reCAPTCHA
         loadRecaptcha().then(() => {
-            initRecaptcha();
+            setTimeout(initRecaptcha, 500);
         });
-        
-        checkFormCompletion();
     });
 
     ageNoBtn.addEventListener('click', () => {
-        ageWarning.textContent = lang === 'ru' 
-            ? 'Приложение закроется через 5 секунд...' 
-            : 'App will close in 5 seconds...';
-        
-        ageWarning.classList.add('exit-timer');
-        
         let seconds = 5;
         const timer = setInterval(() => {
-            seconds--;
             ageWarning.textContent = lang === 'ru'
                 ? `Приложение закроется через ${seconds} секунд...`
                 : `App will close in ${seconds} seconds...`;
             
-            if (seconds <= 0) {
+            seconds--;
+            
+            if (seconds < 0) {
                 clearInterval(timer);
                 window.location.href = 'about:blank';
             }
         }, 1000);
     });
 
-    // Проверка готовности формы
-    function checkFormCompletion() {
-        mainButton.disabled = !(ageConfirmed && recaptchaVerified);
-        if (!mainButton.disabled) {
-            mainButton.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
-        }
-    }
-
-    // Основная кнопка
     mainButton.addEventListener('click', () => {
-        if (!ageConfirmed || !recaptchaVerified) {
-            if (!recaptchaVerified) {
-                recaptchaError.style.display = 'block';
-                recaptchaSection.style.animation = 'shake 0.5s';
-                setTimeout(() => recaptchaSection.style.animation = '', 500);
-            }
-            return;
-        }
-        
-        // Получаем токен reCAPTCHA
-        const recaptchaResponse = grecaptcha.getResponse(recaptchaWidgetId);
-        if (!recaptchaResponse) {
+        if (!ageConfirmed || !grecaptcha || !grecaptcha.getResponse(recaptchaWidgetId)) {
             recaptchaError.style.display = 'block';
             return;
         }
         
-        // Анимация принятия
-        mainButton.style.background = 'linear-gradient(135deg, var(--success), #20C997)';
         mainButton.textContent = lang === 'ru' ? '✓ Принято!' : '✓ Accepted!';
         mainButton.disabled = true;
-        
-        // Отправка токена на сервер (опционально)
-        // fetch('/verify-recaptcha', {
-        //     method: 'POST',
-        //     body: JSON.stringify({ token: recaptchaResponse }),
-        //     headers: { 'Content-Type': 'application/json' }
-        // })
+        mainButton.style.background = '#28A745';
         
         setTimeout(() => {
             overlay.style.opacity = '0';
@@ -771,19 +530,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 overlay.remove();
                 document.body.style.overflow = '';
                 
-                // Сохраняем в localStorage
                 localStorage.setItem('privacy_modal_version', MODAL_VERSION);
-                localStorage.setItem('age_verified', 'true');
-                localStorage.setItem('recaptcha_passed', 'true');
-                localStorage.setItem('verification_timestamp', Date.now().toString());
-                
             }, 300);
         }, 800);
     });
 
-    // ===== СОБИРАЕМ МОДАЛКУ =====
+    // Собираем модалку
     modal.appendChild(header);
     modal.appendChild(content);
+    modal.appendChild(links);
     modal.appendChild(ageSection);
     modal.appendChild(recaptchaSection);
     modal.appendChild(recaptchaError);
@@ -793,26 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     overlay.appendChild(modal);
 
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ =====
-    setTimeout(() => {
-        overlay.style.opacity = '1';
-        
-        // Последовательное появление элементов
-        const elements = [header, content, ageSection, mainButton, acceptNote, footerSection];
-        elements.forEach((el, index) => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                el.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                el.style.opacity = '1';
-                el.style.transform = 'translateY(0)';
-            }, 200 + (index * 100));
-        });
-        
-    }, 100);
-
-    // Очистка при закрытии
+    // Закрытие при клике на оверлей
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.style.opacity = '0';
