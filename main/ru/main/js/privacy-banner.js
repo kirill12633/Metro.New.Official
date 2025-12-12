@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const MODAL_VERSION = '1.0';
+    const MODAL_VERSION = '1.1';
     const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
     const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
     const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
@@ -15,35 +15,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const texts = {
         ru: {
             title: 'Метро New',
-            message: 'Для использования нашего приложения вы должны принять условия.',
+            message: 'Для использования приложения необходимо принять условия',
             button: 'Принять и продолжить',
             buttonUnderage: 'Мне нет 13 лет',
             ageQuestion: 'Сколько вам лет?',
-            exitWarning: 'Если вам нет 13 лет, приложение будет закрыто',
-            supportTitle: 'Нужна помощь?',
-            supportText: 'Если у вас есть вопросы, обратитесь в',
-            supportLink: 'Службу поддержки',
-            accountTitle: 'Создать аккаунт на сайте?',
-            accountText: 'Если вы хотите создать свой аккаунт, напишите на почту:',
+            exitWarning: 'Приложение закроется через 5 секунд',
+            supportTitle: 'Поддержка',
+            supportText: 'Если есть вопросы, обращайтесь:',
+            accountText: 'Для создания аккаунта пишите:',
             recaptchaError: 'Подтвердите, что вы не робот',
-            loading: 'Загрузка...',
-            acceptNote: 'Нажимая "Принять", вы соглашаетесь с нашими условиями'
+            acceptNote: 'Нажимая "Принять", вы соглашаетесь с нашими правилами'
         },
         en: {
             title: 'Metro New',
-            message: 'To use our app, you must accept the terms.',
+            message: 'To use the app you must accept the terms',
             button: 'Accept and continue',
             buttonUnderage: "I'm under 13",
             ageQuestion: 'How old are you?',
-            exitWarning: 'If you are under 13, the app will close',
-            supportTitle: 'Need help?',
-            supportText: 'If you have questions, contact',
-            supportLink: 'Support Service',
-            accountTitle: 'Create account on site?',
-            accountText: 'If you want to create your account, write to email:',
-            recaptchaError: 'Please confirm you are not a robot',
-            loading: 'Loading...',
-            acceptNote: 'By clicking "Accept", you agree to our terms'
+            exitWarning: 'App will close in 5 seconds',
+            supportTitle: 'Support',
+            supportText: 'If you have questions, contact:',
+            accountText: 'To create an account write to:',
+            recaptchaError: 'Confirm you are not a robot',
+            acceptNote: 'By clicking "Accept" you agree to our rules'
         }
     };
 
@@ -56,244 +50,337 @@ document.addEventListener('DOMContentLoaded', function() {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 99999;
             padding: 20px;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            backdrop-filter: blur(5px);
         }
         
         .modal-container {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            max-width: 500px;
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 450px;
             width: 100%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25),
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 102, 204, 0.2);
+        }
+        
+        .modal-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0066CC, #00CCFF, #0066CC);
         }
         
         .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            cursor: pointer;
+            text-align: center;
+            margin-bottom: 25px;
         }
         
         .logo-title {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 800;
             color: #0066CC;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+            letter-spacing: -0.5px;
         }
         
-        .verified-badge {
-            font-size: 12px;
-            color: #28A745;
-            font-weight: bold;
-            padding: 4px 8px;
-            background: rgba(40, 167, 69, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
-        
-        .modal-content {
+        .logo-subtitle {
             font-size: 14px;
-            line-height: 1.5;
-            color: #333;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .modal-content-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 3px solid #0066CC;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .modal-message {
+            font-size: 15px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: center;
         }
         
         .modal-links {
-            margin: 10px 0;
-            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
         }
         
         .modal-links a {
             color: #0066CC;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(0, 102, 204, 0.08);
+            transition: all 0.2s;
         }
         
         .modal-links a:hover {
-            text-decoration: underline;
+            background: rgba(0, 102, 204, 0.15);
+            transform: translateY(-2px);
         }
         
-        .age-check-section {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
+        .age-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.1));
+            border: 2px solid #FFD700;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
         }
         
         .age-question {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 700;
             color: #0066CC;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-align: center;
         }
         
         .age-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-bottom: 10px;
         }
         
         .age-btn {
-            padding: 10px 20px;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
-            transition: 0.2s;
-            flex: 1;
-            max-width: 150px;
+            transition: all 0.2s;
         }
         
         .age-btn.yes {
-            background: #28A745;
+            background: linear-gradient(135deg, #28A745, #20C997);
             color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         
         .age-btn.no {
-            background: #dc3545;
+            background: linear-gradient(135deg, #FF6B35, #FF8E53);
             color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
         }
         
         .age-btn:hover {
-            opacity: 0.9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .age-btn:active {
+            transform: translateY(-1px);
         }
         
         .age-warning {
-            font-size: 12px;
-            color: #dc3545;
+            font-size: 13px;
+            color: #FF6B35;
             text-align: center;
-            font-weight: bold;
-            margin-top: 5px;
+            font-weight: 600;
+            margin-top: 10px;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 8px;
+            border-radius: 8px;
         }
         
         .recaptcha-section {
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
             display: none;
             justify-content: center;
+            align-items: center;
+            min-height: 80px;
         }
         
         .recaptcha-error {
             color: #dc3545;
-            font-size: 12px;
+            font-size: 13px;
             text-align: center;
-            margin-top: 5px;
+            margin-top: 10px;
+            font-weight: 600;
             display: none;
         }
         
-        .modal-button {
+        .main-button-container {
+            margin: 25px 0 15px;
+        }
+        
+        .main-button {
             width: 100%;
-            padding: 12px;
-            background: #0066CC;
+            padding: 16px;
+            background: linear-gradient(135deg, #0066CC, #0099FF);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
             cursor: pointer;
-            margin: 15px 0;
-            transition: 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
-        .modal-button:hover:not(:disabled) {
-            background: #0052a3;
+        .main-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0052a3, #0088e6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.4);
         }
         
-        .modal-button:disabled {
-            background: #6c757d;
+        .main-button:disabled {
+            background: linear-gradient(135deg, #6c757d, #868e96);
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
         }
         
         .accept-note {
-            font-size: 11px;
+            font-size: 12px;
             color: #666;
             text-align: center;
-            margin: 10px 0;
+            margin-top: 10px;
+            font-style: italic;
         }
         
         .footer-section {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
         
-        .support-block, .account-block {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            font-size: 13px;
+        .footer-block {
+            background: rgba(0, 102, 204, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #0066CC;
         }
         
         .footer-title {
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
             color: #0066CC;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-title::before {
+            content: '💬';
         }
         
         .footer-text {
+            font-size: 13px;
             color: #555;
-            margin-bottom: 5px;
+            line-height: 1.5;
+            margin-bottom: 8px;
         }
         
         .footer-link {
             color: #0066CC;
-            font-weight: bold;
+            font-weight: 600;
             text-decoration: none;
+            display: inline-block;
+            padding: 2px 0;
+            border-bottom: 1px dashed #0066CC;
+            transition: all 0.2s;
         }
         
         .footer-link:hover {
-            text-decoration: underline;
+            color: #004C99;
+            border-bottom: 1px solid #004C99;
         }
         
         .footer-email {
             color: #28A745;
-            font-weight: bold;
+            font-weight: 600;
             background: rgba(40, 167, 69, 0.1);
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 12px;
+            border-radius: 8px;
             display: inline-block;
             margin-top: 5px;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid rgba(40, 167, 69, 0.2);
             cursor: pointer;
+            transition: all 0.2s;
         }
         
-        @media (max-width: 600px) {
+        .footer-email:hover {
+            background: rgba(40, 167, 69, 0.2);
+        }
+        
+        .success-text {
+            color: #28A745;
+            font-weight: 600;
+            text-align: center;
+            font-size: 15px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 500px) {
             .modal-container {
-                padding: 20px;
+                padding: 25px 20px;
+            }
+            
+            .logo-title {
+                font-size: 28px;
             }
             
             .age-buttons {
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
             
-            .age-btn {
-                max-width: 100%;
+            .modal-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .modal-links a {
                 width: 100%;
+                text-align: center;
             }
         }
     `;
     document.head.appendChild(styleSheet);
 
-    // ===== ЗАГРУЗКА GOOGLE RECAPTCHA =====
+    // ===== ЗАГРУЗКА RECAPTCHA =====
     function loadRecaptcha() {
         return new Promise((resolve) => {
             if (window.grecaptcha) {
@@ -325,44 +412,48 @@ document.addEventListener('DOMContentLoaded', function() {
     // Заголовок
     const header = document.createElement('div');
     header.className = 'modal-header';
-    header.addEventListener('click', () => {
-        window.open(REDIRECT_LOGO_URL, '_blank');
-    });
-
+    
     const logoTitle = document.createElement('div');
     logoTitle.className = 'logo-title';
     logoTitle.textContent = texts[lang].title;
-
-    const verifiedBadge = document.createElement('div');
-    verifiedBadge.className = 'verified-badge';
-    verifiedBadge.textContent = lang === 'ru' ? 'Официально' : 'Official';
-
+    
+    const logoSubtitle = document.createElement('div');
+    logoSubtitle.className = 'logo-subtitle';
+    logoSubtitle.textContent = lang === 'ru' ? 'Официальный проект' : 'Official project';
+    
     header.appendChild(logoTitle);
-    header.appendChild(verifiedBadge);
+    header.appendChild(logoSubtitle);
 
     // Контент
-    const content = document.createElement('div');
-    content.className = 'modal-content';
-    content.textContent = texts[lang].message;
+    const contentBox = document.createElement('div');
+    contentBox.className = 'modal-content-box';
     
-    // Ссылки
+    const message = document.createElement('div');
+    message.className = 'modal-message';
+    message.textContent = texts[lang].message;
+    
     const links = document.createElement('div');
     links.className = 'modal-links';
     links.innerHTML = lang === 'ru' 
-        ? `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательское соглашение</a> | <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политика конфиденциальности</a>`
-        : `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Terms of Service</a> | <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Privacy Policy</a>`;
+        ? `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Правила</a>
+           <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Конфиденциальность</a>`
+        : `<a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Rules</a>
+           <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Privacy</a>`;
+    
+    contentBox.appendChild(message);
+    contentBox.appendChild(links);
 
     // Возрастная проверка
     const ageSection = document.createElement('div');
-    ageSection.className = 'age-check-section';
-
+    ageSection.className = 'age-section';
+    
     const ageQuestion = document.createElement('div');
     ageQuestion.className = 'age-question';
     ageQuestion.textContent = texts[lang].ageQuestion;
-
+    
     const ageButtons = document.createElement('div');
     ageButtons.className = 'age-buttons';
-
+    
     const ageYesBtn = document.createElement('button');
     ageYesBtn.className = 'age-btn yes';
     ageYesBtn.textContent = '13+';
@@ -370,11 +461,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const ageNoBtn = document.createElement('button');
     ageNoBtn.className = 'age-btn no';
     ageNoBtn.textContent = texts[lang].buttonUnderage;
-
+    
     const ageWarning = document.createElement('div');
     ageWarning.className = 'age-warning';
     ageWarning.textContent = texts[lang].exitWarning;
-
+    
     ageButtons.appendChild(ageYesBtn);
     ageButtons.appendChild(ageNoBtn);
     
@@ -385,30 +476,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Recaptcha
     const recaptchaSection = document.createElement('div');
     recaptchaSection.className = 'recaptcha-section';
-    recaptchaSection.id = 'recaptcha-container';
     
     const recaptchaError = document.createElement('div');
     recaptchaError.className = 'recaptcha-error';
     recaptchaError.textContent = texts[lang].recaptchaError;
 
-    // Основная кнопка
+    // Кнопка
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'main-button-container';
+    
     const mainButton = document.createElement('button');
-    mainButton.className = 'modal-button';
+    mainButton.className = 'main-button';
     mainButton.textContent = texts[lang].button;
     mainButton.disabled = true;
-
-    // Примечание
+    
     const acceptNote = document.createElement('div');
     acceptNote.className = 'accept-note';
     acceptNote.textContent = texts[lang].acceptNote;
+    
+    buttonContainer.appendChild(mainButton);
+    buttonContainer.appendChild(acceptNote);
 
     // Футер
     const footerSection = document.createElement('div');
     footerSection.className = 'footer-section';
-
+    
     // Поддержка
     const supportBlock = document.createElement('div');
-    supportBlock.className = 'support-block';
+    supportBlock.className = 'footer-block';
     
     const supportTitle = document.createElement('div');
     supportTitle.className = 'footer-title';
@@ -416,18 +511,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const supportText = document.createElement('div');
     supportText.className = 'footer-text';
-    supportText.innerHTML = `${texts[lang].supportText} <a href="${SUPPORT_URL}" target="_blank" class="footer-link">${texts[lang].supportLink}</a>`;
+    supportText.innerHTML = `${texts[lang].supportText} <a href="${SUPPORT_URL}" target="_blank" class="footer-link">Support</a>`;
     
     supportBlock.appendChild(supportTitle);
     supportBlock.appendChild(supportText);
-
-    // Аккаунт
-    const accountBlock = document.createElement('div');
-    accountBlock.className = 'account-block';
     
-    const accountTitle = document.createElement('div');
-    accountTitle.className = 'footer-title';
-    accountTitle.textContent = texts[lang].accountTitle;
+    // Email
+    const accountBlock = document.createElement('div');
+    accountBlock.className = 'footer-block';
     
     const accountText = document.createElement('div');
     accountText.className = 'footer-text';
@@ -441,22 +532,22 @@ document.addEventListener('DOMContentLoaded', function() {
     emailElement.addEventListener('click', () => {
         navigator.clipboard.writeText(OFFICIAL_EMAIL).then(() => {
             const originalText = emailElement.textContent;
-            emailElement.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
+            emailElement.textContent = lang === 'ru' ? '✓ Скопировано!' : '✓ Copied!';
+            emailElement.style.background = 'rgba(40, 167, 69, 0.2)';
             setTimeout(() => {
                 emailElement.textContent = originalText;
+                emailElement.style.background = 'rgba(40, 167, 69, 0.1)';
             }, 2000);
         });
     });
     
-    accountBlock.appendChild(accountTitle);
     accountBlock.appendChild(accountText);
     accountBlock.appendChild(emailElement);
-
-    // Собираем футер
+    
     footerSection.appendChild(supportBlock);
     footerSection.appendChild(accountBlock);
 
-    // Переменные состояния
+    // Переменные
     let ageConfirmed = false;
     let recaptchaWidgetId = null;
 
@@ -485,7 +576,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обработчики событий
+    // Обработчики
     ageYesBtn.addEventListener('click', () => {
         ageConfirmed = true;
         ageSection.style.opacity = '0.6';
@@ -500,6 +591,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     ageNoBtn.addEventListener('click', () => {
         let seconds = 5;
+        ageWarning.classList.add('age-warning');
+        
         const timer = setInterval(() => {
             ageWarning.textContent = lang === 'ru'
                 ? `Приложение закроется через ${seconds} секунд...`
@@ -517,12 +610,16 @@ document.addEventListener('DOMContentLoaded', function() {
     mainButton.addEventListener('click', () => {
         if (!ageConfirmed || !grecaptcha || !grecaptcha.getResponse(recaptchaWidgetId)) {
             recaptchaError.style.display = 'block';
+            recaptchaSection.style.border = '1px solid #dc3545';
+            setTimeout(() => {
+                recaptchaSection.style.border = '1px solid #dee2e6';
+            }, 1000);
             return;
         }
         
         mainButton.textContent = lang === 'ru' ? '✓ Принято!' : '✓ Accepted!';
         mainButton.disabled = true;
-        mainButton.style.background = '#28A745';
+        mainButton.style.background = 'linear-gradient(135deg, #28A745, #20C997)';
         
         setTimeout(() => {
             overlay.style.opacity = '0';
@@ -531,24 +628,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.style.overflow = '';
                 
                 localStorage.setItem('privacy_modal_version', MODAL_VERSION);
+                localStorage.setItem('age_verified', 'true');
+                localStorage.setItem('agreement_date', new Date().toISOString());
             }, 300);
         }, 800);
     });
 
-    // Собираем модалку
+    // Сборка
     modal.appendChild(header);
-    modal.appendChild(content);
-    modal.appendChild(links);
+    modal.appendChild(contentBox);
     modal.appendChild(ageSection);
     modal.appendChild(recaptchaSection);
     modal.appendChild(recaptchaError);
-    modal.appendChild(mainButton);
-    modal.appendChild(acceptNote);
+    modal.appendChild(buttonContainer);
     modal.appendChild(footerSection);
     
     overlay.appendChild(modal);
 
-    // Закрытие при клике на оверлей
+    // Закрытие
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.style.opacity = '0';
