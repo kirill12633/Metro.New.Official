@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const MODAL_VERSION = '0.2';
+    const MODAL_VERSION = '0.3';
     const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
     const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
     const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
@@ -21,11 +21,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 и <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank" class="modal-link">Политики конфиденциальности</a>. 
                 Мы собираем минимальные данные: IP и никнейм. Рекомендуемый возраст — от 13 лет.
             `,
-            button: 'Согласен и продолжаю',
+            button: 'Принять и продолжить',
             buttonUnderage: 'Мне нет 13 лет',
             ageQuestion: 'Сколько вам лет?',
             ageConfirm: 'Подтвердите, что вам 13 лет или больше',
-            securityNote: 'Ваши данные защищены',
             exitWarning: 'Если вам нет 13 лет, приложение будет закрыто',
             supportTitle: 'Нужна помощь?',
             supportText: 'Если у вас есть вопросы или вы нашли ошибку, прошу обратиться в',
@@ -33,7 +32,8 @@ document.addEventListener('DOMContentLoaded', function() {
             accountTitle: 'Хотите создать аккаунт на сайте?',
             accountText: 'Если вы хотите создать свой аккаунт, прошу написать в поддержку на официальную почту:',
             recaptchaError: 'Пожалуйста, подтвердите что вы не робот',
-            loading: 'Загрузка...'
+            loading: 'Загрузка...',
+            acceptNote: 'Нажимая "Принять и продолжить", вы соглашаетесь с нашими условиями'
         },
         en: {
             title: 'Welcome to Metro New',
@@ -43,11 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 and <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank" class="modal-link">Privacy Policy</a>. 
                 We collect minimal data: IP and username. Recommended age — 13+.
             `,
-            button: 'Agree and continue',
+            button: 'Accept and continue',
             buttonUnderage: "I'm under 13",
             ageQuestion: 'How old are you?',
             ageConfirm: 'Confirm you are 13 years or older',
-            securityNote: 'Your data is protected',
             exitWarning: 'If you are under 13, the app will close',
             supportTitle: 'Need help?',
             supportText: 'If you have questions or found a bug, please contact',
@@ -55,43 +54,57 @@ document.addEventListener('DOMContentLoaded', function() {
             accountTitle: 'Want to create a VK account?',
             accountText: 'If you want to create your own account, please write to support at official email:',
             recaptchaError: 'Please confirm you are not a robot',
-            loading: 'Loading...'
+            loading: 'Loading...',
+            acceptNote: 'By clicking "Accept and continue", you agree to our terms'
         }
     };
 
     // ===== СОЗДАЕМ СТИЛИ =====
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --danger: #FF6B35;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
         @keyframes floatIn {
             0% {
                 opacity: 0;
-                transform: scale(0.8) translateY(50px) rotateX(15deg);
-            }
-            70% {
-                opacity: 1;
-                transform: scale(1.02) translateY(-5px) rotateX(0deg);
+                transform: scale(0.9) translateY(30px);
             }
             100% {
                 opacity: 1;
-                transform: scale(1) translateY(0) rotateX(0deg);
+                transform: scale(1) translateY(0);
             }
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(0, 102, 204, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 102, 204, 0); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(200%) rotate(45deg); }
         }
         
         .modal-overlay {
@@ -106,51 +119,23 @@ document.addEventListener('DOMContentLoaded', function() {
             justify-content: center;
             z-index: 10000;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            animation: fadeIn 0.3s ease forwards;
             backdrop-filter: blur(10px);
-            perspective: 1000px;
         }
         
         .modal-container {
-            background: linear-gradient(145deg, #ffffff, #f5f5f5);
-            border-radius: 20px;
-            padding: 40px 35px;
-            max-width: 600px; /* УВЕЛИЧЕНА ШИРИНА */
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            max-width: 550px;
             width: 92%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 
-                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-            text-align: center;
+            box-shadow: var(--shadow-lg);
             position: relative;
+            overflow: hidden;
             font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
-            color: #1A1A1A;
-            transform-origin: center;
-            animation: floatIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: floatIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             opacity: 0;
             border: 1px solid rgba(0, 102, 204, 0.1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .security-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: #28A745;
-            font-weight: 600;
-            background: rgba(40, 167, 69, 0.1);
-            padding: 4px 10px;
-            border-radius: 20px;
-            animation: pulse 2s infinite;
-            z-index: 2;
-        }
-        
-        .security-badge::before {
-            content: '🔒';
-            font-size: 10px;
         }
         
         .modal-header {
@@ -161,57 +146,77 @@ document.addEventListener('DOMContentLoaded', function() {
             margin-bottom: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            padding-top: 10px;
+            padding: 10px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.05), rgba(0, 153, 255, 0.05));
+            position: relative;
+            overflow: hidden;
         }
         
-        .modal-header:hover {
-            transform: translateY(-3px);
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.8) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
         }
         
         .logo-title {
-            font-size: 2.2rem; /* УВЕЛИЧЕН РАЗМЕР */
+            font-size: 2rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #0066CC, #0099FF, #00CCFF);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
             letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
         }
         
         .verified-badge {
-            font-size: 0.9rem; /* УВЕЛИЧЕН РАЗМЕР */
-            color: #28A745;
+            font-size: 0.8rem;
+            color: var(--success);
             font-weight: 700;
-            padding: 6px 14px;
+            padding: 6px 12px;
             background: rgba(40, 167, 69, 0.15);
             border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 5px;
             border: 1px solid rgba(40, 167, 69, 0.3);
+            position: relative;
+            z-index: 1;
         }
         
         .verified-badge::before {
             content: '✓';
             font-weight: bold;
-            font-size: 16px;
         }
         
         .age-check-section {
             background: rgba(255, 215, 0, 0.1);
-            border-radius: 15px;
+            border-radius: var(--radius-lg);
             padding: 20px;
             margin: 20px 0;
-            border: 2px dashed #FFD700;
-            animation: slideDown 0.5s ease forwards;
+            border: 2px dashed var(--secondary);
+            animation: fadeIn 0.5s ease forwards;
         }
         
         .age-question {
-            font-size: 18px;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #0066CC;
+            color: var(--primary);
             margin-bottom: 15px;
+            text-align: center;
         }
         
         .age-buttons {
@@ -224,23 +229,24 @@ document.addEventListener('DOMContentLoaded', function() {
         .age-btn {
             padding: 12px 25px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             flex: 1;
-            max-width: 220px; /* УВЕЛИЧЕНА ШИРИНА */
+            max-width: 200px;
+            min-height: 48px;
         }
         
         .age-btn.yes {
-            background: linear-gradient(135deg, #28A745, #20C997);
+            background: linear-gradient(135deg, var(--success), #20C997);
             color: white;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         
         .age-btn.no {
-            background: linear-gradient(135deg, #FF6B35, #FF8E53);
+            background: linear-gradient(135deg, var(--danger), #FF8E53);
             color: white;
             box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
         }
@@ -256,14 +262,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .age-warning {
             font-size: 12px;
-            color: #FF6B35;
+            color: var(--danger);
             margin-top: 10px;
             font-weight: 600;
+            text-align: center;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
         }
         
         .recaptcha-section {
             background: #f8f9fa;
-            border-radius: 15px;
+            border-radius: var(--radius-lg);
             padding: 20px;
             margin: 20px 0;
             border: 1px solid #dee2e6;
@@ -279,104 +289,86 @@ document.addEventListener('DOMContentLoaded', function() {
             font-size: 12px;
             font-weight: 600;
             margin-top: 5px;
+            text-align: center;
             display: none;
         }
         
         .modal-content {
             font-size: 14px;
             line-height: 1.6;
-            color: #495057;
-            margin-bottom: 25px;
+            color: var(--gray);
+            margin-bottom: 20px;
             text-align: left;
             padding: 0 5px;
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
         }
         
         .modal-button {
             padding: 16px 32px;
             border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #FFD700, #FFC107);
-            color: #1A1A1A;
-            font-weight: 800;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 700;
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
             width: 100%;
-            max-width: 400px; /* УВЕЛИЧЕНА ШИРИНА */
-            margin: 25px auto 30px;
+            margin: 25px auto 15px;
             display: block;
             position: relative;
             overflow: hidden;
         }
         
-        .modal-button::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            transform: rotate(30deg);
-            transition: transform 0.6s;
-        }
-        
-        .modal-button:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
-        }
-        
-        .modal-button:hover::after {
-            transform: rotate(30deg) translateX(100%);
+        .modal-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 102, 204, 0.4);
+            background: linear-gradient(135deg, var(--primary-dark), #004C99);
         }
         
         .modal-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
+            background: linear-gradient(135deg, var(--gray), #6C757D);
         }
         
-        .shake {
-            animation: shake 0.5s ease;
+        .accept-note {
+            font-size: 12px;
+            color: var(--gray);
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
         }
         
         .exit-timer {
-            font-size: 11px;
-            color: #FF6B35;
-            font-weight: 700;
-            margin-top: 10px;
-            background: rgba(255, 107, 53, 0.1);
-            padding: 5px 10px;
-            border-radius: 10px;
-            display: inline-block;
+            animation: pulse 1s infinite;
         }
         
         .footer-section {
-            margin-top: 30px;
-            padding-top: 25px;
+            margin-top: 25px;
+            padding-top: 20px;
             border-top: 1px solid #e9ecef;
             text-align: left;
         }
         
         .support-block, .account-block {
             background: rgba(0, 102, 204, 0.05);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 20px;
-            border-left: 4px solid #0066CC;
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--primary);
         }
         
         .footer-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
-            color: #0066CC;
-            margin-bottom: 8px;
+            color: var(--primary);
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -384,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .footer-title::before {
             content: '💬';
-            font-size: 14px;
+            font-size: 12px;
         }
         
         .account-block .footer-title::before {
@@ -393,37 +385,43 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .footer-text {
             font-size: 13px;
-            color: #495057;
+            color: var(--gray);
             line-height: 1.5;
             margin-bottom: 8px;
         }
         
         .footer-link {
-            color: #0066CC;
+            color: var(--primary);
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s;
             display: inline-block;
             padding: 2px 0;
-            border-bottom: 1px dashed #0066CC;
+            border-bottom: 1px dashed var(--primary);
         }
         
         .footer-link:hover {
-            color: #004C99;
-            border-bottom: 1px solid #004C99;
+            color: var(--primary-dark);
+            border-bottom: 1px solid var(--primary-dark);
         }
         
         .footer-email {
-            color: #28A745;
+            color: var(--success);
             font-weight: 600;
             font-family: monospace;
             background: rgba(40, 167, 69, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
             display: inline-block;
             margin-top: 5px;
             font-size: 12px;
             border: 1px solid rgba(40, 167, 69, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .footer-email:hover {
+            background: rgba(40, 167, 69, 0.2);
         }
         
         .loading-dots {
@@ -451,22 +449,20 @@ document.addEventListener('DOMContentLoaded', function() {
             100% { opacity: 0.2; }
         }
         
-        /* Стили для reCAPTCHA */
         .g-recaptcha {
             display: inline-block;
-            transform: scale(1.1);
+            transform: scale(0.95);
             transform-origin: center;
         }
         
-        /* Адаптивность */
         @media (max-width: 650px) {
             .modal-container {
                 width: 95%;
-                padding: 30px 20px;
+                padding: 20px 15px;
             }
             
             .logo-title {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
             
             .age-buttons {
@@ -480,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             .g-recaptcha {
-                transform: scale(0.9);
+                transform: scale(0.85);
             }
         }
     `;
@@ -520,11 +516,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const modal = document.createElement('div');
     modal.className = 'modal-container';
-
-    // Бейдж безопасности
-    const securityBadge = document.createElement('div');
-    securityBadge.className = 'security-badge';
-    securityBadge.textContent = texts[lang].securityNote;
 
     // Заголовок
     const header = document.createElement('div');
@@ -599,6 +590,11 @@ document.addEventListener('DOMContentLoaded', function() {
     mainButton.textContent = texts[lang].button;
     mainButton.disabled = true;
 
+    // Примечание о принятии условий
+    const acceptNote = document.createElement('div');
+    acceptNote.className = 'accept-note';
+    acceptNote.textContent = texts[lang].acceptNote;
+
     // ===== НИЖНЯЯ СЕКЦИЯ (Support и Account) =====
     const footerSection = document.createElement('div');
     footerSection.className = 'footer-section';
@@ -618,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
     supportBlock.appendChild(supportTitle);
     supportBlock.appendChild(supportText);
 
-    // Блок аккаунта ВК
+    // Блок аккаунта
     const accountBlock = document.createElement('div');
     accountBlock.className = 'account-block';
     
@@ -633,20 +629,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailElement = document.createElement('div');
     emailElement.className = 'footer-email';
     emailElement.textContent = OFFICIAL_EMAIL;
-    emailElement.style.cursor = 'pointer';
     emailElement.title = lang === 'ru' ? 'Кликните чтобы скопировать' : 'Click to copy';
     
     emailElement.addEventListener('click', () => {
         navigator.clipboard.writeText(OFFICIAL_EMAIL).then(() => {
             const originalText = emailElement.textContent;
             emailElement.textContent = lang === 'ru' ? 'Скопировано!' : 'Copied!';
-            emailElement.style.background = 'rgba(40, 167, 69, 0.2)';
-            emailElement.style.color = '#28A745';
+            emailElement.style.background = 'rgba(40, 167, 69, 0.3)';
             
             setTimeout(() => {
                 emailElement.textContent = originalText;
                 emailElement.style.background = 'rgba(40, 167, 69, 0.1)';
-                emailElement.style.color = '#28A745';
             }, 2000);
         });
     });
@@ -703,7 +696,6 @@ document.addEventListener('DOMContentLoaded', function() {
         recaptchaSection.style.display = 'flex';
         setTimeout(() => {
             recaptchaSection.style.opacity = '1';
-            recaptchaSection.style.transform = 'translateY(0)';
         }, 10);
         
         // Загружаем и инициализируем reCAPTCHA
@@ -738,6 +730,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Проверка готовности формы
     function checkFormCompletion() {
         mainButton.disabled = !(ageConfirmed && recaptchaVerified);
+        if (!mainButton.disabled) {
+            mainButton.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
+        }
     }
 
     // Основная кнопка
@@ -745,8 +740,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!ageConfirmed || !recaptchaVerified) {
             if (!recaptchaVerified) {
                 recaptchaError.style.display = 'block';
-                mainButton.classList.add('shake');
-                setTimeout(() => mainButton.classList.remove('shake'), 500);
+                recaptchaSection.style.animation = 'shake 0.5s';
+                setTimeout(() => recaptchaSection.style.animation = '', 500);
             }
             return;
         }
@@ -759,11 +754,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Анимация принятия
-        mainButton.style.background = 'linear-gradient(135deg, #28A745, #20C997)';
+        mainButton.style.background = 'linear-gradient(135deg, var(--success), #20C997)';
         mainButton.textContent = lang === 'ru' ? '✓ Принято!' : '✓ Accepted!';
         mainButton.disabled = true;
         
-        // Можно отправить токен на сервер для проверки
+        // Отправка токена на сервер (опционально)
         // fetch('/verify-recaptcha', {
         //     method: 'POST',
         //     body: JSON.stringify({ token: recaptchaResponse }),
@@ -787,13 +782,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ===== СОБИРАЕМ МОДАЛКУ =====
-    modal.appendChild(securityBadge);
     modal.appendChild(header);
     modal.appendChild(content);
     modal.appendChild(ageSection);
     modal.appendChild(recaptchaSection);
     modal.appendChild(recaptchaError);
     modal.appendChild(mainButton);
+    modal.appendChild(acceptNote);
     modal.appendChild(footerSection);
     
     overlay.appendChild(modal);
@@ -803,7 +798,7 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.style.opacity = '1';
         
         // Последовательное появление элементов
-        const elements = [header, content, ageSection, footerSection, mainButton];
+        const elements = [header, content, ageSection, mainButton, acceptNote, footerSection];
         elements.forEach((el, index) => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';
@@ -812,7 +807,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 el.style.opacity = '1';
                 el.style.transform = 'translateY(0)';
-            }, 300 + (index * 150));
+            }, 200 + (index * 100));
         });
         
     }, 100);
