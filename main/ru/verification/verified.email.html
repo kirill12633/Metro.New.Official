@@ -1,1 +1,73 @@
-
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email подтвержден - Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .success-icon {
+            font-size: 80px;
+            color: #FFD700;
+            margin-bottom: 30px;
+            animation: bounce 1s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        .countdown {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #FFD700;
+        }
+        h1 { margin-bottom: 20px; }
+        p { font-size: 18px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="success-icon">✓</div>
+    <h1>Email успешно подтвержден!</h1>
+    <p>Возвращаемся на страницу верификации...</p>
+    <div class="countdown" id="countdown">3</div>
+    
+    <script>
+        // Возврат через 3 секунды
+        let seconds = 3;
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            seconds--;
+            countdownEl.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(timer);
+                // Возвращаемся к странице верификации
+                window.location.href = 'verification.email.html';
+            }
+        }, 1000);
+        
+        // Сохраняем статус верификации
+        localStorage.setItem('email_verified', 'true');
+        
+        // Получаем email из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        if (email) {
+            localStorage.setItem('verified_email', email);
+        }
+    </script>
+</body>
+</html>
