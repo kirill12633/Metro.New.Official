@@ -1,1 +1,466 @@
-verification.html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Верификация Email - Метро New</title>
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Подключение Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Стили -->
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --error: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+            --bg-color: #F8F9FA;
+            --text-color: #1A1A1A;
+            --header-bg: linear-gradient(135deg, #0066CC, #0052a3);
+        }
+
+        /* Темная тема */
+        [data-theme="dark"] {
+            --bg-color: #1A1A1A;
+            --text-color: #F8F9FA;
+            --light: #2D2D2D;
+            --dark: #F8F9FA;
+            --gray: #A0A0A0;
+            --header-bg: linear-gradient(135deg, #003366, #002244);
+            --error: #ff6b6b;
+            --warning: #ffd93d;
+            --info: #6bc5d2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        
+        /* Шаги верификации */
+        .verification-container { max-width: 500px; width: 100%; text-align: center; margin: 3rem auto; }
+        .verification-icon {
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 2rem; font-size: 3rem; color: white; box-shadow: var(--shadow-lg);
+        }
+        .verification-title {
+            font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .verification-subtitle { color: var(--gray); font-size: 1.1rem; margin-bottom: 2rem; }
+        .verification-card {
+            background: var(--bg-color); border-radius: var(--radius-xl); padding: 2.5rem;
+            box-shadow: var(--shadow-lg); border: 1px solid var(--light); margin-bottom: 2rem;
+        }
+        
+        /* Формы */
+        .verification-form { display: flex; flex-direction: column; gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; text-align: left; }
+        .form-group input {
+            padding: 0.875rem 1rem; border: 2px solid var(--light); border-radius: var(--radius-md);
+            background: var(--bg-color); color: var(--text-color); font-size: 1rem; width: 100%;
+        }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
+        
+        /* Поля кода */
+        .code-input-container { display: flex; justify-content: center; gap: 10px; margin: 1rem 0; }
+        .code-input {
+            width: 50px; height: 60px; text-align: center; font-size: 1.5rem; font-weight: 700;
+            border: 2px solid var(--light); border-radius: var(--radius-md);
+            background: var(--bg-color); color: var(--text-color);
+        }
+        .code-input:focus { border-color: var(--primary); transform: scale(1.05); }
+        
+        /* Кнопки */
+        .action-btn {
+            padding: 1rem 2rem; border-radius: var(--radius-lg); font-weight: 600; border: none;
+            cursor: pointer; font-size: 1rem; min-width: 200px; display: inline-flex;
+            align-items: center; gap: 10px; justify-content: center; transition: all 0.3s;
+        }
+        .action-btn.primary { background: var(--primary); color: white; }
+        .action-btn.primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Уведомления */
+        .notification-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px; max-width: 350px;
+        }
+        .notification {
+            background: var(--bg-color); border-left: 4px solid var(--primary);
+            border-radius: var(--radius-md); padding: 15px 20px; box-shadow: var(--shadow-lg);
+            display: flex; align-items: flex-start; gap: 12px;
+            transform: translateX(400px); opacity: 0; animation: slideIn 0.5s forwards;
+        }
+        @keyframes slideIn { to { transform: translateX(0); opacity: 1; } }
+        
+        /* Скрытые элементы */
+        .hidden { display: none !important; }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .verification-title { font-size: 2rem; }
+            .verification-card { padding: 2rem 1.5rem; }
+            .code-input { width: 40px; height: 50px; font-size: 1.2rem; }
+            .action-btn { width: 100%; min-width: unset; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Уведомления -->
+    <div class="notification-container" id="notificationContainer"></div>
+    
+    <main>
+        <div class="container">
+            <div class="verification-container">
+                <!-- Шаг 1: Ввод email -->
+                <div id="step1">
+                    <div class="verification-icon"><i class="fas fa-envelope"></i></div>
+                    <h1 class="verification-title">Введите ваш Email</h1>
+                    <p class="verification-subtitle">Мы отправим код подтверждения на указанный email</p>
+                    
+                    <div class="verification-card">
+                        <form class="verification-form" id="emailForm">
+                            <div class="form-group">
+                                <label for="emailInput">Email адрес:</label>
+                                <input type="email" id="emailInput" placeholder="example@email.com" required>
+                                <div class="error-message" id="emailError"></div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button type="submit" class="action-btn primary" id="sendCodeBtn">
+                                    <i class="fas fa-paper-plane"></i> Отправить код
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Шаг 2: Ввод кода -->
+                <div id="step2" class="hidden">
+                    <div class="verification-icon"><i class="fas fa-key"></i></div>
+                    <h1 class="verification-title">Код подтверждения</h1>
+                    <p class="verification-subtitle">Введите 6-значный код, отправленный на ваш email</p>
+                    
+                    <div class="verification-card">
+                        <div class="email-info">
+                            <i class="fas fa-at email-icon"></i>
+                            <span class="email-address" id="currentEmail">Загрузка...</span>
+                        </div>
+                        
+                        <form class="verification-form" id="codeForm">
+                            <div class="form-group">
+                                <label>6-значный код:</label>
+                                <div class="code-input-container" id="codeInputsContainer"></div>
+                                <div class="error-message" id="codeError"></div>
+                            </div>
+                            
+                            <div class="timer-container">
+                                <div class="timer-title">Код действителен:</div>
+                                <div class="timer" id="countdownTimer">05:00</div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button type="submit" class="action-btn primary" id="verifyCodeBtn" disabled>
+                                    <i class="fas fa-check-circle"></i> Подтвердить
+                                </button>
+                                <button type="button" class="action-btn secondary" id="resendCodeBtn" disabled>
+                                    <i class="fas fa-redo"></i> <span id="resendText">Отправить повторно</span>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <button class="change-email-link" id="changeEmailLink">
+                            <i class="fas fa-edit"></i> Изменить email
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Шаг 3: Успех -->
+                <div id="step3" class="hidden">
+                    <div class="success-section">
+                        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                        <h1 class="verification-title">Email успешно подтвержден!</h1>
+                        <p class="verification-subtitle">
+                            Ваш email <span id="verifiedEmail" style="font-weight: 600;"></span> подтвержден.
+                        </p>
+                        
+                        <div class="verification-card">
+                            <div class="action-buttons">
+                                <a href="https://kirill12633.github.io/Metro.New.Official/" class="action-btn primary">
+                                    <i class="fas fa-home"></i> На главную
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- JavaScript -->
+    <script src="js/supabase-config.js"></script>
+    <script>
+        // === ОСНОВНОЙ СКРИПТ ===
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация
+            initCodeInputs();
+            
+            // Обработчики
+            document.getElementById('emailForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('emailInput').value.trim();
+                if (isValidEmail(email)) {
+                    sendVerificationCode(email);
+                } else {
+                    showNotification('Ошибка', 'Введите корректный email', 'error');
+                }
+            });
+            
+            document.getElementById('codeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                verifyCode();
+            });
+            
+            document.getElementById('changeEmailLink').addEventListener('click', function() {
+                goToStep(1);
+            });
+            
+            document.getElementById('resendCodeBtn').addEventListener('click', function() {
+                if (!this.disabled) resendVerificationCode();
+            });
+        });
+        
+        // === ФУНКЦИИ ===
+        let currentEmail = '';
+        let verificationAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        let countdownInterval = null;
+        let countdownTime = 300;
+        
+        function initCodeInputs() {
+            const container = document.getElementById('codeInputsContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 6; i++) {
+                const input = document.createElement('input');
+                input.type = 'text'; input.maxLength = 1; input.className = 'code-input';
+                input.dataset.index = i; input.inputMode = 'numeric';
+                
+                input.addEventListener('input', function(e) {
+                    if (!/^\d*$/.test(e.target.value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    if (e.target.value.length === 1) {
+                        e.target.classList.add('filled');
+                        const nextIndex = parseInt(e.target.dataset.index) + 1;
+                        const nextInput = container.querySelector(`[data-index="${nextIndex}"]`);
+                        if (nextInput) nextInput.focus();
+                        checkCodeInputs();
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !e.target.value) {
+                        const prevIndex = parseInt(e.target.dataset.index) - 1;
+                        const prevInput = container.querySelector(`[data-index="${prevIndex}"]`);
+                        if (prevInput) {
+                            prevInput.focus();
+                            prevInput.value = '';
+                            prevInput.classList.remove('filled');
+                        }
+                    }
+                });
+                
+                container.appendChild(input);
+            }
+        }
+        
+        function checkCodeInputs() {
+            const inputs = document.querySelectorAll('.code-input');
+            const allFilled = Array.from(inputs).every(input => input.value.length === 1);
+            document.getElementById('verifyCodeBtn').disabled = !allFilled;
+            return allFilled;
+        }
+        
+        function getEnteredCode() {
+            const inputs = document.querySelectorAll('.code-input');
+            return Array.from(inputs).map(input => input.value).join('');
+        }
+        
+        async function sendVerificationCode(email) {
+            const sendBtn = document.getElementById('sendCodeBtn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            
+            try {
+                if (!window.supabase) throw new Error('Supabase не подключен');
+                
+                const { error } = await window.supabase.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.origin + '/verified.email.html'
+                    }
+                });
+                
+                if (error) throw error;
+                
+                showNotification('Успех', `Код отправлен на ${email}`, 'success', 5000);
+                currentEmail = email;
+                document.getElementById('currentEmail').textContent = email;
+                document.getElementById('verifiedEmail').textContent = email;
+                goToStep(2);
+                startCountdown();
+                
+                const firstInput = document.querySelector('.code-input[data-index="0"]');
+                if (firstInput) firstInput.focus();
+                
+            } catch (error) {
+                showNotification('Ошибка', error.message || 'Не удалось отправить код', 'error', 5000);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить код';
+            }
+        }
+        
+        async function verifyCode() {
+            const code = getEnteredCode();
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
+            
+            try {
+                const { data, error } = await window.supabase.auth.verifyOtp({
+                    email: currentEmail,
+                    token: code,
+                    type: 'email'
+                });
+                
+                if (error) throw error;
+                
+                completeVerification();
+                
+            } catch (error) {
+                verificationAttempts++;
+                showNotification('Ошибка', 'Неверный код', 'error', 5000);
+                
+                document.querySelectorAll('.code-input').forEach(input => {
+                    input.value = '';
+                    input.classList.remove('filled');
+                });
+                
+                if (verificationAttempts >= MAX_ATTEMPTS) {
+                    showNotification('Ошибка', 'Превышено количество попыток', 'error', 5000);
+                }
+            } finally {
+                verifyBtn.disabled = !checkCodeInputs();
+                verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Подтвердить';
+            }
+        }
+        
+        function completeVerification() {
+            localStorage.setItem('email_verified', 'true');
+            localStorage.setItem('verified_email', currentEmail);
+            clearInterval(countdownInterval);
+            goToStep(3);
+            showNotification('Успех', 'Email подтвержден!', 'success', 5000);
+        }
+        
+        function goToStep(step) {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById(`step${step}`).classList.remove('hidden');
+        }
+        
+        function startCountdown() {
+            const timerElement = document.getElementById('countdownTimer');
+            const resendBtn = document.getElementById('resendCodeBtn');
+            
+            clearInterval(countdownInterval);
+            countdownTime = 300;
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(countdownTime / 60);
+                const seconds = countdownTime % 60;
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (countdownTime <= 0) {
+                    clearInterval(countdownInterval);
+                    timerElement.textContent = '00:00';
+                    timerElement.classList.add('expired');
+                    resendBtn.disabled = false;
+                } else {
+                    countdownTime--;
+                    if (countdownTime <= 30) resendBtn.disabled = false;
+                }
+            }, 1000);
+        }
+        
+        function resendVerificationCode() {
+            if (currentEmail) sendVerificationCode(currentEmail);
+        }
+        
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        function showNotification(title, message, type = 'info', duration = 3000) {
+            const container = document.getElementById('notificationContainer');
+            const id = 'notification-' + Date.now();
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.id = id;
+            notification.innerHTML = `
+                <div><i class="fas fa-info-circle"></i></div>
+                <div>
+                    <div><strong>${title}</strong></div>
+                    <div>${message}</div>
+                </div>
+                <button onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            container.appendChild(notification);
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    if (el) el.remove();
+                }, duration);
+            }
+        }
+    </script>
+</body>
+</html>
