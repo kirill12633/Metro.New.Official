@@ -1,78 +1,38 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Auth Test</title>
+    <title>Google Auth Step by Step</title>
     <script src="accounts.google.com" async defer></script>
 </head>
-<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+<body style="font-family: sans-serif; padding: 20px;">
 
-    <h2>Статус входа: <span id="status">Не авторизован</span></h2>
+    <h2>1. Ваш путь для Google Console:</h2>
+    <!-- Сюда скрипт сам напишет нужный адрес -->
+    <div id="my_path" style="background: #eee; padding: 10px; border: 1px dashed #000; font-weight: bold; color: blue;">Определяю путь...</div>
 
-    <!-- Кнопка Google -->
+    <h2>2. Кнопка входа:</h2>
     <div id="g_id_onload"
          data-client_id="660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
+         data-callback="onSignIn"
          data-auto_prompt="false">
     </div>
-    <div class="g_id_signin" data-type="standard" id="google_btn"></div>
+    <div class="g_id_signin" data-type="standard"></div>
 
-    <br><br>
-
-    <!-- Поле для вывода текста -->
-    <textarea id="output_text" style="width: 80%; height: 150px; padding: 10px;" placeholder="Здесь появятся ваши данные после входа..."></textarea>
-
-    <br><br>
-    
-    <!-- Кнопка Выйти -->
-    <button id="logout_btn" style="display:none;" onclick="logout()">Выйти из аккаунта</button>
+    <h2>3. Результат:</h2>
+    <textarea id="result_text" style="width: 100%; height: 100px;" placeholder="Тут появятся ваши данные..."></textarea>
 
     <script>
-        // 1. ПРОВЕРКА ПРИ ЗАГРУЗКЕ: помнит ли сайт нас?
-        window.onload = function() {
-            const savedUser = localStorage.getItem('user_data');
-            if (savedUser) {
-                showUserInfo(JSON.parse(savedUser));
-            }
-        };
+        // Показываем текущий адрес сайта
+        document.getElementById('my_path').innerText = window.location.origin;
 
-        // 2. ОБРАБОТКА ВХОДА
-        function handleCredentialResponse(response) {
-            // Декодируем токен (JWT)
-            const base64Url = response.credential.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const user = JSON.parse(window.atob(base64));
-
-            // Сохраняем в память браузера
-            localStorage.setItem('user_data', JSON.stringify(user));
-
-            // Выводим данные
-            showUserInfo(user);
-        }
-
-        // 3. ФУНКЦИЯ ВЫВОДА ТЕКСТА НА СТРАНИЦУ
-        function showUserInfo(user) {
-            document.getElementById('status').innerText = "ВХОД ВЫПОЛНЕН";
-            document.getElementById('status').style.color = "green";
+        function onSignIn(response) {
+            // Раскодируем данные
+            const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
             
-            // Записываем данные в текстовое поле
-            const info = "Имя: " + user.name + "\n" +
-                         "Email: " + user.email + "\n" +
-                         "ID пользователя: " + user.sub + "\n" +
-                         "Ссылка на фото: " + user.picture;
-            
-            document.getElementById('output_text').value = info;
-
-            // Скрываем кнопку входа, показываем кнопку выхода
-            document.getElementById('google_btn').style.display = 'none';
-            document.getElementById('logout_btn').style.display = 'inline-block';
-        }
-
-        // 4. ВЫХОД
-        function logout() {
-            localStorage.removeItem('user_data'); // Удаляем данные из памяти
-            location.reload(); // Перезагружаем страницу
+            // Пишем в текстовое поле
+            document.getElementById('result_text').value = "ПРИВЕТ, " + payload.name + "!\nВаш Email: " + payload.email;
+            alert("Вы успешно вошли как " + payload.name);
         }
     </script>
 </body>
