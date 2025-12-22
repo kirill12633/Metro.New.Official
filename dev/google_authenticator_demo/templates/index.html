@@ -1,21 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Регистрация и Авторизация</title>
+    <title>Google Login Demo</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <h2>Регистрация</h2>
-    <form action="/register" method="post">
-        Email: <input type="email" name="email" required>
-        <button type="submit">Зарегистрироваться</button>
-    </form>
+    <h2>Войдите через Google</h2>
+    <div class="g_id_signin"></div>
 
-    <h2>Авторизация</h2>
-    <form action="/verify" method="post">
-        Email: <input type="email" name="email" required><br>
-        Код из Google Authenticator: <input type="text" name="otp" required>
-        <button type="submit">Войти</button>
-    </form>
+    <script>
+        function handleCredentialResponse(response) {
+            fetch("/verify-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error){
+                    alert("Ошибка: " + data.error);
+                } else {
+                    window.location.href = "/profile";
+                }
+            });
+        }
+
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: "{{ client_id }}",
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.querySelector(".g_id_signin"),
+                { theme: "outline", size: "large" }
+            );
+        }
+    </script>
 </body>
 </html>
