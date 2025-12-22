@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Metro New Subscription</title>
+<title>Metro New Login + 2FA</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/otplib@12.0.1/otplib-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
     body {
         font-family: 'Montserrat', sans-serif;
@@ -26,9 +27,8 @@
         width: 100%;
         animation: fadeIn 1s ease-out;
     }
-    h1 {
-        margin-bottom: 1rem;
-    }
+    h1 { margin-bottom: 1rem; }
+    #qrcode { margin: 1rem auto; }
     #notification {
         margin-top: 1rem;
         background: #28A745;
@@ -36,6 +36,23 @@
         border-radius: 10px;
         display: none;
         font-weight: 600;
+    }
+    input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        width: 80%;
+        border-radius: 8px;
+        border: none;
+        margin-top: 1rem;
+    }
+    button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        background: #FFD700;
+        font-weight: bold;
+        cursor: pointer;
     }
     @keyframes fadeIn {
         from {opacity:0; transform: translateY(-20px);}
@@ -46,38 +63,64 @@
 <body>
 
 <div class="card">
-    <h1>Subscribe to Metro New</h1>
-    <p>Stay updated with project news!</p>
+    <h1>Login with Google + 2FA</h1>
     <div id="google-button"></div>
+    
+    <div id="qrcode-container" style="display:none;">
+        <p>Scan this QR-code with Google Authenticator:</p>
+        <canvas id="qrcode"></canvas>
+        <input type="text" id="totp" placeholder="Enter 6-digit code">
+        <button onclick="verifyTOTP()">Verify Code</button>
+    </div>
+
     <div id="notification"></div>
 </div>
 
 <script>
-    // Discord Webhook from Codespaces Secret (replace with actual env variable)
-    const DISCORD_WEBHOOK = '%DISCORD_WEBHOOK_URL%'; // <- Codespaces secret
+    // Discord Webhook secret from Codespaces
+    const DISCORD_WEBHOOK = '%DISCORD_WEBHOOK_URL%'; // <- Replace with Codespaces secret
 
-    function showNotification(message) {
+    let secret = ''; // TOTP secret
+    let currentUser = null;
+
+    function showNotification(msg, success=true) {
         const notif = document.getElementById('notification');
-        notif.textContent = message;
+        notif.textContent = msg;
+        notif.style.background = success ? '#28A745' : '#f44336';
         notif.style.display = 'block';
+    }
+
+    function generateTOTP() {
+        secret = otplib.authenticator.generateSecret();
+        const otpauth = otplib.authenticator.keyuri(currentUser.email, 'MetroNew', secret);
+        QRCode.toCanvas(document.getElementById('qrcode'), otpauth, function (error) {
+            if (error) console.error(error);
+        });
+        document.getElementById('qrcode-container').style.display = 'block';
+    }
+
+    function verifyTOTP() {
+        const userCode = document.getElementById('totp').value.trim();
+        if (otplib.authenticator.check(userCode, secret)) {
+            showNotification(`Welcome ${currentUser.name}! You are authenticated.`);
+            
+            // Send to Discord
+            fetch(DISCORD_WEBHOOK, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    content: `User ${currentUser.name} (${currentUser.email}) logged in and verified 2FA!`
+                })
+            }).catch(err => console.error(err));
+        } else {
+            showNotification('Invalid code. Try again!', false);
+        }
     }
 
     function handleCredentialResponse(response) {
         const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        const name = payload.name;
-        const email = payload.email;
-
-        // Show confirmation
-        showNotification(`Thanks ${name}! You are now subscribed.`);
-
-        // Send to Discord
-        fetch(DISCORD_WEBHOOK, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                content: `New subscriber: ${name} (${email})`
-            })
-        }).catch(err => console.error("Error sending to Discord:", err));
+        currentUser = {name: payload.name, email: payload.email, picture: payload.picture};
+        generateTOTP();
     }
 
     window.onload = () => {
