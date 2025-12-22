@@ -1,48 +1,96 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Google Login Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metro New Subscription</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    img { max-width: 150px; border-radius: 50%; margin-top: 10px; }
+    body {
+        font-family: 'Montserrat', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0066CC, #0052a3);
+        color: white;
+    }
+    .card {
+        background: rgba(255,255,255,0.05);
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        max-width: 400px;
+        width: 100%;
+        animation: fadeIn 1s ease-out;
+    }
+    h1 {
+        margin-bottom: 1rem;
+    }
+    #notification {
+        margin-top: 1rem;
+        background: #28A745;
+        padding: 1rem;
+        border-radius: 10px;
+        display: none;
+        font-weight: 600;
+    }
+    @keyframes fadeIn {
+        from {opacity:0; transform: translateY(-20px);}
+        to {opacity:1; transform: translateY(0);}
+    }
 </style>
 </head>
 <body>
-<h2>Войдите через Google</h2>
-<div class="g_id_signin"></div>
-<div id="user-info" style="margin-top:20px;"></div>
+
+<div class="card">
+    <h1>Subscribe to Metro New</h1>
+    <p>Stay updated with project news!</p>
+    <div id="google-button"></div>
+    <div id="notification"></div>
+</div>
 
 <script>
-const CLIENT_ID = "660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com";
+    // Discord Webhook from Codespaces Secret (replace with actual env variable)
+    const DISCORD_WEBHOOK = '%DISCORD_WEBHOOK_URL%'; // <- Codespaces secret
 
-function handleCredentialResponse(response) {
-    // JWT ID Token
-    const jwt = response.credential;
+    function showNotification(message) {
+        const notif = document.getElementById('notification');
+        notif.textContent = message;
+        notif.style.display = 'block';
+    }
 
-    // Декодируем payload из JWT
-    const payload = JSON.parse(atob(jwt.split('.')[1]));
+    function handleCredentialResponse(response) {
+        const payload = JSON.parse(atob(response.credential.split('.')[1]));
+        const name = payload.name;
+        const email = payload.email;
 
-    // Исправляем кириллицу
-    const name = decodeURIComponent(escape(payload.name));
+        // Show confirmation
+        showNotification(`Thanks ${name}! You are now subscribed.`);
 
-    document.getElementById("user-info").innerHTML =
-        `<p><strong>Имя:</strong> ${name}</p>
-         <p><strong>Email:</strong> ${payload.email}</p>
-         <img src="${payload.picture}" alt="User Picture">`;
-}
+        // Send to Discord
+        fetch(DISCORD_WEBHOOK, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                content: `New subscriber: ${name} (${email})`
+            })
+        }).catch(err => console.error("Error sending to Discord:", err));
+    }
 
-window.onload = function() {
-    google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-        document.querySelector(".g_id_signin"),
-        { theme: "outline", size: "large" }
-    );
-};
+    window.onload = () => {
+        google.accounts.id.initialize({
+            client_id: "660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+            document.getElementById('google-button'),
+            { theme: 'outline', size: 'large', text: 'sign_in_with' }
+        );
+    };
 </script>
+
 </body>
 </html>
