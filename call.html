@@ -2,32 +2,78 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Google Auth on GitHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Auth Test</title>
     <script src="accounts.google.com" async defer></script>
 </head>
-<body>
-    <h2>Вход через Google (GitHub Pages)</h2>
+<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
 
-    <!-- ВАЖНО: Убедитесь, что этот Client ID совпадает с тем, где вы прописали github.io -->
+    <h2>Статус входа: <span id="status">Не авторизован</span></h2>
+
+    <!-- Кнопка Google -->
     <div id="g_id_onload"
          data-client_id="660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com"
-         data-context="signin"
-         data-ux_mode="popup"
          data-callback="handleCredentialResponse"
          data-auto_prompt="false">
     </div>
+    <div class="g_id_signin" data-type="standard" id="google_btn"></div>
 
-    <div class="g_id_signin" data-type="standard"></div>
+    <br><br>
+
+    <!-- Поле для вывода текста -->
+    <textarea id="output_text" style="width: 80%; height: 150px; padding: 10px;" placeholder="Здесь появятся ваши данные после входа..."></textarea>
+
+    <br><br>
+    
+    <!-- Кнопка Выйти -->
+    <button id="logout_btn" style="display:none;" onclick="logout()">Выйти из аккаунта</button>
 
     <script>
+        // 1. ПРОВЕРКА ПРИ ЗАГРУЗКЕ: помнит ли сайт нас?
+        window.onload = function() {
+            const savedUser = localStorage.getItem('user_data');
+            if (savedUser) {
+                showUserInfo(JSON.parse(savedUser));
+            }
+        };
+
+        // 2. ОБРАБОТКА ВХОДА
         function handleCredentialResponse(response) {
-            // Декодируем JWT (только для демонстрации)
-            const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-            alert("Успешный вход! Привет, " + payload.name);
-            console.log(payload);
+            // Декодируем токен (JWT)
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const user = JSON.parse(window.atob(base64));
+
+            // Сохраняем в память браузера
+            localStorage.setItem('user_data', JSON.stringify(user));
+
+            // Выводим данные
+            showUserInfo(user);
+        }
+
+        // 3. ФУНКЦИЯ ВЫВОДА ТЕКСТА НА СТРАНИЦУ
+        function showUserInfo(user) {
+            document.getElementById('status').innerText = "ВХОД ВЫПОЛНЕН";
+            document.getElementById('status').style.color = "green";
+            
+            // Записываем данные в текстовое поле
+            const info = "Имя: " + user.name + "\n" +
+                         "Email: " + user.email + "\n" +
+                         "ID пользователя: " + user.sub + "\n" +
+                         "Ссылка на фото: " + user.picture;
+            
+            document.getElementById('output_text').value = info;
+
+            // Скрываем кнопку входа, показываем кнопку выхода
+            document.getElementById('google_btn').style.display = 'none';
+            document.getElementById('logout_btn').style.display = 'inline-block';
+        }
+
+        // 4. ВЫХОД
+        function logout() {
+            localStorage.removeItem('user_data'); // Удаляем данные из памяти
+            location.reload(); // Перезагружаем страницу
         }
     </script>
 </body>
-</html>
-
 </html>
