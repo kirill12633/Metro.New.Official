@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, render_template_string
 import requests
 
 app = Flask(__name__)
-
 CLIENT_ID = "660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com"
 
 HTML_PAGE = """
@@ -15,18 +14,11 @@ HTML_PAGE = """
 </head>
 <body>
     <h2>Войдите через Google</h2>
-    <div id="g_id_onload"
-         data-client_id="{{ client_id }}"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
     <div class="g_id_signin"></div>
-
-    <div id="user-info" style="margin-top:20px;"></div>
+    <div id="user-info"></div>
 
     <script>
     function handleCredentialResponse(response) {
-        // Отправляем токен на сервер для проверки
         fetch("/verify-token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -42,8 +34,7 @@ HTML_PAGE = """
                     "<p>Email: " + data.email + "</p>" +
                     "<img src='" + data.picture + "' alt='User Picture'>";
             }
-        })
-        .catch(err => console.log(err));
+        });
     }
 
     window.onload = function() {
@@ -70,13 +61,10 @@ def verify_token():
     token = request.json.get("credential")
     if not token:
         return jsonify({"error": "No token provided"}), 400
-
     r = requests.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={token}")
     user_info = r.json()
-
     if user_info.get("aud") != CLIENT_ID:
         return jsonify({"error": "Invalid token"}), 400
-
     return jsonify({
         "email": user_info.get("email"),
         "name": user_info.get("name"),
