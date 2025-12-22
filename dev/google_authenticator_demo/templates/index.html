@@ -76,63 +76,62 @@
     <div id="notification"></div>
 </div>
 
-<script>
-    // Discord Webhook secret from Codespaces
-    const DISCORD_WEBHOOK = '%DISCORD_WEBHOOK_URL%'; // <- Replace with Codespaces secret
+<script type="module">
+import { DISCORD_WEBHOOK } from './js/config.js';
 
-    let secret = ''; // TOTP secret
-    let currentUser = null;
+let secret = '';
+let currentUser = null;
 
-    function showNotification(msg, success=true) {
-        const notif = document.getElementById('notification');
-        notif.textContent = msg;
-        notif.style.background = success ? '#28A745' : '#f44336';
-        notif.style.display = 'block';
+function showNotification(msg, success=true) {
+    const notif = document.getElementById('notification');
+    notif.textContent = msg;
+    notif.style.background = success ? '#28A745' : '#f44336';
+    notif.style.display = 'block';
+}
+
+function generateTOTP() {
+    secret = otplib.authenticator.generateSecret();
+    const otpauth = otplib.authenticator.keyuri(currentUser.email, 'MetroNew', secret);
+    QRCode.toCanvas(document.getElementById('qrcode'), otpauth, function (error) {
+        if (error) console.error(error);
+    });
+    document.getElementById('qrcode-container').style.display = 'block';
+}
+
+function verifyTOTP() {
+    const userCode = document.getElementById('totp').value.trim();
+    if (otplib.authenticator.check(userCode, secret)) {
+        showNotification(`Welcome ${currentUser.name}! You are authenticated.`);
+        
+        // Send to Discord
+        fetch(DISCORD_WEBHOOK, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                content: `User ${currentUser.name} (${currentUser.email}) logged in and verified 2FA!`
+            })
+        }).catch(err => console.error(err));
+    } else {
+        showNotification('Invalid code. Try again!', false);
     }
+}
 
-    function generateTOTP() {
-        secret = otplib.authenticator.generateSecret();
-        const otpauth = otplib.authenticator.keyuri(currentUser.email, 'MetroNew', secret);
-        QRCode.toCanvas(document.getElementById('qrcode'), otpauth, function (error) {
-            if (error) console.error(error);
-        });
-        document.getElementById('qrcode-container').style.display = 'block';
-    }
+function handleCredentialResponse(response) {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    currentUser = {name: payload.name, email: payload.email, picture: payload.picture};
+    generateTOTP();
+}
 
-    function verifyTOTP() {
-        const userCode = document.getElementById('totp').value.trim();
-        if (otplib.authenticator.check(userCode, secret)) {
-            showNotification(`Welcome ${currentUser.name}! You are authenticated.`);
-            
-            // Send to Discord
-            fetch(DISCORD_WEBHOOK, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    content: `User ${currentUser.name} (${currentUser.email}) logged in and verified 2FA!`
-                })
-            }).catch(err => console.error(err));
-        } else {
-            showNotification('Invalid code. Try again!', false);
-        }
-    }
-
-    function handleCredentialResponse(response) {
-        const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        currentUser = {name: payload.name, email: payload.email, picture: payload.picture};
-        generateTOTP();
-    }
-
-    window.onload = () => {
-        google.accounts.id.initialize({
-            client_id: "660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com",
-            callback: handleCredentialResponse
-        });
-        google.accounts.id.renderButton(
-            document.getElementById('google-button'),
-            { theme: 'outline', size: 'large', text: 'sign_in_with' }
-        );
-    };
+window.onload = () => {
+    google.accounts.id.initialize({
+        client_id: "660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+        document.getElementById('google-button'),
+        { theme: 'outline', size: 'large', text: 'sign_in_with' }
+    );
+};
 </script>
 
 </body>
