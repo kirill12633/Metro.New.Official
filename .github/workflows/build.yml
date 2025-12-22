@@ -1,0 +1,29 @@
+name: Build GitHub Pages with secrets
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Generate config.js with secrets
+        run: |
+          mkdir -p docs/js
+          echo "export const DISCORD_WEBHOOK = '${{ secrets.DISCORD_WEBHOOK_URL }}';" > docs/js/config.js
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
