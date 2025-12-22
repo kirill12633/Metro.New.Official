@@ -1,41 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Google Login Demo</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta charset="UTF-8">
+<title>Google Login Demo</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <h2>Войдите через Google</h2>
-    <div class="g_id_signin"></div>
+<h2>Войдите через Google</h2>
+<div class="g_id_signin"></div>
+<div id="user-info"></div>
 
-    <script>
-        function handleCredentialResponse(response) {
-            fetch("/verify-token", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ credential: response.credential })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.error){
-                    alert("Ошибка: " + data.error);
-                } else {
-                    window.location.href = "/profile";
-                }
-            });
-        }
+<script>
+const CLIENT_ID = "660870444962-d60ace1uae0u0g2t26e8qtq8240qu1qd.apps.googleusercontent.com";
 
-        window.onload = function() {
-            google.accounts.id.initialize({
-                client_id: "{{ client_id }}",
-                callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(
-                document.querySelector(".g_id_signin"),
-                { theme: "outline", size: "large" }
-            );
-        }
-    </script>
+function handleCredentialResponse(response) {
+    // В response.credential приходит JWT ID Token
+    const jwt = response.credential;
+
+    // Декодируем данные пользователя на клиенте (без сервера)
+    const payload = JSON.parse(atob(jwt.split('.')[1]));
+    document.getElementById("user-info").innerHTML =
+        `<p>Имя: ${payload.name}</p>
+         <p>Email: ${payload.email}</p>
+         <img src="${payload.picture}" alt="User Picture">`;
+}
+
+window.onload = function() {
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+        document.querySelector(".g_id_signin"),
+        { theme: "outline", size: "large" }
+    );
+};
+</script>
 </body>
 </html>
