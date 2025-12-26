@@ -1,21 +1,17 @@
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
 
-    // --- КОНСТАНТЫ ---
     const MODAL_VERSION = '0.2';
-    const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
-    const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
-    const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
     const STORAGE_KEY = 'metro_verified_v1';
 
-    // Проверяем, показывать ли модалку
     if (localStorage.getItem(STORAGE_KEY) === MODAL_VERSION) return;
 
     const lang = navigator.language.startsWith('en') ? 'en' : 'ru';
     const texts = {
         ru: {
             title: 'Добро пожаловать в Метро New',
-            message: 'Для использования нашего приложения вы должны принять условия <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательского соглашения</a> и <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политики конфиденциальности</a>.',
+            message: 'Для использования нашего приложения вы должны принять <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательское соглашение</a> и <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политику конфиденциальности</a>.',
             ageQuestion: 'Вам 13 лет или больше?',
             button: 'Продолжить',
             underage: 'Мне нет 13 лет',
@@ -32,26 +28,45 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     const t = texts[lang];
 
-    // --- СОЗДАЕМ МОДАЛЬНОЕ ОКНО ---
-    const modalHTML = `
-    <div class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">${t.title}</div>
-            <div class="modal-content">${t.message}</div>
-            <div class="age-check-section">
-                <div class="age-question">${t.ageQuestion}</div>
-                <div class="age-buttons">
-                    <button id="age-yes-btn" class="age-btn yes">13+</button>
-                    <button id="age-no-btn" class="age-btn no">${t.underage}</button>
-                </div>
-                <div id="age-warning" class="age-warning"></div>
-            </div>
-            <button id="main-button" class="modal-button" disabled>${t.button}</button>
-        </div>
-    </div>
+    // Стили для модального окна
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal-overlay {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;animation:fadeIn 0.5s;}
+        .modal-container {background:#fff;padding:30px;border-radius:20px;max-width:500px;width:90%;text-align:center;font-family:sans-serif;color:#1A1A1A;box-shadow:0 10px 30px rgba(0,0,0,0.3);transform:translateY(-30px);animation:slideDown 0.5s forwards;}
+        h2 {margin-bottom:15px;}
+        p {margin-bottom:20px;}
+        .age-check-section {margin:20px 0;}
+        .age-check-section button {margin:5px;padding:10px 20px;border:none;border-radius:12px;cursor:pointer;font-weight:bold;transition:all 0.3s;}
+        .age-check-section button:hover {transform:translateY(-2px);}
+        #age-yes-btn {background:green;color:white;}
+        #age-no-btn {background:red;color:white;}
+        #main-button {padding:12px 25px;margin-top:15px;border:none;border-radius:12px;background:gold;cursor:pointer;font-weight:bold;transition:all 0.3s;opacity:0.9;}
+        #main-button:hover {opacity:1;transform:scale(1.03);}
+        #main-button:disabled {opacity:0.5;cursor:not-allowed;}
+        #age-warning {margin-top:10px;color:red;font-weight:bold;}
+        @keyframes fadeIn {from {opacity:0;} to {opacity:1;}}
+        @keyframes slideDown {to {transform:translateY(0);}}
     `;
+    document.head.appendChild(style);
 
+    // HTML модального окна
+    const modalHTML = `
+        <div class="modal-overlay">
+            <div class="modal-container">
+                <h2>${t.title}</h2>
+                <p>${t.message}</p>
+                <div class="age-check-section">
+                    <div class="age-question" style="font-weight:bold;margin-bottom:10px;">${t.ageQuestion}</div>
+                    <button id="age-yes-btn">13+</button>
+                    <button id="age-no-btn">${t.underage}</button>
+                    <div id="age-warning"></div>
+                </div>
+                <button id="main-button" disabled>${t.button}</button>
+            </div>
+        </div>
+    `;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+
     const overlay = document.querySelector('.modal-overlay');
     const ageYesBtn = document.getElementById('age-yes-btn');
     const ageNoBtn = document.getElementById('age-no-btn');
@@ -60,9 +75,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.body.style.overflow = 'hidden';
 
-    // --- ОБРАБОТЧИКИ ---
     let ageConfirmed = false;
 
+    // Пользователь 13+
     ageYesBtn.addEventListener('click', () => {
         ageConfirmed = true;
         ageYesBtn.disabled = true;
@@ -70,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mainButton.disabled = false;
     });
 
+    // Пользователь младше 13
     ageNoBtn.addEventListener('click', () => {
         ageWarning.textContent = t.exitMessage;
         let seconds = 5;
@@ -86,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mainButton.disabled = true;
     });
 
+    // Продолжение после подтверждения возраста
     mainButton.addEventListener('click', () => {
         if (!ageConfirmed) return;
         overlay.remove();
@@ -93,3 +110,4 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem(STORAGE_KEY, MODAL_VERSION);
     });
 });
+</script>
