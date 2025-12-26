@@ -1,244 +1,149 @@
-(function () {
-  'use strict';
+document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
 
-  /* ================= CONFIG ================= */
+    // --- КОНСТАНТЫ ---
+    const MODAL_VERSION = '0.2';
+    const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
+    const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
+    const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
+    const SITE_KEY = '0x4AAAAAACJJ-EXmOljL2_UU';
+    const MIN_AGE = 13;
+    const STORAGE_KEY = 'metro_verified_v1';
+    const LOG_KEY = 'metro_attempt_log';
+    const LOCK_KEY = 'metro_lock_until';
 
-  const SITE_KEY = '0x4AAAAAACJJ-EXmOljL2_UU';
-  const MIN_AGE = 13;
+    // --- Проверка уже пройденного модала ---
+    if (localStorage.getItem(STORAGE_KEY) === 'true') return;
 
-  const STORAGE_KEY = 'metro_verified_v1';
-  const LOG_KEY = 'metro_attempt_log';
-  const LOCK_KEY = 'metro_lock_until';
+    const lockedUntil = Number(localStorage.getItem(LOCK_KEY) || 0);
+    if (lockedUntil && Date.now() < lockedUntil) {
+        alert('Слишком много попыток. Попробуйте позже.');
+        return;
+    }
 
-  /* ================= ALREADY VERIFIED ================= */
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  if (localStorage.getItem(STORAGE_KEY) === 'true') return;
+    // --- Стили ---
+    const style = document.createElement('style');
+    style.textContent = `
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --danger: #DC3545;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-xl: 15px;
+        }
+        body { overflow: hidden; }
+        #metro-overlay {
+            position: fixed; inset:0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display:flex; justify-content:center; align-items:center;
+            z-index:99999;
+        }
+        #metro-box {
+            background:${dark?'#0b1220':'#fff'};
+            color:${dark?'#e5e7eb':'#1A1A1A'};
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 450px;
+            width: 90%;
+            text-align:center;
+            box-shadow: var(--shadow-lg);
+            animation: appear .6s cubic-bezier(.2,.8,.2,1);
+        }
+        @keyframes appear { from {opacity:0; transform: translateY(40px) scale(.95);} to {opacity:1; transform:none;} }
+        h1 { font-size:28px; background:linear-gradient(90deg,var(--secondary),var(--primary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:15px; }
+        p { font-size:14px; margin-bottom:15px; }
+        input { width:100%; padding:14px; border-radius:12px; border:none; font-size:16px; text-align:center; margin-bottom:18px; background:${dark?'#1A1A1A':'#f0f0f0'}; color:${dark?'#e5e7eb':'#1A1A1A'};}
+        button { width:100%; padding:16px; border:none; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer; background:linear-gradient(135deg,var(--secondary),var(--primary)); color:${dark?'#1A1A1A':'#1A1A1A'}; transition:0.3s;}
+        button:disabled { opacity:0.5; cursor:not-allowed;}
+        .error { color:var(--danger); font-size:13px; margin-top:12px; display:none;}
+        .loader { display:none; margin-top:10px; }
+        .loader span { display:inline-block; width:8px; height:8px; background:var(--secondary); border-radius:50%; margin:0 4px; animation:blink 1.4s infinite both;}
+        .loader span:nth-child(2){animation-delay:.2s}
+        .loader span:nth-child(3){animation-delay:.4s}
+        @keyframes blink {0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
+    `;
+    document.head.appendChild(style);
 
-  /* ================= LOCK CHECK ================= */
+    // --- HTML ---
+    const overlay = document.createElement('div');
+    overlay.id='metro-overlay';
+    overlay.innerHTML=`
+        <div id="metro-box">
+            <h1>Metro New</h1>
+            <p>Введите год рождения. Доступ с ${MIN_AGE} лет.</p>
+            <input id="birthYear" type="number" placeholder="Год рождения" />
+            <div id="turnstile"></div>
+            <button id="continue" disabled>Продолжить</button>
+            <div class="error" id="error"></div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
 
-  const lockedUntil = Number(localStorage.getItem(LOCK_KEY) || 0);
-  if (lockedUntil && Date.now() < lockedUntil) {
-    alert('Слишком много попыток. Попробуйте позже.');
-    return;
-  }
+    // --- Логирование ---
+    function logAttempt(result, reason) {
+        const log = JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+        log.push({time:Date.now(),result,reason});
+        localStorage.setItem(LOG_KEY,JSON.stringify(log.slice(-20)));
+    }
+    function lock(seconds) { localStorage.setItem(LOCK_KEY,Date.now()+seconds*1000); }
 
-  /* ================= THEME AUTO ================= */
+    // --- Turnstile ---
+    let turnstilePassed=false;
+    window.onloadTurnstileCallback = () => {
+        turnstile.render('#turnstile',{
+            sitekey: SITE_KEY,
+            callback:()=>{ turnstilePassed=true; checkReady();}
+        });
+    };
+    const tsScript=document.createElement('script');
+    tsScript.src='https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback';
+    tsScript.async=true;
+    document.head.appendChild(tsScript);
 
-  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // --- Логика ---
+    const input=overlay.querySelector('#birthYear');
+    const button=overlay.querySelector('#continue');
+    const error=overlay.querySelector('#error');
+    let errors=0;
 
-  /* ================= STYLES ================= */
+    function checkReady(){
+        const age=new Date().getFullYear()-Number(input.value);
+        button.disabled = !(turnstilePassed && age>=MIN_AGE);
+        if(error.style.display==='block') error.style.display='none';
+    }
 
-  const style = document.createElement('style');
-  style.textContent = `
-  :root {
-    --bg: ${dark ? '#020617' : '#f8fafc'};
-    --card: ${dark ? '#0b1220' : '#ffffff'};
-    --text: ${dark ? '#e5e7eb' : '#020617'};
-    --accent: #38bdf8;
-    --danger: #ef4444;
-    --success: #22c55e;
-  }
+    input.addEventListener('input',checkReady);
 
-  * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI; }
-
-  #metro-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.8);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-  }
-
-  #metro-box {
-    background: var(--card);
-    color: var(--text);
-    width: 92%;
-    max-width: 420px;
-    padding: 32px;
-    border-radius: 18px;
-    text-align: center;
-    animation: appear .6s cubic-bezier(.2,.8,.2,1);
-  }
-
-  @keyframes appear {
-    from { opacity:0; transform: translateY(40px) scale(.95); }
-    to { opacity:1; transform: none; }
-  }
-
-  h1 {
-    margin: 0 0 10px;
-    font-size: 26px;
-    font-weight: 900;
-    background: linear-gradient(90deg,#38bdf8,#22c55e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  p { font-size: 14px; line-height: 1.6; opacity: .9; }
-
-  input {
-    width: 100%;
-    margin-top: 18px;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    font-size: 16px;
-    background: #020617;
-    color: white;
-    text-align: center;
-  }
-
-  button {
-    width: 100%;
-    margin-top: 22px;
-    padding: 16px;
-    border-radius: 14px;
-    border: none;
-    background: linear-gradient(135deg,#38bdf8,#22c55e);
-    color: #020617;
-    font-weight: 900;
-    font-size: 16px;
-    cursor: pointer;
-    transition: .25s;
-  }
-
-  button:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-  }
-
-  .loader {
-    margin-top: 18px;
-    display: none;
-  }
-
-  .loader span {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin: 0 4px;
-    animation: blink 1.4s infinite both;
-  }
-
-  .loader span:nth-child(2){animation-delay:.2s}
-  .loader span:nth-child(3){animation-delay:.4s}
-
-  @keyframes blink {
-    0%{opacity:.2}
-    20%{opacity:1}
-    100%{opacity:.2}
-  }
-
-  .error {
-    color: var(--danger);
-    font-size: 13px;
-    margin-top: 12px;
-    display: none;
-  }
-  `;
-  document.head.appendChild(style);
-
-  /* ================= HTML ================= */
-
-  const overlay = document.createElement('div');
-  overlay.id = 'metro-overlay';
-  overlay.innerHTML = `
-    <div id="metro-box">
-      <h1>Metro New</h1>
-      <p>Введите год рождения.<br>Доступ разрешён с ${MIN_AGE} лет.</p>
-
-      <input id="birthYear" type="number" placeholder="Год рождения" />
-
-      <div class="loader" id="loader">
-        <span></span><span></span><span></span>
-      </div>
-
-      <div id="turnstile"></div>
-
-      <button id="continue" disabled>Продолжить</button>
-
-      <div class="error" id="error"></div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  /* ================= LOGGING ================= */
-
-  function logAttempt(result, reason) {
-    const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
-    log.push({ time: Date.now(), result, reason });
-    localStorage.setItem(LOG_KEY, JSON.stringify(log.slice(-20)));
-  }
-
-  function lock(seconds) {
-    localStorage.setItem(LOCK_KEY, Date.now() + seconds * 1000);
-  }
-
-  /* ================= TURNSTILE ================= */
-
-  let turnstilePassed = false;
-
-  window.onloadTurnstileCallback = () => {
-    turnstile.render('#turnstile', {
-      sitekey: SITE_KEY,
-      callback: () => {
-        turnstilePassed = true;
-        checkReady();
-      }
+    button.addEventListener('click',()=>{
+        const age=new Date().getFullYear()-Number(input.value);
+        if(!turnstilePassed){
+            error.textContent='Проверка Turnstile не пройдена';
+            error.style.display='block';
+            logAttempt('fail','turnstile');
+            return;
+        }
+        if(age<MIN_AGE){
+            errors++;
+            error.textContent='Возраст не подходит';
+            error.style.display='block';
+            logAttempt('fail','age');
+            if(errors>=3){ lock(30); location.reload(); }
+            return;
+        }
+        logAttempt('success','ok');
+        localStorage.setItem(STORAGE_KEY,'true');
+        overlay.remove();
+        document.body.style.overflow='';
     });
-  };
 
-  const tsScript = document.createElement('script');
-  tsScript.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback';
-  tsScript.async = true;
-  document.head.appendChild(tsScript);
-
-  /* ================= LOGIC ================= */
-
-  const input = overlay.querySelector('#birthYear');
-  const button = overlay.querySelector('#continue');
-  const error = overlay.querySelector('#error');
-
-  let errors = 0;
-
-  function checkReady() {
-    const age = new Date().getFullYear() - Number(input.value);
-    button.disabled = !(turnstilePassed && age >= MIN_AGE);
-  }
-
-  input.addEventListener('input', checkReady);
-
-  button.addEventListener('click', () => {
-    const age = new Date().getFullYear() - Number(input.value);
-
-    if (!turnstilePassed) {
-      error.textContent = 'Проверка не пройдена';
-      error.style.display = 'block';
-      logAttempt('fail', 'turnstile');
-      return;
-    }
-
-    if (age < MIN_AGE) {
-      errors++;
-      error.textContent = 'Возраст не подходит';
-      error.style.display = 'block';
-      logAttempt('fail', 'age');
-
-      if (errors >= 3) {
-        lock(30);
-        location.reload();
-      }
-      return;
-    }
-
-    logAttempt('success', 'ok');
-    localStorage.setItem(STORAGE_KEY, 'true');
-    overlay.remove();
-  });
-
-})();
+    overlay.querySelector('h1').addEventListener('click',()=>{ window.open(REDIRECT_LOGO_URL,'_blank'); });
+});
