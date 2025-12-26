@@ -1,149 +1,125 @@
-document.addEventListener('DOMContentLoaded', function() {
-    'use strict';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metro New Verification</title>
+<!-- Turnstile CAPTCHA -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+:root {
+    --primary: #0066CC; --primary-dark: #0052a3;
+    --secondary: #FFD700; --secondary-dark: #e6c200;
+    --dark: #1A1A1A; --light: #F8F9FA;
+    --success: #28A745; --warning: #FFC107; --danger: #DC3545;
+    --radius: 12px; --shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+body { font-family: 'Montserrat', sans-serif; margin:0; padding:0; background: var(--light); color: var(--dark); display:flex; align-items:center; justify-content:center; height:100vh; }
+body.dark { background: var(--dark); color: var(--light); }
+.modal { background: white; padding:2rem; border-radius: var(--radius); box-shadow: var(--shadow); width:90%; max-width:400px; text-align:center; }
+body.dark .modal { background: #222; color:white; }
+.modal h2 { margin-bottom:1rem; }
+.modal input { width: 100%; padding:0.5rem; margin-bottom:1rem; border-radius:6px; border:1px solid #ccc; }
+.modal button { padding:0.8rem 1.5rem; background: var(--secondary); border:none; border-radius: var(--radius); color: var(--dark); font-weight:600; cursor:pointer; }
+.modal button:disabled { opacity:0.6; cursor:not-allowed; }
+.message { margin-top:0.5rem; font-size:0.9rem; }
+</style>
+</head>
+<body>
+<div class="modal">
+    <h2>Подтвердите возраст</h2>
+    <p>Введите ваш год рождения:</p>
+    <input type="number" id="birthYear" placeholder="Например, 2010" min="1900" max="2025">
+    <div id="turnstile"></div>
+    <button id="verifyBtn" disabled>Продолжить</button>
+    <div class="message" id="message"></div>
+</div>
 
-    // --- КОНСТАНТЫ ---
-    const MODAL_VERSION = '0.2';
-    const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
-    const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
-    const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
-    const SITE_KEY = '0x4AAAAAACJJ-EXmOljL2_UU';
-    const MIN_AGE = 13;
-    const STORAGE_KEY = 'metro_verified_v1';
-    const LOG_KEY = 'metro_attempt_log';
-    const LOCK_KEY = 'metro_lock_until';
+<script>
+const SITE_KEY = '0x4AAAAAACJJ-EXmOljL2_UU';
+const MIN_AGE = 13;
+const STORAGE_KEY = 'metro_verified_v1';
+const LOG_KEY = 'metro_attempt_log';
+const LOCK_KEY = 'metro_lock_until';
 
-    // --- Проверка уже пройденного модала ---
-    if (localStorage.getItem(STORAGE_KEY) === 'true') return;
+let turnstilePassed = false;
+let birthValid = false;
 
-    const lockedUntil = Number(localStorage.getItem(LOCK_KEY) || 0);
-    if (lockedUntil && Date.now() < lockedUntil) {
-        alert('Слишком много попыток. Попробуйте позже.');
-        return;
+// Dark/light auto
+if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+    document.body.classList.add('dark');
+}
+
+const btn = document.getElementById('verifyBtn');
+const yearInput = document.getElementById('birthYear');
+const messageEl = document.getElementById('message');
+
+function logAttempt(success) {
+    const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+    log.push({ timestamp: Date.now(), success, year: yearInput.value });
+    localStorage.setItem(LOG_KEY, JSON.stringify(log));
+}
+
+function checkLock() {
+    const lockUntil = Number(localStorage.getItem(LOCK_KEY) || 0);
+    if(Date.now() < lockUntil){
+        const remaining = Math.ceil((lockUntil - Date.now())/1000);
+        btn.disabled = true;
+        messageEl.textContent = `Слишком много ошибок. Попробуйте через ${remaining} сек.`;
+        return true;
     }
+    return false;
+}
 
-    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+function checkReady(){
+    if(checkLock()) return;
+    btn.disabled = !(birthValid && turnstilePassed);
+}
 
-    // --- Стили ---
-    const style = document.createElement('style');
-    style.textContent = `
-        :root {
-            --primary: #0066CC;
-            --primary-dark: #0052a3;
-            --secondary: #FFD700;
-            --dark: #1A1A1A;
-            --light: #F8F9FA;
-            --gray: #6C757D;
-            --success: #28A745;
-            --danger: #DC3545;
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
-            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
-            --radius-xl: 15px;
-        }
-        body { overflow: hidden; }
-        #metro-overlay {
-            position: fixed; inset:0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            display:flex; justify-content:center; align-items:center;
-            z-index:99999;
-        }
-        #metro-box {
-            background:${dark?'#0b1220':'#fff'};
-            color:${dark?'#e5e7eb':'#1A1A1A'};
-            border-radius: var(--radius-xl);
-            padding: 32px;
-            max-width: 450px;
-            width: 90%;
-            text-align:center;
-            box-shadow: var(--shadow-lg);
-            animation: appear .6s cubic-bezier(.2,.8,.2,1);
-        }
-        @keyframes appear { from {opacity:0; transform: translateY(40px) scale(.95);} to {opacity:1; transform:none;} }
-        h1 { font-size:28px; background:linear-gradient(90deg,var(--secondary),var(--primary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:15px; }
-        p { font-size:14px; margin-bottom:15px; }
-        input { width:100%; padding:14px; border-radius:12px; border:none; font-size:16px; text-align:center; margin-bottom:18px; background:${dark?'#1A1A1A':'#f0f0f0'}; color:${dark?'#e5e7eb':'#1A1A1A'};}
-        button { width:100%; padding:16px; border:none; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer; background:linear-gradient(135deg,var(--secondary),var(--primary)); color:${dark?'#1A1A1A':'#1A1A1A'}; transition:0.3s;}
-        button:disabled { opacity:0.5; cursor:not-allowed;}
-        .error { color:var(--danger); font-size:13px; margin-top:12px; display:none;}
-        .loader { display:none; margin-top:10px; }
-        .loader span { display:inline-block; width:8px; height:8px; background:var(--secondary); border-radius:50%; margin:0 4px; animation:blink 1.4s infinite both;}
-        .loader span:nth-child(2){animation-delay:.2s}
-        .loader span:nth-child(3){animation-delay:.4s}
-        @keyframes blink {0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
-    `;
-    document.head.appendChild(style);
-
-    // --- HTML ---
-    const overlay = document.createElement('div');
-    overlay.id='metro-overlay';
-    overlay.innerHTML=`
-        <div id="metro-box">
-            <h1>Metro New</h1>
-            <p>Введите год рождения. Доступ с ${MIN_AGE} лет.</p>
-            <input id="birthYear" type="number" placeholder="Год рождения" />
-            <div id="turnstile"></div>
-            <button id="continue" disabled>Продолжить</button>
-            <div class="error" id="error"></div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-
-    // --- Логирование ---
-    function logAttempt(result, reason) {
-        const log = JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
-        log.push({time:Date.now(),result,reason});
-        localStorage.setItem(LOG_KEY,JSON.stringify(log.slice(-20)));
-    }
-    function lock(seconds) { localStorage.setItem(LOCK_KEY,Date.now()+seconds*1000); }
-
-    // --- Turnstile ---
-    let turnstilePassed=false;
-    window.onloadTurnstileCallback = () => {
-        turnstile.render('#turnstile',{
-            sitekey: SITE_KEY,
-            callback:()=>{ turnstilePassed=true; checkReady();}
-        });
-    };
-    const tsScript=document.createElement('script');
-    tsScript.src='https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback';
-    tsScript.async=true;
-    document.head.appendChild(tsScript);
-
-    // --- Логика ---
-    const input=overlay.querySelector('#birthYear');
-    const button=overlay.querySelector('#continue');
-    const error=overlay.querySelector('#error');
-    let errors=0;
-
-    function checkReady(){
-        const age=new Date().getFullYear()-Number(input.value);
-        button.disabled = !(turnstilePassed && age>=MIN_AGE);
-        if(error.style.display==='block') error.style.display='none';
-    }
-
-    input.addEventListener('input',checkReady);
-
-    button.addEventListener('click',()=>{
-        const age=new Date().getFullYear()-Number(input.value);
-        if(!turnstilePassed){
-            error.textContent='Проверка Turnstile не пройдена';
-            error.style.display='block';
-            logAttempt('fail','turnstile');
-            return;
-        }
-        if(age<MIN_AGE){
-            errors++;
-            error.textContent='Возраст не подходит';
-            error.style.display='block';
-            logAttempt('fail','age');
-            if(errors>=3){ lock(30); location.reload(); }
-            return;
-        }
-        logAttempt('success','ok');
-        localStorage.setItem(STORAGE_KEY,'true');
-        overlay.remove();
-        document.body.style.overflow='';
-    });
-
-    overlay.querySelector('h1').addEventListener('click',()=>{ window.open(REDIRECT_LOGO_URL,'_blank'); });
+yearInput.addEventListener('input', () => {
+    const year = Number(yearInput.value);
+    const age = new Date().getFullYear() - year;
+    birthValid = age >= MIN_AGE;
+    if(!birthValid) messageEl.textContent = `Вам должно быть ${MIN_AGE}+ лет`;
+    else messageEl.textContent = '';
+    checkReady();
 });
+
+// Init Turnstile
+function initTurnstile(){
+    turnstile.render('#turnstile', {
+        sitekey: SITE_KEY,
+        callback: () => { turnstilePassed = true; checkReady(); },
+        'error-callback': () => { turnstilePassed = false; checkReady(); },
+        'expired-callback': () => { turnstilePassed = false; checkReady(); }
+    });
+}
+window.addEventListener('load', initTurnstile);
+
+btn.addEventListener('click', () => {
+    if(!birthValid) return;
+
+    // Проверка блокировки
+    if(checkLock()) return;
+
+    if(turnstilePassed && birthValid){
+        localStorage.setItem(STORAGE_KEY, 'true');
+        messageEl.textContent = '✓ Подтверждено!';
+        logAttempt(true);
+        btn.disabled = true;
+    } else {
+        messageEl.textContent = 'Ошибка проверки!';
+        logAttempt(false);
+
+        // блокировка 10 сек после 3 неудачных попыток
+        const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+        const recentFails = log.filter(l => !l.success && (Date.now()-l.timestamp)<60000).length;
+        if(recentFails >= 3){
+            localStorage.setItem(LOCK_KEY, Date.now() + 10000); // 10 секунд блок
+            checkReady();
+        }
+    }
+});
+</script>
+</body>
+</html>
