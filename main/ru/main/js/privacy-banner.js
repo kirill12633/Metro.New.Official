@@ -1,125 +1,95 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Metro New Verification</title>
-<!-- Turnstile CAPTCHA -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<style>
-:root {
-    --primary: #0066CC; --primary-dark: #0052a3;
-    --secondary: #FFD700; --secondary-dark: #e6c200;
-    --dark: #1A1A1A; --light: #F8F9FA;
-    --success: #28A745; --warning: #FFC107; --danger: #DC3545;
-    --radius: 12px; --shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-body { font-family: 'Montserrat', sans-serif; margin:0; padding:0; background: var(--light); color: var(--dark); display:flex; align-items:center; justify-content:center; height:100vh; }
-body.dark { background: var(--dark); color: var(--light); }
-.modal { background: white; padding:2rem; border-radius: var(--radius); box-shadow: var(--shadow); width:90%; max-width:400px; text-align:center; }
-body.dark .modal { background: #222; color:white; }
-.modal h2 { margin-bottom:1rem; }
-.modal input { width: 100%; padding:0.5rem; margin-bottom:1rem; border-radius:6px; border:1px solid #ccc; }
-.modal button { padding:0.8rem 1.5rem; background: var(--secondary); border:none; border-radius: var(--radius); color: var(--dark); font-weight:600; cursor:pointer; }
-.modal button:disabled { opacity:0.6; cursor:not-allowed; }
-.message { margin-top:0.5rem; font-size:0.9rem; }
-</style>
-</head>
-<body>
-<div class="modal">
-    <h2>Подтвердите возраст</h2>
-    <p>Введите ваш год рождения:</p>
-    <input type="number" id="birthYear" placeholder="Например, 2010" min="1900" max="2025">
-    <div id="turnstile"></div>
-    <button id="verifyBtn" disabled>Продолжить</button>
-    <div class="message" id="message"></div>
-</div>
+document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
 
-<script>
-const SITE_KEY = '0x4AAAAAACJJ-EXmOljL2_UU';
-const MIN_AGE = 13;
-const STORAGE_KEY = 'metro_verified_v1';
-const LOG_KEY = 'metro_attempt_log';
-const LOCK_KEY = 'metro_lock_until';
+    // --- КОНСТАНТЫ ---
+    const MODAL_VERSION = '0.2';
+    const REDIRECT_LOGO_URL = 'https://kirill12633.github.io/Metro.New.Official/main/ru/profile/metro-new-official-1.html';
+    const SUPPORT_URL = 'https://kirill12633.github.io/support.metro.new/';
+    const OFFICIAL_EMAIL = 'metro.new.help@gmail.com';
+    const STORAGE_KEY = 'metro_verified_v1';
 
-let turnstilePassed = false;
-let birthValid = false;
+    // Проверяем, показывать ли модалку
+    if (localStorage.getItem(STORAGE_KEY) === MODAL_VERSION) return;
 
-// Dark/light auto
-if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
-    document.body.classList.add('dark');
-}
-
-const btn = document.getElementById('verifyBtn');
-const yearInput = document.getElementById('birthYear');
-const messageEl = document.getElementById('message');
-
-function logAttempt(success) {
-    const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
-    log.push({ timestamp: Date.now(), success, year: yearInput.value });
-    localStorage.setItem(LOG_KEY, JSON.stringify(log));
-}
-
-function checkLock() {
-    const lockUntil = Number(localStorage.getItem(LOCK_KEY) || 0);
-    if(Date.now() < lockUntil){
-        const remaining = Math.ceil((lockUntil - Date.now())/1000);
-        btn.disabled = true;
-        messageEl.textContent = `Слишком много ошибок. Попробуйте через ${remaining} сек.`;
-        return true;
-    }
-    return false;
-}
-
-function checkReady(){
-    if(checkLock()) return;
-    btn.disabled = !(birthValid && turnstilePassed);
-}
-
-yearInput.addEventListener('input', () => {
-    const year = Number(yearInput.value);
-    const age = new Date().getFullYear() - year;
-    birthValid = age >= MIN_AGE;
-    if(!birthValid) messageEl.textContent = `Вам должно быть ${MIN_AGE}+ лет`;
-    else messageEl.textContent = '';
-    checkReady();
-});
-
-// Init Turnstile
-function initTurnstile(){
-    turnstile.render('#turnstile', {
-        sitekey: SITE_KEY,
-        callback: () => { turnstilePassed = true; checkReady(); },
-        'error-callback': () => { turnstilePassed = false; checkReady(); },
-        'expired-callback': () => { turnstilePassed = false; checkReady(); }
-    });
-}
-window.addEventListener('load', initTurnstile);
-
-btn.addEventListener('click', () => {
-    if(!birthValid) return;
-
-    // Проверка блокировки
-    if(checkLock()) return;
-
-    if(turnstilePassed && birthValid){
-        localStorage.setItem(STORAGE_KEY, 'true');
-        messageEl.textContent = '✓ Подтверждено!';
-        logAttempt(true);
-        btn.disabled = true;
-    } else {
-        messageEl.textContent = 'Ошибка проверки!';
-        logAttempt(false);
-
-        // блокировка 10 сек после 3 неудачных попыток
-        const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
-        const recentFails = log.filter(l => !l.success && (Date.now()-l.timestamp)<60000).length;
-        if(recentFails >= 3){
-            localStorage.setItem(LOCK_KEY, Date.now() + 10000); // 10 секунд блок
-            checkReady();
+    const lang = navigator.language.startsWith('en') ? 'en' : 'ru';
+    const texts = {
+        ru: {
+            title: 'Добро пожаловать в Метро New',
+            message: 'Для использования нашего приложения вы должны принять условия <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html" target="_blank">Пользовательского соглашения</a> и <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html" target="_blank">Политики конфиденциальности</a>.',
+            ageQuestion: 'Вам 13 лет или больше?',
+            button: 'Продолжить',
+            underage: 'Мне нет 13 лет',
+            exitMessage: 'Приложение закроется через 5 секунд...'
+        },
+        en: {
+            title: 'Welcome to Metro New',
+            message: 'To use our app, you must accept the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>.',
+            ageQuestion: 'Are you 13 years or older?',
+            button: 'Continue',
+            underage: "I'm under 13",
+            exitMessage: 'App will close in 5 seconds...'
         }
-    }
+    };
+    const t = texts[lang];
+
+    // --- СОЗДАЕМ МОДАЛЬНОЕ ОКНО ---
+    const modalHTML = `
+    <div class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">${t.title}</div>
+            <div class="modal-content">${t.message}</div>
+            <div class="age-check-section">
+                <div class="age-question">${t.ageQuestion}</div>
+                <div class="age-buttons">
+                    <button id="age-yes-btn" class="age-btn yes">13+</button>
+                    <button id="age-no-btn" class="age-btn no">${t.underage}</button>
+                </div>
+                <div id="age-warning" class="age-warning"></div>
+            </div>
+            <button id="main-button" class="modal-button" disabled>${t.button}</button>
+        </div>
+    </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const overlay = document.querySelector('.modal-overlay');
+    const ageYesBtn = document.getElementById('age-yes-btn');
+    const ageNoBtn = document.getElementById('age-no-btn');
+    const mainButton = document.getElementById('main-button');
+    const ageWarning = document.getElementById('age-warning');
+
+    document.body.style.overflow = 'hidden';
+
+    // --- ОБРАБОТЧИКИ ---
+    let ageConfirmed = false;
+
+    ageYesBtn.addEventListener('click', () => {
+        ageConfirmed = true;
+        ageYesBtn.disabled = true;
+        ageNoBtn.disabled = true;
+        mainButton.disabled = false;
+    });
+
+    ageNoBtn.addEventListener('click', () => {
+        ageWarning.textContent = t.exitMessage;
+        let seconds = 5;
+        const timer = setInterval(() => {
+            seconds--;
+            ageWarning.textContent = t.exitMessage.replace('5', seconds);
+            if (seconds <= 0) {
+                clearInterval(timer);
+                window.location.href = 'about:blank';
+            }
+        }, 1000);
+        ageYesBtn.disabled = true;
+        ageNoBtn.disabled = true;
+        mainButton.disabled = true;
+    });
+
+    mainButton.addEventListener('click', () => {
+        if (!ageConfirmed) return;
+        overlay.remove();
+        document.body.style.overflow = '';
+        localStorage.setItem(STORAGE_KEY, MODAL_VERSION);
+    });
 });
-</script>
-</body>
-</html>
