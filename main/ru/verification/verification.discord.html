@@ -8,6 +8,8 @@
     h1 { color: #333; }
     ul { list-style: disc; padding-left: 20px; }
     .status { font-weight: bold; }
+    .allowed { color: green; }
+    .denied { color: red; }
   </style>
 </head>
 <body>
@@ -25,24 +27,29 @@
         <a href="https://metro-new-auth.kirilltyr123.workers.dev/login">Войти через Discord</a>
       `;
     } else {
-      // Декодируем payload JWT без проверки подписи (проверка уже на Worker)
-      const [headerB64, payloadB64, signature] = token.split(".");
-      const payload = JSON.parse(atob(payloadB64));
+      try {
+        const [headerB64, payloadB64, signature] = token.split(".");
+        const payload = JSON.parse(atob(payloadB64));
 
-      // Разрешённые серверы
-      const allowedGuilds = ["1220060387639038063"]; // добавь свои ID серверов
-      const isAllowed = payload.guilds.some(g => allowedGuilds.includes(g));
+        // ID твоего сервера
+        const allowedGuilds = ["1220060387639038063"];
+        const isAllowed = payload.guilds.some(g => allowedGuilds.includes(g));
 
-      content.innerHTML = `
-        <h2>Привет, ${payload.username}</h2>
-        <p>Discord ID: ${payload.discord_id}</p>
-        <p>Список серверов пользователя:</p>
-        <ul>
-          ${payload.guilds.map(id => `<li>${id}</li>`).join("")}
-        </ul>
-        <p class="status">Доступ на сервере: ${isAllowed ? "✅ Разрешён" : "❌ Не разрешён"}</p>
-        <p>Токен истекает: ${new Date(payload.exp * 1000).toLocaleString()}</p>
-      `;
+        content.innerHTML = `
+          <h2>Привет, ${payload.username}</h2>
+          <p>Discord ID: ${payload.discord_id}</p>
+          <p>Список серверов пользователя:</p>
+          <ul>
+            ${payload.guilds.map(id => `<li>${id} ${
+              allowedGuilds.includes(id) ? '<span class="allowed">✅ доступ разрешён</span>' : '<span class="denied">❌ нет доступа</span>'
+            }</li>`).join("")}
+          </ul>
+          <p class="status">Доступ к твоему серверу: ${isAllowed ? '<span class="allowed">✅ Разрешён</span>' : '<span class="denied">❌ Не разрешён</span>'}</p>
+          <p>Токен истекает: ${new Date(payload.exp * 1000).toLocaleString()}</p>
+        `;
+      } catch (e) {
+        content.innerHTML = `<p>Ошибка при обработке токена: ${e.message}</p>`;
+      }
     }
   </script>
 </body>
