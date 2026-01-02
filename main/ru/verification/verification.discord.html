@@ -15,80 +15,35 @@
   <div id="content"></div>
 
   <script>
-    // ⚠️ Секрет JWT_SECRET сайта — только для примера! В реальном проекте проверку делаем на сервере!
-    const JWT_SECRET = "IVa1ywRdgnplyljOnUjBsz5VguWulr7p";
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const content = document.getElementById('content');
 
-    function base64urlDecode(str) {
-      str = str.replace(/-/g, '+').replace(/_/g, '/');
-      while (str.length % 4) str += '=';
-      return atob(str);
+    if (!token) {
+      content.innerHTML = `
+        <p>Пользователь не авторизован</p>
+        <a href="https://metro-new-auth.kirilltyr123.workers.dev/login">Войти через Discord</a>
+      `;
+    } else {
+      // Декодируем payload JWT без проверки подписи (проверка уже на Worker)
+      const [headerB64, payloadB64, signature] = token.split(".");
+      const payload = JSON.parse(atob(payloadB64));
+
+      // Разрешённые серверы
+      const allowedGuilds = ["123456789012345678"]; // добавь свои ID серверов
+      const isAllowed = payload.guilds.some(g => allowedGuilds.includes(g));
+
+      content.innerHTML = `
+        <h2>Привет, ${payload.username}</h2>
+        <p>Discord ID: ${payload.discord_id}</p>
+        <p>Список серверов пользователя:</p>
+        <ul>
+          ${payload.guilds.map(id => `<li>${id}</li>`).join("")}
+        </ul>
+        <p class="status">Доступ на сервере: ${isAllowed ? "✅ Разрешён" : "❌ Не разрешён"}</p>
+        <p>Токен истекает: ${new Date(payload.exp * 1000).toLocaleString()}</p>
+      `;
     }
-
-    async function verifyJWT(token) {
-      const [headerB64, payloadB64, signatureB64] = token.split(".");
-      const unsigned = `${headerB64}.${payloadB64}`;
-      const signature = signatureB64.replace(/-/g,'+').replace(/_/g,'/');
-
-      // Конвертируем секрет в ArrayBuffer
-      const key = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(JWT_SECRET),
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["verify"]
-      );
-
-      // Подпись в Uint8Array
-      const sigBuffer = Uint8Array.from(atob(signature), c=>c.charCodeAt(0));
-
-      const isValid = await crypto.subtle.verify(
-        "HMAC",
-        key,
-        sigBuffer,
-        new TextEncoder().encode(unsigned)
-      );
-
-      if (!isValid) throw new Error("JWT не прошёл проверку подписи");
-
-      return JSON.parse(base64urlDecode(payloadB64));
-    }
-
-    async function init() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('token');
-      const content = document.getElementById('content');
-
-      if (!token) {
-        content.innerHTML = `
-          <p>Пользователь не авторизован</p>
-          <a href="https://metro-new-auth.kirilltyr123.workers.dev/login">Войти через Discord</a>
-        `;
-        return;
-      }
-
-      try {
-        const payload = await verifyJWT(token);
-
-        // Разрешённые серверы
-        const allowedGuilds = ["123456789012345678"]; // добавь свой ID сервера
-        const isAllowed = payload.guilds.some(g => allowedGuilds.includes(g));
-
-        content.innerHTML = `
-          <h2>Привет, ${payload.username}</h2>
-          <p>Discord ID: ${payload.discord_id}</p>
-          <p>Список серверов пользователя:</p>
-          <ul>
-            ${payload.guilds.map(id => `<li>${id}</li>`).join("")}
-          </ul>
-          <p class="status">Доступ на сервере: ${isAllowed ? "✅ Разрешён" : "❌ Не разрешён"}</p>
-          <p>Токен истекает: ${new Date(payload.exp * 1000).toLocaleString()}</p>
-        `;
-      } catch (e) {
-        content.innerHTML = `<p>Ошибка проверки JWT: ${e.message}</p>`;
-      }
-    }
-
-    init();
   </script>
 </body>
 </html>
