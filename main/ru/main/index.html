@@ -466,30 +466,50 @@
             transform: translateY(-3px);
         }
         
+        /* ФУТЕР С КОЛОНКАМИ */
         footer {
             background-color: var(--dark);
             color: white;
-            padding: 2.5rem 0;
-            text-align: center;
+            padding: 3rem 0 2rem;
         }
         
-        .footer-links {
-            display: flex;
-            justify-content: center;
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+            margin-bottom: 2rem;
         }
         
-        .footer-links a {
-            color: white;
+        .footer-column h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: color 0.3s;
-            font-weight: 500;
         }
         
-        .footer-links a:hover {
+        .footer-column a:hover {
             color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .copyright {
@@ -535,7 +555,8 @@
                 justify-content: center;
             }
             
-            .footer-links {
+            .footer-container {
+                grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
         }
@@ -554,14 +575,6 @@
                     <a href="https://www.roblox.com/communities/34820737/RP-NEW">Игра</a>
                     <a href="wiki.html">Wiki</a>
                     <a href="news.html">Новости</a>
-                    <div class="dropdown">
-                        <a href="other.html">Другое</a>
-                        <div class="dropdown-content">
-                            <a href="sites.html">Наши сайты</a>
-                            <a href="faq.html">FAQ</a>
-                            <a href="contact.html">Контакты</a>
-                        </div>
-                    </div>
                     <a href="wiki.html" class="auth-btn">Вход</a>
                 </div>
             </nav>
@@ -677,19 +690,58 @@
 
     <footer>
         <div class="container">
-            <div class="footer-links">
-                <a href="https://discord.com/invite/WjGZBs3HMX">О нас</a>
-                <a href="https://discord.com/invite/WjGZBs3HMX">Контакты</a>
-                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/legal.html">Правовые документы</a>
-                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html">Политика конфиденциальности</a>
-                <a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html">Пользовательское соглашение</a>
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>О нас</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank">Discord сообщество</a></li>
+                        <li><a href="about.html">О проекте</a></li>
+                        <li><a href="team.html">Наша команда</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Контакты</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank">Discord сервер</a></li>
+                        <li><a href="contact.html">Форма обратной связи</a></li>
+                        <li><a href="https://kirill12633.github.io/support.metro.new/">Техническая поддержка</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Правовые документы</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/legal.html">Правовые документы</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html">Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html">Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/refund-policy.html">Политика возврата</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Полезные ссылки</h3>
+                    <ul>
+                        <li><a href="https://www.roblox.com/communities/34820737/RP-NEW">Начать играть</a></li>
+                        <li><a href="wiki.html">База знаний</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
+                        <li><a href="faq.html">Частые вопросы</a></li>
+                    </ul>
+                </div>
             </div>
-            <p class="copyright">© 2025 Метро New. Все права защищены.</p>
+            
+            <div class="footer-bottom">
+                <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+            </div>
         </div>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Установка текущего года
+            const currentYearElement = document.getElementById('currentYear');
+            currentYearElement.textContent = new Date().getFullYear();
+            
             // Фиксируем меню "Другое" при клике
             const dropdown = document.querySelector('.dropdown');
             const dropdownContent = document.querySelector('.dropdown-content');
@@ -733,13 +785,7 @@
             grecaptcha.ready(function() {
                 grecaptcha.execute('6LfhAZkrAAAAAO1NxGCMX1J2HKiDp01FW9AuHR7r', {action: 'homepage'});
             });
-        }); 
+        });
     </script>
-
-    
-            <!-- Подключаем баннер политики конфиденциальности -->
-    <script src="js/privacy-banner.js"></script>
-    <script src="external-link-warning.js"></script>
-    
 </body>
 </html>
