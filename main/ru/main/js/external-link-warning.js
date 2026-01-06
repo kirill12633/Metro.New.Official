@@ -11,8 +11,8 @@
     const CONFIG = {
         // Домены, которые не требуют подтверждения
         SAFE_DOMAINS: [
+            'oblox.com',
             'roblox.com',
-            'robloxgames.com',
             'discord.com',
             'discord.gg',
             'github.com',
