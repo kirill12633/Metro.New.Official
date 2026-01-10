@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <title>Метро New Verification</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
     h1 { color: #333; }
     ul { list-style: disc; padding-left: 20px; }
     .status { font-weight: bold; }
@@ -17,38 +21,104 @@
   <div id="content"></div>
 
   <script>
+    'use strict';
+
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     const content = document.getElementById('content');
 
+    // ---------- helpers ----------
+    function clear(node) {
+      while (node.firstChild) node.removeChild(node.firstChild);
+    }
+
+    function p(text, className) {
+      const el = document.createElement('p');
+      el.textContent = text;
+      if (className) el.className = className;
+      return el;
+    }
+
+    function h2(text) {
+      const el = document.createElement('h2');
+      el.textContent = text;
+      return el;
+    }
+
+    // ---------- not authorized ----------
     if (!token) {
-      content.innerHTML = `
-        <p>Пользователь не авторизован</p>
-        <a href="https://metro-new-auth.kirilltyr123.workers.dev/login">Войти через Discord</a>
-      `;
+      clear(content);
+
+      content.appendChild(p('Пользователь не авторизован'));
+
+      const link = document.createElement('a');
+      link.href = 'https://metro-new-auth.kirilltyr123.workers.dev/login';
+      link.textContent = 'Войти через Discord';
+      content.appendChild(link);
+
     } else {
       try {
-        const [headerB64, payloadB64, signature] = token.split(".");
-        const payload = JSON.parse(atob(payloadB64));
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+          throw new Error('Неверный формат токена');
+        }
 
-        // ID твоего сервера
-        const allowedGuilds = ["1220060387639038063"];
-        const isAllowed = payload.guilds.some(g => allowedGuilds.includes(g));
+        const payload = JSON.parse(atob(parts[1]));
 
-        content.innerHTML = `
-          <h2>Привет, ${payload.username}</h2>
-          <p>Discord ID: ${payload.discord_id}</p>
-          <p>Список серверов пользователя:</p>
-          <ul>
-            ${payload.guilds.map(id => `<li>${id} ${
-              allowedGuilds.includes(id) ? '<span class="allowed">✅ доступ разрешён</span>' : '<span class="denied">❌ нет доступа</span>'
-            }</li>`).join("")}
-          </ul>
-          <p class="status">Доступ к твоему серверу: ${isAllowed ? '<span class="allowed">✅ Разрешён</span>' : '<span class="denied">❌ Не разрешён</span>'}</p>
-          <p>Токен истекает: ${new Date(payload.exp * 1000).toLocaleString()}</p>
-        `;
+        // ---------- validation ----------
+        const username = String(payload.username || 'Неизвестный пользователь');
+        const discordId = String(payload.discord_id || '—');
+        const guilds = Array.isArray(payload.guilds) ? payload.guilds.map(String) : [];
+        const exp = Number(payload.exp || 0);
+
+        const allowedGuilds = ['1220060387639038063'];
+        const isAllowed = guilds.some(id => allowedGuilds.includes(id));
+
+        clear(content);
+
+        // ---------- render ----------
+        content.appendChild(h2(`Привет, ${username}`));
+        content.appendChild(p(`Discord ID: ${discordId}`));
+        content.appendChild(p('Список серверов пользователя:'));
+
+        const ul = document.createElement('ul');
+
+        guilds.forEach(id => {
+          const li = document.createElement('li');
+          li.textContent = id + ' ';
+
+          const span = document.createElement('span');
+
+          if (allowedGuilds.includes(id)) {
+            span.textContent = '✅ доступ разрешён';
+            span.className = 'allowed';
+          } else {
+            span.textContent = '❌ нет доступа';
+            span.className = 'denied';
+          }
+
+          li.appendChild(span);
+          ul.appendChild(li);
+        });
+
+        content.appendChild(ul);
+
+        const statusText = isAllowed
+          ? 'Доступ к твоему серверу: ✅ Разрешён'
+          : 'Доступ к твоему серверу: ❌ Не разрешён';
+
+        content.appendChild(p(statusText, 'status'));
+
+        if (exp > 0) {
+          const date = new Date(exp * 1000);
+          content.appendChild(p(`Токен истекает: ${date.toLocaleString()}`));
+        }
+
       } catch (e) {
-        content.innerHTML = `<p>Ошибка при обработке токена: ${e.message}</p>`;
+        clear(content);
+        content.appendChild(
+          p(`Ошибка при обработке токена: ${String(e.message || e)}`)
+        );
       }
     }
   </script>
