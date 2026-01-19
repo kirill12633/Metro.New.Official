@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пользовательское соглашение | Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --card-bg: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        
+        /* Полоса прогресса чтения */
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 1001;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--card-bg);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        /* Темная тема для выпадающего меню */
+        .dark-mode .dropdown-content {
+            background-color: #1e1e1e;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        
+        .dark-mode .dropdown-content a {
+            color: #e0e0e0;
+        }
+        
+        .dark-mode .dropdown-content a:hover {
+            background-color: #2a2a2a;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 350px);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .dark-mode .page-header h1 {
+            color: #4dabf7;
+        }
+        
+        .page-header p {
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .dark-mode .page-header p {
+            color: #aaa;
+        }
+        
+        /* Контролы документа */
+        .document-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .dark-mode .document-controls {
+            background-color: #1e1e1e;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--gray);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            color: var(--gray);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--dark);
+        }
+        
+        .dark-mode .search-box input {
+            background-color: #2a2a2a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        
+        .terms-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .dark-mode .terms-content {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .terms-section {
+            margin-bottom: 2.5rem;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s ease;
+            scroll-margin-top: 100px;
+        }
+        
+        .terms-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(0, 102, 204, 0.2);
+        }
+        
+        .dark-mode .terms-section h2 {
+            color: #4dabf7;
+            border-bottom-color: rgba(77, 171, 247, 0.2);
+        }
+        
+        .terms-section h3 {
+            color: var(--primary-dark);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .dark-mode .terms-section h3 {
+            color: #339af0;
+        }
+        
+        .terms-section p {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .dark-mode .terms-section p {
+            color: #e0e0e0;
+        }
+        
+        .terms-section ul, .terms-section ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .terms-section li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .terms-section li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .dark-mode .terms-section li:before {
+            color: #4dabf7;
+        }
+        
+        /* Особые блоки */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(0,102,204,0.1), rgba(0,82,163,0.1));
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .dark-mode .highlight-box {
+            background: linear-gradient(135deg, rgba(0,102,204,0.15), rgba(0,82,163,0.15));
+            border-left-color: #4dabf7;
+        }
+        
+        .warning-box {
+            background-color: rgba(255,193,7,0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .dark-mode .warning-box {
+            background-color: rgba(255,193,7,0.15);
+        }
+        
+        .last-updated {
+            background-color: rgba(0, 102, 204, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .dark-mode .last-updated {
+            background-color: rgba(0, 102, 204, 0.15);
+        }
+        
+        .last-updated strong {
+            color: var(--primary);
+        }
+        
+        .dark-mode .last-updated strong {
+            color: #4dabf7;
+        }
+        
+        .toc {
+            background-color: rgba(0, 102, 204, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .dark-mode .toc {
+            background-color: rgba(0, 102, 204, 0.1);
+        }
+        
+        .toc h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            margin-left: 0;
+        }
+        
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .toc a {
+            color: var(--dark);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+        }
+        
+        .dark-mode .toc a {
+            color: #e0e0e0;
+        }
+        
+        .toc a:hover {
+            color: var(--primary);
+        }
+        
+        .toc a i {
+            color: var(--primary);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        
+        .toc a:hover i {
+            transform: translateX(3px);
+        }
+        
+        .toc a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .toc a.active i {
+            transform: translateX(3px);
+        }
+        
+        /* Плавающая панель действий */
+        .floating-actions {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .action-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .action-btn.secondary {
+            background-color: var(--gray);
+        }
+        
+        /* Статистика поиска */
+        .search-results {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: none;
+        }
+        
+        /* ОБНОВЛЕННЫЙ ДИЗАЙН ФУТЕРА (ПОДВАЛА) */
+        footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            border-top: 3px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dark-mode footer {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-section h3 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--primary);
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+            transform: translateX(5px);
+        }
+        
+        .footer-links a i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .contact-info {
+            margin-top: 1rem;
+        }
+        
+        .contact-info p {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .contact-info a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+        
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+            color: #aaa;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .document-action-btn {
+            padding: 0.6rem 1.2rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .document-action-btn:hover {
+            background-color: var(--primary);
+        }
+        
+        /* Мобильные стили */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .document-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .control-group {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .terms-content {
+                padding: 1.5rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .footer-section {
+                min-width: 100%;
+            }
+            
+            .floating-actions {
+                bottom: 1rem;
+                right: 1rem;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .footer-links a {
+                font-size: 0.9rem;
+            }
+            
+            .document-action-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Полоса прогресса чтения -->
+    <div class="reading-progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </div>
+                <div class="nav-controls">
+                    <div class="nav-links">
+                        <a href="history-terms.html">История изменений</a>
+                        <a href="terms-of-service.html">Пользовательское соглашение</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="page-header">
+            <h1>Пользовательское соглашение</h1>
+            <p>Настоящее Соглашение регулирует использование всех сервисов проекта «Метро New» и является обязательным для всех пользователей.</p>
+        </section>
+        
+        <!-- Панель управления документом -->
+        <div class="document-controls">
+            <div class="control-group">
+                <button class="btn" id="printBtn">
+                    <i class="fas fa-print"></i> Печать
+                </button>
+                <button class="btn" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Скачать PDF
+                </button>
+            </div>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="termsSearch" placeholder="Поиск в соглашении...">
+                <span class="search-results" id="searchResults">0</span>
+            </div>
+            
+            <div class="control-group">
+                <button class="btn btn-secondary" id="themeToggle">
+                    <i class="fas fa-moon"></i> Темная тема
+                </button>
+            </div>
+        </div>
+        
+        <section class="terms-content">
+            <div class="last-updated">
+                <div>
+                    <strong>Проект:</strong> «Метро New»
+                </div>
+                <div>
+                    <strong>Дата вступления в силу:</strong> 27 июля 2025 года
+                </div>
+                <div>
+                    <strong>Дата последнего обновления:</strong> 26 декабря 2025 года
+                </div>
+                <div class="warning-box">
+                    <strong>Внимание:</strong> Использование сервисов проекта является подтверждением полного и безусловного согласия с условиями настоящего Соглашения.
+                </div>
+            </div>
+            
+            <div class="toc">
+                <h3>Оглавление</h3>
+                <ul id="tocList">
+                    <!-- Автоматически заполняется через JavaScript -->
+                </ul>
+            </div>
+            
+            <!-- Основное содержание соглашения -->
+            <div class="terms-section" id="section1">
+                <h2>1. Общие положения</h2>
+                
+                <p>1.1. Настоящее Пользовательское соглашение (далее — «Соглашение») устанавливает порядок использования всех сервисов проекта «Метро New», включая, но не ограничиваясь, официальным сайтом, приложениями, Discord-ботом и игровыми серверами.</p>
+                
+                <p>1.2. Использование любых сервисов проекта является подтверждением полного и безусловного согласия пользователя с условиями настоящего Соглашения.</p>
+                
+                <p>1.3. Пользователь обязуется соблюдать положения настоящего Соглашения, действующее законодательство и правила проекта.</p>
+            </div>
+            
+            <div class="terms-section" id="section2">
+                <h2>2. Возрастные ограничения</h2>
+                
+                <p>2.1. Минимальный возраст для участия в проекте составляет 13 (тринадцать) лет.</p>
+                
+                <p>2.2. Пользователи младше 18 (восемнадцати) лет должны иметь согласие родителей или законных представителей для использования сервисов проекта.</p>
+                
+                <p>2.3. Администрация проекта оставляет за собой право потребовать подтверждение возраста или согласия законного представителя в случае возникновения сомнений.</p>
+            </div>
+            
+            <div class="terms-section" id="section3">
+                <h2>3. Права и обязанности пользователей</h2>
+                
+                <h3>3.1. Пользователи имеют право:</h3>
+                <ul>
+                    <li>исправлять и актуализировать свои персональные данные;</li>
+                    <li>удалять учетную запись и/или пользовательский контент;</li>
+                    <li>подавать апелляцию на решения администрации в отношении применения санкций или ограничений.</li>
+                </ul>
+                
+                <h3>3.2. Пользователи обязаны:</h3>
+                <ul>
+                    <li>использовать сервисы проекта добросовестно;</li>
+                    <li>не нарушать права третьих лиц;</li>
+                    <li>соблюдать все положения настоящего Соглашения.</li>
+                </ul>
+                
+                <h3>3.3. Администрация обязуется:</h3>
+                <p>рассматривать обращения пользователей в разумные сроки и предоставлять ответы на запросы по контактной информации, указанной в разделе 9.</p>
+            </div>
+            
+            <div class="terms-section" id="section4">
+                <h2>4. Контент и интеллектуальная собственность</h2>
+                
+                <p>4.1. Все материалы проекта, включая графические элементы, тексты, скрипты, модели, музыку, ботов и другие цифровые ресурсы, являются объектами интеллектуальной собственности проекта «Метро New» и защищены авторским правом, патентами, товарными знаками и иными правами.</p>
+                
+                <div class="highlight-box">
+                    <p><strong>Важно:</strong> Использование материалов проекта без письменного разрешения администрации запрещено.</p>
+                </div>
+                
+                <p>4.2. Запрещено использовать материалы проекта без предварительного письменного согласия администрации.</p>
+                
+                <p>4.3. Пользовательский контент, размещаемый пользователями в рамках сервисов проекта, остаётся собственностью пользователя. Проект сохраняет за собой право использовать такой контент для улучшения и развития сервисов, а также для маркетинговых целей.</p>
+                
+                <p>4.4. Под «правами интеллектуальной собственности» понимаются все действующие и будущие права, включая, но не ограничиваясь: авторские права, патенты, права на товарные знаки, фирменные наименования, права на образ, деловую репутацию, коммерческую тайну, а также заявки на их регистрацию, продление и расширение в соответствии с законодательством соответствующих юрисдикций.</p>
+            </div>
+            
+            <div class="terms-section" id="section5">
+                <h2>5. Безопасность и защита данных</h2>
+                
+                <p>5.1. Пользователь несет исключительную ответственность за сохранность своих учетных данных, включая логин, пароль и электронную почту.</p>
+                
+                <p>5.2. Проект предпринимает меры по защите персональных данных пользователей, однако не несет ответственности за действия пользователей вне сервисов проекта, включая мошеннические действия и переход по сторонним ссылкам.</p>
+                
+                <p>5.3. Распространение вредоносных файлов, вирусов, подозрительных ссылок и иных опасных материалов через сервисы проекта строго запрещено и влечет применение санкций.</p>
+            </div>
+            
+            <div class="terms-section" id="section6">
+                <h2>6. Прозрачность изменений</h2>
+                
+                <p>6.1. Администрация оставляет за собой право изменять условия настоящего Соглашения в одностороннем порядке без предварительного уведомления.</p>
+                
+                <p>6.2. Все изменения публикуются через официальные каналы проекта.</p>
+                
+                <p>6.3. Продолжение использования сервисов после внесения изменений считается подтверждением согласия пользователя с обновленными условиями.</p>
+            </div>
+            
+            <div class="terms-section" id="section7">
+                <h2>7. Юридическая защита и применимые формулировки</h2>
+                
+                <h3>7.1. Применимое законодательство</h3>
+                <p>7.1.1. Настоящее Соглашение регулируется законодательством Российской Федерации и международными нормами, применимыми к цифровым сервисам, включая Общий регламент по защите данных (GDPR) Европейского Союза в части обработки персональных данных граждан ЕС.</p>
+                <p>7.1.2. Все споры, возникающие в связи с настоящим Соглашением, подлежат рассмотрению в судебных органах Российской Федерации, если иное не предусмотрено отдельными международными соглашениями или законодательством другой юрисдикции.</p>
+                
+                <h3>7.2. Отказ от ответственности</h3>
+                <p>7.2.1. Проект «Метро New» не несет ответственности за:</p>
+                <ul>
+                    <li>любые прямые, косвенные, случайные или косвенные убытки, связанные с использованием сервисов;</li>
+                    <li>действия пользователей вне платформы, включая переход по сторонним ссылкам, мошеннические действия или нарушение закона;</li>
+                    <li>временные технические сбои, отключения серверов или потерю данных, вызванные непредвиденными обстоятельствами.</li>
+                </ul>
+                <p>7.2.2. Все сервисы предоставляются на условиях «как есть» («as is») без каких-либо гарантий.</p>
+                
+                <h3>7.3. Форс-мажор</h3>
+                <p>7.3.1. Администрация проекта не несет ответственности за полное или частичное неисполнение обязательств в случае наступления форс-мажорных обстоятельств, включая, но не ограничиваясь:</p>
+                <ul>
+                    <li>стихийные бедствия;</li>
+                    <li>пожары или наводнения;</li>
+                    <li>отключения электричества или сбоев интернет-провайдеров;</li>
+                    <li>хакерские атаки, вирусные или вредоносные действия;</li>
+                    <li>иные непредвиденные события, находящиеся вне контроля проекта.</li>
+                </ul>
+                
+                <h3>7.4. Ограничение ответственности</h3>
+                <p>7.4.1. Пользователь использует сервисы проекта на свой собственный риск.</p>
+                <p>7.4.2. Проект оставляет за собой право ограничивать, блокировать или удалять доступ к сервисам в случае нарушений правил, технических работ или иных объективных причин.</p>
+                <p>7.4.3. Проект не гарантирует непрерывную работу сервисов, их полную безопасность или отсутствие ошибок в содержании.</p>
+                
+                <h3>7.5. Соответствие GDPR и защита персональных данных</h3>
+                <p>7.5.1. Проект обязуется обрабатывать персональные данные пользователей в соответствии с законодательством Российской Федерации и требованиями GDPR, включая:</p>
+                <ul>
+                    <li>сбор только необходимых данных;</li>
+                    <li>хранение данных с соблюдением мер безопасности;</li>
+                    <li>предоставление пользователям прав на доступ, исправление или удаление своих данных.</li>
+                </ul>
+                <p>7.5.2. Пользователь подтверждает согласие на обработку своих персональных данных при использовании сервисов проекта.</p>
+            </div>
+            
+            <div class="terms-section" id="section8">
+                <h2>8. Дополнительные правила и условия для отдельных сервисов</h2>
+                
+                <h3>8.1. Общие положения</h3>
+                <p>8.1.1. Настоящее Пользовательское соглашение устанавливает общие правовые условия использования всех сервисов проекта «Метро New».</p>
+                <p>8.1.2. Отдельные сервисы проекта (включая, но не ограничиваясь: игровые серверы, официальный Discord-сервер, официальный сайт и иные платформы) могут иметь собственные дополнительные правила, детализирующие порядок использования соответствующего сервиса, а также требования к поведению Пользователей.</p>
+                
+                <h3>8.2. Соотношение настоящего Соглашения и дополнительных правил</h3>
+                <p>8.2.1. Дополнительные правила конкретного сервиса являются неотъемлемой частью настоящего Соглашения.</p>
+                <p>8.2.2. В случае противоречия между положениями настоящего Соглашения и дополнительными правилами конкретного сервиса, приоритет имеют дополнительные правила исключительно в части, касающейся специфики функционирования и взаимодействия в рамках данного сервиса.</p>
+                <p>8.2.3. Вопросы, прямо не урегулированные дополнительными правилами конкретного сервиса, подлежат толкованию и применению в соответствии с настоящим Соглашением.</p>
+                
+                <h3>8.3. Обязательность ознакомления с дополнительными правилами</h3>
+                <p>8.3.1. Используя конкретный сервис проекта (в том числе подключаясь к игровому серверу, регистрируясь на сайте или вступая в Discord-сообщество), Пользователь подтверждает факт ознакомления и согласия с действующими дополнительными правилами данного сервиса.</p>
+                <p>8.3.2. Актуальные редакции дополнительных правил размещаются в доступном и очевидном для Пользователей месте соответствующего сервиса (например, в закреплённом сообщении Discord-канала, на стартовой странице сайта, в описании игрового сервера).</p>
+                
+                <h3>8.4. Примеры предмета регулирования дополнительных правил</h3>
+                <p>В целях разъяснения, дополнительные правила конкретного сервиса могут включать, но не ограничиваются, следующими положениями:</p>
+                <ul>
+                    <li><strong>Для Discord-сервера:</strong> правила общения в текстовых и голосовых каналах, порядок использования ролей и упоминаний, ограничения на размещение определённых видов контента (мемы, ссылки, медиа), система модерации, предупреждений (варнов) и санкций.</li>
+                    <li><strong>Для игровых серверов:</strong> правила игрового процесса (PvP/PvE), запрет на использование читов, багов, эксплойтов и иного неспортивного поведения, технические требования, условия доступа и ограничения.</li>
+                    <li><strong>Для официального сайта:</strong> правила комментирования, публикации пользовательского контента, использования форумов, галерей и иных интерактивных разделов.</li>
+                </ul>
+                
+                <h3>8.5. Изменение дополнительных правил</h3>
+                <p>8.5.1. Администрация соответствующего сервиса вправе вносить изменения и дополнения в дополнительные правила в одностороннем порядке.</p>
+                <p>8.5.2. Существенные изменения дополнительных правил доводятся до сведения Пользователей посредством соответствующего сервиса (публикация объявления, закреплённого сообщения либо иным доступным способом).</p>
+                <p>8.5.3. Продолжение использования сервиса после вступления изменений в силу означает согласие Пользователя с новой редакцией дополнительных правил.</p>
+            </div>
+            
+            <div class="terms-section" id="section9">
+                <h2>9. Контактная информация</h2>
+                
+                <div class="highlight-box">
+                    <p>По вопросам и предложениям пользователи могут обращаться на официальный Discord-сервер проекта:</p>
+                    <p><strong>Discord:</strong> <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank">https://discord.com/invite/WjGZBs3HMX</a></p>
+                    <p><strong>Email:</strong> metro.new.help@gmail.com</p>
+                </div>
+                
+                <p>Администрация проекта оставляет за собой право отвечать на обращения в порядке живой очереди и в разумные сроки.</p>
+            </div>
+            
+            <!-- Кнопки для скачивания в конце документа -->
+            <div class="document-actions" style="margin-top: 2rem; justify-content: center;">
+                <a href="Пользовательское соглашение.pdf" download class="document-action-btn">
+                    <i class="fas fa-download"></i> Скачать полную версию (PDF)
+                </a>
+                <a href="history.html" class="document-action-btn">
+                    <i class="fas fa-history"></i> История изменений
+                </a>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Плавающие кнопки действий -->
+    <div class="floating-actions">
+        <button class="action-btn" id="backToTop" title="Вернуться наверх">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="action-btn secondary" id="copyLink" title="Скопировать ссылку">
+            <i class="fas fa-link"></i>
+        </button>
+        <button class="action-btn" id="fontSizeToggle" title="Увеличить шрифт">
+            <i class="fas fa-font"></i>
+        </button>
+    </div>
+
+    <!-- ОБНОВЛЕННЫЙ ФУТЕР (ПОДВАЛ) -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Метро New</h3>
+                    <p style="color: #ddd; margin-bottom: 1rem;">Официальный проект с уникальной игровой механикой и активным сообществом.</p>
+                    <div class="social-links">
+                        <a href="https://discord.gg/WjGZBs3HMX" class="social-link" target="_blank" title="Discord">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="social-link" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="social-link" title="VK">
+                            <i class="fab fa-vk"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Telegram">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Навигация</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                        <li><a href="game.html"><i class="fas fa-gamepad"></i> Игра</a></li>
+                        <li><a href="wiki.html"><i class="fas fa-book"></i> Wiki</a></li>
+                        <li><a href="news.html"><i class="fas fa-newspaper"></i> Новости</a></li>
+                        <li><a href="faq.html"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Документы</h3>
+                    <ul class="footer-links">
+                        <li><a href="terms-of-service.html" class="active"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li>
+                        <li><a href="privacy-policy.html"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li>
+                        <li><a href="rules.html"><i class="fas fa-gavel"></i> Правила сообщества</a></li>
+                        <li><a href="refund-policy.html"><i class="fas fa-exchange-alt"></i> Политика возвратов</a></li>
+                        <li><a href="cookie-policy.html"><i class="fas fa-cookie-bite"></i> Cookie-политика</a></li>
+                        <li><a href="history-terms.html"><i class="fas fa-history"></i> История изменений</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <div class="contact-info">
+                        <p><i class="fas fa-headset"></i> <strong>Поддержка:</strong> <a href="mailto:metro.new.help@gmail.com">metro.new.help@gmail.com</a></p>
+                        <p><i class="fas fa-envelope"></i> <strong>Сотрудничество:</strong> <a href="mailto:metro.new.help@gmail.com">metro.new.help@gmail.com</a></p>
+                        <p><i class="fas fa-bug"></i> <strong>Баги и проблемы:</strong> <a href="mailto:metro.new.help@gmail.com">metro.new.help@gmail.com</a></p>
+                        <p><i class="fas fa-users"></i> <strong>Discord сообщество:</strong> <a href="https://discord.gg/WjGZBs3HMX" target="_blank">Присоединиться</a></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">© 2026 Проект "Метро New". Все права защищены.</p>
+                <p class="copyright">Все материалы проекта являются интеллектуальной собственностью их авторов и охраняются законом.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ==================== ОГЛАВЛЕНИЕ ====================
+            const sections = document.querySelectorAll('.terms-section');
+            const tocList = document.getElementById('tocList');
+            
+            // Автоматически генерируем оглавление
+            sections.forEach((section, index) => {
+                const title = section.querySelector('h2').textContent;
+                const listItem = document.createElement('li');
+                const sectionId = `section${index + 1}`;
+                section.id = sectionId;
+                
+                listItem.innerHTML = `
+                    <a href="#${sectionId}">
+                        <i class="fas fa-chevron-right"></i>
+                        ${title}
+                    </a>
+                `;
+                tocList.appendChild(listItem);
+            });
+            
+            // Плавная прокрутка для оглавления
+            tocList.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Подсветка активного пункта
+                    tocList.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // ==================== ПОЛОСА ПРОГРЕССА ====================
+            const progressBar = document.getElementById('progressBar');
+            
+            window.addEventListener('scroll', () => {
+                const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrolled = (window.scrollY / windowHeight) * 100;
+                progressBar.style.width = `${scrolled}%`;
+                
+                // Обновление активного пункта в оглавлении при прокрутке
+                let currentSection = '';
+                const scrollPosition = window.scrollY + 150;
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        currentSection = section.id;
+                    }
+                });
+                
+                if (currentSection) {
+                    tocList.querySelectorAll('a').forEach(a => {
+                        a.classList.remove('active');
+                        if (a.getAttribute('href') === `#${currentSection}`) {
+                            a.classList.add('active');
+                        }
+                    });
+                }
+            });
+            
+            // ==================== ПОИСК ====================
+            const searchInput = document.getElementById('termsSearch');
+            const searchResults = document.getElementById('searchResults');
+            
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                let resultsCount = 0;
+                
+                if (searchTerm.length < 2) {
+                    // Сбрасываем выделение если поисковой запрос слишком короткий
+                    sections.forEach(section => {
+                        section.style.backgroundColor = '';
+                        const highlights = section.querySelectorAll('.search-highlight');
+                        highlights.forEach(highlight => {
+                            highlight.outerHTML = highlight.textContent;
+                        });
+                    });
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                sections.forEach(section => {
+                    const text = section.textContent.toLowerCase();
+                    const html = section.innerHTML;
+                    
+                    if (text.includes(searchTerm)) {
+                        // Подсвечиваем секцию
+                        section.style.backgroundColor = 'rgba(255,215,0,0.1)';
+                        resultsCount++;
+                        
+                        // Подсвечиваем текст в секции
+                        const regex = new RegExp(`(${searchTerm})`, 'gi');
+                        const newHtml = html.replace(regex, '<mark class="search-highlight" style="background-color: yellow; padding: 0 2px;">$1</mark>');
+                        section.innerHTML = newHtml;
+                    } else {
+                        section.style.backgroundColor = '';
+                    }
+                });
+                
+                // Показываем счетчик результатов
+                searchResults.textContent = resultsCount;
+                searchResults.style.display = resultsCount > 0 ? 'block' : 'none';
+                
+                // Если есть результаты, прокручиваем к первому
+                if (resultsCount > 0) {
+                    const firstMatch = document.querySelector('.terms-section[style*="background-color: rgba(255, 215, 0, 0.1)"]');
+                    if (firstMatch) {
+                        window.scrollTo({
+                            top: firstMatch.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+            
+            // ==================== ТЕМНАЯ ТЕМА ====================
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            
+            // Проверяем сохраненную тему
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeIcon.className = 'fas fa-sun';
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Светлая тема';
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    themeIcon.className = 'fas fa-sun';
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i> Светлая тема';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    themeIcon.className = 'fas fa-moon';
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i> Темная тема';
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // ==================== КНОПКИ ДЕЙСТВИЙ ====================
+            // Вернуться наверх
+            document.getElementById('backToTop').addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Скопировать ссылку
+            document.getElementById('copyLink').addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    const originalIcon = document.getElementById('copyLink').innerHTML;
+                    document.getElementById('copyLink').innerHTML = '<i class="fas fa-check"></i>';
+                    document.getElementById('copyLink').style.backgroundColor = 'var(--success)';
+                    
+                    setTimeout(() => {
+                        document.getElementById('copyLink').innerHTML = originalIcon;
+                        document.getElementById('copyLink').style.backgroundColor = '';
+                    }, 2000);
+                } catch (err) {
+                    alert('Не удалось скопировать ссылку');
+                }
+            });
+            
+            // Переключение размера шрифта
+            let fontSizeLevel = 1;
+            document.getElementById('fontSizeToggle').addEventListener('click', () => {
+                const body = document.body;
+                fontSizeLevel = (fontSizeLevel + 1) % 4;
+                
+                switch(fontSizeLevel) {
+                    case 0: body.style.fontSize = '14px'; break;
+                    case 1: body.style.fontSize = '16px'; break;
+                    case 2: body.style.fontSize = '18px'; break;
+                    case 3: body.style.fontSize = '20px'; break;
+                }
+            });
+            
+            // Печать
+            document.getElementById('printBtn').addEventListener('click', () => {
+                window.print();
+            });
+            
+            // Скачать PDF (имитация)
+            document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+                const a = document.createElement('a');
+                a.href = 'Пользовательское соглашение.pdf';
+                a.download = 'Пользовательское соглашение Метро New.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+            
+            // ==================== ИНИЦИАЛИЗАЦИЯ АНИМАЦИЙ ====================
+            // Анимация появления секций при загрузке
+            setTimeout(() => {
+                sections.forEach((section, index) => {
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 500);
+            
+            // Анимация элементов футера при загрузке
+            const footerLinks = document.querySelectorAll('.footer-links a');
+            footerLinks.forEach((link, index) => {
+                link.style.opacity = '0';
+                link.style.transform = 'translateX(-10px)';
+                
+                setTimeout(() => {
+                    link.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    link.style.opacity = '1';
+                    link.style.transform = 'translateX(0)';
+                }, 300 + index * 50);
+            });
+        });
+    </script>
+</body>
+</html>
