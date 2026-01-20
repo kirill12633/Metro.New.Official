@@ -1,0 +1,252 @@
+/* Дополнительные анимации */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Дополнительные стили для улучшения дизайна */
+.download-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.download-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.download-card:hover::before {
+    opacity: 1;
+}
+
+.download-card:nth-child(odd) {
+    animation: slideInLeft 0.5s ease forwards;
+}
+
+.download-card:nth-child(even) {
+    animation: slideInRight 0.5s ease forwards;
+}
+
+.download-card.delayed {
+    animation-delay: 0.1s;
+}
+
+.version {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.card-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+/* Улучшенные теги */
+.change-tag {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.change-tag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s ease;
+}
+
+.change-tag:hover::before {
+    left: 100%;
+}
+
+.change-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Улучшенная кнопка скачивания */
+.download-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.download-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.download-btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Эффект при наведении на кнопку фильтра */
+.filter-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.filter-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.filter-btn:hover::after {
+    width: 100%;
+}
+
+.filter-btn.active::after {
+    width: 100%;
+    background: var(--secondary);
+}
+
+/* Анимация для статистики */
+.stat-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent 30%, rgba(0,102,204,0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-item:hover::before {
+    opacity: 1;
+}
+
+/* Плавный скролл */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Кастомный скроллбар */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Эффект для текущей версии */
+.current-badge {
+    animation: pulse 2s infinite;
+    z-index: 2;
+}
+
+/* Подсветка при поиске */
+.highlight {
+    background-color: rgba(255, 215, 0, 0.3);
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: var(--dark);
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .download-card,
+    .controls-panel,
+    .stat-item {
+        background: #2d2d2d;
+        color: #ffffff;
+    }
+    
+    .search-box input {
+        background: #3d3d3d;
+        color: #ffffff;
+        border-color: #4d4d4d;
+    }
+    
+    .filter-btn {
+        background: #3d3d3d;
+        color: #ffffff;
+        border-color: #4d4d4d;
+    }
+    
+    .filter-btn.active {
+        background: var(--primary);
+        color: white;
+    }
+}
