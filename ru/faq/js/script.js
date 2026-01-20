@@ -1,23 +1,24 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
+
     // Аккордеон FAQ
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        question.addEventListener('click', () => {
+        item.querySelector('.faq-question').addEventListener('click', () => {
             item.classList.toggle('active');
         });
     });
 
-    // Фильтрация по категориям
+    // Фильтр категорий
     const categoryBtns = document.querySelectorAll('.category-btn');
     const faqCategories = document.querySelectorAll('.faq-category');
+
     categoryBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const category = btn.dataset.category;
+            const cat = btn.dataset.category;
             categoryBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            faqCategories.forEach(cat => {
-                cat.style.display = (category === 'all' || cat.dataset.category === category) ? 'block' : 'none';
+            faqCategories.forEach(faq => {
+                faq.style.display = (cat === 'all' || faq.dataset.category === cat) ? 'block' : 'none';
             });
         });
     });
@@ -25,11 +26,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Поиск по FAQ
     const searchInput = document.querySelector('.search-input');
     searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
+        const term = this.value.toLowerCase();
         faqItems.forEach(item => {
-            const question = item.querySelector('.faq-question').textContent.toLowerCase();
-            const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
-            if(question.includes(searchTerm) || answer.includes(searchTerm)){
+            const q = item.querySelector('.faq-question').textContent.toLowerCase();
+            const a = item.querySelector('.faq-answer').textContent.toLowerCase();
+            if(q.includes(term) || a.includes(term)){
                 item.style.display = 'block';
                 item.closest('.faq-category').style.display = 'block';
             } else {
@@ -39,10 +40,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Автоматический год в футере
-    document.getElementById('current-year').textContent = new Date().getFullYear();
+    const year = new Date().getFullYear();
+    document.getElementById('currentYear').textContent = year;
 
     // reCAPTCHA
-    grecaptcha.ready(function() {
-        grecaptcha.execute('6LfhAZkrAAAAAO1NxGCMX1J2HKiDp01FW9AuHR7r', {action: 'homepage'});
-    });
+    if(typeof grecaptcha !== 'undefined'){
+        grecaptcha.ready(() => {
+            grecaptcha.execute('6LfhAZkrAAAAAO1NxGCMX1J2HKiDp01FW9AuHR7r', {action:'homepage'});
+        });
+    }
 });
