@@ -1,1 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История изменений | Метро New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --card-bg: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Статистика сверху */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Панель поиска и фильтров */
+        .controls-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .filter-count {
+            background: white;
+            color: var(--primary);
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .filter-btn.active .filter-count {
+            background: white;
+            color: var(--primary);
+        }
+        
+        /* Карточки версий */
+        .download-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .download-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .download-card.hidden {
+            display: none;
+        }
+        
+        .download-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+        
+        .current-badge {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .version {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .date {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-title {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .change-tags {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .change-tag {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .tag-added { background: #d4edda; color: #155724; }
+        .tag-changed { background: #fff3cd; color: #856404; }
+        .tag-fixed { background: #cce5ff; color: #004085; }
+        .tag-security { background: #f8d7da; color: #721c24; }
+        .tag-major { background: #e2d9f3; color: #4a3f69; }
+        
+        .download-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Информация о результатах поиска */
+        .results-info {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #e8f4ff;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .results-info.hidden {
+            display: none;
+        }
+        
+        /* Кнопка назад */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--gray);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        .center {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        /* Футер */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .copyright {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .download-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-btn {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .download-card {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
 
+        /* Уведомление о скачивании */
+        .download-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            max-width: 350px;
+        }
+
+        /* Прогресс бар для уведомления */
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        .notification-progress-fill {
+            height: 100%;
+            background: var(--secondary);
+            transition: width 0.1s linear;
+        }
+
+        /* Подсветка найденного текста */
+        .highlight {
+            background-color: rgba(255, 215, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: var(--dark);
+        }
+
+        /* Информация о файле */
+        .file-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .file-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .file-info-item:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <section class="page-header">
+            <h1>История изменений</h1>
+            <p>Полная история всех версий пользовательского соглашения</p>
+        </section>
+        
+        <!-- Информация о файле -->
+        <div class="file-info">
+            <div class="file-info-item">
+                <i class="fas fa-file-alt"></i>
+                <span><strong>Файл:</strong> Пользовательское соглашение проекта "Метро New"</span>
+            </div>
+            <div class="file-info-item">
+                <i class="fas fa-calendar"></i>
+                <span><strong>Создан:</strong> 27 июля 2025 года</span>
+            </div>
+            <div class="file-info-item">
+                <i class="fas fa-history"></i>
+                <span><strong>Последнее обновление:</strong> 26 декабря 2025 года</span>
+            </div>
+            <div class="file-info-item">
+                <i class="fas fa-code"></i>
+                <span><strong>Формат:</strong> PDF, доступен для скачивания</span>
+            </div>
+        </div>
+        
+        <!-- Статистика сверху -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalVersions">0</div>
+                <div class="stat-label">Всего версий</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalChanges">0</div>
+                <div class="stat-label">Всего изменений</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalDownloads">0</div>
+                <div class="stat-label">Скачиваний</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="daysActive">0</div>
+                <div class="stat-label">Дней активности</div>
+            </div>
+        </div>
+        
+        <!-- Панель поиска и фильтров -->
+        <div class="controls-panel">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Поиск по версиям и изменениям...">
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-layer-group"></i>
+                    Все версии
+                    <span class="filter-count" id="countAll">4</span>
+                </button>
+                <button class="filter-btn" data-filter="current">
+                    <i class="fas fa-star"></i>
+                    Текущие
+                    <span class="filter-count" id="countCurrent">1</span>
+                </button>
+                <button class="filter-btn" data-filter="major">
+                    <i class="fas fa-bolt"></i>
+                    Крупные
+                    <span class="filter-count" id="countMajor">2</span>
+                </button>
+                <button class="filter-btn" data-filter="security">
+                    <i class="fas fa-shield-alt"></i>
+                    Безопасность
+                    <span class="filter-count" id="countSecurity">1</span>
+                </button>
+                <button class="filter-btn" data-filter="old">
+                    <i class="fas fa-history"></i>
+                    Архивные
+                    <span class="filter-count" id="countOld">3</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Информация о результатах -->
+        <div class="results-info hidden" id="resultsInfo">
+            Найдено <span id="foundCount">0</span> версий по запросу "<span id="searchQuery"></span>"
+            <button class="clear-search" id="clearSearchBtn" style="margin-left: 10px; background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.9rem;">
+                <i class="fas fa-times"></i> Очистить поиск
+            </button>
+        </div>
+        
+        <!-- Карточки версий -->
+        <div class="download-section" id="versionsContainer">
+            <!-- Карточки будут добавляться через JavaScript -->
+        </div>
+        
+        <div class="center">
+            <a href="terms-of-service.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Вернуться к соглашению
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="copyright">© <span id="currentYear"></span> Проект "Метро New". Все права защищены.</p>
+            <p class="copyright">Все материалы проекта являются интеллектуальной собственностью их авторов и охраняются законом.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==================== КОНФИГУРАЦИЯ ====================
+        // Здесь вы можете изменить данные о ваших версиях
+        
+        const versionsData = [
+            {
+                id: 1,
+                version: "v2.0",
+                date: "26 декабря 2025",
+                title: "Основное обновление",
+                changes: ["Добавлен раздел 8", "Обновлены правила Discord", "Исправлены опечатки"],
+                tags: ["major", "current"],
+                downloads: 1254,
+                size: "1.2 MB",
+                description: "Крупное обновление с добавлением новых разделов и правил",
+                fileUrl: "files/terms_v2.0.pdf" // ← ЗДЕСЬ ПОДСТАВЬТЕ ССЫЛКУ НА ВАШ ФАЙЛ
+            },
+            {
+                id: 2,
+                version: "v1.3",
+                date: "15 ноября 2025",
+                title: "Обновление безопасности",
+                changes: ["Добавлены правила GDPR", "Обновлена политика данных", "Уточнены возрастные ограничения"],
+                tags: ["security"],
+                downloads: 895,
+                size: "1.1 MB",
+                description: "Важные обновления в области защиты данных",
+                fileUrl: "files/terms_v1.3.pdf" // ← ЗДЕСЬ ПОДСТАВЬТЕ ССЫЛКУ НА ВАШ ФАЙЛ
+            },
+            {
+                id: 3,
+                version: "v1.2",
+                date: "10 октября 2025",
+                title: "Обновление контента",
+                changes: ["Добавлены правила модерации", "Обновлены условия использования", "Исправлены формулировки"],
+                tags: ["major"],
+                downloads: 654,
+                size: "1.0 MB",
+                description: "Обновление правил сообщества и модерации",
+                fileUrl: "files/terms_v1.2.pdf" // ← ЗДЕСЬ ПОДСТАВЬТЕ ССЫЛКУ НА ВАШ ФАЙЛ
+            },
+            {
+                id: 4,
+                version: "v1.0",
+                date: "27 июля 2025",
+                title: "Первая публикация",
+                changes: ["Базовые положения", "Возрастные ограничения", "Права и обязанности", "Контактная информация"],
+                tags: ["old"],
+                downloads: 1234,
+                size: "0.9 MB",
+                description: "Первая публикация пользовательского соглашения",
+                fileUrl: "files/terms_v1.0.pdf" // ← ЗДЕСЬ ПОДСТАВЬТЕ ССЫЛКУ НА ВАШ ФАЙЛ
+            }
+        ];
+
+        // Настройки файла
+        const fileInfo = {
+            name: "Пользовательское соглашение проекта 'Метро New'",
+            created: "27 июля 2025 года",
+            lastUpdated: "26 декабря 2025 года",
+            format: "PDF, доступен для скачивания"
+        };
+
+        // ==================== ОСНОВНОЙ КОД ====================
+
+        // Автоматическое получение текущего года
+        function getCurrentYear() {
+            return new Date().getFullYear();
+        }
+
+        // Статистика (рассчитывается автоматически)
+        const stats = {
+            totalVersions: versionsData.length,
+            totalChanges: versionsData.reduce((sum, v) => sum + v.changes.length, 0),
+            totalDownloads: versionsData.reduce((sum, v) => sum + v.downloads, 0),
+            daysActive: Math.floor((new Date() - new Date('2025-07-27')) / (1000 * 60 * 60 * 24))
+        };
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Установка текущего года
+            document.getElementById('currentYear').textContent = getCurrentYear();
+            
+            // Обновление статистики
+            document.getElementById('totalVersions').textContent = stats.totalVersions;
+            document.getElementById('totalChanges').textContent = stats.totalChanges;
+            document.getElementById('totalDownloads').textContent = stats.totalDownloads.toLocaleString();
+            document.getElementById('daysActive').textContent = stats.daysActive > 0 ? stats.daysActive : 152;
+
+            // Обновление счетчиков фильтров
+            updateFilterCounts();
+            
+            // Создание карточек
+            renderVersions(versionsData);
+            
+            // Настройка фильтров
+            setupFilters();
+            
+            // Настройка поиска
+            setupSearch();
+            
+            // Настройка кнопки очистки поиска
+            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+            
+            // Анимация статистики
+            animateStats();
+            
+            // Обновление информации о файле
+            updateFileInfo();
+        });
+
+        // Обновление информации о файле
+        function updateFileInfo() {
+            // Если нужно динамически обновлять информацию о файле, можно раскомментировать:
+            /*
+            document.querySelectorAll('.file-info-item')[0].innerHTML = 
+                `<i class="fas fa-file-alt"></i><span><strong>Файл:</strong> ${fileInfo.name}</span>`;
+            document.querySelectorAll('.file-info-item')[1].innerHTML = 
+                `<i class="fas fa-calendar"></i><span><strong>Создан:</strong> ${fileInfo.created}</span>`;
+            document.querySelectorAll('.file-info-item')[2].innerHTML = 
+                `<i class="fas fa-history"></i><span><strong>Последнее обновление:</strong> ${fileInfo.lastUpdated}</span>`;
+            document.querySelectorAll('.file-info-item')[3].innerHTML = 
+                `<i class="fas fa-code"></i><span><strong>Формат:</strong> ${fileInfo.format}</span>`;
+            */
+        }
+
+        // Обновление счетчиков фильтров
+        function updateFilterCounts() {
+            const counts = {
+                all: versionsData.length,
+                current: versionsData.filter(v => v.tags.includes('current')).length,
+                major: versionsData.filter(v => v.tags.includes('major')).length,
+                security: versionsData.filter(v => v.tags.includes('security')).length,
+                old: versionsData.filter(v => v.tags.includes('old')).length
+            };
+
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countCurrent').textContent = counts.current;
+            document.getElementById('countMajor').textContent = counts.major;
+            document.getElementById('countSecurity').textContent = counts.security;
+            document.getElementById('countOld').textContent = counts.old;
+        }
+
+        // Создание карточек версий
+        function renderVersions(versions) {
+            const container = document.getElementById('versionsContainer');
+            container.innerHTML = '';
+
+            if (versions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; color: #ccc;"></i>
+                        <h3 style="color: var(--gray); margin-bottom: 0.5rem;">Ничего не найдено</h3>
+                        <p>Попробуйте изменить параметры поиска или фильтры</p>
+                    </div>
+                `;
+                return;
+            }
+
+            versions.forEach((version, index) => {
+                const card = document.createElement('div');
+                card.className = 'download-card';
+                card.dataset.id = version.id;
+                card.dataset.tags = version.tags.join(' ');
+                card.dataset.searchable = `${version.version} ${version.title} ${version.description} ${version.changes.join(' ')}`.toLowerCase();
+
+                // Определяем цвет тега
+                const tagColors = {
+                    'major': 'tag-major',
+                    'security': 'tag-security',
+                    'current': 'tag-added',
+                    'old': 'tag-changed'
+                };
+
+                // Создаем теги
+                const tagsHTML = version.tags.map(tag => 
+                    `<span class="change-tag ${tagColors[tag] || 'tag-fixed'}">${getTagLabel(tag)}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    ${version.tags.includes('current') ? '<div class="current-badge">Текущая</div>' : ''}
+                    <div class="version">${version.version}</div>
+                    <div class="date">${version.date}</div>
+                    <h3 class="card-title">${version.title}</h3>
+                    <div class="change-tags">${tagsHTML}</div>
+                    <ul style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1.5rem; padding-left: 1.2rem;">
+                        ${version.changes.map(change => `<li>${change}</li>`).join('')}
+                    </ul>
+                    <button class="download-btn" onclick="downloadVersion(${version.id})" data-version="${version.version}">
+                        <i class="fas fa-download"></i> Скачать PDF (${version.size})
+                    </button>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Получение читаемого названия тега
+        function getTagLabel(tag) {
+            const labels = {
+                'major': 'Крупное',
+                'security': 'Безопасность',
+                'current': 'Текущая',
+                'old': 'Архивная'
+            };
+            return labels[tag] || tag;
+        }
+
+        // Настройка фильтров
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            let activeFilter = 'all';
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.dataset.filter;
+                    
+                    // Обновляем активную кнопку
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Применяем фильтр
+                    applyFilter(filter);
+                    activeFilter = filter;
+                });
+            });
+        }
+
+        // Применение фильтра
+        function applyFilter(filterType) {
+            const cards = document.querySelectorAll('.download-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const shouldShow = filterType === 'all' || card.dataset.tags.includes(filterType);
+                
+                if (shouldShow) {
+                    card.classList.remove('hidden');
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                }
+            });
+
+            // Обновляем информацию о результатах
+            updateResultsInfo(filterType, visibleCount, cards.length);
+        }
+
+        // Настройка поиска
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch(this.value.trim());
+                }, 300);
+            });
+
+            // Очистка поиска по клавише Esc
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    this.value = '';
+                    performSearch('');
+                }
+            });
+        }
+
+        // Выполнение поиска
+        function performSearch(query) {
+            const cards = document.querySelectorAll('.download-card');
+            let foundCount = 0;
+
+            cards.forEach(card => {
+                const searchableText = card.dataset.searchable;
+                const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 2);
+                
+                let matches = false;
+                
+                if (query === '') {
+                    matches = true;
+                } else if (searchTerms.length > 0) {
+                    matches = searchTerms.some(term => searchableText.includes(term));
+                    
+                    // Подсветка найденного текста
+                    if (matches) {
+                        highlightCardContent(card, searchTerms);
+                    }
+                } else {
+                    matches = searchableText.includes(query.toLowerCase());
+                }
+                
+                if (matches) {
+                    card.classList.remove('hidden');
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                    foundCount++;
+                    
+                    // Если поиск активен, убираем подсветку если есть
+                    if (query && searchTerms.length > 0) {
+                        removeHighlight(card);
+                        highlightCardContent(card, searchTerms);
+                    }
+                } else {
+                    card.classList.add('hidden');
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    removeHighlight(card);
+                }
+            });
+
+            // Показываем информацию о результатах
+            const resultsInfo = document.getElementById('resultsInfo');
+            if (query) {
+                resultsInfo.classList.remove('hidden');
+                document.getElementById('foundCount').textContent = foundCount;
+                document.getElementById('searchQuery').textContent = query;
+            } else {
+                resultsInfo.classList.add('hidden');
+            }
+        }
+
+        // Подсветка текста в карточке
+        function highlightCardContent(card, searchTerms) {
+            const elements = card.querySelectorAll('.card-title, ul li');
+            elements.forEach(element => {
+                let html = element.innerHTML;
+                searchTerms.forEach(term => {
+                    const regex = new RegExp(`(${term})`, 'gi');
+                    html = html.replace(regex, '<span class="highlight">$1</span>');
+                });
+                element.innerHTML = html;
+            });
+        }
+
+        // Удаление подсветки
+        function removeHighlight(card) {
+            const highlights = card.querySelectorAll('.highlight');
+            highlights.forEach(highlight => {
+                highlight.outerHTML = highlight.textContent;
+            });
+        }
+
+        // Очистка поиска
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            performSearch('');
+            document.getElementById('resultsInfo').classList.add('hidden');
+            
+            // Убираем подсветку со всех карточек
+            const cards = document.querySelectorAll('.download-card');
+            cards.forEach(removeHighlight);
+        }
+
+        // Обновление информации о результатах
+        function updateResultsInfo(filterType, visibleCount, totalCount) {
+            const filterLabels = {
+                'all': 'Все версии',
+                'current': 'Текущие версии',
+                'major': 'Крупные обновления',
+                'security': 'Обновления безопасности',
+                'old': 'Архивные версии'
+            };
+
+            if (filterType !== 'all') {
+                const resultsInfo = document.getElementById('resultsInfo');
+                resultsInfo.classList.remove('hidden');
+                document.getElementById('foundCount').textContent = visibleCount;
+                document.getElementById('searchQuery').textContent = filterLabels[filterType];
+            } else {
+                document.getElementById('resultsInfo').classList.add('hidden');
+            }
+        }
+
+        // Функция скачивания (РЕДАКТИРУЙТЕ ЭТУ ФУНКЦИЮ ПОД ВАШИ ФАЙЛЫ)
+        function downloadVersion(versionId) {
+            // Находим версию по ID
+            const versionData = versionsData.find(v => v.id === versionId);
+            if (!versionData) return;
+
+            // Увеличиваем счетчик скачиваний
+            versionData.downloads++;
+            stats.totalDownloads++;
+            document.getElementById('totalDownloads').textContent = stats.totalDownloads.toLocaleString();
+
+            // ============ ВАЖНО: РЕДАКТИРУЙТЕ ЭТОТ БЛОК ============
+            // Способ 1: Если у вас есть реальные файлы на сервере
+            if (versionData.fileUrl) {
+                // Создаем ссылку на ваш файл
+                const link = document.createElement('a');
+                link.href = versionData.fileUrl; // ← Ваша ссылка на файл
+                link.download = `Пользовательское соглашение ${versionData.version}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } 
+            // Способ 2: Если файлы лежат в папке files/ (рекомендуется)
+            else {
+                // Автоматическая генерация ссылки на файл
+                const fileName = `terms_v${versionData.version.replace('v', '')}.pdf`;
+                const link = document.createElement('a');
+                link.href = `files/${fileName}`;
+                link.download = `Пользовательское соглашение ${versionData.version}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            // ========================================================
+
+            // Показываем уведомление
+            showDownloadNotification(versionData);
+        }
+
+        // Показ уведомления о скачивании
+        function showDownloadNotification(versionData) {
+            // Удаляем старое уведомление если есть
+            const oldNotification = document.querySelector('.download-notification');
+            if (oldNotification) {
+                oldNotification.remove();
+            }
+
+            // Создаем новое уведомление
+            const notification = document.createElement('div');
+            notification.className = 'download-notification';
+            notification.style.animation = 'fadeIn 0.3s ease';
+            
+            notification.innerHTML = `
+                <div style="font-size: 1.5rem;">
+                    <i class="fas fa-file-download"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Скачивание начато</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">
+                        ${versionData.version} - ${versionData.title}
+                    </div>
+                </div>
+                <div style="margin-left: auto; cursor: pointer;" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="notification-progress">
+                    <div class="notification-progress-fill" id="progressFill"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Анимация прогресса
+            const progressFill = notification.querySelector('#progressFill');
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 20;
+                progressFill.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        notification.querySelector('.fa-file-download').className = 'fas fa-check-circle';
+                        notification.querySelector('div:nth-child(2) > div:first-child').textContent = 'Скачивание завершено';
+                        
+                        // Автоматическое скрытие через 2 секунды
+                        setTimeout(() => {
+                            notification.style.animation = 'fadeIn 0.3s ease reverse';
+                            setTimeout(() => {
+                                if (notification.parentNode) {
+                                    notification.remove();
+                                }
+                            }, 300);
+                        }, 2000);
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        // Анимация статистики
+        function animateStats() {
+            const statElements = {
+                totalVersions: document.getElementById('totalVersions'),
+                totalChanges: document.getElementById('totalChanges'),
+                totalDownloads: document.getElementById('totalDownloads'),
+                daysActive: document.getElementById('daysActive')
+            };
+
+            Object.entries(statElements).forEach(([key, element]) => {
+                const targetValue = parseInt(element.textContent.replace(/,/g, ''));
+                let currentValue = 0;
+                const increment = Math.ceil(targetValue / 30);
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= targetValue) {
+                        currentValue = targetValue;
+                        clearInterval(timer);
+                    }
+                    if (key === 'totalDownloads') {
+                        element.textContent = currentValue.toLocaleString();
+                    } else {
+                        element.textContent = currentValue;
+                    }
+                }, 50);
+            });
+        }
+
+        // Добавляем стили для анимаций
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .current-badge {
+                animation: pulse 2s infinite;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
