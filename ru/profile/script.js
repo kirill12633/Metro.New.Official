@@ -348,33 +348,23 @@ function updateUserMenu(user, provider) {
             <span>Мой аккаунт</span>
         </button>
         <div class="dropdown-divider"></div>
-        <div style="padding: 0.5rem 1rem;">
-            <div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 0.25rem;">Почта сайта</div>
-            <div>
-                <a href="mailto:support@metro.new" class="menu-link">
-                    support@metro.new
-                </a>
-            </div>
-        </div>
-        <div style="padding: 0 1rem 0.5rem;">
-            <div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 0.25rem;">Управление уведомлениями</div>
-            <a href="#" onclick="window.openNotifications()" class="menu-link">
-                Настроить уведомления
-            </a>
-        </div>
-        <div style="padding: 0 1rem 0.5rem;">
-            <div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 0.25rem;">Правовые документы</div>
-            <a href="https://kirill12633.github.io/Metro.New.Official/ru/privacy" target="_blank" class="menu-link">
-                Политика конфиденциальности
-            </a>
-        </div>
+        <button class="dropdown-item" onclick="window.openEmailSite()">
+            <i class="fas fa-envelope"></i>
+            <span>Почта сайта</span>
+        </button>
+        <button class="dropdown-item" onclick="window.openNotifications()">
+            <i class="fas fa-bell"></i>
+            <span>Управление уведомлениями</span>
+        </button>
+        <button class="dropdown-item" onclick="window.openLegalDocuments()">
+            <i class="fas fa-file-contract"></i>
+            <span>Правовые документы</span>
+        </button>
         <div class="dropdown-divider"></div>
-        <div style="padding: 0 1rem 1rem;">
-            <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="menu-link">
-                <i class="fas fa-headset"></i>
-                Служба поддержки
-            </a>
-        </div>
+        <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="dropdown-item">
+            <i class="fas fa-headset"></i>
+            <span>Служба поддержки</span>
+        </a>
         <div class="dropdown-divider"></div>
         <button class="dropdown-item logout" id="logoutBtn">
             <i class="fas fa-sign-out-alt"></i>
@@ -400,12 +390,23 @@ function updateGuestMenu() {
             <span>Регистрация</span>
         </button>
         <div class="dropdown-divider"></div>
-        <div style="padding: 0.5rem 1rem;">
-            <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="menu-link">
-                <i class="fas fa-headset"></i>
-                Служба поддержки
-            </a>
-        </div>
+        <button class="dropdown-item" onclick="window.openEmailSite()">
+            <i class="fas fa-envelope"></i>
+            <span>Почта сайта</span>
+        </button>
+        <button class="dropdown-item" onclick="window.openNotifications()">
+            <i class="fas fa-bell"></i>
+            <span>Управление уведомлениями</span>
+        </button>
+        <button class="dropdown-item" onclick="window.openLegalDocuments()">
+            <i class="fas fa-file-contract"></i>
+            <span>Правовые документы</span>
+        </button>
+        <div class="dropdown-divider"></div>
+        <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="dropdown-item">
+            <i class="fas fa-headset"></i>
+            <span>Служба поддержки</span>
+        </a>
     `;
     
     setTimeout(() => {
@@ -870,6 +871,14 @@ function exportUserData() {
     showMessage('Данные успешно экспортированы', 'success');
 }
 
+function downloadFile(downloadId) {
+    showMessage('Функция скачивания файла будет доступна в ближайшем обновлении', 'info');
+}
+
+function deleteDownload(downloadId) {
+    showMessage('Функция удаления файла будет доступна в ближайшем обновлении', 'info');
+}
+
 function showMessage(text, type = 'info') {
     document.querySelectorAll('.message').forEach(msg => msg.remove());
     
@@ -895,6 +904,7 @@ function showMessage(text, type = 'info') {
 // Глобальные функции для меню
 window.openMainPage = function() {
     window.open('/', '_blank');
+    document.getElementById('userDropdown').classList.remove('show');
 };
 
 window.openAccountSettings = function() {
@@ -907,8 +917,19 @@ window.openMyAccount = function() {
     document.getElementById('userDropdown').classList.remove('show');
 };
 
+window.openEmailSite = function() {
+    window.open('mailto:support@metro.new', '_blank');
+    document.getElementById('userDropdown').classList.remove('show');
+};
+
 window.openNotifications = function() {
     showMessage('Раздел уведомлений находится в разработке', 'info');
+    document.getElementById('userDropdown').classList.remove('show');
+};
+
+window.openLegalDocuments = function() {
+    window.open('https://kirill12633.github.io/Metro.New.Official/ru/privacy', '_blank');
+    document.getElementById('userDropdown').classList.remove('show');
 };
 
 // Экспорт для отладки
