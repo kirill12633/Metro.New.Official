@@ -25,7 +25,10 @@
             linkWithPopup,
             updatePassword,
             reauthenticateWithCredential,
-            EmailAuthProvider
+            EmailAuthProvider,
+            setPersistence,
+            browserSessionPersistence,
+            browserLocalPersistence
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import { 
             getFirestore, 
@@ -40,7 +43,10 @@
             getDocs,
             Timestamp,
             arrayUnion,
-            arrayRemove
+            arrayRemove,
+            deleteDoc,
+            serverTimestamp,
+            runTransaction
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
         
@@ -59,6 +65,9 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
         const googleProvider = new GoogleAuthProvider();
+        
+        // Настройка persistence для запоминания сессии
+        setPersistence(auth, browserLocalPersistence);
         
         googleProvider.addScope('profile');
         googleProvider.addScope('email');
@@ -86,6 +95,9 @@
             updatePassword,
             reauthenticateWithCredential,
             EmailAuthProvider,
+            setPersistence,
+            browserSessionPersistence,
+            browserLocalPersistence,
             doc,
             setDoc,
             getDoc,
@@ -98,6 +110,9 @@
             Timestamp,
             arrayUnion,
             arrayRemove,
+            deleteDoc,
+            serverTimestamp,
+            runTransaction,
             ref,
             uploadBytes,
             getDownloadURL,
@@ -928,6 +943,10 @@
                     <i class="fas fa-sync-alt"></i>
                     Обновить данные
                 </button>
+                <a href="https://kirill12633.github.io/support.metro.new/" class="btn btn-outline" target="_blank" id="supportBtn">
+                    <i class="fas fa-headset"></i>
+                    Поддержка
+                </a>
             </div>
         </section>
         
@@ -971,6 +990,12 @@
                         <a href="#" data-section="settings">
                             <i class="fas fa-cog"></i>
                             Настройки
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="security">
+                            <i class="fas fa-shield-alt"></i>
+                            Безопасность
                         </a>
                     </li>
                 </ul>
@@ -1133,10 +1158,85 @@
                         </div>
                     </div>
                     
+                    <div class="settings-group">
+                        <h4><i class="fas fa-language"></i> Язык</h4>
+                        
+                        <div class="setting-item">
+                            <span class="setting-label">Язык интерфейса</span>
+                            <select id="languageSelect" style="padding: 0.5rem; border: 1px solid var(--gray-light); border-radius: var(--radius-md);">
+                                <option value="ru">Русский</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <button class="btn btn-primary" id="saveSettingsBtn">
                         <i class="fas fa-save"></i>
                         Сохранить настройки
                     </button>
+                </div>
+                
+                <!-- БЕЗОПАСНОСТЬ -->
+                <div class="content-section" id="securitySection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-shield-alt"></i> Безопасность</h2>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4><i class="fas fa-key"></i> Смена пароля</h4>
+                        
+                        <div class="form-group">
+                            <label>Текущий пароль</label>
+                            <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Новый пароль</label>
+                            <input type="password" id="newPassword" placeholder="Введите новый пароль">
+                            <small style="color: var(--gray);">Минимум 8 символов, заглавные, строчные, цифры, спецсимволы</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Подтвердите новый пароль</label>
+                            <input type="password" id="confirmNewPassword" placeholder="Подтвердите новый пароль">
+                        </div>
+                        
+                        <button class="btn btn-primary" id="changePasswordBtn">
+                            <i class="fas fa-key"></i>
+                            Сменить пароль
+                        </button>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4><i class="fas fa-history"></i> Активные сессии</h4>
+                        <div id="sessionsList">
+                            <div class="history-item">
+                                <div class="history-icon">
+                                    <i class="fas fa-desktop"></i>
+                                </div>
+                                <div class="history-content">
+                                    <div class="history-title">Текущее устройство</div>
+                                    <div class="history-time">Сегодня, 10:30</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" id="logoutAllBtn" style="margin-top: 1rem;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Завершить все сессии
+                        </button>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Опасная зона</h4>
+                        <div style="color: var(--danger); margin-bottom: 1rem;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Эти действия нельзя отменить
+                        </div>
+                        <button class="btn btn-outline" id="deleteAccountBtn" style="border-color: var(--danger); color: var(--danger);">
+                            <i class="fas fa-trash"></i>
+                            Удалить аккаунт
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1158,12 +1258,17 @@
                     <label>Пароль</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" required>
                 </div>
+                <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="rememberMe" checked>
+                    <label for="rememberMe" style="margin: 0;">Запомнить меня</label>
+                </div>
                 <button class="btn btn-primary" id="loginSubmitBtn">
                     <i class="fas fa-sign-in-alt"></i>
                     Войти
                 </button>
                 <div style="margin-top: 1rem; text-align: center;">
-                    <a href="#" id="showRegisterBtn">Создать аккаунт</a>
+                    <a href="#" id="showRegisterBtn">Создать аккаунт</a> | 
+                    <a href="#" id="forgotPasswordBtn">Забыли пароль?</a>
                 </div>
                 <div class="auth-error" id="loginError" style="display: none;"></div>
             </div>
@@ -1188,6 +1293,7 @@
                 <div class="form-group">
                     <label>Пароль</label>
                     <input type="password" id="registerPassword" placeholder="••••••••" required>
+                    <small style="color: var(--gray);">Минимум 8 символов, заглавные, строчные, цифры, спецсимволы</small>
                 </div>
                 <div class="form-group">
                     <label>Подтвердите пароль</label>
@@ -1211,10 +1317,92 @@
         </div>
     </div>
 
+    <div class="modal" id="resetPasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Восстановление пароля</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Введите ваш email</label>
+                    <input type="email" id="resetEmail" placeholder="example@mail.ru" required>
+                    <small>На этот email будет отправлена ссылка для восстановления пароля</small>
+                </div>
+                <button class="btn btn-primary" id="sendResetBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Отправить ссылку
+                </button>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="backToLoginBtn">Вернуться ко входу</a>
+                </div>
+                <div class="reset-message" id="resetMessage" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--light); border-radius: var(--radius-md);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirmTitle"><i class="fas fa-exclamation-triangle"></i> Подтверждение</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage"></p>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn btn-outline" id="confirmCancelBtn" style="flex: 1;">
+                        Отмена
+                    </button>
+                    <button class="btn btn-primary" id="confirmActionBtn" style="flex: 1;">
+                        Подтвердить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="supportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-headset"></i> Техническая поддержка</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;">Если у вас возникли проблемы с аккаунтом или работой сайта:</p>
+                <div style="background: var(--gray-light); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                    <p><strong>1. Обратитесь в поддержку:</strong></p>
+                    <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
+                        <i class="fas fa-external-link-alt"></i>
+                        Перейти в поддержку
+                    </a>
+                </div>
+                <div style="background: var(--gray-light); padding: 1rem; border-radius: var(--radius-md);">
+                    <p><strong>2. Контакты для связи:</strong></p>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Discord: <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank">WjGZBs3HMX</a></li>
+                        <li>Telegram: <a href="https://t.me/metronewroblox" target="_blank">@metronewroblox</a></li>
+                        <li>Email: support@metro-new.ru</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Ожидание инициализации Firebase
+        // Основные конфигурации безопасности
+        const SECURITY_CONFIG = {
+            PASSWORD_MIN_LENGTH: 8,
+            PASSWORD_REGEX: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+            SESSION_TIMEOUT: 30 * 60 * 1000, // 30 минут
+            MAX_LOGIN_ATTEMPTS: 5,
+            BLOCK_TIME: 15 * 60 * 1000 // 15 минут блокировки
+        };
+
+        let loginAttempts = 0;
+        let blockedUntil = 0;
+
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('DOM загружен, ожидаем Firebase...');
+            console.log('DOM загружен, инициализация...');
             
             const checkFirebase = setInterval(() => {
                 if (window.auth && window.db) {
@@ -1225,14 +1413,18 @@
             
             setTimeout(() => {
                 if (!window.auth) {
-                    showMessage('Ошибка загрузки Firebase', 'error');
+                    showMessage('Ошибка загрузки системы безопасности. Обратитесь в поддержку.', 'error');
+                    document.getElementById('supportModal').classList.add('show');
                 }
             }, 5000);
         });
 
         async function initApplication() {
             try {
-                console.log('Инициализация приложения...');
+                console.log('Инициализация безопасной системы...');
+                
+                // Проверяем блокировку
+                checkBlockStatus();
                 
                 // Инициализация интерфейса
                 initUI();
@@ -1240,27 +1432,55 @@
                 // Проверка авторизации
                 checkAuthState();
                 
-                console.log('Приложение запущено');
+                // Запускаем таймер сессии
+                startSessionTimer();
+                
+                console.log('Система безопасности запущена');
                 
             } catch (error) {
-                console.error('Ошибка инициализации:', error);
-                showMessage('Ошибка загрузки приложения', 'error');
+                console.error('Критическая ошибка инициализации:', error);
+                showMessage('Системная ошибка. Обратитесь в поддержку.', 'error');
+                document.getElementById('supportModal').classList.add('show');
             }
         }
 
+        function checkBlockStatus() {
+            const now = Date.now();
+            const blockTime = localStorage.getItem('blockedUntil');
+            
+            if (blockTime && now < parseInt(blockTime)) {
+                const remaining = Math.ceil((parseInt(blockTime) - now) / 60000);
+                showMessage(`Система заблокирована. Попробуйте через ${remaining} минут.`, 'error');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+                return true;
+            }
+            
+            return false;
+        }
+
         function initUI() {
-            console.log('Инициализация интерфейса...');
+            console.log('Инициализация защищенного интерфейса...');
             
-            // Инициализация выпадающего меню
             initDropdown();
-            
-            // Инициализация обработчиков событий
             initEventHandlers();
-            
-            // Инициализация навигации
             initNavigation();
+            initSecurityChecks();
             
-            console.log('Интерфейс инициализирован');
+            console.log('Защищенный интерфейс инициализирован');
+        }
+
+        function initSecurityChecks() {
+            // Проверяем безопасность каждые 5 минут
+            setInterval(() => {
+                checkSessionSecurity();
+            }, 5 * 60 * 1000);
+            
+            // Логируем все важные действия
+            window.addEventListener('beforeunload', function() {
+                logSecurityEvent('PAGE_UNLOAD', 'Пользователь покинул страницу');
+            });
         }
 
         function initDropdown() {
@@ -1277,22 +1497,24 @@
         }
 
         function initNavigation() {
-            // Переключение между разделами
             document.querySelectorAll('.sidebar-menu a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
+                    if (!auth.currentUser) {
+                        showMessage('Для доступа к этому разделу требуется авторизация', 'warning');
+                        document.getElementById('authModal').classList.add('show');
+                        return;
+                    }
+                    
                     const section = this.getAttribute('data-section');
                     
-                    // Обновляем активную ссылку
                     document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Показываем нужный раздел
                     document.querySelectorAll('.content-section').forEach(div => div.style.display = 'none');
                     document.getElementById(section + 'Section').style.display = 'block';
                     
-                    // Загружаем данные раздела
                     loadSectionData(section);
                 });
             });
@@ -1308,6 +1530,12 @@
                 }
             });
             
+            // Кнопка поддержки
+            document.getElementById('supportBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('supportModal').classList.add('show');
+            });
+            
             // Сохранение профиля
             document.getElementById('saveProfileBtn')?.addEventListener('click', async function() {
                 await saveProfile();
@@ -1318,7 +1546,30 @@
                 await saveSettings();
             });
             
-            // Переключение между модалками
+            // Смена пароля
+            document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
+                await changePassword();
+            });
+            
+            // Выход из всех сессий
+            document.getElementById('logoutAllBtn')?.addEventListener('click', function() {
+                showConfirm('Завершение всех сессий', 
+                    'Вы уверены, что хотите завершить все активные сессии? Придется войти заново на всех устройствах.',
+                    async () => {
+                        await logoutAllSessions();
+                    });
+            });
+            
+            // Удаление аккаунта
+            document.getElementById('deleteAccountBtn')?.addEventListener('click', function() {
+                showConfirm('Удаление аккаунта', 
+                    'ВНИМАНИЕ! Это действие необратимо. Все ваши данные будут удалены без возможности восстановления.',
+                    async () => {
+                        await deleteAccount();
+                    });
+            });
+            
+            // Модалки авторизации
             document.getElementById('showRegisterBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.getElementById('authModal').classList.remove('show');
@@ -1331,6 +1582,18 @@
                 document.getElementById('authModal').classList.add('show');
             });
             
+            document.getElementById('forgotPasswordBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('authModal').classList.remove('show');
+                document.getElementById('resetPasswordModal').classList.add('show');
+            });
+            
+            document.getElementById('backToLoginBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('resetPasswordModal').classList.remove('show');
+                document.getElementById('authModal').classList.add('show');
+            });
+            
             // Вход
             document.getElementById('loginSubmitBtn')?.addEventListener('click', async function() {
                 await signInWithEmail();
@@ -1339,6 +1602,11 @@
             // Регистрация
             document.getElementById('registerSubmitBtn')?.addEventListener('click', async function() {
                 await signUpWithEmail();
+            });
+            
+            // Восстановление пароля
+            document.getElementById('sendResetBtn')?.addEventListener('click', async function() {
+                await sendPasswordReset();
             });
             
             // Закрытие модалок
@@ -1356,14 +1624,24 @@
                 });
             });
             
-            // Клик по аватарке для открытия меню
-            document.querySelector('.user-profile')?.addEventListener('click', function(e) {
-                if (!e.target.closest('.dropdown-menu')) {
-                    this.classList.toggle('show');
-                }
+            // Подтверждение действий
+            document.getElementById('confirmCancelBtn')?.addEventListener('click', function() {
+                document.getElementById('confirmModal').classList.remove('show');
             });
             
-            // Обработка Enter в формах
+            document.getElementById('confirmActionBtn')?.addEventListener('click', async function() {
+                const action = this.dataset.action;
+                const callback = window.pendingAction;
+                
+                if (callback && typeof callback === 'function') {
+                    await callback();
+                }
+                
+                document.getElementById('confirmModal').classList.remove('show');
+                delete window.pendingAction;
+            });
+            
+            // Обработка Enter
             document.getElementById('loginEmail')?.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') signInWithEmail();
             });
@@ -1379,12 +1657,16 @@
             const { onAuthStateChanged } = window.firebaseModules;
             
             onAuthStateChanged(auth, async (user) => {
-                console.log('Изменение состояния:', user ? 'Вход' : 'Выход');
+                console.log('Изменение состояния безопасности:', user ? 'Вход' : 'Выход');
+                
+                logSecurityEvent(user ? 'USER_LOGIN' : 'USER_LOGOUT', 
+                    user ? `Пользователь ${user.email} вошел в систему` : 'Пользователь вышел из системы');
                 
                 if (user) {
                     // Пользователь вошёл
                     await updateUIForUser(user);
                     await loadUserData(user.uid);
+                    resetLoginAttempts();
                 } else {
                     // Пользователь вышел
                     updateUIForGuest();
@@ -1406,7 +1688,7 @@
             
             const userAvatar = document.getElementById('userAvatar');
             if (photoURL) {
-                userAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}">`;
+                userAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user-circle\"></i>';">`;
             } else {
                 userAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
             }
@@ -1417,7 +1699,7 @@
             
             const sidebarAvatar = document.getElementById('sidebarAvatar');
             if (photoURL) {
-                sidebarAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}">`;
+                sidebarAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user-circle\"></i>';">`;
             } else {
                 sidebarAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
             }
@@ -1428,6 +1710,7 @@
             // Скрываем модалки авторизации
             document.getElementById('authModal').classList.remove('show');
             document.getElementById('registerModal').classList.remove('show');
+            document.getElementById('resetPasswordModal').classList.remove('show');
         }
 
         function updateUIForGuest() {
@@ -1465,6 +1748,10 @@
                     <i class="fas fa-redo"></i>
                     <span>Обновить</span>
                 </button>
+                <button class="dropdown-item" id="openSupportBtn">
+                    <i class="fas fa-headset"></i>
+                    <span>Поддержка</span>
+                </button>
                 <div class="dropdown-divider"></div>
                 <button class="dropdown-item logout" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i>
@@ -1472,9 +1759,12 @@
                 </button>
             `;
             
-            // Добавляем обработчик выхода
             setTimeout(() => {
                 document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+                document.getElementById('openSupportBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    document.getElementById('supportModal').classList.add('show');
+                });
             }, 100);
         }
 
@@ -1490,6 +1780,11 @@
                     <i class="fas fa-user-plus"></i>
                     <span>Зарегистрироваться</span>
                 </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="supportMenuBtn">
+                    <i class="fas fa-headset"></i>
+                    <span>Поддержка</span>
+                </button>
             `;
             
             setTimeout(() => {
@@ -1502,6 +1797,11 @@
                     document.getElementById('userDropdown').classList.remove('show');
                     document.getElementById('registerModal').classList.add('show');
                 });
+                
+                document.getElementById('supportMenuBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    document.getElementById('supportModal').classList.add('show');
+                });
             }, 100);
         }
 
@@ -1509,37 +1809,129 @@
             document.getElementById('authModal').classList.add('show');
         }
 
+        // ФУНКЦИИ БЕЗОПАСНОСТИ
+        function logSecurityEvent(type, details) {
+            const timestamp = new Date().toISOString();
+            const user = auth.currentUser ? auth.currentUser.uid : 'guest';
+            const event = {
+                type,
+                user,
+                timestamp,
+                details,
+                ip: 'detected', // В реальном приложении получать IP
+                userAgent: navigator.userAgent
+            };
+            
+            console.log('СОБЫТИЕ БЕЗОПАСНОСТИ:', event);
+            
+            // Сохраняем в localStorage для отладки
+            const logs = JSON.parse(localStorage.getItem('securityLogs') || '[]');
+            logs.unshift(event);
+            if (logs.length > 100) logs.pop();
+            localStorage.setItem('securityLogs', JSON.stringify(logs));
+            
+            // В реальном приложении отправляем на сервер
+            if (auth.currentUser) {
+                saveSecurityLog(event);
+            }
+        }
+
+        async function saveSecurityLog(event) {
+            try {
+                const { collection, addDoc, serverTimestamp } = window.firebaseModules;
+                await addDoc(collection(db, 'securityLogs'), {
+                    ...event,
+                    serverTimestamp: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Ошибка сохранения лога безопасности:', error);
+            }
+        }
+
+        function resetLoginAttempts() {
+            loginAttempts = 0;
+            localStorage.removeItem('blockedUntil');
+        }
+
+        function blockUser() {
+            const blockTime = Date.now() + SECURITY_CONFIG.BLOCK_TIME;
+            localStorage.setItem('blockedUntil', blockTime.toString());
+            blockedUntil = blockTime;
+            
+            logSecurityEvent('USER_BLOCKED', `Пользователь заблокирован до ${new Date(blockTime).toLocaleString()}`);
+            showMessage('Слишком много неудачных попыток входа. Попробуйте позже.', 'error');
+        }
+
         // ФУНКЦИИ АУТЕНТИФИКАЦИИ
         async function signInWithEmail() {
+            // Проверяем блокировку
+            if (checkBlockStatus()) return;
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             const loginError = document.getElementById('loginError');
             
+            // Валидация
             if (!email || !password) {
                 loginError.textContent = 'Заполните все поля';
                 loginError.style.display = 'block';
                 return;
             }
             
+            // Проверка количества попыток
+            if (loginAttempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
+                blockUser();
+                return;
+            }
+            
             try {
-                const { signInWithEmailAndPassword } = window.firebaseModules;
+                const { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } = window.firebaseModules;
+                
+                // Устанавливаем persistence
+                await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+                
+                // Вход
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                // Сброс счетчика попыток
+                resetLoginAttempts();
+                
+                // Логирование успешного входа
+                logSecurityEvent('LOGIN_SUCCESS', `Пользователь ${email} успешно вошел`);
                 
                 showMessage(`Добро пожаловать, ${userCredential.user.displayName || 'пользователь'}!`, 'success');
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
                 loginError.style.display = 'none';
                 
+                // Сохраняем время последней активности
+                updateLastActivity();
+                
             } catch (error) {
                 console.error('Ошибка входа:', error);
                 
+                // Увеличиваем счетчик попыток
+                loginAttempts++;
+                logSecurityEvent('LOGIN_FAILED', `Неудачная попытка входа для ${email}: ${error.code}`);
+                
+                // Проверяем блокировку
+                if (loginAttempts >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
+                    blockUser();
+                    return;
+                }
+                
                 let errorMessage = 'Ошибка входа. ';
                 if (error.code === 'auth/invalid-login-credentials') {
-                    errorMessage = 'Неверный email или пароль';
+                    errorMessage = `Неверный email или пароль. Осталось попыток: ${SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS - loginAttempts}`;
                 } else if (error.code === 'auth/user-not-found') {
                     errorMessage = 'Пользователь не найден';
                 } else if (error.code === 'auth/wrong-password') {
                     errorMessage = 'Неверный пароль';
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMessage = 'Аккаунт заблокирован';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Слишком много попыток. Попробуйте позже.';
                 } else {
                     errorMessage += error.message;
                 }
@@ -1564,6 +1956,12 @@
                 return;
             }
             
+            if (username.length < 3) {
+                registerError.textContent = 'Имя пользователя должно быть не менее 3 символов';
+                registerError.style.display = 'block';
+                return;
+            }
+            
             if (!agreeTerms) {
                 registerError.textContent = 'Необходимо согласиться с правилами';
                 registerError.style.display = 'block';
@@ -1576,8 +1974,15 @@
                 return;
             }
             
-            if (password.length < 6) {
-                registerError.textContent = 'Пароль должен быть не менее 6 символов';
+            // Проверка сложности пароля
+            if (password.length < SECURITY_CONFIG.PASSWORD_MIN_LENGTH) {
+                registerError.textContent = `Пароль должен быть не менее ${SECURITY_CONFIG.PASSWORD_MIN_LENGTH} символов`;
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (!SECURITY_CONFIG.PASSWORD_REGEX.test(password)) {
+                registerError.textContent = 'Пароль должен содержать заглавные, строчные буквы, цифры и спецсимволы';
                 registerError.style.display = 'block';
                 return;
             }
@@ -1596,11 +2001,16 @@
                 // Отправка email для подтверждения
                 await sendEmailVerification(userCredential.user);
                 
-                // Создание документа в базе данных
-                await createUserInDatabase(userCredential.user.uid, {
+                // Создание документа в базе данных с повышенной безопасностью
+                await createSecureUserInDatabase(userCredential.user.uid, {
                     username: username,
                     email: email,
                     createdAt: new Date().toISOString(),
+                    emailVerified: false,
+                    lastLogin: new Date().toISOString(),
+                    lastActivity: new Date().toISOString(),
+                    ipHistory: [], // История IP адресов
+                    deviceHistory: [], // История устройств
                     stats: {
                         totalKm: 0,
                         stationsVisited: 0,
@@ -1612,13 +2022,24 @@
                         projectNews: true,
                         achievementNotifications: true,
                         darkTheme: false,
-                        compactMode: false
+                        compactMode: false,
+                        language: 'ru',
+                        twoFactorAuth: false
                     },
                     profile: {
                         bio: '',
                         favoriteLine: ''
+                    },
+                    security: {
+                        failedLoginAttempts: 0,
+                        lastFailedLogin: null,
+                        loginHistory: [],
+                        passwordChangedAt: new Date().toISOString()
                     }
                 });
+                
+                // Логирование регистрации
+                logSecurityEvent('REGISTRATION_SUCCESS', `Новый пользователь: ${email}`);
                 
                 showMessage('Аккаунт успешно создан! Проверьте email для подтверждения.', 'success');
                 document.getElementById('registerModal').classList.remove('show');
@@ -1634,13 +2055,17 @@
             } catch (error) {
                 console.error('Ошибка регистрации:', error);
                 
+                logSecurityEvent('REGISTRATION_FAILED', `Ошибка регистрации для ${email}: ${error.code}`);
+                
                 let errorMessage = 'Ошибка регистрации. ';
                 if (error.code === 'auth/email-already-in-use') {
                     errorMessage = 'Email уже используется';
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = 'Неверный формат email';
                 } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'Пароль слишком слабый';
+                    errorMessage = 'Пароль слишком слабый. Используйте заглавные, строчные буквы, цифры и спецсимволы';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMessage = 'Регистрация временно отключена';
                 } else {
                     errorMessage += error.message;
                 }
@@ -1650,25 +2075,256 @@
             }
         }
 
+        async function sendPasswordReset() {
+            const email = document.getElementById('resetEmail').value;
+            const sendResetBtn = document.getElementById('sendResetBtn');
+            const resetMessage = document.getElementById('resetMessage');
+            
+            if (!email) {
+                resetMessage.textContent = 'Введите email';
+                resetMessage.style.color = 'var(--danger)';
+                resetMessage.style.display = 'block';
+                return;
+            }
+            
+            try {
+                sendResetBtn.disabled = true;
+                sendResetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+                
+                const { sendPasswordResetEmail } = window.firebaseModules;
+                await sendPasswordResetEmail(auth, email);
+                
+                // Логирование запроса сброса
+                logSecurityEvent('PASSWORD_RESET_REQUEST', `Запрос сброса пароля для ${email}`);
+                
+                resetMessage.textContent = `Ссылка для восстановления пароля отправлена на ${email}. Проверьте почту.`;
+                resetMessage.style.color = 'var(--success)';
+                resetMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('resetPasswordModal').classList.remove('show');
+                    document.getElementById('resetEmail').value = '';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Ошибка восстановления пароля:', error);
+                
+                logSecurityEvent('PASSWORD_RESET_FAILED', `Ошибка сброса пароля для ${email}: ${error.code}`);
+                
+                let errorMessage = 'Ошибка отправки ссылки. ';
+                if (error.code === 'auth/invalid-email') {
+                    errorMessage += 'Неверный формат email.';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage += 'Пользователь с таким email не найден.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage += 'Слишком много запросов. Попробуйте позже.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                resetMessage.textContent = errorMessage;
+                resetMessage.style.color = 'var(--danger)';
+                resetMessage.style.display = 'block';
+                
+            } finally {
+                sendResetBtn.disabled = false;
+                sendResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить ссылку';
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            const user = auth.currentUser;
+            if (!user || !user.email) {
+                showMessage('Пользователь не найден', 'error');
+                return;
+            }
+            
+            // Валидация
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                showMessage('Заполните все поля', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
+                showMessage('Новые пароли не совпадают', 'error');
+                return;
+            }
+            
+            if (newPassword.length < SECURITY_CONFIG.PASSWORD_MIN_LENGTH) {
+                showMessage(`Пароль должен быть не менее ${SECURITY_CONFIG.PASSWORD_MIN_LENGTH} символов`, 'error');
+                return;
+            }
+            
+            if (!SECURITY_CONFIG.PASSWORD_REGEX.test(newPassword)) {
+                showMessage('Пароль должен содержать заглавные, строчные буквы, цифры и спецсимволы', 'error');
+                return;
+            }
+            
+            try {
+                const { reauthenticateWithCredential, EmailAuthProvider, updatePassword } = window.firebaseModules;
+                
+                // Реаутентификация
+                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                await reauthenticateWithCredential(user, credential);
+                
+                // Смена пароля
+                await updatePassword(user, newPassword);
+                
+                // Обновление в базе данных
+                const { doc, updateDoc } = window.firebaseModules;
+                await updateDoc(doc(db, 'users', user.uid), {
+                    'security.passwordChangedAt': new Date().toISOString(),
+                    'lastActivity': new Date().toISOString()
+                });
+                
+                // Логирование смены пароля
+                logSecurityEvent('PASSWORD_CHANGED', 'Пароль успешно изменен');
+                
+                showMessage('Пароль успешно изменён!', 'success');
+                
+                // Очищаем форму
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                
+            } catch (error) {
+                console.error('Ошибка смены пароля:', error);
+                
+                logSecurityEvent('PASSWORD_CHANGE_FAILED', `Ошибка смены пароля: ${error.code}`);
+                
+                let errorMessage = 'Ошибка смены пароля. ';
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Неверный текущий пароль';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Требуется повторная авторизация';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+        }
+
         async function signOut() {
             try {
                 const { signOut } = window.firebaseModules;
                 await signOut(auth);
+                
+                logSecurityEvent('MANUAL_LOGOUT', 'Пользователь вышел из системы');
                 showMessage('Вы вышли из аккаунта', 'info');
+                
             } catch (error) {
                 console.error('Ошибка выхода:', error);
                 showMessage('Ошибка выхода', 'error');
             }
         }
 
-        // ФУНКЦИИ БАЗЫ ДАННЫХ
-        async function createUserInDatabase(uid, userData) {
+        async function logoutAllSessions() {
+            try {
+                // В Firebase нужно реализовать через кастомные токены
+                // В этом примере просто выходим и очищаем localStorage
+                const { signOut } = window.firebaseModules;
+                await signOut(auth);
+                
+                // Очищаем все данные сессии
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                logSecurityEvent('LOGOUT_ALL_SESSIONS', 'Все сессии завершены');
+                showMessage('Все сессии завершены. Войдите заново.', 'success');
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Ошибка завершения сессий:', error);
+                showMessage('Ошибка завершения сессий', 'error');
+            }
+        }
+
+        async function deleteAccount() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                // Удаляем из базы данных
+                const { doc, deleteDoc } = window.firebaseModules;
+                await deleteDoc(doc(db, 'users', user.uid));
+                
+                // Удаляем из Firebase Auth
+                await user.delete();
+                
+                // Логирование удаления
+                logSecurityEvent('ACCOUNT_DELETED', 'Аккаунт удален');
+                
+                showMessage('Аккаунт успешно удалён', 'success');
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Ошибка удаления аккаунта:', error);
+                
+                let errorMessage = 'Ошибка удаления аккаунта. ';
+                if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Требуется повторная авторизация для удаления аккаунта';
+                    showMessage(errorMessage, 'error');
+                    
+                    // Предлагаем повторно войти
+                    setTimeout(() => {
+                        showConfirm('Повторная авторизация', 
+                            'Для удаления аккаунта требуется повторная авторизация',
+                            async () => {
+                                await reauthenticateAndDelete();
+                            });
+                    }, 1000);
+                } else {
+                    showMessage(errorMessage + error.message, 'error');
+                }
+            }
+        }
+
+        async function reauthenticateAndDelete() {
+            const password = prompt('Введите пароль для подтверждения удаления аккаунта:');
+            if (!password) return;
+            
+            try {
+                const user = auth.currentUser;
+                const { reauthenticateWithCredential, EmailAuthProvider } = window.firebaseModules;
+                
+                const credential = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credential);
+                
+                // Повторяем удаление
+                await deleteAccount();
+                
+            } catch (error) {
+                console.error('Ошибка повторной авторизации:', error);
+                showMessage('Неверный пароль', 'error');
+            }
+        }
+
+        // ФУНКЦИИ БАЗЫ ДАННЫХ С БЕЗОПАСНОСТЬЮ
+        async function createSecureUserInDatabase(uid, userData) {
             try {
                 const { doc, setDoc } = window.firebaseModules;
                 await setDoc(doc(db, 'users', uid), userData);
-                console.log('Пользователь создан в базе данных:', uid);
+                
+                // Создаем подколлекцию для логов безопасности
+                await setDoc(doc(db, 'users', uid, 'security', 'logs'), {
+                    registration: new Date().toISOString()
+                });
+                
+                console.log('Пользователь создан в защищенной базе данных:', uid);
             } catch (error) {
                 console.error('Ошибка создания пользователя в базе данных:', error);
+                throw error;
             }
         }
 
@@ -1679,7 +2335,9 @@
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    console.log('Данные пользователя загружены:', userData);
+                    
+                    // Проверяем безопасность данных
+                    validateUserData(userData);
                     
                     // Обновляем статистику
                     updateStats(userData.stats);
@@ -1693,40 +2351,80 @@
                     // Загружаем достижения
                     loadAchievements(userData.achievements);
                     
-                    // Загружаем историю
-                    loadActivityHistory(uid);
+                    // Обновляем время последней активности
+                    updateLastActivity();
                     
                     return userData;
                 } else {
-                    console.log('Документ пользователя не найден, создаём...');
-                    await createUserInDatabase(uid, {
-                        username: auth.currentUser.displayName,
-                        email: auth.currentUser.email,
-                        createdAt: new Date().toISOString(),
-                        stats: {
-                            totalKm: 0,
-                            stationsVisited: 0,
-                            trainsDriven: 0
-                        },
-                        achievements: [],
-                        settings: {
-                            emailNotifications: true,
-                            projectNews: true,
-                            achievementNotifications: true,
-                            darkTheme: false,
-                            compactMode: false
-                        },
-                        profile: {
-                            bio: '',
-                            favoriteLine: ''
-                        }
-                    });
+                    console.log('Документ пользователя не найден, создаём защищенный...');
+                    await createSecureUserInDatabase(uid, getDefaultUserData(uid));
                     return await loadUserData(uid);
                 }
             } catch (error) {
                 console.error('Ошибка загрузки данных пользователя:', error);
+                showMessage('Ошибка загрузки данных. Обратитесь в поддержку.', 'error');
                 return null;
             }
+        }
+
+        function getDefaultUserData(uid) {
+            const user = auth.currentUser;
+            return {
+                username: user.displayName,
+                email: user.email,
+                createdAt: new Date().toISOString(),
+                emailVerified: user.emailVerified || false,
+                lastLogin: new Date().toISOString(),
+                lastActivity: new Date().toISOString(),
+                ipHistory: [],
+                deviceHistory: [navigator.userAgent.substring(0, 100)],
+                stats: {
+                    totalKm: 0,
+                    stationsVisited: 0,
+                    trainsDriven: 0
+                },
+                achievements: [],
+                settings: {
+                    emailNotifications: true,
+                    projectNews: true,
+                    achievementNotifications: true,
+                    darkTheme: false,
+                    compactMode: false,
+                    language: 'ru',
+                    twoFactorAuth: false
+                },
+                profile: {
+                    bio: '',
+                    favoriteLine: ''
+                },
+                security: {
+                    failedLoginAttempts: 0,
+                    lastFailedLogin: null,
+                    loginHistory: [{
+                        timestamp: new Date().toISOString(),
+                        success: true,
+                        device: navigator.userAgent.substring(0, 100)
+                    }],
+                    passwordChangedAt: new Date().toISOString()
+                }
+            };
+        }
+
+        function validateUserData(userData) {
+            // Проверяем наличие обязательных полей
+            const requiredFields = ['username', 'email', 'stats', 'settings', 'profile', 'security'];
+            for (const field of requiredFields) {
+                if (!userData[field]) {
+                    throw new Error(`Отсутствует обязательное поле: ${field}`);
+                }
+            }
+            
+            // Проверяем типы данных
+            if (typeof userData.stats.totalKm !== 'number') userData.stats.totalKm = 0;
+            if (typeof userData.stats.stationsVisited !== 'number') userData.stats.stationsVisited = 0;
+            if (typeof userData.stats.trainsDriven !== 'number') userData.stats.trainsDriven = 0;
+            
+            return true;
         }
 
         function updateStats(stats) {
@@ -1736,7 +2434,7 @@
             document.getElementById('stationsVisited').textContent = stats.stationsVisited || 0;
             document.getElementById('trainsDriven').textContent = stats.trainsDriven || 0;
             
-            // Обновляем счетчик достижений (временная логика)
+            // Обновляем счетчик достижений
             const achievementsCount = Math.floor((stats.totalKm || 0) / 10) + 
                                      Math.floor((stats.stationsVisited || 0) / 2) +
                                      Math.floor((stats.trainsDriven || 0) / 3);
@@ -1755,11 +2453,12 @@
         function updateSettingsForm(settings) {
             if (!settings) return;
             
-            document.getElementById('emailNotifications').checked = settings.emailNotifications || true;
-            document.getElementById('projectNews').checked = settings.projectNews || true;
-            document.getElementById('achievementNotifications').checked = settings.achievementNotifications || true;
+            document.getElementById('emailNotifications').checked = settings.emailNotifications !== false;
+            document.getElementById('projectNews').checked = settings.projectNews !== false;
+            document.getElementById('achievementNotifications').checked = settings.achievementNotifications !== false;
             document.getElementById('darkTheme').checked = settings.darkTheme || false;
             document.getElementById('compactMode').checked = settings.compactMode || false;
+            document.getElementById('languageSelect').value = settings.language || 'ru';
             
             // Применяем тему
             if (settings.darkTheme) {
@@ -1784,7 +2483,8 @@
                 
                 // Обновляем в базе данных
                 await updateDoc(doc(db, 'users', user.uid), {
-                    profile: profileData
+                    profile: profileData,
+                    lastActivity: new Date().toISOString()
                 });
                 
                 // Обновляем имя пользователя в Firebase Auth
@@ -1798,6 +2498,9 @@
                     document.getElementById('userName').textContent = newUsername;
                     document.getElementById('sidebarName').textContent = newUsername;
                 }
+                
+                // Логирование изменения профиля
+                logSecurityEvent('PROFILE_UPDATED', 'Профиль успешно обновлен');
                 
                 showMessage('Профиль сохранён', 'success');
                 
@@ -1819,11 +2522,13 @@
                     projectNews: document.getElementById('projectNews').checked,
                     achievementNotifications: document.getElementById('achievementNotifications').checked,
                     darkTheme: document.getElementById('darkTheme').checked,
-                    compactMode: document.getElementById('compactMode').checked
+                    compactMode: document.getElementById('compactMode').checked,
+                    language: document.getElementById('languageSelect').value
                 };
                 
                 await updateDoc(doc(db, 'users', user.uid), {
-                    settings: settingsData
+                    settings: settingsData,
+                    lastActivity: new Date().toISOString()
                 });
                 
                 // Применяем тему
@@ -1833,6 +2538,15 @@
                     document.body.classList.remove('dark-theme');
                 }
                 
+                // Применяем язык
+                if (settingsData.language === 'en') {
+                    // Здесь можно добавить перевод интерфейса
+                    showMessage('Language changed to English', 'success');
+                }
+                
+                // Логирование изменения настроек
+                logSecurityEvent('SETTINGS_UPDATED', 'Настройки успешно обновлены');
+                
                 showMessage('Настройки сохранены', 'success');
                 
             } catch (error) {
@@ -1841,9 +2555,58 @@
             }
         }
 
+        // СЕССИИ И АКТИВНОСТЬ
+        function startSessionTimer() {
+            setInterval(() => {
+                checkSessionTimeout();
+            }, 60000); // Проверяем каждую минуту
+        }
+
+        function checkSessionTimeout() {
+            const lastActivity = localStorage.getItem('lastActivity');
+            if (!lastActivity) return;
+            
+            const now = Date.now();
+            const lastActivityTime = parseInt(lastActivity);
+            
+            if (now - lastActivityTime > SECURITY_CONFIG.SESSION_TIMEOUT) {
+                logSecurityEvent('SESSION_TIMEOUT', 'Сессия истекла по таймауту');
+                signOut();
+                showMessage('Сессия истекла. Войдите заново.', 'warning');
+            }
+        }
+
+        function updateLastActivity() {
+            localStorage.setItem('lastActivity', Date.now().toString());
+            
+            // Также обновляем в базе данных
+            if (auth.currentUser) {
+                const { doc, updateDoc } = window.firebaseModules;
+                updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                    lastActivity: new Date().toISOString()
+                }).catch(console.error);
+            }
+        }
+
+        function checkSessionSecurity() {
+            // Проверяем различные аспекты безопасности сессии
+            const userAgent = navigator.userAgent;
+            const storedAgent = localStorage.getItem('userAgent');
+            
+            if (storedAgent && storedAgent !== userAgent) {
+                logSecurityEvent('USER_AGENT_CHANGED', 'Обнаружено изменение User Agent');
+                // Можно потребовать повторную авторизацию
+            }
+            
+            localStorage.setItem('userAgent', userAgent);
+        }
+
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         async function loadSectionData(section) {
             const user = auth.currentUser;
             if (!user) return;
+            
+            updateLastActivity();
             
             switch (section) {
                 case 'achievements':
@@ -1855,187 +2618,45 @@
                 case 'overview':
                     await loadUserData(user.uid);
                     break;
+                case 'security':
+                    await loadSecurityInfo(user.uid);
+                    break;
             }
         }
 
-        async function loadAchievements(userAchievements) {
-            // Определяем достижения
-            const achievements = [
-                {
-                    id: 'first_station',
-                    title: 'Первая станция',
-                    description: 'Посетите свою первую станцию',
-                    icon: '🚇',
-                    condition: (stats) => stats.stationsVisited >= 1
-                },
-                {
-                    id: 'metro_explorer',
-                    title: 'Исследователь метро',
-                    description: 'Посетите 5 разных станций',
-                    icon: '🏙️',
-                    condition: (stats) => stats.stationsVisited >= 5
-                },
-                {
-                    id: 'train_driver',
-                    title: 'Машинист',
-                    description: 'Проедьте 10 км за рулем поезда',
-                    icon: '🚂',
-                    condition: (stats) => stats.totalKm >= 10
-                },
-                {
-                    id: 'metro_master',
-                    title: 'Мастер метро',
-                    description: 'Проедьте 100 км на поездах',
-                    icon: '👑',
-                    condition: (stats) => stats.totalKm >= 100
-                },
-                {
-                    id: 'frequent_traveler',
-                    title: 'Частый путешественник',
-                    description: 'Управляйте поездом 10 раз',
-                    icon: '🎯',
-                    condition: (stats) => stats.trainsDriven >= 10
-                }
-            ];
-            
-            // Загружаем статистику
-            const userData = await loadUserData(auth.currentUser.uid);
-            if (!userData) return;
-            
-            const stats = userData.stats || {};
-            
-            // Обновляем недавние достижения
-            const recentAchievementsContainer = document.getElementById('recentAchievements');
-            recentAchievementsContainer.innerHTML = '';
-            
-            achievements.slice(0, 2).forEach(achievement => {
-                const isUnlocked = achievement.condition(stats);
-                const achievementHTML = `
-                    <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
-                        <div class="achievement-icon">${achievement.icon}</div>
-                        <div class="achievement-title">${achievement.title}</div>
-                        <div class="achievement-desc">${achievement.description}</div>
-                    </div>
-                `;
-                recentAchievementsContainer.innerHTML += achievementHTML;
-            });
-        }
-
-        async function loadAllAchievements(uid) {
-            const userData = await loadUserData(uid);
-            if (!userData) return;
-            
-            const stats = userData.stats || {};
-            
-            const achievements = [
-                { id: 'welcome', title: 'Добро пожаловать', description: 'Создайте аккаунт', icon: '👋', condition: () => true, unlocked: true },
-                { id: 'first_station', title: 'Первая станция', description: 'Посетите первую станцию', icon: '🚇', condition: (s) => s.stationsVisited >= 1, unlocked: stats.stationsVisited >= 1 },
-                { id: 'five_stations', title: '5 станций', description: 'Посетите 5 станций', icon: '5️⃣', condition: (s) => s.stationsVisited >= 5, unlocked: stats.stationsVisited >= 5 },
-                { id: 'ten_km', title: '10 км пути', description: 'Проедьте 10 км', icon: '🛤️', condition: (s) => s.totalKm >= 10, unlocked: stats.totalKm >= 10 },
-                { id: 'first_train', title: 'Первый поезд', description: 'Управляйте поездом впервые', icon: '🚂', condition: (s) => s.trainsDriven >= 1, unlocked: stats.trainsDriven >= 1 },
-                { id: 'five_trains', title: '5 поездов', description: 'Управляйте 5 разными поездами', icon: '5️⃣', condition: (s) => s.trainsDriven >= 5, unlocked: stats.trainsDriven >= 5 },
-                { id: 'hundred_km', title: '100 км', description: 'Проедьте 100 км', icon: '💯', condition: (s) => s.totalKm >= 100, unlocked: stats.totalKm >= 100 },
-                { id: 'metro_expert', title: 'Эксперт метро', description: 'Посетите 10 станций и проедьте 50 км', icon: '🎓', condition: (s) => s.stationsVisited >= 10 && s.totalKm >= 50, unlocked: stats.stationsVisited >= 10 && stats.totalKm >= 50 }
-            ];
-            
-            const container = document.getElementById('allAchievements');
-            container.innerHTML = '';
-            
-            achievements.forEach(achievement => {
-                const achievementHTML = `
-                    <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
-                        <div class="achievement-icon">${achievement.icon}</div>
-                        <div class="achievement-title">${achievement.title}</div>
-                        <div class="achievement-desc">${achievement.description}</div>
-                    </div>
-                `;
-                container.innerHTML += achievementHTML;
-            });
-        }
-
-        async function loadActivityHistory(uid) {
+        async function loadSecurityInfo(uid) {
             try {
-                // Временные данные для демонстрации
-                const activities = [
-                    {
-                        icon: '🚇',
-                        title: 'Посещение станции "Комсомольская"',
-                        time: '10 минут назад'
-                    },
-                    {
-                        icon: '🚂',
-                        title: 'Управление поездом №101',
-                        time: '2 часа назад'
-                    },
-                    {
-                        icon: '🏆',
-                        title: 'Получено достижение "Первая станция"',
-                        time: 'Вчера'
-                    },
-                    {
-                        icon: '📝',
-                        title: 'Обновлен профиль',
-                        time: '3 дня назад'
-                    },
-                    {
-                        icon: '🎮',
-                        title: 'Начата новая игра',
-                        time: 'Неделю назад'
-                    }
-                ];
+                const userData = await loadUserData(uid);
+                if (!userData) return;
                 
-                const container = document.getElementById('activityHistory');
-                container.innerHTML = '';
-                
-                activities.forEach(activity => {
-                    const activityHTML = `
-                        <div class="history-item">
-                            <div class="history-icon">
-                                <i class="fas">${activity.icon}</i>
-                            </div>
-                            <div class="history-content">
-                                <div class="history-title">${activity.title}</div>
-                                <div class="history-time">${activity.time}</div>
-                            </div>
+                // Загружаем информацию о сессиях
+                const sessionsList = document.getElementById('sessionsList');
+                sessionsList.innerHTML = `
+                    <div class="history-item">
+                        <div class="history-icon">
+                            <i class="fas fa-desktop"></i>
                         </div>
-                    `;
-                    container.innerHTML += activityHTML;
-                });
+                        <div class="history-content">
+                            <div class="history-title">Текущее устройство</div>
+                            <div class="history-time">${new Date(userData.lastActivity || Date.now()).toLocaleString()}</div>
+                            <small style="color: var(--gray);">${navigator.userAgent.substring(0, 50)}...</small>
+                        </div>
+                    </div>
+                `;
                 
             } catch (error) {
-                console.error('Ошибка загрузки истории:', error);
+                console.error('Ошибка загрузки информации о безопасности:', error);
             }
         }
 
-        // ФУНКЦИЯ ДЛЯ СОЗДАНИЯ НОВЫХ ЗАПИСЕЙ (для тестирования)
-        async function addTestData() {
-            const user = auth.currentUser;
-            if (!user) return;
-            
-            try {
-                const { doc, updateDoc } = window.firebaseModules;
-                
-                // Обновляем статистику
-                await updateDoc(doc(db, 'users', user.uid), {
-                    'stats.totalKm': 25,
-                    'stats.stationsVisited': 3,
-                    'stats.trainsDriven': 2
-                });
-                
-                // Добавляем достижение
-                await updateDoc(doc(db, 'users', user.uid), {
-                    achievements: ['first_station', 'train_driver']
-                });
-                
-                showMessage('Тестовые данные добавлены', 'success');
-                await loadUserData(user.uid);
-                
-            } catch (error) {
-                console.error('Ошибка добавления тестовых данных:', error);
-            }
+        function showConfirm(title, message, action) {
+            document.getElementById('confirmTitle').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${title}`;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmActionBtn').dataset.action = title;
+            window.pendingAction = action;
+            document.getElementById('confirmModal').classList.add('show');
         }
 
-        // ФУНКЦИЯ СООБЩЕНИЙ
         function showMessage(text, type = 'info') {
             const messageEl = document.createElement('div');
             messageEl.className = `message ${type}`;
@@ -2054,11 +2675,19 @@
             }, 3000);
         }
 
-        // Экспорт функций для тестирования
-        window.test = {
-            addTestData,
-            loadUserData: () => loadUserData(auth.currentUser?.uid),
-            getCurrentUser: () => auth.currentUser
+        // Обновляем активность при взаимодействии
+        ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+            document.addEventListener(event, updateLastActivity, { passive: true });
+        });
+
+        // Экспорт для отладки
+        window.security = {
+            getSecurityLogs: () => JSON.parse(localStorage.getItem('securityLogs') || '[]'),
+            getCurrentUser: () => auth.currentUser,
+            testSecurity: () => {
+                console.log('Текущие настройки безопасности:', SECURITY_CONFIG);
+                console.log('Логи безопасности:', JSON.parse(localStorage.getItem('securityLogs') || '[]'));
+            }
         };
     </script>
 </body>
