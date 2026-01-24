@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New - Личный кабинет</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase JS SDK v9 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            sendPasswordResetEmail, 
+            updateProfile, 
+            sendEmailVerification, 
+            signInAnonymously,
+            GoogleAuthProvider,
+            signInWithPopup,
+            linkWithPopup,
+            updatePassword,
+            reauthenticateWithCredential,
+            EmailAuthProvider
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            updateDoc,
+            collection,
+            addDoc,
+            query,
+            where,
+            getDocs,
+            Timestamp,
+            arrayUnion,
+            arrayRemove
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+        
+        window.firebaseApp = app;
+        window.auth = auth;
+        window.db = db;
+        window.storage = storage;
+        window.googleProvider = googleProvider;
+        window.firebaseModules = {
+            onAuthStateChanged,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            signOut,
+            sendPasswordResetEmail,
+            updateProfile,
+            sendEmailVerification,
+            signInAnonymously,
+            signInWithPopup,
+            linkWithPopup,
+            GoogleAuthProvider,
+            updatePassword,
+            reauthenticateWithCredential,
+            EmailAuthProvider,
+            doc,
+            setDoc,
+            getDoc,
+            updateDoc,
+            collection,
+            addDoc,
+            query,
+            where,
+            getDocs,
+            Timestamp,
+            arrayUnion,
+            arrayRemove,
+            ref,
+            uploadBytes,
+            getDownloadURL,
+            deleteObject
+        };
+        
+        console.log('Firebase v9 успешно инициализирован');
+    </script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --gray-light: #e9ecef;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        /* ХЕДЕР */
+        .main-header {
+            background-color: white;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .header-container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            min-width: 200px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--dark);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            justify-content: flex-end;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 160px;
+        }
+        
+        .user-profile:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+        
+        .user-status {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background-color: white;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            min-width: 250px;
+            padding: 0.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+        
+        .dropdown.show .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)), 
+                        url('https://images.unsplash.com/photo-1542553458-79a13aebfda6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            border-radius: var(--radius-xl);
+            padding: 4rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: var(--dark);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        /* ЛИЧНЫЙ КАБИНЕТ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .sidebar {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .sidebar-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            overflow: hidden;
+        }
+        
+        .sidebar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .sidebar-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sidebar-email {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(0, 102, 204, 0.1);
+            color: var(--primary);
+        }
+        
+        .content {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .content-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .content-header h2 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .content-section {
+            margin-bottom: 2rem;
+        }
+        
+        .content-section h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* СТАТИСТИКА */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* ДОСТИЖЕНИЯ */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .achievement-card {
+            background-color: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .achievement-card.locked {
+            opacity: 0.6;
+            filter: grayscale(1);
+        }
+        
+        .achievement-card.unlocked {
+            background: linear-gradient(135deg, var(--success), #20c997);
+            color: white;
+        }
+        
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .achievement-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .achievement-desc {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        /* ИСТОРИЯ */
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+        
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.75rem;
+        }
+        
+        .history-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .history-content {
+            flex: 1;
+        }
+        
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .history-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        /* НАСТРОЙКИ */
+        .settings-group {
+            background-color: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1.5rem;
+        }
+        
+        .settings-group h4 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            font-weight: 500;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-header h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--gray);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        /* ФОРМЫ */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            color: var(--dark);
+            background-color: white;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        
+        .auth-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* СООБЩЕНИЯ */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .message.success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .message.error {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .message.warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .message.info {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .achievements-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid,
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .header-right {
+                min-width: auto;
+            }
+            
+            .user-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </a>
+            </div>
+            
+            <div class="header-right">
+                <div class="dropdown user-profile" id="userDropdown">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Загрузка...</div>
+                        <div class="user-status" id="userStatus">Инициализация...</div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                    
+                    <div class="dropdown-menu" id="userMenu">
+                        <!-- Заполнится через Firebase -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="container">
+        <section class="hero">
+            <h1>Личный кабинет Метро New</h1>
+            <p>Управляйте своим профилем, отслеживайте статистику и достижения в мире московского метро!</p>
+            <div class="hero-buttons">
+                <a href="https://www.roblox.com/communities/34820737/RP-NEW" class="btn btn-primary" target="_blank">
+                    <i class="fas fa-play"></i>
+                    Играть сейчас
+                </a>
+                <button class="btn btn-outline" id="refreshDataBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Обновить данные
+                </button>
+            </div>
+        </section>
+        
+        <div class="dashboard-grid">
+            <!-- САЙДБАР -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-avatar" id="sidebarAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3 class="sidebar-name" id="sidebarName">Загрузка...</h3>
+                    <p class="sidebar-email" id="sidebarEmail">Загрузка...</p>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" class="active" data-section="overview">
+                            <i class="fas fa-chart-bar"></i>
+                            Обзор
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="profile">
+                            <i class="fas fa-user"></i>
+                            Профиль
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="achievements">
+                            <i class="fas fa-trophy"></i>
+                            Достижения
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="history">
+                            <i class="fas fa-history"></i>
+                            История
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            Настройки
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            
+            <!-- ОСНОВНОЙ КОНТЕНТ -->
+            <div class="content">
+                <!-- ОБЗОР -->
+                <div class="content-section" id="overviewSection">
+                    <div class="content-header">
+                        <h2><i class="fas fa-chart-bar"></i> Обзор</h2>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalKm">0</div>
+                            <div class="stat-label">Км пройдено</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stationsVisited">0</div>
+                            <div class="stat-label">Станций посещено</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="trainsDriven">0</div>
+                            <div class="stat-label">Поездов управлено</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="achievementsCount">0</div>
+                            <div class="stat-label">Достижений</div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h3><i class="fas fa-star"></i> Недавние достижения</h3>
+                        <div class="achievements-grid" id="recentAchievements">
+                            <div class="achievement-card locked">
+                                <div class="achievement-icon">🚇</div>
+                                <div class="achievement-title">Первая станция</div>
+                                <div class="achievement-desc">Посетите свою первую станцию</div>
+                            </div>
+                            <div class="achievement-card locked">
+                                <div class="achievement-icon">🚂</div>
+                                <div class="achievement-title">Начало пути</div>
+                                <div class="achievement-desc">Проедьте 10 км на поезде</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ПРОФИЛЬ -->
+                <div class="content-section" id="profileSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-user"></i> Профиль</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Имя пользователя</label>
+                        <input type="text" id="profileUsername" placeholder="Введите имя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="profileEmail" placeholder="Введите email" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>О себе</label>
+                        <textarea id="profileBio" placeholder="Расскажите о себе..." rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-light); border-radius: var(--radius-md);"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Любимая линия метро</label>
+                        <select id="favoriteLine" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-light); border-radius: var(--radius-md);">
+                            <option value="">Выберите линию</option>
+                            <option value="sokolnicheskaya">Сокольническая</option>
+                            <option value="zamoskvoretskaya">Замоскворецкая</option>
+                            <option value="arbatsko-pokrovskaya">Арбатско-Покровская</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="saveProfileBtn">
+                        <i class="fas fa-save"></i>
+                        Сохранить изменения
+                    </button>
+                </div>
+                
+                <!-- ДОСТИЖЕНИЯ -->
+                <div class="content-section" id="achievementsSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-trophy"></i> Достижения</h2>
+                    </div>
+                    
+                    <div class="achievements-grid" id="allAchievements">
+                        <!-- Достижения будут загружены динамически -->
+                    </div>
+                </div>
+                
+                <!-- ИСТОРИЯ -->
+                <div class="content-section" id="historySection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-history"></i> История активности</h2>
+                    </div>
+                    
+                    <div class="history-list" id="activityHistory">
+                        <!-- История будет загружена динамически -->
+                    </div>
+                </div>
+                
+                <!-- НАСТРОЙКИ -->
+                <div class="content-section" id="settingsSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-cog"></i> Настройки</h2>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4><i class="fas fa-bell"></i> Уведомления</h4>
+                        
+                        <div class="setting-item">
+                            <span class="setting-label">Email уведомления</span>
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <span class="setting-label">Новости проекта</span>
+                            <label class="switch">
+                                <input type="checkbox" id="projectNews" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <span class="setting-label">Уведомления о достижениях</span>
+                            <label class="switch">
+                                <input type="checkbox" id="achievementNotifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4><i class="fas fa-palette"></i> Внешний вид</h4>
+                        
+                        <div class="setting-item">
+                            <span class="setting-label">Тёмная тема</span>
+                            <label class="switch">
+                                <input type="checkbox" id="darkTheme">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <span class="setting-label">Компактный режим</span>
+                            <label class="switch">
+                                <input type="checkbox" id="compactMode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="saveSettingsBtn">
+                        <i class="fas fa-save"></i>
+                        Сохранить настройки
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="example@mail.ru" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button class="btn btn-primary" id="loginSubmitBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Войти
+                </button>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="showRegisterBtn">Создать аккаунт</a>
+                </div>
+                <div class="auth-error" id="loginError" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <input type="text" id="registerUsername" placeholder="MetroDriver" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="example@mail.ru" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label>Подтвердите пароль</label>
+                    <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="agreeTerms" required>
+                    <label for="agreeTerms" style="margin: 0;">
+                        Я согласен с <a href="#" id="termsLink">правилами</a> и <a href="#" id="privacyLink">политикой конфиденциальности</a>
+                    </label>
+                </div>
+                <button class="btn btn-primary" id="registerSubmitBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Зарегистрироваться
+                </button>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="showLoginBtn">Уже есть аккаунт</a>
+                </div>
+                <div class="auth-error" id="registerError" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ожидание инициализации Firebase
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM загружен, ожидаем Firebase...');
+            
+            const checkFirebase = setInterval(() => {
+                if (window.auth && window.db) {
+                    clearInterval(checkFirebase);
+                    initApplication();
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                if (!window.auth) {
+                    showMessage('Ошибка загрузки Firebase', 'error');
+                }
+            }, 5000);
+        });
+
+        async function initApplication() {
+            try {
+                console.log('Инициализация приложения...');
+                
+                // Инициализация интерфейса
+                initUI();
+                
+                // Проверка авторизации
+                checkAuthState();
+                
+                console.log('Приложение запущено');
+                
+            } catch (error) {
+                console.error('Ошибка инициализации:', error);
+                showMessage('Ошибка загрузки приложения', 'error');
+            }
+        }
+
+        function initUI() {
+            console.log('Инициализация интерфейса...');
+            
+            // Инициализация выпадающего меню
+            initDropdown();
+            
+            // Инициализация обработчиков событий
+            initEventHandlers();
+            
+            // Инициализация навигации
+            initNavigation();
+            
+            console.log('Интерфейс инициализирован');
+        }
+
+        function initDropdown() {
+            const userDropdown = document.getElementById('userDropdown');
+            
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('show');
+            });
+            
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        function initNavigation() {
+            // Переключение между разделами
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const section = this.getAttribute('data-section');
+                    
+                    // Обновляем активную ссылку
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Показываем нужный раздел
+                    document.querySelectorAll('.content-section').forEach(div => div.style.display = 'none');
+                    document.getElementById(section + 'Section').style.display = 'block';
+                    
+                    // Загружаем данные раздела
+                    loadSectionData(section);
+                });
+            });
+        }
+
+        function initEventHandlers() {
+            // Кнопка обновления данных
+            document.getElementById('refreshDataBtn')?.addEventListener('click', async function() {
+                const user = auth.currentUser;
+                if (user) {
+                    await loadUserData(user.uid);
+                    showMessage('Данные обновлены', 'success');
+                }
+            });
+            
+            // Сохранение профиля
+            document.getElementById('saveProfileBtn')?.addEventListener('click', async function() {
+                await saveProfile();
+            });
+            
+            // Сохранение настроек
+            document.getElementById('saveSettingsBtn')?.addEventListener('click', async function() {
+                await saveSettings();
+            });
+            
+            // Переключение между модалками
+            document.getElementById('showRegisterBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('authModal').classList.remove('show');
+                document.getElementById('registerModal').classList.add('show');
+            });
+            
+            document.getElementById('showLoginBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('registerModal').classList.remove('show');
+                document.getElementById('authModal').classList.add('show');
+            });
+            
+            // Вход
+            document.getElementById('loginSubmitBtn')?.addEventListener('click', async function() {
+                await signInWithEmail();
+            });
+            
+            // Регистрация
+            document.getElementById('registerSubmitBtn')?.addEventListener('click', async function() {
+                await signUpWithEmail();
+            });
+            
+            // Закрытие модалок
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').classList.remove('show');
+                });
+            });
+            
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Клик по аватарке для открытия меню
+            document.querySelector('.user-profile')?.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-menu')) {
+                    this.classList.toggle('show');
+                }
+            });
+            
+            // Обработка Enter в формах
+            document.getElementById('loginEmail')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') signInWithEmail();
+            });
+            
+            document.getElementById('loginPassword')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') signInWithEmail();
+            });
+        }
+
+        function checkAuthState() {
+            console.log('Проверка состояния авторизации...');
+            
+            const { onAuthStateChanged } = window.firebaseModules;
+            
+            onAuthStateChanged(auth, async (user) => {
+                console.log('Изменение состояния:', user ? 'Вход' : 'Выход');
+                
+                if (user) {
+                    // Пользователь вошёл
+                    await updateUIForUser(user);
+                    await loadUserData(user.uid);
+                } else {
+                    // Пользователь вышел
+                    updateUIForGuest();
+                    showLoginModal();
+                }
+            });
+        }
+
+        async function updateUIForUser(user) {
+            console.log('Обновление интерфейса для пользователя:', user.uid);
+            
+            const displayName = user.displayName || 'Пользователь';
+            const email = user.email || 'Без email';
+            const photoURL = user.photoURL;
+            
+            // Обновляем хедер
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('userStatus').textContent = email;
+            
+            const userAvatar = document.getElementById('userAvatar');
+            if (photoURL) {
+                userAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}">`;
+            } else {
+                userAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+            }
+            
+            // Обновляем сайдбар
+            document.getElementById('sidebarName').textContent = displayName;
+            document.getElementById('sidebarEmail').textContent = email;
+            
+            const sidebarAvatar = document.getElementById('sidebarAvatar');
+            if (photoURL) {
+                sidebarAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}">`;
+            } else {
+                sidebarAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+            }
+            
+            // Обновляем меню
+            updateUserMenu(user);
+            
+            // Скрываем модалки авторизации
+            document.getElementById('authModal').classList.remove('show');
+            document.getElementById('registerModal').classList.remove('show');
+        }
+
+        function updateUIForGuest() {
+            console.log('Обновление интерфейса для гостя');
+            
+            document.getElementById('userName').textContent = 'Гость';
+            document.getElementById('userStatus').textContent = 'Войти в аккаунт';
+            document.getElementById('userAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
+            
+            document.getElementById('sidebarName').textContent = 'Гость';
+            document.getElementById('sidebarEmail').textContent = 'Не авторизован';
+            document.getElementById('sidebarAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
+            
+            // Обнуляем статистику
+            document.getElementById('totalKm').textContent = '0';
+            document.getElementById('stationsVisited').textContent = '0';
+            document.getElementById('trainsDriven').textContent = '0';
+            document.getElementById('achievementsCount').textContent = '0';
+            
+            // Обновляем меню
+            updateGuestMenu();
+        }
+
+        function updateUserMenu(user) {
+            const userMenu = document.getElementById('userMenu');
+            const isAnonymous = user.isAnonymous;
+            
+            userMenu.innerHTML = `
+                <div class="dropdown-header" style="padding: 0.75rem 1rem;">
+                    <div style="font-weight: 600;">${user.displayName || 'Пользователь'}</div>
+                    <small style="color: var(--gray);">${user.email || 'Без email'}</small>
+                </div>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="location.reload()">
+                    <i class="fas fa-redo"></i>
+                    <span>Обновить</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Выйти</span>
+                </button>
+            `;
+            
+            // Добавляем обработчик выхода
+            setTimeout(() => {
+                document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+            }, 100);
+        }
+
+        function updateGuestMenu() {
+            const userMenu = document.getElementById('userMenu');
+            
+            userMenu.innerHTML = `
+                <button class="dropdown-item" id="loginMenuBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Войти в аккаунт</span>
+                </button>
+                <button class="dropdown-item" id="registerMenuBtn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Зарегистрироваться</span>
+                </button>
+            `;
+            
+            setTimeout(() => {
+                document.getElementById('loginMenuBtn')?.addEventListener('click', function() {
+                    showLoginModal();
+                    document.getElementById('userDropdown').classList.remove('show');
+                });
+                
+                document.getElementById('registerMenuBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    document.getElementById('registerModal').classList.add('show');
+                });
+            }, 100);
+        }
+
+        function showLoginModal() {
+            document.getElementById('authModal').classList.add('show');
+        }
+
+        // ФУНКЦИИ АУТЕНТИФИКАЦИИ
+        async function signInWithEmail() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginError = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                loginError.textContent = 'Заполните все поля';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const { signInWithEmailAndPassword } = window.firebaseModules;
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                showMessage(`Добро пожаловать, ${userCredential.user.displayName || 'пользователь'}!`, 'success');
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                loginError.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                let errorMessage = 'Ошибка входа. ';
+                if (error.code === 'auth/invalid-login-credentials') {
+                    errorMessage = 'Неверный email или пароль';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'Пользователь не найден';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Неверный пароль';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                loginError.textContent = errorMessage;
+                loginError.style.display = 'block';
+            }
+        }
+
+        async function signUpWithEmail() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const registerError = document.getElementById('registerError');
+            
+            // Валидация
+            if (!username || !email || !password || !confirmPassword) {
+                registerError.textContent = 'Заполните все поля';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (!agreeTerms) {
+                registerError.textContent = 'Необходимо согласиться с правилами';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                registerError.textContent = 'Пароли не совпадают';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                registerError.textContent = 'Пароль должен быть не менее 6 символов';
+                registerError.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } = window.firebaseModules;
+                
+                // Создание пользователя
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Обновление профиля
+                await updateProfile(userCredential.user, {
+                    displayName: username
+                });
+                
+                // Отправка email для подтверждения
+                await sendEmailVerification(userCredential.user);
+                
+                // Создание документа в базе данных
+                await createUserInDatabase(userCredential.user.uid, {
+                    username: username,
+                    email: email,
+                    createdAt: new Date().toISOString(),
+                    stats: {
+                        totalKm: 0,
+                        stationsVisited: 0,
+                        trainsDriven: 0
+                    },
+                    achievements: [],
+                    settings: {
+                        emailNotifications: true,
+                        projectNews: true,
+                        achievementNotifications: true,
+                        darkTheme: false,
+                        compactMode: false
+                    },
+                    profile: {
+                        bio: '',
+                        favoriteLine: ''
+                    }
+                });
+                
+                showMessage('Аккаунт успешно создан! Проверьте email для подтверждения.', 'success');
+                document.getElementById('registerModal').classList.remove('show');
+                
+                // Очистка формы
+                document.getElementById('registerUsername').value = '';
+                document.getElementById('registerEmail').value = '';
+                document.getElementById('registerPassword').value = '';
+                document.getElementById('registerConfirmPassword').value = '';
+                document.getElementById('agreeTerms').checked = false;
+                registerError.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                
+                let errorMessage = 'Ошибка регистрации. ';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Email уже используется';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Неверный формат email';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Пароль слишком слабый';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                registerError.textContent = errorMessage;
+                registerError.style.display = 'block';
+            }
+        }
+
+        async function signOut() {
+            try {
+                const { signOut } = window.firebaseModules;
+                await signOut(auth);
+                showMessage('Вы вышли из аккаунта', 'info');
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+                showMessage('Ошибка выхода', 'error');
+            }
+        }
+
+        // ФУНКЦИИ БАЗЫ ДАННЫХ
+        async function createUserInDatabase(uid, userData) {
+            try {
+                const { doc, setDoc } = window.firebaseModules;
+                await setDoc(doc(db, 'users', uid), userData);
+                console.log('Пользователь создан в базе данных:', uid);
+            } catch (error) {
+                console.error('Ошибка создания пользователя в базе данных:', error);
+            }
+        }
+
+        async function loadUserData(uid) {
+            try {
+                const { doc, getDoc } = window.firebaseModules;
+                const userDoc = await getDoc(doc(db, 'users', uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    console.log('Данные пользователя загружены:', userData);
+                    
+                    // Обновляем статистику
+                    updateStats(userData.stats);
+                    
+                    // Обновляем профиль
+                    updateProfileForm(userData.profile);
+                    
+                    // Обновляем настройки
+                    updateSettingsForm(userData.settings);
+                    
+                    // Загружаем достижения
+                    loadAchievements(userData.achievements);
+                    
+                    // Загружаем историю
+                    loadActivityHistory(uid);
+                    
+                    return userData;
+                } else {
+                    console.log('Документ пользователя не найден, создаём...');
+                    await createUserInDatabase(uid, {
+                        username: auth.currentUser.displayName,
+                        email: auth.currentUser.email,
+                        createdAt: new Date().toISOString(),
+                        stats: {
+                            totalKm: 0,
+                            stationsVisited: 0,
+                            trainsDriven: 0
+                        },
+                        achievements: [],
+                        settings: {
+                            emailNotifications: true,
+                            projectNews: true,
+                            achievementNotifications: true,
+                            darkTheme: false,
+                            compactMode: false
+                        },
+                        profile: {
+                            bio: '',
+                            favoriteLine: ''
+                        }
+                    });
+                    return await loadUserData(uid);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных пользователя:', error);
+                return null;
+            }
+        }
+
+        function updateStats(stats) {
+            if (!stats) return;
+            
+            document.getElementById('totalKm').textContent = stats.totalKm || 0;
+            document.getElementById('stationsVisited').textContent = stats.stationsVisited || 0;
+            document.getElementById('trainsDriven').textContent = stats.trainsDriven || 0;
+            
+            // Обновляем счетчик достижений (временная логика)
+            const achievementsCount = Math.floor((stats.totalKm || 0) / 10) + 
+                                     Math.floor((stats.stationsVisited || 0) / 2) +
+                                     Math.floor((stats.trainsDriven || 0) / 3);
+            document.getElementById('achievementsCount').textContent = achievementsCount;
+        }
+
+        function updateProfileForm(profile) {
+            if (!profile) return;
+            
+            document.getElementById('profileUsername').value = auth.currentUser.displayName || '';
+            document.getElementById('profileEmail').value = auth.currentUser.email || '';
+            document.getElementById('profileBio').value = profile.bio || '';
+            document.getElementById('favoriteLine').value = profile.favoriteLine || '';
+        }
+
+        function updateSettingsForm(settings) {
+            if (!settings) return;
+            
+            document.getElementById('emailNotifications').checked = settings.emailNotifications || true;
+            document.getElementById('projectNews').checked = settings.projectNews || true;
+            document.getElementById('achievementNotifications').checked = settings.achievementNotifications || true;
+            document.getElementById('darkTheme').checked = settings.darkTheme || false;
+            document.getElementById('compactMode').checked = settings.compactMode || false;
+            
+            // Применяем тему
+            if (settings.darkTheme) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        }
+
+        async function saveProfile() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            try {
+                const { doc, updateDoc } = window.firebaseModules;
+                const { updateProfile } = window.firebaseModules;
+                
+                const profileData = {
+                    bio: document.getElementById('profileBio').value,
+                    favoriteLine: document.getElementById('favoriteLine').value
+                };
+                
+                // Обновляем в базе данных
+                await updateDoc(doc(db, 'users', user.uid), {
+                    profile: profileData
+                });
+                
+                // Обновляем имя пользователя в Firebase Auth
+                const newUsername = document.getElementById('profileUsername').value.trim();
+                if (newUsername && newUsername !== user.displayName) {
+                    await updateProfile(user, {
+                        displayName: newUsername
+                    });
+                    
+                    // Обновляем отображение
+                    document.getElementById('userName').textContent = newUsername;
+                    document.getElementById('sidebarName').textContent = newUsername;
+                }
+                
+                showMessage('Профиль сохранён', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка сохранения профиля:', error);
+                showMessage('Ошибка сохранения профиля', 'error');
+            }
+        }
+
+        async function saveSettings() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            try {
+                const { doc, updateDoc } = window.firebaseModules;
+                
+                const settingsData = {
+                    emailNotifications: document.getElementById('emailNotifications').checked,
+                    projectNews: document.getElementById('projectNews').checked,
+                    achievementNotifications: document.getElementById('achievementNotifications').checked,
+                    darkTheme: document.getElementById('darkTheme').checked,
+                    compactMode: document.getElementById('compactMode').checked
+                };
+                
+                await updateDoc(doc(db, 'users', user.uid), {
+                    settings: settingsData
+                });
+                
+                // Применяем тему
+                if (settingsData.darkTheme) {
+                    document.body.classList.add('dark-theme');
+                } else {
+                    document.body.classList.remove('dark-theme');
+                }
+                
+                showMessage('Настройки сохранены', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка сохранения настроек:', error);
+                showMessage('Ошибка сохранения настроек', 'error');
+            }
+        }
+
+        async function loadSectionData(section) {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            switch (section) {
+                case 'achievements':
+                    await loadAllAchievements(user.uid);
+                    break;
+                case 'history':
+                    await loadActivityHistory(user.uid);
+                    break;
+                case 'overview':
+                    await loadUserData(user.uid);
+                    break;
+            }
+        }
+
+        async function loadAchievements(userAchievements) {
+            // Определяем достижения
+            const achievements = [
+                {
+                    id: 'first_station',
+                    title: 'Первая станция',
+                    description: 'Посетите свою первую станцию',
+                    icon: '🚇',
+                    condition: (stats) => stats.stationsVisited >= 1
+                },
+                {
+                    id: 'metro_explorer',
+                    title: 'Исследователь метро',
+                    description: 'Посетите 5 разных станций',
+                    icon: '🏙️',
+                    condition: (stats) => stats.stationsVisited >= 5
+                },
+                {
+                    id: 'train_driver',
+                    title: 'Машинист',
+                    description: 'Проедьте 10 км за рулем поезда',
+                    icon: '🚂',
+                    condition: (stats) => stats.totalKm >= 10
+                },
+                {
+                    id: 'metro_master',
+                    title: 'Мастер метро',
+                    description: 'Проедьте 100 км на поездах',
+                    icon: '👑',
+                    condition: (stats) => stats.totalKm >= 100
+                },
+                {
+                    id: 'frequent_traveler',
+                    title: 'Частый путешественник',
+                    description: 'Управляйте поездом 10 раз',
+                    icon: '🎯',
+                    condition: (stats) => stats.trainsDriven >= 10
+                }
+            ];
+            
+            // Загружаем статистику
+            const userData = await loadUserData(auth.currentUser.uid);
+            if (!userData) return;
+            
+            const stats = userData.stats || {};
+            
+            // Обновляем недавние достижения
+            const recentAchievementsContainer = document.getElementById('recentAchievements');
+            recentAchievementsContainer.innerHTML = '';
+            
+            achievements.slice(0, 2).forEach(achievement => {
+                const isUnlocked = achievement.condition(stats);
+                const achievementHTML = `
+                    <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div class="achievement-title">${achievement.title}</div>
+                        <div class="achievement-desc">${achievement.description}</div>
+                    </div>
+                `;
+                recentAchievementsContainer.innerHTML += achievementHTML;
+            });
+        }
+
+        async function loadAllAchievements(uid) {
+            const userData = await loadUserData(uid);
+            if (!userData) return;
+            
+            const stats = userData.stats || {};
+            
+            const achievements = [
+                { id: 'welcome', title: 'Добро пожаловать', description: 'Создайте аккаунт', icon: '👋', condition: () => true, unlocked: true },
+                { id: 'first_station', title: 'Первая станция', description: 'Посетите первую станцию', icon: '🚇', condition: (s) => s.stationsVisited >= 1, unlocked: stats.stationsVisited >= 1 },
+                { id: 'five_stations', title: '5 станций', description: 'Посетите 5 станций', icon: '5️⃣', condition: (s) => s.stationsVisited >= 5, unlocked: stats.stationsVisited >= 5 },
+                { id: 'ten_km', title: '10 км пути', description: 'Проедьте 10 км', icon: '🛤️', condition: (s) => s.totalKm >= 10, unlocked: stats.totalKm >= 10 },
+                { id: 'first_train', title: 'Первый поезд', description: 'Управляйте поездом впервые', icon: '🚂', condition: (s) => s.trainsDriven >= 1, unlocked: stats.trainsDriven >= 1 },
+                { id: 'five_trains', title: '5 поездов', description: 'Управляйте 5 разными поездами', icon: '5️⃣', condition: (s) => s.trainsDriven >= 5, unlocked: stats.trainsDriven >= 5 },
+                { id: 'hundred_km', title: '100 км', description: 'Проедьте 100 км', icon: '💯', condition: (s) => s.totalKm >= 100, unlocked: stats.totalKm >= 100 },
+                { id: 'metro_expert', title: 'Эксперт метро', description: 'Посетите 10 станций и проедьте 50 км', icon: '🎓', condition: (s) => s.stationsVisited >= 10 && s.totalKm >= 50, unlocked: stats.stationsVisited >= 10 && stats.totalKm >= 50 }
+            ];
+            
+            const container = document.getElementById('allAchievements');
+            container.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const achievementHTML = `
+                    <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div class="achievement-title">${achievement.title}</div>
+                        <div class="achievement-desc">${achievement.description}</div>
+                    </div>
+                `;
+                container.innerHTML += achievementHTML;
+            });
+        }
+
+        async function loadActivityHistory(uid) {
+            try {
+                // Временные данные для демонстрации
+                const activities = [
+                    {
+                        icon: '🚇',
+                        title: 'Посещение станции "Комсомольская"',
+                        time: '10 минут назад'
+                    },
+                    {
+                        icon: '🚂',
+                        title: 'Управление поездом №101',
+                        time: '2 часа назад'
+                    },
+                    {
+                        icon: '🏆',
+                        title: 'Получено достижение "Первая станция"',
+                        time: 'Вчера'
+                    },
+                    {
+                        icon: '📝',
+                        title: 'Обновлен профиль',
+                        time: '3 дня назад'
+                    },
+                    {
+                        icon: '🎮',
+                        title: 'Начата новая игра',
+                        time: 'Неделю назад'
+                    }
+                ];
+                
+                const container = document.getElementById('activityHistory');
+                container.innerHTML = '';
+                
+                activities.forEach(activity => {
+                    const activityHTML = `
+                        <div class="history-item">
+                            <div class="history-icon">
+                                <i class="fas">${activity.icon}</i>
+                            </div>
+                            <div class="history-content">
+                                <div class="history-title">${activity.title}</div>
+                                <div class="history-time">${activity.time}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += activityHTML;
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+            }
+        }
+
+        // ФУНКЦИЯ ДЛЯ СОЗДАНИЯ НОВЫХ ЗАПИСЕЙ (для тестирования)
+        async function addTestData() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            try {
+                const { doc, updateDoc } = window.firebaseModules;
+                
+                // Обновляем статистику
+                await updateDoc(doc(db, 'users', user.uid), {
+                    'stats.totalKm': 25,
+                    'stats.stationsVisited': 3,
+                    'stats.trainsDriven': 2
+                });
+                
+                // Добавляем достижение
+                await updateDoc(doc(db, 'users', user.uid), {
+                    achievements: ['first_station', 'train_driver']
+                });
+                
+                showMessage('Тестовые данные добавлены', 'success');
+                await loadUserData(user.uid);
+                
+            } catch (error) {
+                console.error('Ошибка добавления тестовых данных:', error);
+            }
+        }
+
+        // ФУНКЦИЯ СООБЩЕНИЙ
+        function showMessage(text, type = 'info') {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${text}</span>
+            `;
+            
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => {
+                    messageEl.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Экспорт функций для тестирования
+        window.test = {
+            addTestData,
+            loadUserData: () => loadUserData(auth.currentUser?.uid),
+            getCurrentUser: () => auth.currentUser
+        };
+    </script>
+</body>
+</html>
