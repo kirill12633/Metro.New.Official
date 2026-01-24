@@ -291,7 +291,7 @@
             border: 1px solid var(--gray-light);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
-            min-width: 280px;
+            min-width: 300px;
             padding: 0.5rem;
             opacity: 0;
             visibility: hidden;
@@ -636,6 +636,37 @@
             font-weight: 600;
         }
         
+        .system-files-info {
+            background-color: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+        }
+        
+        .system-file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .system-file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .system-file-name {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: var(--gray);
+            font-weight: 600;
+        }
+        
         .management-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -675,11 +706,61 @@
             margin-bottom: 1rem;
         }
         
+        .action-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .warning-note {
             background-color: rgba(255, 193, 7, 0.1);
             border-left: 4px solid var(--warning);
             padding: 1rem;
             border-radius: var(--radius-md);
+            margin-top: 2rem;
+        }
+        
+        /* СТРАНИЦА УСТРОЙСТВА */
+        .devices-page {
+            padding: 1rem 0;
+        }
+        
+        .current-device-card {
+            background: linear-gradient(135deg, var(--success), #218838);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .device-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .device-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .device-info-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .device-info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .other-devices-note {
+            background-color: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
             margin-top: 2rem;
         }
         
@@ -995,6 +1076,19 @@
             height: 18px;
         }
         
+        /* ССЫЛКИ В МЕНЮ */
+        .menu-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .menu-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
         /* СООБЩЕНИЯ */
         .message {
             position: fixed;
@@ -1057,6 +1151,10 @@
             }
             
             .management-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .device-info-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -1217,14 +1315,58 @@
                 </div>
                 
                 <!-- УСТРОЙСТВА -->
-                <div class="content-section" id="devicesSection" style="display: none;">
+                <div class="content-section devices-page" id="devicesSection" style="display: none;">
                     <div class="content-header">
                         <h2><i class="fas fa-mobile-alt"></i> Устройства</h2>
                     </div>
                     
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <p>Загрузка списка устройств...</p>
+                    <div class="current-device-card">
+                        <div class="info-card-header">
+                            <i class="fas fa-desktop"></i>
+                            <h4>Вы находитесь на этом устройстве</h4>
+                        </div>
+                        <p>Это устройство, с которого вы сейчас вошли в систему.</p>
+                        
+                        <div class="device-info-grid">
+                            <div class="device-info-item">
+                                <div class="device-info-label">Тип устройства</div>
+                                <div class="device-info-value" id="deviceType">Компьютер</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Браузер</div>
+                                <div class="device-info-value" id="deviceBrowser">Chrome</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">IP адрес</div>
+                                <div class="device-info-value" id="deviceIP">192.168.1.1</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Время входа</div>
+                                <div class="device-info-value" id="deviceLoginTime">Сегодня, 14:30</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Операционная система</div>
+                                <div class="device-info-value" id="deviceOS">Windows 10</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Статус</div>
+                                <div class="device-info-value">
+                                    <span style="color: var(--success); font-weight: 600;">Активно сейчас</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="other-devices-note">
+                        <div class="developing-icon">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <h3 class="developing-title">Другие устройства</h3>
+                        <p class="developing-message">Список других устройств, с которых вы входили в аккаунт, временно недоступен. Этот раздел находится в разработке.</p>
+                        <button class="btn btn-outline" onclick="showMessage('Функция будет доступна в ближайшем обновлении', 'info')">
+                            <i class="fas fa-bell"></i>
+                            Уведомить о запуске
+                        </button>
                     </div>
                 </div>
                 
@@ -1263,6 +1405,41 @@
                         </div>
                     </div>
                     
+                    <div class="system-files-info">
+                        <h4 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-cogs"></i>
+                            Системные файлы
+                        </h4>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-file-code"></i>
+                                <span>Конфигурация системы</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-database"></i>
+                                <span>База данных профиля</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-history"></i>
+                                <span>История действий</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Файлы безопасности</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                    </div>
+                    
                     <div class="management-actions">
                         <div class="action-card">
                             <div class="action-icon">
@@ -1288,21 +1465,21 @@
                             </button>
                         </div>
                         
-                        <div class="action-card">
+                        <div class="action-card action-disabled">
                             <div class="action-icon">
                                 <i class="fas fa-download"></i>
                             </div>
                             <div class="action-title">Экспорт данных</div>
                             <div class="action-desc">JSON/CSV/PDF</div>
-                            <button class="btn btn-small btn-outline" id="exportBtn">
-                                <i class="fas fa-file-export"></i>
-                                Экспортировать
+                            <button class="btn btn-small btn-outline" disabled>
+                                <i class="fas fa-times-circle"></i>
+                                Нет данных
                             </button>
                         </div>
                     </div>
                     
                     <div class="warning-note">
-                        <p><i class="fas fa-exclamation-triangle"></i> <strong>Внимание:</strong> Данная страница находится в разработке. Функциональность будет добавлена в ближайшее время.</p>
+                        <p><i class="fas fa-exclamation-triangle"></i> <strong>Внимание:</strong> На данный момент в вашем хранилище нет данных. Экспорт данных будет доступен после их появления.</p>
                     </div>
                 </div>
                 
@@ -1453,52 +1630,6 @@
         </div>
     </div>
 
-    <div class="modal" id="confirmModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="confirmTitle"><i class="fas fa-exclamation-triangle"></i> Подтверждение</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="confirmMessage"></p>
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button class="btn btn-outline" id="confirmCancelBtn" style="flex: 1;">
-                        Отмена
-                    </button>
-                    <button class="btn btn-primary" id="confirmActionBtn" style="flex: 1;">
-                        Подтвердить
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="supportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-headset"></i> Техническая поддержка</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p style="margin-bottom: 1rem;">Если у вас возникли проблемы с защищенным аккаунтом:</p>
-                <div style="background: var(--gray-light); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
-                    <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
-                        <i class="fas fa-external-link-alt"></i>
-                        Перейти в поддержку
-                    </a>
-                </div>
-                <div style="background: var(--gray-light); padding: 1rem; border-radius: var(--radius-md);">
-                    <p><strong>Конфиденциальная поддержка:</strong></p>
-                    <ul style="margin-left: 1.5rem;">
-                        <li>Email: secure-support@metro-new.ru</li>
-                        <li>Телеграм: @metro_new_support</li>
-                        <li>Discord: #secure-support</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Конфигурация базы данных
         const DATABASE_CONFIG = {
@@ -1596,7 +1727,7 @@
             initDropdown();
             initEventHandlers();
             initNavigation();
-            initStorageData();
+            initDeviceInfo();
             
             console.log('Защищенный интерфейс инициализирован');
         }
@@ -1639,6 +1770,56 @@
             });
         }
 
+        function initDeviceInfo() {
+            // Определяем информацию об устройстве
+            const userAgent = navigator.userAgent;
+            let deviceType = 'Компьютер';
+            let browser = 'Неизвестный браузер';
+            let os = 'Неизвестная ОС';
+            
+            // Определяем браузер
+            if (userAgent.includes('Chrome')) {
+                browser = 'Chrome';
+            } else if (userAgent.includes('Firefox')) {
+                browser = 'Firefox';
+            } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                browser = 'Safari';
+            } else if (userAgent.includes('Edge')) {
+                browser = 'Edge';
+            } else if (userAgent.includes('Opera')) {
+                browser = 'Opera';
+            }
+            
+            // Определяем ОС
+            if (userAgent.includes('Windows')) {
+                os = 'Windows';
+            } else if (userAgent.includes('Mac')) {
+                os = 'Mac OS';
+            } else if (userAgent.includes('Linux')) {
+                os = 'Linux';
+            } else if (userAgent.includes('Android')) {
+                os = 'Android';
+                deviceType = 'Мобильное устройство';
+            } else if (userAgent.includes('iOS') || userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+                os = 'iOS';
+                deviceType = 'Мобильное устройство';
+            }
+            
+            // Обновляем информацию на странице устройств
+            document.getElementById('deviceType').textContent = deviceType;
+            document.getElementById('deviceBrowser').textContent = browser;
+            document.getElementById('deviceOS').textContent = os;
+            
+            // Генерируем случайный IP для демонстрации
+            const randomIP = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            document.getElementById('deviceIP').textContent = randomIP;
+            
+            // Текущее время
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('deviceLoginTime').textContent = `Сегодня, ${timeString}`;
+        }
+
         function initEventHandlers() {
             // Обновление данных
             document.getElementById('refreshDataBtn')?.addEventListener('click', async function() {
@@ -1671,10 +1852,6 @@
                 setTimeout(() => {
                     showMessage('Резервная копия создана успешно', 'success');
                 }, 1500);
-            });
-            
-            document.getElementById('exportBtn')?.addEventListener('click', function() {
-                showExportOptions();
             });
             
             // Модалки авторизации
@@ -1741,27 +1918,6 @@
                     }
                 });
             });
-        }
-
-        function initStorageData() {
-            // Инициализируем случайные данные для демонстрации
-            storageData.files = Math.random() * 0.3;
-            storageData.messages = Math.random() * 0.4;
-            storageData.support = Math.random() * 0.3;
-            storageData.used = storageData.files + storageData.messages + storageData.support;
-            
-            updateStorageDisplay();
-        }
-
-        function updateStorageDisplay() {
-            const usedMB = storageData.used.toFixed(2);
-            const percent = (storageData.used / storageData.total) * 100;
-            
-            document.getElementById('storageSize').textContent = `${usedMB}/1 MB`;
-            document.getElementById('storageProgress').style.width = `${percent}%`;
-            document.getElementById('filesSize').textContent = `${storageData.files.toFixed(2)} MB`;
-            document.getElementById('messagesSize').textContent = `${storageData.messages.toFixed(2)} MB`;
-            document.getElementById('supportSize').textContent = `${storageData.support.toFixed(2)} MB`;
         }
 
         function checkAuthState() {
@@ -1846,11 +2002,11 @@
                 <div class="dropdown-divider"></div>
                 <button class="dropdown-item" onclick="window.openMainPage()">
                     <i class="fas fa-home"></i>
-                    <span>Открыть главную страницу</span>
+                    <span>Главная страница</span>
                 </button>
                 <button class="dropdown-item" onclick="window.openProfileSettings()">
                     <i class="fas fa-user-cog"></i>
-                    <span>Настройки профиля</span>
+                    <span>Настройка профиля</span>
                 </button>
                 <button class="dropdown-item" onclick="window.openMyAccount()">
                     <i class="fas fa-user-circle"></i>
@@ -1859,24 +2015,65 @@
                 <div class="dropdown-divider"></div>
                 <div style="padding: 0.5rem 1rem;">
                     <div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 0.25rem;">Почта</div>
-                    <div style="font-weight: 500; font-size: 0.9rem;">${maskEmail(user.email || '')}</div>
+                    <div>
+                        <a href="mailto:${user.email || ''}" class="menu-link">
+                            ${maskEmail(user.email || '')}
+                        </a>
+                    </div>
                 </div>
                 <div style="padding: 0 1rem 0.5rem;">
                     <div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 0.25rem;">Уведомления</div>
-                    <label class="switch" style="transform: scale(0.8);">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
+                    <a href="#" class="menu-link" onclick="event.preventDefault(); showMessage('Настройки уведомлений будут доступны в ближайшее время', 'info')">
+                        Настроить уведомления
+                    </a>
+                </div>
+                <div style="padding: 0 1rem 0.5rem;">
+                    <div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 0.25rem;">Правовые документы</div>
+                    <a href="#" class="menu-link" onclick="event.preventDefault(); showMessage('Правовые документы будут доступны в ближайшее время', 'info')">
+                        Политика конфиденциальности
+                    </a>
+                </div>
+                <div style="padding: 0 1rem 1rem;">
+                    <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="menu-link">
+                        <i class="fas fa-headset"></i>
+                        Служба поддержки
+                    </a>
                 </div>
                 <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="loginMenuBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Вход</span>
+                </button>
+                <button class="dropdown-item" id="registerMenuBtn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Регистрация</span>
+                </button>
                 <button class="dropdown-item logout" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Выйти</span>
+                    <span>Выход</span>
                 </button>
             `;
             
             setTimeout(() => {
-                document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+                // Обновляем обработчики для вошедшего пользователя
+                if (user) {
+                    document.getElementById('loginMenuBtn')?.remove();
+                    document.getElementById('registerMenuBtn')?.remove();
+                    
+                    document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+                } else {
+                    document.getElementById('logoutBtn')?.remove();
+                    
+                    document.getElementById('loginMenuBtn')?.addEventListener('click', function() {
+                        showLoginModal();
+                        document.getElementById('userDropdown').classList.remove('show');
+                    });
+                    
+                    document.getElementById('registerMenuBtn')?.addEventListener('click', function() {
+                        document.getElementById('userDropdown').classList.remove('show');
+                        document.getElementById('registerModal').classList.add('show');
+                    });
+                }
             }, 100);
         }
 
@@ -1893,10 +2090,12 @@
                     <span>Регистрация</span>
                 </button>
                 <div class="dropdown-divider"></div>
-                <button class="dropdown-item" id="supportMenuBtn">
-                    <i class="fas fa-headset"></i>
-                    <span>Конфиденциальная поддержка</span>
-                </button>
+                <div style="padding: 0.5rem 1rem 1rem;">
+                    <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="menu-link">
+                        <i class="fas fa-headset"></i>
+                        Служба поддержки
+                    </a>
+                </div>
             `;
             
             setTimeout(() => {
@@ -1908,11 +2107,6 @@
                 document.getElementById('registerMenuBtn')?.addEventListener('click', function() {
                     document.getElementById('userDropdown').classList.remove('show');
                     document.getElementById('registerModal').classList.add('show');
-                });
-                
-                document.getElementById('supportMenuBtn')?.addEventListener('click', function() {
-                    document.getElementById('userDropdown').classList.remove('show');
-                    document.getElementById('supportModal').classList.add('show');
                 });
             }, 100);
         }
@@ -1928,11 +2122,20 @@
                 // Имитируем загрузку данных
                 setTimeout(() => {
                     if (section === 'data-management') {
-                        // Для управления данными обновляем статистику
-                        initStorageData();
+                        // Для управления данными - все значения остаются 0
+                        updateStorageDisplay();
                     }
                 }, 500);
             }
+        }
+
+        function updateStorageDisplay() {
+            // Все значения остаются 0
+            document.getElementById('storageSize').textContent = `0/1 MB`;
+            document.getElementById('storageProgress').style.width = `0%`;
+            document.getElementById('filesSize').textContent = `0 MB`;
+            document.getElementById('messagesSize').textContent = `0 MB`;
+            document.getElementById('supportSize').textContent = `0 MB`;
         }
 
         // ФУНКЦИИ АУТЕНТИФИКАЦИИ
@@ -2091,6 +2294,7 @@
                 
                 // Проверяем, есть ли пользователь в базе
                 const user = result.user;
+                const { doc, getDoc } = window.firebaseModules;
                 const userDoc = await getDoc(doc(db, DATABASE_CONFIG.PUBLIC_PATH, user.uid));
                 
                 if (!userDoc.exists()) {
@@ -2243,37 +2447,6 @@
             }
         }
 
-        function showExportOptions() {
-            showConfirm('Экспорт данных', 
-                'Выберите формат для экспорта ваших данных:',
-                async () => {
-                    showMessage('Подготовка данных для экспорта...', 'info');
-                    
-                    // Имитация экспорта
-                    setTimeout(() => {
-                        const exportData = {
-                            userId: auth.currentUser?.uid,
-                            exportedAt: new Date().toISOString(),
-                            files: `${storageData.files.toFixed(2)} MB`,
-                            messages: `${storageData.messages.toFixed(2)} MB`,
-                            support: `${storageData.support.toFixed(2)} MB`,
-                            total: `${storageData.used.toFixed(2)}/1 MB`
-                        };
-                        
-                        const dataStr = JSON.stringify(exportData, null, 2);
-                        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                        
-                        const linkElement = document.createElement('a');
-                        linkElement.setAttribute('href', dataUri);
-                        linkElement.setAttribute('download', `metro-new-export-${Date.now()}.json`);
-                        linkElement.click();
-                        
-                        showMessage('Данные экспортированы в формате JSON', 'success');
-                    }, 1000);
-                }
-            );
-        }
-
         // Глобальные функции для меню
         window.openMainPage = function() {
             window.open('/', '_blank');
@@ -2290,14 +2463,6 @@
             document.querySelector('[data-section="public"]').click();
             document.getElementById('userDropdown').classList.remove('show');
         };
-
-        function showConfirm(title, message, action) {
-            document.getElementById('confirmTitle').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${title}`;
-            document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('confirmActionBtn').dataset.action = title;
-            window.pendingAction = action;
-            document.getElementById('confirmModal').classList.add('show');
-        }
 
         function showMessage(text, type = 'info') {
             // Удаляем предыдущие сообщения
