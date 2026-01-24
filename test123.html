@@ -11,7 +11,23 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, sendEmailVerification, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            sendPasswordResetEmail, 
+            updateProfile, 
+            sendEmailVerification, 
+            signInAnonymously,
+            GoogleAuthProvider,
+            signInWithPopup,
+            linkWithPopup,
+            updatePassword,
+            reauthenticateWithCredential,
+            EmailAuthProvider
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
         
@@ -31,12 +47,21 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Настройки Google Provider
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
         
         // Make available globally
         window.firebaseApp = app;
         window.auth = auth;
         window.db = db;
         window.storage = storage;
+        window.googleProvider = googleProvider;
         window.firebaseModules = {
             onAuthStateChanged,
             signInWithEmailAndPassword,
@@ -46,6 +71,12 @@
             updateProfile,
             sendEmailVerification,
             signInAnonymously,
+            signInWithPopup,
+            linkWithPopup,
+            GoogleAuthProvider,
+            updatePassword,
+            reauthenticateWithCredential,
+            EmailAuthProvider,
             doc,
             setDoc,
             getDoc,
@@ -1287,6 +1318,11 @@
             color: var(--danger);
         }
         
+        /* Окно смены пароля */
+        .password-change-modal {
+            max-width: 400px;
+        }
+        
         /* АДАПТИВНОСТЬ */
         @media (max-width: 1024px) {
             .header-container {
@@ -1540,10 +1576,10 @@
                 <div class="footer-column">
                     <h4><i class="fas fa-file-contract"></i> Документы</h4>
                     <ul>
-                        <li><a href="#">Политика конфиденциальности</a></li>
-                        <li><a href="#">Пользовательское соглашение</a></li>
-                        <li><a href="#">Правила сообщества</a></li>
-                        <li><a href="#">Политика возврата</a></li>
+                        <li><a href="#" id="privacyPolicyBtn">Политика конфиденциальности</a></li>
+                        <li><a href="#" id="termsOfServiceBtn">Пользовательское соглашение</a></li>
+                        <li><a href="#" id="rulesBtn">Правила сообщества</a></li>
+                        <li><a href="#" id="refundPolicyBtn">Политика возврата</a></li>
                     </ul>
                 </div>
                 
@@ -1589,6 +1625,7 @@
     </footer>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
+    <!-- Основное окно аккаунта -->
     <div class="modal" id="accountModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1671,6 +1708,14 @@
                             <button class="btn btn-small btn-outline" id="changePasswordBtn">
                                 <i class="fas fa-key"></i>
                                 Сменить пароль
+                            </button>
+                            <button class="btn btn-small btn-outline" id="linkGoogleBtn" style="display: none;">
+                                <i class="fab fa-google"></i>
+                                Привязать Google
+                            </button>
+                            <button class="btn btn-small btn-outline" id="unlinkGoogleBtn" style="display: none;">
+                                <i class="fab fa-google"></i>
+                                Отвязать Google
                             </button>
                         </div>
                     </div>
@@ -1846,7 +1891,7 @@
                     <div class="form-options">
                         <label class="checkbox">
                             <input type="checkbox" id="agreeTerms" required>
-                            <span>Я согласен с <a href="#" style="color: var(--primary);">правилами</a> и <a href="#" style="color: var(--primary);">политикой конфиденциальности</a></span>
+                            <span>Я согласен с <a href="#" id="termsLink">пользовательским соглашением</a>, <a href="#" id="privacyLink">политикой конфиденциальности</a> и <a href="#" id="rulesLink">правилами сайта</a></span>
                         </label>
                     </div>
                     <button type="submit" class="btn btn-primary" id="registerSubmitBtn">
@@ -1861,6 +1906,10 @@
                 </div>
                 
                 <div class="social-auth">
+                    <button class="btn-social google" id="googleLoginBtn">
+                        <i class="fab fa-google"></i>
+                        Войти через Google
+                    </button>
                     <button class="btn-social anonymous" id="anonymousLoginBtn">
                         <i class="fas fa-user-secret"></i>
                         Продолжить как гость
@@ -1929,6 +1978,81 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО СМЕНЫ ПАРОЛЯ -->
+    <div class="modal password-change-modal" id="passwordChangeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Смена пароля</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Текущий пароль</label>
+                    <input type="password" id="currentPassword" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label>Новый пароль</label>
+                    <input type="password" id="newPassword" placeholder="••••••••" required>
+                    <div class="password-requirements">
+                        <small>Минимум 8 символов: заглавные, строчные, цифры, спецсимволы</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Подтвердите новый пароль</label>
+                    <input type="password" id="confirmNewPassword" placeholder="••••••••" required>
+                </div>
+                <button class="btn btn-primary" id="submitPasswordChangeBtn">
+                    <i class="fas fa-save"></i>
+                    Сменить пароль
+                </button>
+                <div class="password-change-message" id="passwordChangeMessage" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: var(--radius-md);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРАВИЛ -->
+    <div class="modal" id="termsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-contract"></i> Пользовательское соглашение</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                    <h4>Условия использования</h4>
+                    <p>Последнее обновление: <span id="currentDate"></span></p>
+                    
+                    <h5>1. Общие положения</h5>
+                    <p>1.1. Настоящее Пользовательское соглашение (далее - Соглашение) регулирует отношения между администрацией сайта "Метро New" (далее - Администрация) и пользователем (далее - Пользователь) по использованию сайта и связанных с ним услуг.</p>
+                    
+                    <h5>2. Регистрация и учетная запись</h5>
+                    <p>2.1. Для доступа к некоторым функциям сайта Пользователю необходимо создать учетную запись.</p>
+                    <p>2.2. Пользователь обязуется предоставлять достоверную и полную информацию при регистрации.</p>
+                    <p>2.3. Пользователь несет ответственность за сохранность своих учетных данных.</p>
+                    
+                    <h5>3. Правила поведения</h5>
+                    <p>3.1. Пользователь обязуется не нарушать законодательство Российской Федерации.</p>
+                    <p>3.2. Запрещается размещение незаконного контента.</p>
+                    <p>3.3. Запрещены оскорбления других пользователей.</p>
+                    
+                    <h5>4. Ограничение ответственности</h5>
+                    <p>4.1. Администрация не несет ответственности за возможные сбои в работе сайта.</p>
+                    <p>4.2. Администрация не гарантирует бесперебойную работу сайта.</p>
+                    
+                    <h5>5. Заключительные положения</h5>
+                    <p>5.1. Администрация оставляет за собой право изменять настоящее Соглашение.</p>
+                    <p>5.2. Продолжение использования сайта после изменений означает принятие новой версии Соглашения.</p>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button class="btn btn-primary" id="acceptTermsBtn">
+                        <i class="fas fa-check"></i>
+                        Принимаю условия соглашения
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Ждем загрузки Firebase модулей
         document.addEventListener('DOMContentLoaded', async function() {
@@ -1955,8 +2079,9 @@
             try {
                 console.log('Инициализация приложения...');
                 
-                // Устанавливаем текущий год
+                // Устанавливаем текущий год и дату
                 document.getElementById('currentYear').textContent = new Date().getFullYear();
+                document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ru-RU');
                 
                 // Инициализация интерфейса
                 initUI();
@@ -2156,6 +2281,31 @@
                 await signInAnonymously();
             });
             
+            // Google авторизация
+            document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
+                await signInWithGoogle();
+            });
+            
+            // Привязка Google аккаунта
+            document.getElementById('linkGoogleBtn')?.addEventListener('click', async function() {
+                await linkGoogleAccount();
+            });
+            
+            // Отвязка Google аккаунта
+            document.getElementById('unlinkGoogleBtn')?.addEventListener('click', async function() {
+                await unlinkGoogleAccount();
+            });
+            
+            // Смена пароля
+            document.getElementById('changePasswordBtn')?.addEventListener('click', function() {
+                document.getElementById('passwordChangeModal').classList.add('show');
+            });
+            
+            // Отправка формы смены пароля
+            document.getElementById('submitPasswordChangeBtn')?.addEventListener('click', async function() {
+                await changePassword();
+            });
+            
             // Форма входа
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
@@ -2173,6 +2323,50 @@
                     await signUpWithEmail();
                 });
             }
+            
+            // Ссылки на документы в форме регистрации
+            document.getElementById('termsLink')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('termsModal').classList.add('show');
+            });
+            
+            document.getElementById('privacyLink')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMessage('Политика конфиденциальности скоро будет доступна', 'info');
+            });
+            
+            document.getElementById('rulesLink')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMessage('Правила сайта скоро будут доступны', 'info');
+            });
+            
+            // Принятие условий соглашения
+            document.getElementById('acceptTermsBtn')?.addEventListener('click', function() {
+                document.getElementById('termsModal').classList.remove('show');
+                document.getElementById('agreeTerms').checked = true;
+                showMessage('Условия соглашения приняты', 'success');
+            });
+            
+            // Ссылки в футере
+            document.getElementById('privacyPolicyBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMessage('Политика конфиденциальности скоро будет доступна', 'info');
+            });
+            
+            document.getElementById('termsOfServiceBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('termsModal').classList.add('show');
+            });
+            
+            document.getElementById('rulesBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMessage('Правила сообщества скоро будут доступны', 'info');
+            });
+            
+            document.getElementById('refundPolicyBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMessage('Политика возврата скоро будет доступна', 'info');
+            });
             
             // Выбор файла аватара
             document.getElementById('chooseAvatarBtn')?.addEventListener('click', function() {
@@ -2253,11 +2447,31 @@
                     // Пользователь авторизован
                     await updateUserProfile(user);
                     await loadUserData(user.uid);
+                    checkGoogleAccountLinked(user);
                 } else {
                     // Пользователь не авторизован
                     updateGuestProfile();
                 }
             });
+        }
+
+        function checkGoogleAccountLinked(user) {
+            const isGoogleLinked = user.providerData.some(
+                provider => provider.providerId === 'google.com'
+            );
+            
+            const linkBtn = document.getElementById('linkGoogleBtn');
+            const unlinkBtn = document.getElementById('unlinkGoogleBtn');
+            
+            if (linkBtn && unlinkBtn) {
+                if (isGoogleLinked) {
+                    linkBtn.style.display = 'none';
+                    unlinkBtn.style.display = 'inline-flex';
+                } else {
+                    linkBtn.style.display = 'inline-flex';
+                    unlinkBtn.style.display = 'none';
+                }
+            }
         }
 
         async function updateUserProfile(user) {
@@ -2267,10 +2481,11 @@
             const email = user.email || 'Без email';
             const photoURL = user.photoURL;
             const isAnonymous = user.isAnonymous;
+            const isEmailVerified = user.emailVerified;
             
             // Обновляем хедер
             document.getElementById('userName').textContent = isAnonymous ? 'Гость' : displayName;
-            document.getElementById('userStatus').textContent = isAnonymous ? 'Гостевой режим' : email;
+            document.getElementById('userStatus').textContent = isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email;
             
             const userAvatar = document.getElementById('userAvatar');
             if (photoURL) {
@@ -2309,11 +2524,12 @@
             const displayName = user.displayName || 'Пользователь';
             const email = user.email || 'Без email';
             const isAnonymous = user.isAnonymous;
+            const isEmailVerified = user.emailVerified;
             
             userMenu.innerHTML = `
                 <div class="dropdown-header" style="padding: 0.75rem 1rem;">
                     <div style="font-weight: 600;">${isAnonymous ? 'Гость' : displayName}</div>
-                    <small style="color: var(--gray);">${isAnonymous ? 'Гостевой режим' : email}</small>
+                    <small style="color: var(--gray);">${isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email}</small>
                 </div>
                 <div class="dropdown-divider"></div>
                 <button class="dropdown-item" id="openAccountBtn">
@@ -2399,14 +2615,15 @@
                 const displayName = user.displayName || 'Пользователь';
                 const email = user.email || 'Без email';
                 const isAnonymous = user.isAnonymous;
+                const isEmailVerified = user.emailVerified;
                 const uid = user.uid;
                 const creationTime = user.metadata.creationTime;
                 const lastSignInTime = user.metadata.lastSignInTime;
                 
                 document.getElementById('accountName').textContent = isAnonymous ? 'Гость' : displayName;
-                document.getElementById('accountEmail').textContent = isAnonymous ? 'Гостевой режим' : email;
-                document.getElementById('accountBadge').textContent = isAnonymous ? 'Гость' : 'Пользователь';
-                document.getElementById('profileStatus').textContent = isAnonymous ? 'Гость' : 'Пользователь';
+                document.getElementById('accountEmail').textContent = isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email;
+                document.getElementById('accountBadge').textContent = isAnonymous ? 'Гость' : (isEmailVerified ? 'Верифицирован' : 'Пользователь');
+                document.getElementById('profileStatus').textContent = isAnonymous ? 'Гость' : (isEmailVerified ? 'Верифицированный пользователь' : 'Пользователь');
                 document.getElementById('profileRegDate').textContent = new Date(creationTime).toLocaleDateString('ru-RU');
                 document.getElementById('profileLastLogin').textContent = new Date(lastSignInTime).toLocaleDateString('ru-RU');
                 document.getElementById('profileUID').textContent = uid.substring(0, 8) + '...';
@@ -2421,7 +2638,7 @@
                 // Показываем действия профиля для неанонимных пользователей
                 if (!isAnonymous) {
                     document.getElementById('profileActionsSection').style.display = 'block';
-                    document.getElementById('authNote').textContent = 'Вы авторизованы';
+                    document.getElementById('authNote').textContent = isEmailVerified ? 'Ваш email подтверждён ✓' : 'Подтвердите email для полного доступа';
                 } else {
                     document.getElementById('profileActionsSection').style.display = 'none';
                     document.getElementById('authNote').textContent = 'Вы в гостевом режиме. Создайте аккаунт, чтобы сохранить прогресс.';
@@ -2479,9 +2696,11 @@
                 // Проверка email
                 if (userCredential.user.emailVerified === false) {
                     console.log('Email не подтверждён');
+                    showMessage('Подтвердите email для полного доступа к функциям', 'warning');
+                } else {
+                    showMessage(`Добро пожаловать, ${userCredential.user.displayName || userCredential.user.email || 'пользователь'}!`, 'success');
                 }
                 
-                showMessage(`Добро пожаловать, ${userCredential.user.email || 'пользователь'}!`, 'success');
                 document.getElementById('authModal').classList.remove('show');
                 
                 // Очищаем форму
@@ -2500,7 +2719,8 @@
                         errorMessage += 'Аккаунт заблокирован.';
                         break;
                     case 'auth/user-not-found':
-                        errorMessage += 'Пользователь не найден.';
+                    case 'auth/invalid-login-credentials':
+                        errorMessage += 'Неверный email или пароль.';
                         break;
                     case 'auth/wrong-password':
                         errorMessage += 'Неверный пароль.';
@@ -2512,7 +2732,7 @@
                         errorMessage += 'Ошибка сети. Проверьте подключение.';
                         break;
                     default:
-                        errorMessage += error.message;
+                        errorMessage += error.message || 'Проверьте правильность введенных данных';
                 }
                 
                 loginError.textContent = errorMessage;
@@ -2540,6 +2760,10 @@
                 // Валидация
                 if (!username || !email || !password || !confirmPassword) {
                     throw new Error('Заполните все поля');
+                }
+                
+                if (username.length < 3) {
+                    throw new Error('Имя пользователя должно быть не менее 3 символов');
                 }
                 
                 if (!validateEmail(email)) {
@@ -2637,6 +2861,109 @@
             }
         }
 
+        async function signInWithGoogle() {
+            try {
+                console.log('Попытка входа через Google...');
+                
+                const { signInWithPopup, GoogleAuthProvider } = window.firebaseModules;
+                const userCredential = await signInWithPopup(auth, window.googleProvider);
+                
+                // Проверяем, новый ли пользователь
+                const isNewUser = userCredential._tokenResponse?.isNewUser;
+                
+                if (isNewUser) {
+                    // Сохраняем данные нового пользователя
+                    await saveUserData(userCredential.user.uid, {
+                        username: userCredential.user.displayName,
+                        email: userCredential.user.email,
+                        createdAt: new Date().toISOString(),
+                        emailVerified: userCredential.user.emailVerified,
+                        settings: {
+                            theme: 'light',
+                            language: 'ru',
+                            emailNotifications: true,
+                            projectNews: true
+                        }
+                    });
+                    showMessage('Аккаунт успешно создан через Google!', 'success');
+                } else {
+                    showMessage(`Добро пожаловать, ${userCredential.user.displayName || 'пользователь'}!`, 'success');
+                }
+                
+                document.getElementById('authModal').classList.remove('show');
+                
+            } catch (error) {
+                console.error('Ошибка входа через Google:', error);
+                
+                let errorMessage = 'Ошибка входа через Google. ';
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Вход отменен пользователем';
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        errorMessage = 'Вход отменен';
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Всплывающее окно было заблокировано браузером. Разрешите всплывающие окна для этого сайта.';
+                        break;
+                    case 'auth/unauthorized-domain':
+                        errorMessage = 'Домен не авторизован для входа через Google.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+        }
+
+        async function linkGoogleAccount() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                const { linkWithPopup, GoogleAuthProvider } = window.firebaseModules;
+                const result = await linkWithPopup(user, window.googleProvider);
+                
+                showMessage('Google аккаунт успешно привязан!', 'success');
+                checkGoogleAccountLinked(result.user);
+                
+            } catch (error) {
+                console.error('Ошибка привязки Google аккаунта:', error);
+                
+                let errorMessage = 'Ошибка привязки Google аккаунта. ';
+                switch (error.code) {
+                    case 'auth/provider-already-linked':
+                        errorMessage = 'Google аккаунт уже привязан';
+                        break;
+                    case 'auth/credential-already-in-use':
+                        errorMessage = 'Этот Google аккаунт уже используется другим пользователем';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+        }
+
+        async function unlinkGoogleAccount() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                // Для отвязки нужно перенастроить провайдеры
+                // В этом примере просто показываем сообщение
+                // В реальном приложении нужно реализовать отвязку через reauthenticate
+                
+                showMessage('Для отвязки Google аккаунта обратитесь в поддержку', 'warning');
+                
+            } catch (error) {
+                console.error('Ошибка отвязки Google аккаунта:', error);
+                showMessage('Ошибка отвязки Google аккаунта', 'error');
+            }
+        }
+
         async function signInAnonymously() {
             try {
                 console.log('Попытка гостевого входа...');
@@ -2665,6 +2992,74 @@
             } catch (error) {
                 console.error('Ошибка выхода:', error);
                 showMessage('Ошибка выхода. Попробуйте ещё раз.', 'error');
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            const submitBtn = document.getElementById('submitPasswordChangeBtn');
+            const messageEl = document.getElementById('passwordChangeMessage');
+            
+            try {
+                const user = auth.currentUser;
+                if (!user || !user.email) {
+                    throw new Error('Пользователь не найден');
+                }
+                
+                if (!currentPassword || !newPassword || !confirmNewPassword) {
+                    throw new Error('Заполните все поля');
+                }
+                
+                if (newPassword !== confirmNewPassword) {
+                    throw new Error('Новые пароли не совпадают');
+                }
+                
+                // Проверка сложности нового пароля
+                const passwordValidation = validatePassword(newPassword);
+                if (!passwordValidation.valid) {
+                    throw new Error(passwordValidation.message);
+                }
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Смена пароля...';
+                messageEl.style.display = 'none';
+                
+                const { reauthenticateWithCredential, EmailAuthProvider, updatePassword } = window.firebaseModules;
+                
+                // Реаутентификация
+                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                await reauthenticateWithCredential(user, credential);
+                
+                // Смена пароля
+                await updatePassword(user, newPassword);
+                
+                messageEl.textContent = 'Пароль успешно изменён!';
+                messageEl.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                messageEl.style.color = 'var(--success)';
+                messageEl.style.display = 'block';
+                
+                // Очищаем форму
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                
+                setTimeout(() => {
+                    document.getElementById('passwordChangeModal').classList.remove('show');
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Ошибка смены пароля:', error);
+                
+                messageEl.textContent = `Ошибка: ${error.message}`;
+                messageEl.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                messageEl.style.color = 'var(--danger)';
+                messageEl.style.display = 'block';
+                
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Сменить пароль';
             }
         }
 
@@ -3073,8 +3468,8 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--primary)'};
-                color: white;
+                background: ${type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : type === 'warning' ? 'var(--warning)' : 'var(--primary)'};
+                color: ${type === 'warning' ? 'var(--dark)' : 'white'};
                 padding: 1rem 1.5rem;
                 border-radius: var(--radius-lg);
                 box-shadow: var(--shadow-lg);
@@ -3089,6 +3484,7 @@
             
             const icon = type === 'error' ? 'fas fa-exclamation-circle' :
                         type === 'success' ? 'fas fa-check-circle' :
+                        type === 'warning' ? 'fas fa-exclamation-triangle' :
                         'fas fa-info-circle';
             
             messageEl.innerHTML = `
@@ -3159,7 +3555,8 @@
             testConnection: testFirebaseConnection,
             getCurrentUser: () => auth.currentUser,
             signOut: signOut,
-            showMessage: showMessage
+            showMessage: showMessage,
+            signInWithGoogle: signInWithGoogle
         };
     </script>
 </body>
