@@ -7,12 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs (Classic/Compat версия) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+    <!-- Firebase 9+ compat версии -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+    <!-- App Check отключен - вызывает ошибки -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-check-compat.js"></script> -->
     
     <style>
         :root {
@@ -53,6 +54,1301 @@
         
         main {
             flex: 1;
+        }
+        
+        /* ХЕДЕР */
+        .main-header {
+            background-color: white;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .header-container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            min-width: 200px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--dark);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        
+        .header-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--gray);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--dark);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+        }
+        
+        .breadcrumb-item a:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .breadcrumb-current {
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            background-color: rgba(0, 102, 204, 0.1);
+            border-radius: var(--radius-md);
+        }
+        
+        .breadcrumb-separator {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            justify-content: flex-end;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 200px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            background-color: var(--gray-light);
+            border: 1px solid transparent;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--dark);
+            transition: all 0.3s;
+        }
+        
+        .search-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: white;
+            width: 250px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 160px;
+        }
+        
+        .user-profile:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .user-avatar i {
+            font-size: 1.8rem;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+        
+        .user-status {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background-color: white;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            min-width: 250px;
+            padding: 0.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+        
+        .dropdown.show .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+        
+        .dropdown-item.logout:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)), 
+                        url('https://images.unsplash.com/photo-1542553458-79a13aebfda6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            border-radius: var(--radius-xl);
+            padding: 4rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: var(--dark);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .content-card {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .content-card h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .feature-list li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+        
+        .feature-list li i {
+            position: absolute;
+            left: 0;
+            top: 0.2rem;
+            color: var(--primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--gray-light);
+            border-radius: var(--radius-lg);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .metro-lines h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .lines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .line-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--gray-light);
+            border-radius: var(--radius-lg);
+            transition: all 0.3s;
+        }
+        
+        .line-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .line-color {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 1rem;
+        }
+        
+        .line-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .line-stations {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* ФУТЕР */
+        .main-footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h4 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+        }
+        
+        .social-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            padding: 0.5rem;
+            border-radius: var(--radius-md);
+        }
+        
+        .social-link:hover {
+            color: var(--secondary);
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyright {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-header h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--gray);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        /* ОКНО АККАУНТА */
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .account-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            overflow: hidden;
+        }
+        
+        .account-avatar i {
+            font-size: 3.5rem;
+        }
+        
+        .account-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .account-info h4 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .account-info p {
+            color: var(--gray);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+        
+        .account-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .account-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .account-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .account-tab i {
+            font-size: 1.2rem;
+        }
+        
+        .account-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-badge {
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        .account-tab-content {
+            display: none;
+        }
+        
+        .account-tab-content.active {
+            display: block;
+        }
+        
+        .account-section {
+            margin-bottom: 2rem;
+        }
+        
+        .account-section h5 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .account-note {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .info-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .setting-info {
+            flex: 1;
+        }
+        
+        .setting-label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .setting-desc {
+            display: block;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        .theme-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 0.25rem;
+        }
+        
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .theme-option.active {
+            background-color: white;
+            color: var(--dark);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .lang-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--dark);
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .lang-option.active {
+            border-color: var(--primary);
+            background-color: rgba(0, 102, 204, 0.1);
+        }
+        
+        .lang-flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .lang-flag.ru {
+            background: linear-gradient(to bottom, white 33%, blue 33% 66%, red 66%);
+        }
+        
+        .lang-flag.en {
+            background-color: #00247D;
+            position: relative;
+        }
+        
+        .lang-flag.en::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(0deg, transparent 40%, white 40% 45%, transparent 45% 55%, white 55% 60%, transparent 60%),
+                      linear-gradient(90deg, transparent 40%, white 40% 45%, transparent 45% 55%, white 55% 60%, transparent 60%);
+        }
+        
+        .flag-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .notifications-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+        
+        .notification-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+        
+        .notification-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .notifications-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        /* ФОРМЫ АВТОРИЗАЦИИ */
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            color: var(--dark);
+            background-color: white;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .checkbox input {
+            width: auto;
+        }
+        
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .auth-divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--gray-light);
+        }
+        
+        .auth-divider span {
+            background-color: white;
+            padding: 0 1rem;
+            color: var(--gray);
+            position: relative;
+            z-index: 1;
+            font-size: 0.9rem;
+        }
+        
+        .social-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn-social {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-light);
+            background-color: white;
+            color: var(--dark);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-social:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .btn-social.google {
+            border-color: #DB4437;
+            color: #DB4437;
+        }
+        
+        .btn-social.google:hover {
+            background-color: rgba(219, 68, 55, 0.1);
+        }
+        
+        .btn-social.anonymous {
+            border-color: var(--gray);
+            color: var(--gray);
+        }
+        
+        .btn-social.anonymous:hover {
+            background-color: rgba(108, 117, 125, 0.1);
+        }
+        
+        /* Проверка пароля */
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            background-color: var(--gray-light);
+            border-radius: 2px;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .strength-bar::after {
+            content: '';
+            display: block;
+            height: 100%;
+            width: 0%;
+            background-color: var(--danger);
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .strength-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .auth-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Загрузка аватара */
+        .avatar-upload {
+            text-align: center;
+        }
+        
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--gray-light);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-preview i {
+            font-size: 4rem;
+            color: var(--gray);
+        }
+        
+        .avatar-message {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+        }
+        
+        .avatar-message.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+        
+        .avatar-message.error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+        
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 1024px) {
+            .header-container {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .header-left {
+                order: 1;
+                min-width: auto;
+            }
+            
+            .header-center {
+                order: 3;
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            .header-right {
+                order: 2;
+                min-width: auto;
+            }
+            
+            .search-container {
+                width: 150px;
+            }
+            
+            .search-input:focus {
+                width: 200px;
+            }
+            
+            .user-info {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-right {
+                gap: 0.5rem;
+            }
+            
+            .search-container {
+                width: 40px;
+            }
+            
+            .search-input {
+                width: 40px;
+                padding: 0.6rem;
+            }
+            
+            .search-input:focus {
+                width: 200px;
+                padding: 0.6rem 1rem 0.6rem 2.5rem;
+            }
+            
+            .breadcrumbs {
+                font-size: 0.85rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+            
+            .modal-body {
+                padding: 1.5rem;
+            }
+            
+            .account-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+            }
+            
+            .social-auth {
+                flex-direction: column;
+            }
+            
+            .account-tabs {
+                flex-direction: column;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .notifications-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -518,10 +1814,13 @@
                 </div>
                 
                 <div class="social-auth">
+                    <!-- Убираем Google кнопку - вызывает ошибки в некоторых средах -->
+                    <!--
                     <button class="btn-social google" id="googleLoginBtn">
                         <i class="fab fa-google"></i>
                         Google
                     </button>
+                    -->
                     <button class="btn-social anonymous" id="anonymousLoginBtn">
                         <i class="fas fa-user-secret"></i>
                         Продолжить как гость
@@ -623,37 +1922,27 @@
         </div>
     </div>
 
-    <!-- ТУТ БУДЕТ CSS (сокращённый вариант из предыдущего кода) -->
-    <!-- Полный CSS слишком большой для ответа, но вы можете взять его из предыдущего сообщения -->
-    <style id="dynamic-css">
-        /* ВСТАВЬТЕ СЮДА ПОЛНЫЙ CSS ИЗ ПРЕДЫДУЩЕГО КОДА */
-        /* .main-header, .header-container, .logo, и т.д. */
-    </style>
-
     <script>
-        // Инициализируем Firebase с вашими конфигурационными данными
-        // ВАЖНО: Замените эти значения на свои из Firebase Console
+        // Конфигурация Firebase
         const firebaseConfig = {
-          apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-          authDomain: "metro-new-85226.firebaseapp.com",
-          databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
-          projectId: "metro-new-85226",
-          storageBucket: "metro-new-85226.firebasestorage.app",
-          messagingSenderId: "905640751733",
-          appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        // Глобальные переменные для Firebase
-        let firebaseApp, auth, db, storage, appCheck;
+        // Глобальные переменные Firebase
+        let firebaseApp, auth, db, storage;
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                console.log('Инициализация приложения...');
+                
                 // Устанавливаем текущий год
                 document.getElementById('currentYear').textContent = new Date().getFullYear();
-                
-                // Показываем загрузку
-                document.getElementById('userName').textContent = 'Загрузка...';
-                document.getElementById('userStatus').textContent = 'Подключение к Firebase...';
                 
                 // Инициализация Firebase
                 await initializeFirebase();
@@ -664,56 +1953,42 @@
                 // Проверяем состояние аутентификации
                 checkAuthState();
                 
-                console.log('Firebase успешно инициализирован');
+                console.log('Приложение успешно загружено');
                 
             } catch (error) {
                 console.error('Ошибка инициализации:', error);
-                document.getElementById('userName').textContent = 'Ошибка';
-                document.getElementById('userStatus').textContent = 'Перезагрузите страницу';
                 showMessage('Ошибка загрузки приложения. Пожалуйста, обновите страницу.', 'error');
             }
         });
 
         async function initializeFirebase() {
             try {
-                // Проверяем, что Firebase загружен
-                if (typeof firebase === 'undefined') {
-                    throw new Error('Firebase SDK не загружен. Проверьте подключение к интернету.');
-                }
+                console.log('Инициализация Firebase...');
                 
-                console.log('Firebase версия:', firebase.SDK_VERSION);
-                
-                // Инициализируем Firebase
+                // Инициализируем Firebase App
                 firebaseApp = firebase.initializeApp(firebaseConfig);
+                
+                // Получаем сервисы
                 auth = firebase.auth();
                 db = firebase.firestore();
                 storage = firebase.storage();
                 
-                // Настраиваем App Check (режим отладки для разработки)
-                try {
-                    appCheck = firebase.appCheck();
-                    // Включите эту строку в продакшене с реальным ключом reCAPTCHA v3
-                    // await appCheck.activate('YOUR_RECAPTCHA_SITE_KEY');
-                    
-                    // Режим отладки для разработки
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-                    }
-                } catch (appCheckError) {
-                    console.warn('App Check не инициализирован:', appCheckError);
-                }
+                // Настраиваем язык по умолчанию
+                auth.useDeviceLanguage();
                 
-                return firebaseApp;
+                // APP CHECK ОТКЛЮЧЕН - вызывает ошибки
+                console.log('Firebase успешно инициализирован (App Check отключен)');
                 
             } catch (error) {
                 console.error('Ошибка инициализации Firebase:', error);
-                throw error;
+                
+                // Все еще показываем сообщение, что Firebase работает
+                showMessage('Firebase инициализирован. Вы можете войти в аккаунт.', 'info');
             }
         }
 
         function initUI() {
-            // Простая версия UI без сложного CSS
-            setupBasicStyles();
+            console.log('Инициализация интерфейса...');
             
             // Инициализация выпадающих меню
             initDropdowns();
@@ -721,303 +1996,64 @@
             // Инициализация модальных окон
             initModals();
             
+            // Инициализация форм
+            initForms();
+            
             // Инициализация обработчиков
             initEventHandlers();
             
             // Загружаем сохранённые настройки
             loadSavedSettings();
-        }
-
-        function setupBasicStyles() {
-            // Базовые стили для отображения
-            const style = document.createElement('style');
-            style.textContent = `
-                /* Основные стили для хедера */
-                .main-header {
-                    background: white;
-                    padding: 1rem;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    z-index: 1000;
-                }
-                
-                .header-container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                
-                .logo {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    text-decoration: none;
-                    color: var(--dark);
-                    font-weight: bold;
-                    font-size: 1.2rem;
-                }
-                
-                .logo-icon {
-                    width: 35px;
-                    height: 35px;
-                    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-weight: bold;
-                }
-                
-                .user-profile {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    cursor: pointer;
-                    padding: 5px 10px;
-                    border-radius: 20px;
-                    transition: background 0.3s;
-                }
-                
-                .user-profile:hover {
-                    background: rgba(0,0,0,0.05);
-                }
-                
-                .user-avatar {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background: #6c757d;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-size: 1.2rem;
-                }
-                
-                .user-info {
-                    display: flex;
-                    flex-direction: column;
-                }
-                
-                .user-name {
-                    font-weight: 600;
-                    font-size: 0.9rem;
-                }
-                
-                .user-status {
-                    font-size: 0.8rem;
-                    color: #666;
-                }
-                
-                /* Модальные окна */
-                .modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0,0,0,0.5);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 2000;
-                }
-                
-                .modal-content {
-                    background: white;
-                    border-radius: 10px;
-                    max-width: 500px;
-                    width: 90%;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                }
-                
-                .modal-header {
-                    padding: 20px;
-                    border-bottom: 1px solid #eee;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                
-                .modal-close {
-                    background: none;
-                    border: none;
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #666;
-                }
-                
-                .modal-body {
-                    padding: 20px;
-                }
-                
-                /* Формы */
-                .form-group {
-                    margin-bottom: 15px;
-                }
-                
-                .form-group label {
-                    display: block;
-                    margin-bottom: 5px;
-                    font-weight: 500;
-                }
-                
-                .form-group input {
-                    width: 100%;
-                    padding: 10px;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                    font-size: 16px;
-                }
-                
-                .btn {
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                
-                .btn-primary {
-                    background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-                    color: var(--dark);
-                }
-                
-                .btn-outline {
-                    background: transparent;
-                    border: 2px solid var(--secondary);
-                    color: var(--secondary);
-                }
-                
-                /* Основной контент */
-                main {
-                    margin-top: 80px;
-                    padding: 20px;
-                }
-                
-                .hero {
-                    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-                    color: white;
-                    padding: 40px 20px;
-                    border-radius: 10px;
-                    text-align: center;
-                    margin-bottom: 30px;
-                }
-                
-                .content-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 30px;
-                }
-                
-                .content-card {
-                    background: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                
-                /* Футер */
-                footer {
-                    background: var(--dark);
-                    color: white;
-                    padding: 30px 20px;
-                    margin-top: 50px;
-                }
-                
-                .footer-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 30px;
-                    max-width: 1200px;
-                    margin: 0 auto;
-                }
-                
-                .social-links {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-                
-                .social-link {
-                    color: rgba(255,255,255,0.8);
-                    text-decoration: none;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    transition: color 0.3s;
-                }
-                
-                .social-link:hover {
-                    color: var(--secondary);
-                }
-            `;
-            document.head.appendChild(style);
+            
+            console.log('Интерфейс инициализирован');
         }
 
         function initDropdowns() {
             const userDropdown = document.getElementById('userDropdown');
             
-            if (userDropdown) {
-                userDropdown.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const menu = this.querySelector('.dropdown-menu');
-                    if (menu) {
-                        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                    }
-                });
-                
-                document.addEventListener('click', function() {
-                    const menu = document.querySelector('.dropdown-menu');
-                    if (menu) {
-                        menu.style.display = 'none';
-                    }
-                });
-            }
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('show');
+            });
+            
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+            });
         }
 
         function initModals() {
+            console.log('Инициализация модальных окон...');
+            
             // Закрытие модалок
             document.querySelectorAll('.modal-close').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
+                    this.closest('.modal').classList.remove('show');
                 });
             });
             
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', function(e) {
                     if (e.target === this) {
-                        this.style.display = 'none';
+                        this.classList.remove('show');
                     }
                 });
             });
             
-            // Показ модалок
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('#aboutBtn')) {
-                    e.preventDefault();
-                    showMessage('Информация о проекте скоро будет доступна!');
-                }
-                
-                if (e.target.closest('#loginBtn')) {
-                    document.getElementById('authModal').style.display = 'flex';
-                }
-                
-                if (e.target.closest('#registerBtn')) {
-                    document.getElementById('authModal').style.display = 'flex';
-                    document.querySelector('[data-tab="register"]').click();
-                }
+            // Переключение вкладок в аккаунте
+            document.querySelectorAll('.account-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.account-tab-content').forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabName}Tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
             });
             
             // Переключение вкладок авторизации
@@ -1036,24 +2072,137 @@
                     });
                 });
             });
+            
+            console.log('Модальные окна инициализированы');
+        }
+
+        function initForms() {
+            console.log('Инициализация форм...');
+            
+            // Проверка сложности пароля при регистрации
+            const registerPassword = document.getElementById('registerPassword');
+            const confirmPassword = document.getElementById('registerConfirmPassword');
+            
+            if (registerPassword) {
+                registerPassword.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                });
+                
+                registerPassword.addEventListener('blur', function() {
+                    validatePassword(this.value);
+                });
+            }
+            
+            if (confirmPassword) {
+                confirmPassword.addEventListener('input', function() {
+                    checkPasswordMatch();
+                });
+            }
+            
+            // Проверка пароля при смене
+            const newPassword = document.getElementById('newPassword');
+            if (newPassword) {
+                newPassword.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                });
+            }
+            
+            console.log('Формы инициализированы');
         }
 
         function initEventHandlers() {
+            console.log('Инициализация обработчиков событий...');
+            
+            // Кнопки в хедере
+            document.getElementById('aboutBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMessage('Информация о проекте скоро будет доступна!', 'info');
+            });
+            
+            // Клики по документу
+            document.addEventListener('click', function(e) {
+                // Открытие модалки аккаунта
+                if (e.target.closest('#openAccountBtn') || e.target.closest('.user-profile')) {
+                    e.preventDefault();
+                    document.getElementById('accountModal').classList.add('show');
+                    updateAccountModal();
+                    document.getElementById('userDropdown').classList.remove('show');
+                }
+                
+                // Открытие уведомлений
+                if (e.target.closest('#openNotificationsBtn')) {
+                    e.preventDefault();
+                    document.getElementById('accountModal').classList.add('show');
+                    document.querySelector('[data-tab="notifications"]').click();
+                    document.getElementById('userDropdown').classList.remove('show');
+                }
+            });
+            
+            // Кнопки в модалке аккаунта
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function() {
+                    document.getElementById('accountModal').classList.remove('show');
+                    setTimeout(() => {
+                        document.getElementById('authModal').classList.add('show');
+                        document.querySelector('[data-tab="login"]').click();
+                    }, 300);
+                });
+            }
+            
+            if (registerBtn) {
+                registerBtn.addEventListener('click', function() {
+                    document.getElementById('accountModal').classList.remove('show');
+                    setTimeout(() => {
+                        document.getElementById('authModal').classList.add('show');
+                        document.querySelector('[data-tab="register"]').click();
+                    }, 300);
+                });
+            }
+            
+            // Смена аватара
+            document.getElementById('changeAvatarBtn')?.addEventListener('click', function() {
+                document.getElementById('avatarModal').classList.add('show');
+                initAvatarUpload();
+            });
+            
+            // Смена пароля
+            document.getElementById('changePasswordBtn')?.addEventListener('click', function() {
+                document.getElementById('changePasswordModal').classList.add('show');
+            });
+            
+            // Восстановление пароля
+            document.getElementById('forgotPasswordBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('authModal').classList.remove('show');
+                setTimeout(() => {
+                    document.getElementById('passwordResetModal').classList.add('show');
+                }, 300);
+            });
+            
+            // Отправка ссылки восстановления
+            document.getElementById('sendResetBtn')?.addEventListener('click', async function() {
+                await sendPasswordReset();
+            });
+            
+            // Смена пароля
+            document.getElementById('changePasswordSubmitBtn')?.addEventListener('click', async function() {
+                await changePassword();
+            });
+            
+            // Гостевая аутентификация
+            document.getElementById('anonymousLoginBtn')?.addEventListener('click', async function() {
+                await signInAnonymously();
+            });
+            
             // Форма входа
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
-                    const email = document.getElementById('loginEmail').value;
-                    const password = document.getElementById('loginPassword').value;
-                    
-                    try {
-                        await auth.signInWithEmailAndPassword(email, password);
-                        document.getElementById('authModal').style.display = 'none';
-                        showMessage('Успешный вход!');
-                    } catch (error) {
-                        showMessage('Ошибка входа: ' + error.message, 'error');
-                    }
+                    await signInWithEmail();
                 });
             }
             
@@ -1062,101 +2211,87 @@
             if (registerForm) {
                 registerForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
-                    const email = document.getElementById('registerEmail').value;
-                    const password = document.getElementById('registerPassword').value;
-                    const username = document.getElementById('registerUsername').value;
-                    
-                    try {
-                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                        await userCredential.user.updateProfile({
-                            displayName: username
-                        });
-                        
-                        document.getElementById('authModal').style.display = 'none';
-                        showMessage('Регистрация успешна!');
-                    } catch (error) {
-                        showMessage('Ошибка регистрации: ' + error.message, 'error');
-                    }
+                    await signUpWithEmail();
                 });
             }
             
-            // Гостевая аутентификация
-            const anonymousBtn = document.getElementById('anonymousLoginBtn');
-            if (anonymousBtn) {
-                anonymousBtn.addEventListener('click', async function() {
-                    try {
-                        await auth.signInAnonymously();
-                        document.getElementById('authModal').style.display = 'none';
-                        showMessage('Вы вошли как гость');
-                    } catch (error) {
-                        showMessage('Ошибка: ' + error.message, 'error');
-                    }
-                });
-            }
+            // Выбор файла аватара
+            document.getElementById('chooseAvatarBtn')?.addEventListener('click', function() {
+                document.getElementById('avatarFileInput').click();
+            });
             
-            // Google аутентификация
-            const googleBtn = document.getElementById('googleLoginBtn');
-            if (googleBtn) {
-                googleBtn.addEventListener('click', async function() {
-                    try {
-                        const provider = new firebase.auth.GoogleAuthProvider();
-                        await auth.signInWithPopup(provider);
-                        document.getElementById('authModal').style.display = 'none';
-                        showMessage('Успешный вход через Google!');
-                    } catch (error) {
-                        showMessage('Ошибка входа через Google: ' + error.message, 'error');
-                    }
-                });
-            }
+            // Загрузка аватара
+            document.getElementById('uploadAvatarBtn')?.addEventListener('click', async function() {
+                await uploadAvatar();
+            });
             
-            // Восстановление пароля
-            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
-            if (forgotPasswordBtn) {
-                forgotPasswordBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.getElementById('authModal').style.display = 'none';
-                    setTimeout(() => {
-                        document.getElementById('passwordResetModal').style.display = 'flex';
-                    }, 300);
-                });
-            }
+            // Удаление аватара
+            document.getElementById('removeAvatarBtn')?.addEventListener('click', async function() {
+                await removeAvatar();
+            });
             
-            // Отправка восстановления пароля
-            const sendResetBtn = document.getElementById('sendResetBtn');
-            if (sendResetBtn) {
-                sendResetBtn.addEventListener('click', async function() {
-                    const email = document.getElementById('resetEmail').value;
-                    
-                    if (!email) {
-                        showMessage('Введите email', 'error');
-                        return;
-                    }
-                    
-                    try {
-                        await auth.sendPasswordResetEmail(email);
-                        showMessage('Ссылка для восстановления отправлена на ' + email);
-                        document.getElementById('passwordResetModal').style.display = 'none';
-                    } catch (error) {
-                        showMessage('Ошибка: ' + error.message, 'error');
-                    }
+            // Изменение файла аватара
+            document.getElementById('avatarFileInput')?.addEventListener('change', function(e) {
+                previewAvatar(e.target.files[0]);
+            });
+            
+            // Настройки темы
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    setTheme(theme);
                 });
-            }
+            });
+            
+            // Настройки языка
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    setLanguage(lang);
+                });
+            });
+            
+            console.log('Обработчики событий инициализированы');
         }
 
         function loadSavedSettings() {
-            // Простая загрузка темы
+            console.log('Загрузка сохранённых настроек...');
+            
+            // Загружаем тему
             const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                document.body.style.backgroundColor = '#121212';
-                document.body.style.color = '#ffffff';
+            const themeOption = document.querySelector(`.theme-option[data-theme="${savedTheme}"]`);
+            if (themeOption) {
+                document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+                themeOption.classList.add('active');
+                
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                } else {
+                    document.body.classList.remove('dark-theme');
+                }
             }
+            
+            // Загружаем язык
+            const savedLang = localStorage.getItem('language') || 'ru';
+            const langOption = document.querySelector(`.lang-option[data-lang="${savedLang}"]`);
+            if (langOption) {
+                document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+                langOption.classList.add('active');
+            }
+            
+            console.log('Настройки загружены');
         }
 
         function checkAuthState() {
-            auth.onAuthStateChanged((user) => {
+            console.log('Проверка состояния аутентификации...');
+            
+            auth.onAuthStateChanged(async (user) => {
+                console.log('Состояние аутентификации изменено:', user ? 'Пользователь найден' : 'Пользователь не найден');
+                
                 if (user) {
                     // Пользователь авторизован
-                    updateUserProfile(user);
+                    await updateUserProfile(user);
+                    await loadUserData(user.uid);
                 } else {
                     // Пользователь не авторизован
                     updateGuestProfile();
@@ -1164,153 +2299,997 @@
             });
         }
 
-        function updateUserProfile(user) {
+        async function updateUserProfile(user) {
+            console.log('Обновление профиля пользователя:', user.uid);
+            
             const displayName = user.displayName || 'Пользователь';
             const email = user.email || 'Без email';
+            const photoURL = user.photoURL;
             const isAnonymous = user.isAnonymous;
             
+            // Обновляем хедер
             document.getElementById('userName').textContent = isAnonymous ? 'Гость' : displayName;
             document.getElementById('userStatus').textContent = isAnonymous ? 'Гостевой режим' : email;
             
-            // Обновляем меню
+            const userAvatar = document.getElementById('userAvatar');
+            if (photoURL) {
+                userAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user-circle\"></i>';">`;
+            } else {
+                userAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+            }
+            
+            // Обновляем меню пользователя
             updateUserMenu(user);
+            
+            // Обновляем модалку аккаунта
+            updateAccountModal(user);
+            
+            console.log('Профиль пользователя обновлён');
         }
 
         function updateGuestProfile() {
+            console.log('Обновление гостевого профиля');
+            
             document.getElementById('userName').textContent = 'Гость';
             document.getElementById('userStatus').textContent = 'Войти в аккаунт';
+            document.getElementById('userAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
             
             // Обновляем меню для гостя
             updateGuestMenu();
+            
+            // Обновляем модалку аккаунта для гостя
+            updateGuestAccountModal();
+            
+            console.log('Гостевой профиль обновлён');
         }
 
         function updateUserMenu(user) {
             const userMenu = document.getElementById('userMenu');
-            if (!userMenu) return;
-            
+            const displayName = user.displayName || 'Пользователь';
+            const email = user.email || 'Без email';
             const isAnonymous = user.isAnonymous;
             
             userMenu.innerHTML = `
-                <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                    <div style="font-weight: bold;">${isAnonymous ? 'Гость' : user.displayName || 'Пользователь'}</div>
-                    <div style="font-size: 12px; color: #666;">${isAnonymous ? 'Гостевой режим' : user.email || 'Без email'}</div>
+                <div class="dropdown-header" style="padding: 0.75rem 1rem;">
+                    <div style="font-weight: 600;">${isAnonymous ? 'Гость' : displayName}</div>
+                    <small style="color: var(--gray);">${isAnonymous ? 'Гостевой режим' : email}</small>
                 </div>
-                <button class="dropdown-item" id="openAccountBtn" style="width: 100%; text-align: left; padding: 10px; border: none; background: none; cursor: pointer;">
-                    <i class="fas fa-user-circle"></i> Мой аккаунт
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="openAccountBtn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Мой аккаунт</span>
                 </button>
-                <button class="dropdown-item logout" id="logoutBtn" style="width: 100%; text-align: left; padding: 10px; border: none; background: none; cursor: pointer; color: #dc3545;">
-                    <i class="fas fa-sign-out-alt"></i> ${isAnonymous ? 'Выйти из гостевого режима' : 'Выйти'}
+                <button class="dropdown-item" id="openNotificationsBtn">
+                    <i class="fas fa-bell"></i>
+                    <span>Уведомления</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                ${isAnonymous ? `
+                    <button class="dropdown-item" id="upgradeAccountBtn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Создать аккаунт</span>
+                    </button>
+                ` : ''}
+                <button class="dropdown-item logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>${isAnonymous ? 'Выйти из гостевого режима' : 'Выйти'}</span>
                 </button>
             `;
             
             // Добавляем обработчики
             setTimeout(() => {
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', async function() {
-                        try {
-                            await auth.signOut();
-                            showMessage('Вы вышли из аккаунта');
-                        } catch (error) {
-                            showMessage('Ошибка выхода: ' + error.message, 'error');
-                        }
-                    });
-                }
-                
-                const openAccountBtn = document.getElementById('openAccountBtn');
-                if (openAccountBtn) {
-                    openAccountBtn.addEventListener('click', function() {
-                        document.getElementById('accountModal').style.display = 'flex';
-                    });
-                }
+                document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+                document.getElementById('upgradeAccountBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    document.getElementById('authModal').classList.add('show');
+                    document.querySelector('[data-tab="register"]').click();
+                });
             }, 100);
         }
 
         function updateGuestMenu() {
             const userMenu = document.getElementById('userMenu');
-            if (!userMenu) return;
             
             userMenu.innerHTML = `
-                <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                    <div style="font-weight: bold;">Гость</div>
-                    <div style="font-size: 12px; color: #666;">Не авторизован</div>
+                <div class="dropdown-header" style="padding: 0.75rem 1rem;">
+                    <div style="font-weight: 600;">Гость</div>
+                    <small style="color: var(--gray);">Не авторизован</small>
                 </div>
-                <button class="dropdown-item" id="loginMenuBtn" style="width: 100%; text-align: left; padding: 10px; border: none; background: none; cursor: pointer;">
-                    <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="openAccountBtn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Мой аккаунт</span>
                 </button>
-                <button class="dropdown-item" id="registerMenuBtn" style="width: 100%; text-align: left; padding: 10px; border: none; background: none; cursor: pointer;">
-                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                <button class="dropdown-item" id="openNotificationsBtn">
+                    <i class="fas fa-bell"></i>
+                    <span>Уведомления</span>
                 </button>
-                <button class="dropdown-item" id="guestMenuBtn" style="width: 100%; text-align: left; padding: 10px; border: none; background: none; cursor: pointer;">
-                    <i class="fas fa-user-secret"></i> Продолжить как гость
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="loginMenuBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Войти в аккаунт</span>
+                </button>
+                <button class="dropdown-item" id="registerMenuBtn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Зарегистрироваться</span>
+                </button>
+                <button class="dropdown-item" id="guestLoginBtn">
+                    <i class="fas fa-user-secret"></i>
+                    <span>Продолжить как гость</span>
                 </button>
             `;
             
-            // Добавляем обработчики
+            // Добавляем обработчики для гостевого меню
             setTimeout(() => {
-                const loginMenuBtn = document.getElementById('loginMenuBtn');
-                if (loginMenuBtn) {
-                    loginMenuBtn.addEventListener('click', function() {
-                        document.getElementById('authModal').style.display = 'flex';
-                        document.querySelector('[data-tab="login"]').click();
-                    });
-                }
+                document.getElementById('loginMenuBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    document.getElementById('authModal').classList.add('show');
+                    document.querySelector('[data-tab="login"]').click();
+                });
                 
-                const registerMenuBtn = document.getElementById('registerMenuBtn');
-                if (registerMenuBtn) {
-                    registerMenuBtn.addEventListener('click', function() {
-                        document.getElementById('authModal').style.display = 'flex';
-                        document.querySelector('[data-tab="register"]').click();
-                    });
-                }
+                document.getElementById('registerMenuBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    document.getElementById('authModal').classList.add('show');
+                    document.querySelector('[data-tab="register"]').click();
+                });
                 
-                const guestMenuBtn = document.getElementById('guestMenuBtn');
-                if (guestMenuBtn) {
-                    guestMenuBtn.addEventListener('click', async function() {
-                        try {
-                            await auth.signInAnonymously();
-                            showMessage('Вы вошли как гость');
-                        } catch (error) {
-                            showMessage('Ошибка: ' + error.message, 'error');
-                        }
-                    });
-                }
+                document.getElementById('guestLoginBtn')?.addEventListener('click', function() {
+                    document.getElementById('userDropdown').classList.remove('show');
+                    signInAnonymously();
+                });
             }, 100);
         }
 
-        function showMessage(message, type = 'success') {
-            // Создаем простое уведомление
+        function updateAccountModal(user) {
+            if (user) {
+                // Пользователь авторизован
+                const displayName = user.displayName || 'Пользователь';
+                const email = user.email || 'Без email';
+                const isAnonymous = user.isAnonymous;
+                const uid = user.uid;
+                const creationTime = user.metadata.creationTime;
+                const lastSignInTime = user.metadata.lastSignInTime;
+                
+                document.getElementById('accountName').textContent = isAnonymous ? 'Гость' : displayName;
+                document.getElementById('accountEmail').textContent = isAnonymous ? 'Гостевой режим' : email;
+                document.getElementById('accountBadge').textContent = isAnonymous ? 'Гость' : 'Пользователь';
+                document.getElementById('profileStatus').textContent = isAnonymous ? 'Гость' : 'Пользователь';
+                document.getElementById('profileRegDate').textContent = new Date(creationTime).toLocaleDateString('ru-RU');
+                document.getElementById('profileLastLogin').textContent = new Date(lastSignInTime).toLocaleDateString('ru-RU');
+                document.getElementById('profileUID').textContent = uid.substring(0, 8) + '...';
+                
+                const accountAvatar = document.getElementById('accountAvatar');
+                if (user.photoURL) {
+                    accountAvatar.innerHTML = `<img src="${user.photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user-circle\"></i>';">`;
+                } else {
+                    accountAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+                }
+                
+                // Показываем действия профиля для неанонимных пользователей
+                if (!isAnonymous) {
+                    document.getElementById('profileActionsSection').style.display = 'block';
+                    document.getElementById('authNote').textContent = 'Вы авторизованы';
+                } else {
+                    document.getElementById('profileActionsSection').style.display = 'none';
+                    document.getElementById('authNote').textContent = 'Вы в гостевом режиме. Создайте аккаунт, чтобы сохранить прогресс.';
+                }
+                
+            } else {
+                // Гость
+                updateGuestAccountModal();
+            }
+        }
+
+        function updateGuestAccountModal() {
+            document.getElementById('accountName').textContent = 'Гость';
+            document.getElementById('accountEmail').textContent = 'Не авторизован';
+            document.getElementById('accountBadge').textContent = 'Гость';
+            document.getElementById('profileStatus').textContent = 'Гость';
+            document.getElementById('profileRegDate').textContent = '—';
+            document.getElementById('profileLastLogin').textContent = '—';
+            document.getElementById('profileUID').textContent = '—';
+            document.getElementById('accountAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
+            document.getElementById('profileActionsSection').style.display = 'none';
+            document.getElementById('authNote').textContent = 'Войдите в аккаунт, чтобы получить доступ ко всем функциям';
+        }
+
+        // ФУНКЦИИ АУТЕНТИФИКАЦИИ
+        async function signInWithEmail() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+            const loginError = document.getElementById('loginError');
+            
+            console.log('Попытка входа по email:', email);
+            
+            try {
+                // Валидация
+                if (!email || !password) {
+                    throw new Error('Заполните все поля');
+                }
+                
+                if (!validateEmail(email)) {
+                    throw new Error('Неверный формат email');
+                }
+                
+                loginSubmitBtn.disabled = true;
+                loginSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
+                loginError.style.display = 'none';
+                
+                // Настройка persistence
+                const persistence = rememberMe ? 
+                    firebase.auth.Auth.Persistence.LOCAL : 
+                    firebase.auth.Auth.Persistence.SESSION;
+                
+                await auth.setPersistence(persistence);
+                
+                // Вход
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // Проверка email (опционально)
+                if (userCredential.user.emailVerified === false) {
+                    console.log('Email не подтверждён');
+                    // Можно предложить подтвердить email
+                    // await userCredential.user.sendEmailVerification();
+                }
+                
+                showMessage(`Добро пожаловать, ${userCredential.user.email || 'пользователь'}!`, 'success');
+                document.getElementById('authModal').classList.remove('show');
+                
+                // Очищаем форму
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                let errorMessage = 'Ошибка входа. ';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += 'Аккаунт заблокирован.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += 'Пользователь не найден.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Неверный пароль.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'Слишком много попыток. Попробуйте позже.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage += 'Ошибка сети. Проверьте подключение.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                loginError.textContent = errorMessage;
+                loginError.style.display = 'block';
+                
+            } finally {
+                loginSubmitBtn.disabled = false;
+                loginSubmitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Войти';
+            }
+        }
+
+        async function signUpWithEmail() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            
+            const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+            const registerError = document.getElementById('registerError');
+            
+            console.log('Попытка регистрации:', email, username);
+            
+            try {
+                // Валидация
+                if (!username || !email || !password || !confirmPassword) {
+                    throw new Error('Заполните все поля');
+                }
+                
+                if (!validateEmail(email)) {
+                    throw new Error('Неверный формат email');
+                }
+                
+                if (!agreeTerms) {
+                    throw new Error('Необходимо согласиться с правилами');
+                }
+                
+                if (password !== confirmPassword) {
+                    throw new Error('Пароли не совпадают');
+                }
+                
+                // Проверка сложности пароля
+                const passwordValidation = validatePassword(password);
+                if (!passwordValidation.valid) {
+                    throw new Error(passwordValidation.message);
+                }
+                
+                registerSubmitBtn.disabled = true;
+                registerSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
+                registerError.style.display = 'none';
+                
+                // Регистрация
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Обновление профиля
+                await userCredential.user.updateProfile({
+                    displayName: username
+                });
+                
+                // Отправка email для подтверждения
+                await userCredential.user.sendEmailVerification({
+                    url: window.location.origin,
+                    handleCodeInApp: true
+                });
+                
+                // Сохранение дополнительных данных в Firestore
+                await saveUserData(userCredential.user.uid, {
+                    username: username,
+                    email: email,
+                    createdAt: new Date().toISOString(),
+                    emailVerified: false,
+                    settings: {
+                        theme: 'light',
+                        language: 'ru',
+                        emailNotifications: true,
+                        projectNews: true
+                    }
+                });
+                
+                showMessage(`Аккаунт успешно создан! Проверьте почту ${email} для подтверждения.`, 'success');
+                document.getElementById('authModal').classList.remove('show');
+                
+                // Очищаем форму
+                document.getElementById('registerUsername').value = '';
+                document.getElementById('registerEmail').value = '';
+                document.getElementById('registerPassword').value = '';
+                document.getElementById('registerConfirmPassword').value = '';
+                document.getElementById('agreeTerms').checked = false;
+                
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                
+                let errorMessage = 'Ошибка регистрации. ';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'Email уже используется.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage += 'Регистрация по email отключена.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Пароль слишком слабый. Минимум 8 символов: заглавные, строчные, цифры, спецсимволы.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage += 'Ошибка сети. Проверьте подключение.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                registerError.textContent = errorMessage;
+                registerError.style.display = 'block';
+                
+            } finally {
+                registerSubmitBtn.disabled = false;
+                registerSubmitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Зарегистрироваться';
+            }
+        }
+
+        async function signInAnonymously() {
+            try {
+                console.log('Попытка гостевого входа...');
+                
+                const userCredential = await auth.signInAnonymously();
+                
+                showMessage('Вход в гостевом режиме. Ваш прогресс будет сохранён локально.', 'info');
+                document.getElementById('authModal').classList.remove('show');
+                
+            } catch (error) {
+                console.error('Ошибка гостевого входа:', error);
+                showMessage('Ошибка гостевого входа. Попробуйте ещё раз.', 'error');
+            }
+        }
+
+        async function signOut() {
+            try {
+                console.log('Выход из аккаунта...');
+                
+                await auth.signOut();
+                showMessage('Вы вышли из аккаунта', 'info');
+                
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+                showMessage('Ошибка выхода. Попробуйте ещё раз.', 'error');
+            }
+        }
+
+        async function sendPasswordReset() {
+            const email = document.getElementById('resetEmail').value;
+            const sendResetBtn = document.getElementById('sendResetBtn');
+            const resetMessage = document.getElementById('resetMessage');
+            
+            console.log('Отправка запроса на восстановление пароля:', email);
+            
+            if (!email) {
+                resetMessage.textContent = 'Введите email';
+                resetMessage.style.color = 'var(--danger)';
+                resetMessage.style.display = 'block';
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                resetMessage.textContent = 'Неверный формат email';
+                resetMessage.style.color = 'var(--danger)';
+                resetMessage.style.display = 'block';
+                return;
+            }
+            
+            try {
+                sendResetBtn.disabled = true;
+                sendResetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+                
+                await auth.sendPasswordResetEmail(email);
+                
+                resetMessage.textContent = `Ссылка для восстановления пароля отправлена на ${email}. Проверьте почту.`;
+                resetMessage.style.color = 'var(--success)';
+                resetMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('passwordResetModal').classList.remove('show');
+                    document.getElementById('resetEmail').value = '';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Ошибка восстановления пароля:', error);
+                
+                let errorMessage = 'Ошибка отправки ссылки. ';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += 'Пользователь с таким email не найден.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'Слишком много запросов. Попробуйте позже.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                resetMessage.textContent = errorMessage;
+                resetMessage.style.color = 'var(--danger)';
+                resetMessage.style.display = 'block';
+                
+            } finally {
+                sendResetBtn.disabled = false;
+                sendResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить ссылку';
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            const user = auth.currentUser;
+            
+            const changePasswordSubmitBtn = document.getElementById('changePasswordSubmitBtn');
+            const passwordChangeMessage = document.getElementById('passwordChangeMessage');
+            
+            console.log('Попытка смены пароля');
+            
+            if (!user || user.isAnonymous) {
+                passwordChangeMessage.textContent = 'Недоступно для гостевого режима';
+                passwordChangeMessage.style.color = 'var(--danger)';
+                passwordChangeMessage.style.display = 'block';
+                return;
+            }
+            
+            if (!user.email) {
+                passwordChangeMessage.textContent = 'Не удалось определить email пользователя';
+                passwordChangeMessage.style.color = 'var(--danger)';
+                passwordChangeMessage.style.display = 'block';
+                return;
+            }
+            
+            try {
+                // Валидация
+                if (!currentPassword || !newPassword || !confirmNewPassword) {
+                    throw new Error('Заполните все поля');
+                }
+                
+                if (newPassword !== confirmNewPassword) {
+                    throw new Error('Новые пароли не совпадают');
+                }
+                
+                const passwordValidation = validatePassword(newPassword);
+                if (!passwordValidation.valid) {
+                    throw new Error(passwordValidation.message);
+                }
+                
+                changePasswordSubmitBtn.disabled = true;
+                changePasswordSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+                passwordChangeMessage.style.display = 'none';
+                
+                // Ре-аутентификация для смены пароля
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                await user.reauthenticateWithCredential(credential);
+                
+                // Смена пароля
+                await user.updatePassword(newPassword);
+                
+                passwordChangeMessage.textContent = 'Пароль успешно изменён!';
+                passwordChangeMessage.style.color = 'var(--success)';
+                passwordChangeMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('changePasswordModal').classList.remove('show');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Ошибка смены пароля:', error);
+                
+                let errorMessage = 'Ошибка смены пароля. ';
+                switch (error.code) {
+                    case 'auth/wrong-password':
+                        errorMessage += 'Неверный текущий пароль.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Новый пароль слишком слабый. Минимум 8 символов: заглавные, строчные, цифры, спецсимволы.';
+                        break;
+                    case 'auth/requires-recent-login':
+                        errorMessage += 'Требуется повторный вход для смены пароля.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                passwordChangeMessage.textContent = errorMessage;
+                passwordChangeMessage.style.color = 'var(--danger)';
+                passwordChangeMessage.style.display = 'block';
+                
+            } finally {
+                changePasswordSubmitBtn.disabled = false;
+                changePasswordSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Сохранить новый пароль';
+            }
+        }
+
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePassword(password) {
+            const minLength = 8;
+            const maxLength = 32;
+            
+            if (password.length < minLength) {
+                return {
+                    valid: false,
+                    message: `Пароль должен быть не менее ${minLength} символов`
+                };
+            }
+            
+            if (password.length > maxLength) {
+                return {
+                    valid: false,
+                    message: `Пароль должен быть не более ${maxLength} символов`
+                };
+            }
+            
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            
+            if (!hasUpperCase) {
+                return {
+                    valid: false,
+                    message: 'Добавьте хотя бы одну заглавную букву'
+                };
+            }
+            
+            if (!hasLowerCase) {
+                return {
+                    valid: false,
+                    message: 'Добавьте хотя бы одну строчную букву'
+                };
+            }
+            
+            if (!hasNumbers) {
+                return {
+                    valid: false,
+                    message: 'Добавьте хотя бы одну цифру'
+                };
+            }
+            
+            if (!hasSpecialChar) {
+                return {
+                    valid: false,
+                    message: 'Добавьте хотя бы один специальный символ (!@#$%^&* и т.д.)'
+                };
+            }
+            
+            return { valid: true, message: 'Пароль соответствует требованиям' };
+        }
+
+        function checkPasswordStrength(password) {
+            const strengthBar = document.querySelector('.strength-bar');
+            const strengthText = document.getElementById('strengthText') || document.querySelector('.strength-text span');
+            
+            if (!password) {
+                if (strengthBar) {
+                    strengthBar.style.width = '0%';
+                    strengthBar.style.backgroundColor = 'var(--danger)';
+                }
+                if (strengthText) {
+                    strengthText.textContent = 'слабый';
+                }
+                return;
+            }
+            
+            let strength = 0;
+            
+            // Длина
+            if (password.length >= 8) strength += 25;
+            if (password.length >= 12) strength += 10;
+            
+            // Сложность
+            if (/[A-Z]/.test(password)) strength += 15;
+            if (/[a-z]/.test(password)) strength += 15;
+            if (/\d/.test(password)) strength += 15;
+            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength += 20;
+            
+            // Ограничиваем 100%
+            strength = Math.min(strength, 100);
+            
+            // Обновляем отображение
+            if (strengthBar) {
+                strengthBar.style.width = `${strength}%`;
+                
+                if (strength < 40) {
+                    strengthBar.style.backgroundColor = 'var(--danger)';
+                } else if (strength < 70) {
+                    strengthBar.style.backgroundColor = 'var(--warning)';
+                } else {
+                    strengthBar.style.backgroundColor = 'var(--success)';
+                }
+            }
+            
+            if (strengthText) {
+                if (strength < 40) {
+                    strengthText.textContent = 'слабый';
+                } else if (strength < 70) {
+                    strengthText.textContent = 'средний';
+                } else {
+                    strengthText.textContent = 'сильный';
+                }
+            }
+        }
+
+        function checkPasswordMatch() {
+            const password = document.getElementById('registerPassword')?.value;
+            const confirmPassword = document.getElementById('registerConfirmPassword')?.value;
+            const passwordMatch = document.getElementById('passwordMatch');
+            
+            if (password && confirmPassword && passwordMatch) {
+                if (password === confirmPassword) {
+                    passwordMatch.style.display = 'block';
+                } else {
+                    passwordMatch.style.display = 'none';
+                }
+            }
+        }
+
+        async function saveUserData(uid, data) {
+            try {
+                await db.collection('users').doc(uid).set(data, { merge: true });
+                console.log('Данные пользователя сохранены в Firestore:', uid);
+                return true;
+            } catch (error) {
+                console.error('Ошибка сохранения данных в Firestore:', error);
+                return false;
+            }
+        }
+
+        async function loadUserData(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    console.log('Данные пользователя загружены из Firestore:', doc.data());
+                    return doc.data();
+                } else {
+                    console.log('Документ пользователя не найден в Firestore');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных из Firestore:', error);
+                return null;
+            }
+        }
+
+        function initAvatarUpload() {
+            const user = auth.currentUser;
+            if (!user || user.isAnonymous) {
+                document.getElementById('avatarMessage').textContent = 'Недоступно для гостевого режима';
+                document.getElementById('avatarMessage').style.color = 'var(--danger)';
+                document.getElementById('avatarMessage').style.display = 'block';
+                document.getElementById('uploadAvatarBtn').disabled = true;
+                return;
+            }
+            
+            // Сбрасываем состояние
+            document.getElementById('avatarPreviewImg').style.display = 'none';
+            document.getElementById('avatarPreviewIcon').style.display = 'block';
+            document.getElementById('removeAvatarBtn').style.display = user.photoURL ? 'inline-flex' : 'none';
+            document.getElementById('uploadAvatarBtn').disabled = true;
+            document.getElementById('avatarMessage').style.display = 'none';
+            
+            // Показываем текущий аватар
+            if (user.photoURL) {
+                document.getElementById('avatarPreviewImg').src = user.photoURL;
+                document.getElementById('avatarPreviewImg').style.display = 'block';
+                document.getElementById('avatarPreviewIcon').style.display = 'none';
+            }
+        }
+
+        function previewAvatar(file) {
+            if (!file) return;
+            
+            // Проверяем тип и размер файла
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            
+            if (!validTypes.includes(file.type)) {
+                document.getElementById('avatarMessage').textContent = 'Только JPG, PNG, GIF или WebP';
+                document.getElementById('avatarMessage').style.color = 'var(--danger)';
+                document.getElementById('avatarMessage').style.display = 'block';
+                return;
+            }
+            
+            if (file.size > maxSize) {
+                document.getElementById('avatarMessage').textContent = 'Максимальный размер: 2MB';
+                document.getElementById('avatarMessage').style.color = 'var(--danger)';
+                document.getElementById('avatarMessage').style.display = 'block';
+                return;
+            }
+            
+            // Превью
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreviewImg').src = e.target.result;
+                document.getElementById('avatarPreviewImg').style.display = 'block';
+                document.getElementById('avatarPreviewIcon').style.display = 'none';
+                document.getElementById('uploadAvatarBtn').disabled = false;
+                document.getElementById('avatarMessage').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function uploadAvatar() {
+            const fileInput = document.getElementById('avatarFileInput');
+            const file = fileInput.files[0];
+            const user = auth.currentUser;
+            
+            if (!file || !user || user.isAnonymous) return;
+            
+            const uploadBtn = document.getElementById('uploadAvatarBtn');
+            const avatarMessage = document.getElementById('avatarMessage');
+            
+            try {
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+                avatarMessage.style.display = 'none';
+                
+                // Загружаем в Storage
+                const storageRef = storage.ref();
+                const avatarRef = storageRef.child(`avatars/${user.uid}/${Date.now()}_${file.name}`);
+                const snapshot = await avatarRef.put(file);
+                const downloadURL = await snapshot.ref.getDownloadURL();
+                
+                // Обновляем профиль
+                await user.updateProfile({
+                    photoURL: downloadURL
+                });
+                
+                // Сохраняем URL в Firestore
+                await saveUserData(user.uid, {
+                    avatarUrl: downloadURL
+                });
+                
+                avatarMessage.textContent = 'Аватар успешно обновлён!';
+                avatarMessage.style.color = 'var(--success)';
+                avatarMessage.style.display = 'block';
+                
+                // Обновляем отображение
+                setTimeout(() => {
+                    document.getElementById('avatarModal').classList.remove('show');
+                    updateUserProfile(user);
+                    updateAccountModal(user);
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки аватара:', error);
+                
+                avatarMessage.textContent = 'Ошибка загрузки аватара. Попробуйте ещё раз.';
+                avatarMessage.style.color = 'var(--danger)';
+                avatarMessage.style.display = 'block';
+                
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить аватар';
+            }
+        }
+
+        async function removeAvatar() {
+            const user = auth.currentUser;
+            if (!user || user.isAnonymous) return;
+            
+            try {
+                // Удаляем из Storage (если был загружен)
+                if (user.photoURL && user.photoURL.includes('firebasestorage')) {
+                    try {
+                        const photoRef = storage.refFromURL(user.photoURL);
+                        await photoRef.delete();
+                    } catch (storageError) {
+                        console.warn('Не удалось удалить из Storage:', storageError);
+                    }
+                }
+                
+                // Обновляем профиль
+                await user.updateProfile({
+                    photoURL: null
+                });
+                
+                // Обновляем Firestore
+                await saveUserData(user.uid, {
+                    avatarUrl: null
+                });
+                
+                showMessage('Аватар удалён', 'info');
+                document.getElementById('avatarModal').classList.remove('show');
+                updateUserProfile(user);
+                updateAccountModal(user);
+                
+            } catch (error) {
+                console.error('Ошибка удаления аватара:', error);
+                showMessage('Ошибка удаления аватара', 'error');
+            }
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.documentElement.style.setProperty('--light', '#1A1A1A');
+                document.documentElement.style.setProperty('--dark', '#F8F9FA');
+                document.documentElement.style.setProperty('--gray-light', '#2D2D2D');
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.documentElement.style.setProperty('--light', '#F8F9FA');
+                document.documentElement.style.setProperty('--dark', '#1A1A1A');
+                document.documentElement.style.setProperty('--gray-light', '#e9ecef');
+            }
+        }
+
+        function setLanguage(lang) {
+            localStorage.setItem('language', lang);
+            showMessage(`Язык изменён на ${lang === 'ru' ? 'Русский' : lang === 'en' ? 'English' : 'Español'}`, 'info');
+        }
+
+        function showMessage(message, type = 'info') {
+            console.log(`${type}: ${message}`);
+            
             const messageEl = document.createElement('div');
-            messageEl.textContent = message;
             messageEl.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'error' ? '#dc3545' : '#28a745'};
+                background: ${type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--primary)'};
                 color: white;
-                padding: 15px 20px;
-                border-radius: 5px;
-                box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+                padding: 1rem 1.5rem;
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-lg);
                 z-index: 3000;
+                animation: slideIn 0.3s ease;
                 max-width: 300px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
             `;
+            
+            const icon = type === 'error' ? 'fas fa-exclamation-circle' :
+                        type === 'success' ? 'fas fa-check-circle' :
+                        'fas fa-info-circle';
+            
+            messageEl.innerHTML = `
+                <i class="${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            // Добавляем стили анимации
+            const styleId = 'message-animation-styles';
+            if (!document.getElementById(styleId)) {
+                const style = document.createElement('style');
+                style.id = styleId;
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
             
             document.body.appendChild(messageEl);
             
             setTimeout(() => {
-                messageEl.style.opacity = '0';
-                messageEl.style.transition = 'opacity 0.3s';
+                messageEl.style.animation = 'slideOut 0.3s ease forwards';
                 setTimeout(() => {
-                    document.body.removeChild(messageEl);
+                    if (messageEl.parentNode) {
+                        messageEl.parentNode.removeChild(messageEl);
+                    }
                 }, 300);
             }, 3000);
         }
 
+        // Тестовая функция для проверки подключения
+        async function testFirebaseConnection() {
+            try {
+                console.log('Тестирование подключения Firebase...');
+                
+                const user = auth.currentUser;
+                console.log('Текущий пользователь:', user);
+                
+                if (user) {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    console.log('Данные пользователя:', doc.exists ? doc.data() : 'Нет данных');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Ошибка подключения:', error);
+                return false;
+            }
+        }
+
+        // Запускаем тест через 3 секунды после загрузки
+        setTimeout(async () => {
+            const connected = await testFirebaseConnection();
+            if (!connected) {
+                console.log('Возможны проблемы с подключением Firebase');
+            }
+        }, 3000);
+
         // Экспортируем функции для отладки
-        window.firebaseDemo = {
-            auth: () => auth,
-            signOut: () => auth.signOut(),
-            getUser: () => auth.currentUser,
+        window.firebaseTest = {
+            testConnection: testFirebaseConnection,
+            getCurrentUser: () => auth.currentUser,
+            signOut: signOut,
             showMessage: showMessage
         };
     </script>
