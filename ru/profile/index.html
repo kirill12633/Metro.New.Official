@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New - Защищенный личный кабинет</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7"></script>
+    
+    <!-- CSS файл -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase JS SDK v9 -->
+    <script type="module" src="firebase-config.js"></script>
+</head>
+<body>
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </a>
+            </div>
+            
+            <div class="header-right">
+                <div class="dropdown user-profile" id="userDropdown">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Загрузка...</div>
+                        <div class="user-status" id="userStatus">Инициализация...</div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                    
+                    <div class="dropdown-menu" id="userMenu">
+                        <!-- Заполнится через Firebase -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="container">
+        <section class="hero">
+            <h1>Защищенный личный кабинет Метро New</h1>
+            <p>Ваши данные максимально защищены. Конфиденциальная информация хранится в отдельной защищенной базе.</p>
+            <div class="hero-buttons">
+                <a href="https://www.roblox.com/communities/34820737/RP-NEW" class="btn btn-primary" target="_blank">
+                    <i class="fas fa-play"></i>
+                    Играть сейчас
+                </a>
+                <button class="btn btn-outline" id="refreshDataBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Обновить данные
+                </button>
+                <a href="https://kirill12633.github.io/support.metro.new/" class="btn btn-outline" target="_blank" id="supportBtn">
+                    <i class="fas fa-headset"></i>
+                    Поддержка
+                </a>
+            </div>
+        </section>
+        
+        <!-- СТАТУС БАЗЫ ДАННЫХ -->
+        <div class="db-status" id="dbStatus">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Проверка подключения к базе данных...</span>
+        </div>
+        
+        <div class="dashboard-grid">
+            <!-- САЙДБАР -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-avatar" id="sidebarAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3 class="sidebar-name" id="sidebarName">Загрузка...</h3>
+                    <p class="sidebar-email" id="sidebarEmail">Загрузка...</p>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" class="active" data-section="public">
+                            <i class="fas fa-eye"></i>
+                            Публичная информация
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="confidential">
+                            <i class="fas fa-lock"></i>
+                            Конфиденциальная информация
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="devices">
+                            <i class="fas fa-mobile-alt"></i>
+                            Устройства
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="data-management">
+                            <i class="fas fa-database"></i>
+                            Управление данными
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="banking">
+                            <i class="fas fa-credit-card"></i>
+                            Банковские счета
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            Настройки
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="requests">
+                            <i class="fas fa-file-alt"></i>
+                            Запросы
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            
+            <!-- ОСНОВНОЙ КОНТЕНТ -->
+            <div class="content">
+                <!-- ПУБЛИЧНАЯ ИНФОРМАЦИЯ -->
+                <div class="content-section" id="publicSection">
+                    <div class="content-header">
+                        <h2><i class="fas fa-eye"></i> Публичная информация</h2>
+                    </div>
+                    
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Загрузка публичной информации...</p>
+                    </div>
+                </div>
+                
+                <!-- КОНФИДЕНЦИАЛЬНАЯ ИНФОРМАЦИЯ -->
+                <div class="content-section" id="confidentialSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-lock"></i> Конфиденциальная информация</h2>
+                    </div>
+                    
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Загрузка конфиденциальной информации...</p>
+                    </div>
+                </div>
+                
+                <!-- УСТРОЙСТВА -->
+                <div class="content-section devices-page" id="devicesSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-mobile-alt"></i> Устройства</h2>
+                    </div>
+                    
+                    <div class="current-device-card">
+                        <div class="info-card-header">
+                            <i class="fas fa-desktop"></i>
+                            <h4>Вы находитесь на этом устройстве</h4>
+                        </div>
+                        <p>Это устройство, с которого вы сейчас вошли в систему.</p>
+                        
+                        <div class="device-info-grid">
+                            <div class="device-info-item">
+                                <div class="device-info-label">Тип устройства</div>
+                                <div class="device-info-value" id="deviceType">Компьютер</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Браузер</div>
+                                <div class="device-info-value" id="deviceBrowser">Chrome</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">IP адрес</div>
+                                <div class="device-info-value" id="deviceIP">192.168.1.1</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Время входа</div>
+                                <div class="device-info-value" id="deviceLoginTime">Сегодня, 14:30</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Операционная система</div>
+                                <div class="device-info-value" id="deviceOS">Windows 10</div>
+                            </div>
+                            <div class="device-info-item">
+                                <div class="device-info-label">Статус</div>
+                                <div class="device-info-value">
+                                    <span style="color: var(--success); font-weight: 600;">Активно сейчас</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="other-devices-note">
+                        <div class="developing-icon">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <h3 class="developing-title">Другие устройства</h3>
+                        <p class="developing-message">Список других устройств, с которых вы входили в аккаунт, временно недоступен. Этот раздел находится в разработке.</p>
+                        <button class="btn btn-outline" onclick="showMessage('Функция будет доступна в ближайшем обновлении', 'info')">
+                            <i class="fas fa-bell"></i>
+                            Уведомить о запуске
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- УПРАВЛЕНИЕ ДАННЫМИ -->
+                <div class="content-section data-management-page" id="data-managementSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-database"></i> Управление данными</h2>
+                    </div>
+                    
+                    <div class="storage-card">
+                        <div class="storage-header">
+                            <div class="storage-title">
+                                <i class="fas fa-hdd"></i>
+                                Использование хранилища
+                            </div>
+                            <div class="storage-size" id="storageSize">0/1 MB</div>
+                        </div>
+                        
+                        <div class="storage-bar">
+                            <div class="storage-progress" id="storageProgress"></div>
+                        </div>
+                        
+                        <div class="storage-breakdown">
+                            <div class="storage-item">
+                                <div class="storage-item-name">Файлы</div>
+                                <div class="storage-item-size" id="filesSize">0 MB</div>
+                            </div>
+                            <div class="storage-item">
+                                <div class="storage-item-name">Текстовые сообщения</div>
+                                <div class="storage-item-size" id="messagesSize">0 MB</div>
+                            </div>
+                            <div class="storage-item">
+                                <div class="storage-item-name">Жалобы и поддержка</div>
+                                <div class="storage-item-size" id="supportSize">0 MB</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="system-files-info">
+                        <h4 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-cogs"></i>
+                            Системные файлы
+                        </h4>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-file-code"></i>
+                                <span>Конфигурация системы</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-database"></i>
+                                <span>База данных профиля</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-history"></i>
+                                <span>История действий</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                        <div class="system-file-item">
+                            <div class="system-file-name">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Файлы безопасности</span>
+                            </div>
+                            <div class="file-size">0.00 MB</div>
+                        </div>
+                    </div>
+                    
+                    <div class="management-actions">
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div class="action-title">Синхронизация</div>
+                            <div class="action-desc">Автоматическая/Ручная</div>
+                            <button class="btn btn-small btn-outline" id="syncToggleBtn">
+                                <i class="fas fa-toggle-on"></i>
+                                Авто
+                            </button>
+                        </div>
+                        
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-save"></i>
+                            </div>
+                            <div class="action-title">Резервная копия</div>
+                            <div class="action-desc">Сохранить все данные</div>
+                            <button class="btn btn-small btn-primary" id="backupBtn">
+                                <i class="fas fa-plus"></i>
+                                Создать сейчас
+                            </button>
+                        </div>
+                        
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="action-title">Экспорт данных</div>
+                            <div class="action-desc">JSON/CSV/PDF</div>
+                            <button class="btn btn-small btn-outline" id="exportDataBtn">
+                                <i class="fas fa-file-export"></i>
+                                Экспортировать
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="warning-note">
+                        <p><i class="fas fa-exclamation-triangle"></i> <strong>Внимание:</strong> На данный момент в вашем хранилище нет данных. Экспорт данных будет доступен после их появления.</p>
+                    </div>
+                </div>
+                
+                <!-- БАНКОВСКИЕ СЧЕТА -->
+                <div class="content-section" id="bankingSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-credit-card"></i> Банковские счета</h2>
+                    </div>
+                    
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Загрузка банковских счетов...</p>
+                    </div>
+                </div>
+                
+                <!-- НАСТРОЙКИ -->
+                <div class="content-section settings-page" id="settingsSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-cog"></i> Настройки</h2>
+                    </div>
+                    
+                    <div class="private-storage-info">
+                        <div class="private-storage-header">
+                            <div class="private-storage-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div>
+                                <div class="private-storage-title">Приватное личное хранилище</div>
+                                <p>Ваша личная база данных для хранения файлов, фотографий, GIF и других материалов.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="private-storage-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-images"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Фотографии и GIF</h4>
+                                    <p>Храните свои изображения и анимации в защищенном хранилище</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-file-archive"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Документы и файлы</h4>
+                                    <p>Загружайте любые файлы для личного использования</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Полная конфиденциальность</h4>
+                                    <p>Доступ только у вас. Данные зашифрованы и защищены</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-infinity"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h4>Неограниченное хранилище</h4>
+                                    <p>Храните столько данных, сколько вам нужно</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/storage" target="_blank" class="private-storage-link">
+                            <i class="fas fa-external-link-alt"></i>
+                            Подробнее о приватном хранилище
+                        </a>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-download"></i>
+                            Загрузка данных
+                        </h3>
+                        
+                        <div class="settings-group">
+                            <h4><i class="fas fa-sync"></i> Автоматическая загрузка</h4>
+                            <div class="setting-item">
+                                <div class="setting-label">Автоматически загружать обновления</div>
+                                <label class="switch">
+                                    <input type="checkbox" id="autoUpdateCheckbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">Загружать только через Wi-Fi</div>
+                                <label class="switch">
+                                    <input type="checkbox" id="wifiOnlyCheckbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h4><i class="fas fa-history"></i> История загрузок</h4>
+                            <div class="download-history" id="downloadHistory">
+                                <div class="download-list" id="downloadList">
+                                    <!-- Загрузки будут добавляться сюда -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="saveDownloadSettings()">
+                            <i class="fas fa-save"></i>
+                            Сохранить настройки
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ЗАПРОСЫ -->
+                <div class="content-section requests-page" id="requestsSection" style="display: none;">
+                    <div class="content-header">
+                        <h2><i class="fas fa-file-alt"></i> Запросы</h2>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <i class="fas fa-info-circle"></i>
+                            <h4>Обработка запросов</h4>
+                        </div>
+                        <p>Все запросы обрабатываются в службе поддержки. Вы можете создать новый запрос или отслеживать статус существующих.</p>
+                    </div>
+                    
+                    <!-- Запрос на удаление аккаунта -->
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-title">
+                                <i class="fas fa-user-slash" style="color: var(--danger);"></i>
+                                Запрос на удаление аккаунта
+                            </div>
+                            <div class="request-status status-pending">
+                                Ожидает обработки
+                            </div>
+                        </div>
+                        <div class="request-description">
+                            Запрос на полное удаление вашего аккаунта и всех связанных данных из системы Метро New.
+                        </div>
+                        <div class="request-date">
+                            <i class="far fa-calendar"></i> Создан: 15.01.2024
+                        </div>
+                        <button class="btn btn-small btn-outline" onclick="showMessage('Запрос находится в обработке. Срок рассмотрения - до 7 рабочих дней.', 'info')">
+                            <i class="fas fa-question-circle"></i>
+                            Узнать статус
+                        </button>
+                    </div>
+                    
+                    <!-- Запрос на получение данных -->
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-title">
+                                <i class="fas fa-database" style="color: var(--primary);"></i>
+                                Запрос на получение данных
+                            </div>
+                            <div class="request-status status-completed">
+                                Завершён
+                            </div>
+                        </div>
+                        <div class="request-description">
+                            Запрос на получение информации о том, какие данные о вас собирает система Метро New и как они используются.
+                        </div>
+                        <div class="request-date">
+                            <i class="far fa-calendar"></i> Создан: 10.01.2024 | Завершён: 12.01.2024
+                        </div>
+                        <button class="btn btn-small btn-outline" onclick="showMessage('Ваш запрос был обработан. Отчёт отправлен на вашу электронную почту.', 'success')">
+                            <i class="fas fa-eye"></i>
+                            Показать результат
+                        </button>
+                    </div>
+                    
+                    <div class="info-card warning">
+                        <div class="info-card-header">
+                            <i class="fas fa-headset"></i>
+                            <h4>Другие запросы</h4>
+                        </div>
+                        <p>Все остальные запросы (техническая поддержка, вопросы о функционале, предложения и т.д.) обрабатываются через службу поддержки.</p>
+                        <div style="margin-top: 1rem;">
+                            <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="btn btn-small" style="background: white; color: var(--dark);">
+                                <i class="fas fa-external-link-alt"></i>
+                                Перейти в службу поддержки
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="warning-note">
+                        <p><i class="fas fa-exclamation-triangle"></i> <strong>Внимание:</strong> Создание новых запросов временно недоступно. Используйте службу поддержки для всех вопросов.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-sign-in-alt"></i> Вход в защищенный аккаунт</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="example@mail.ru" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" id="loginSubmitBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Войти в защищенный аккаунт
+                    </button>
+                    
+                    <div class="divider" style="text-align: center; margin: 1rem 0; position: relative;">
+                        <span style="background: white; padding: 0 1rem; color: var(--gray);">или</span>
+                        <div style="height: 1px; background: var(--gray-light); position: absolute; top: 50%; left: 0; right: 0; z-index: -1;"></div>
+                    </div>
+                    
+                    <button class="btn btn-google" id="googleLoginBtn">
+                        <i class="fab fa-google" style="color: #DB4437;"></i>
+                        Войти через Google
+                    </button>
+                </div>
+                
+                <div style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="showRegisterBtn">Создать защищенный аккаунт</a>
+                </div>
+                <div class="auth-error" id="loginError" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Создание защищенного аккаунта</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Имя пользователя (публичное)</label>
+                    <input type="text" id="registerUsername" placeholder="MetroDriver2024" required>
+                </div>
+                <div class="form-group">
+                    <label>Email (конфиденциальный)</label>
+                    <input type="email" id="registerEmail" placeholder="real.email@mail.ru" required>
+                    <small>Будет храниться в защищенной базе</small>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••" required>
+                    <small>Минимум 8 символов, заглавные, строчные, цифры, спецсимволы</small>
+                </div>
+                <div class="form-group">
+                    <label>Подтвердите пароль</label>
+                    <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
+                </div>
+                <div class="form-group" style="background: var(--gray-light); padding: 1rem; border-radius: var(--radius-md);">
+                    <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">Соглашения:</h4>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="checkbox" id="registerPrivacyAgreement" required>
+                        <label for="registerPrivacyAgreement" style="margin: 0; font-size: 0.9rem;">
+                            Я согласен с <a href="#" style="color: var(--primary);">Политикой конфиденциальности</a>
+                        </label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="registerTermsAgreement" required>
+                        <label for="registerTermsAgreement" style="margin: 0; font-size: 0.9rem;">
+                            Я принимаю <a href="#" style="color: var(--primary);">Пользовательское соглашение</a>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" id="registerSubmitBtn">
+                        <i class="fas fa-user-plus"></i>
+                        Создать защищенный аккаунт
+                    </button>
+                    
+                    <div class="divider" style="text-align: center; margin: 1rem 0; position: relative;">
+                        <span style="background: white; padding: 0 1rem; color: var(--gray);">или</span>
+                        <div style="height: 1px; background: var(--gray-light); position: absolute; top: 50%; left: 0; right: 0; z-index: -1;"></div>
+                    </div>
+                    
+                    <button class="btn btn-google" id="googleRegisterBtn">
+                        <i class="fab fa-google" style="color: #DB4437;"></i>
+                        Зарегистрироваться через Google
+                    </button>
+                </div>
+                
+                <div style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="showLoginBtn">Уже есть защищенный аккаунт</a>
+                </div>
+                <div class="auth-error" id="registerError" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной JavaScript файл -->
+    <script src="script.js"></script>
+</body>
+</html>
