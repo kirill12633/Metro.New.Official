@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в аккаунт | Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase JS SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --gray-light: #e9ecef;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            background-color: var(--light);
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+        }
+
+        .auth-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            color: var(--dark);
+            background-color: white;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: var(--dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-google {
+            background-color: white;
+            color: #757575;
+            border: 1px solid #ddd;
+            margin-top: 1rem;
+        }
+
+        .btn-google:hover {
+            background-color: #f8f9fa;
+            border-color: #ccc;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--gray-light);
+            z-index: 1;
+        }
+
+        .divider span {
+            background-color: white;
+            padding: 0 1rem;
+            color: var(--gray);
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-footer {
+            text-align: center;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--gray-light);
+            color: var(--gray);
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .success-message {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h1>
+            <p>Войдите в ваш защищенный аккаунт Метро New</p>
+        </div>
+        
+        <div class="auth-body">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="example@mail.ru" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-actions">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe" style="margin: 0; font-size: 0.9rem;">Запомнить меня</label>
+                    </div>
+                    <a href="forgot-password.html" class="forgot-password">Забыли пароль?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Войти
+                </button>
+                
+                <div class="divider">
+                    <span>или войти через</span>
+                </div>
+                
+                <button type="button" class="btn btn-google" id="googleLoginBtn">
+                    <i class="fab fa-google"></i>
+                    Google
+                </button>
+            </form>
+        </div>
+        
+        <div class="auth-footer">
+            Еще нет аккаунта? <a href="register.html">Зарегистрироваться</a>
+        </div>
+    </div>
+
+    <script>
+        // Firebase конфигурация
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Инициализация Google провайдера
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        // Получение параметра redirect из URL
+        function getRedirectUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('redirect') || 'index.html';
+        }
+
+        // Загрузка страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            
+            // Проверяем, не авторизован ли уже пользователь
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Пользователь уже авторизован, перенаправляем
+                    window.location.href = getRedirectUrl();
+                }
+            });
+        });
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Форма входа
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Кнопка Google
+            document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleLogin);
+        }
+
+        // Обработка входа через email/пароль
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Скрываем сообщения
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Валидация
+            if (!email || !password) {
+                showError('Заполните все поля');
+                return;
+            }
+            
+            try {
+                // Блокируем кнопку
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
+                
+                // Входим в систему
+                await auth.signInWithEmailAndPassword(email, password);
+                
+                // Показываем успешное сообщение
+                showSuccess('Успешный вход! Перенаправление...');
+                
+                // Перенаправляем через 1 секунду
+                setTimeout(() => {
+                    window.location.href = getRedirectUrl();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                let message = 'Ошибка входа';
+                if (error.code === 'auth/invalid-login-credentials') {
+                    message = 'Неверный email или пароль';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'Пользователь не найден';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Неверный пароль';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Слишком много попыток. Попробуйте позже';
+                } else {
+                    message = error.message;
+                }
+                
+                showError(message);
+                
+                // Восстанавливаем кнопку
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Войти';
+            }
+        }
+
+        // Обработка входа через Google
+        async function handleGoogleLogin() {
+            const loginBtn = document.getElementById('googleLoginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Скрываем сообщения
+            errorMessage.style.display = 'none';
+            
+            try {
+                // Блокируем кнопку
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Подключение к Google...';
+                
+                // Входим через Google
+                const result = await auth.signInWithPopup(googleProvider);
+                
+                // Показываем успешное сообщение
+                showSuccess('Успешный вход через Google! Перенаправление...');
+                
+                // Перенаправляем через 1 секунду
+                setTimeout(() => {
+                    window.location.href = getRedirectUrl();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Ошибка входа через Google:', error);
+                
+                let message = 'Ошибка входа через Google';
+                if (error.code === 'auth/popup-blocked') {
+                    message = 'Всплывающее окно было заблокировано браузером';
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    message = 'Вход через Google отменен';
+                } else {
+                    message = error.message;
+                }
+                
+                showError(message);
+                
+                // Восстанавливаем кнопку
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fab fa-google"></i> Google';
+            }
+        }
+
+        // Показать ошибку
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Показать успешное сообщение
+        function showSuccess(message) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
