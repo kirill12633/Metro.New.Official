@@ -31,7 +31,7 @@ window.login = async function () {
     });
 
     if (res.ok) {
-      window.location.href = "/admin/search/index.html"; // Перенаправляем на поиск
+      window.location.href = "/admin/search/index.html";
     } else {
       const data = await res.json();
       errorDiv.textContent = data.error;
