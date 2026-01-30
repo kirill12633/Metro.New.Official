@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
 
+// Конфиг Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
   authDomain: "metro-new-85226.firebaseapp.com",
@@ -11,9 +13,17 @@ const firebaseConfig = {
   appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
 };
 
+// Инициализация Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Инициализация App Check
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
+  isTokenAutoRefreshEnabled: true
+});
+
+// Функция входа
 window.login = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -31,7 +41,7 @@ window.login = async function () {
     });
 
     if (res.ok) {
-      window.location.href = "/admin/search/index.html";
+      window.location.href = "/admin/search/index.html"; // Перенаправление на поиск
     } else {
       const data = await res.json();
       errorDiv.textContent = data.error;
