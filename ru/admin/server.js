@@ -7,68 +7,64 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// 🔒 Используем GitHub Secret напрямую
-// В GitHub Codespaces / Actions нужно создать Secret:
-// Name: FIREBASE_SDK_ADMIN_KEY
-// Value: полный JSON ключа service account
+// JSON ключ из GitHub Secret
 const serviceAccount = JSON.parse(process.env.FIREBASE_SDK_ADMIN_KEY);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-// Раздаём страницы
-app.use("/admin/login", express.static(path.join(__dirname, "admin/login")));
-
-// Middleware для проверки сессии
+// Middleware сессии
 function checkAuth(req, res, next) {
-  const sessionCookie = req.cookies.session || "";
-  admin
-    .auth()
-    .verifySessionCookie(sessionCookie, true)
+  const sessionCookie = req.cookies.session || '';
+  admin.auth().verifySessionCookie(sessionCookie, true)
     .then(() => next())
-    .catch(() => res.redirect("/admin/login/index.html"));
+    .catch(() => res.status(401).send('Unauthorized'));
 }
 
-// Защищаем search
+// Статика
+app.use("/admin/login", express.static(path.join(__dirname, "admin/login")));
 app.use("/admin/search", checkAuth, express.static(path.join(__dirname, "admin/search")));
 
-// POST /login — создаём сессию
-app.post("/login", async (req, res) => {
-  const { idToken } = req.body;
-  if (!idToken) return res.status(400).json({ error: "Нет токена" });
-
-  try {
-    // Сессия на 1 день
-    const expiresIn = 60 * 60 * 24 * 1000;
-    const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
-
-    res.cookie("session", sessionCookie, {
-      httpOnly: true, // защищено от JS
-      secure: true,   // на HTTPS
-      maxAge: expiresIn,
+// Получение всех пользователей
+app.get("/api/users", checkAuth, async (req, res) => {
+  const users = [];
+  let result = await admin.auth().listUsers(1000); // максимум 1000 пользователей
+  result.users.forEach(u => {
+    users.push({
+      email: u.email,
+      providers: u.providerData.map(p => p.providerId),
+      createdAt: u.metadata.creationTime,
+      lastSignIn: u.metadata.lastSignInTime,
+      uid: u.uid
     });
+  });
+  res.json(users);
+});
 
-    res.json({ success: true });
+// Деактивация
+app.post("/api/deactivate", checkAuth, async (req, res) => {
+  const uid = req.query.uid;
+  if (!uid) return res.status(400).send("UID не указан");
+  try {
+    await admin.auth().updateUser(uid, { disabled: true });
+    res.sendStatus(200);
   } catch (err) {
-    res.status(401).json({ error: "Не удалось создать сессию" });
+    res.status(500).send(err.message);
   }
 });
 
-// API поиска пользователя
-app.get("/api/search", checkAuth, async (req, res) => {
+// Сброс пароля
+app.post("/api/reset-password", checkAuth, async (req, res) => {
   const email = req.query.email;
-  if (!email) return res.status(400).json({ error: "Введите email" });
-
+  if (!email) return res.status(400).send("Email не указан");
   try {
-    const user = await admin.auth().getUserByEmail(email);
-    res.json({
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName
-    });
+    const link = await admin.auth().generatePasswordResetLink(email);
+    // TODO: отправить на почту через nodemailer или другой сервис
+    console.log("Ссылка для сброса пароля:", link);
+    res.sendStatus(200);
   } catch (err) {
-    res.status(404).json({ error: "Пользователь не найден" });
+    res.status(500).send(err.message);
   }
 });
 
