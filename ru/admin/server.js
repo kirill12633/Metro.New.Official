@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const admin = require("firebase-admin");
 const cookieParser = require("cookie-parser");
@@ -8,9 +7,15 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// Admin SDK ключ через GitHub Secret или .env
+// 🔒 Используем GitHub Secret напрямую
+// В GitHub Codespaces / Actions нужно создать Secret:
+// Name: FIREBASE_SDK_ADMIN_KEY
+// Value: полный JSON ключа service account
 const serviceAccount = JSON.parse(process.env.FIREBASE_SDK_ADMIN_KEY);
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 // Раздаём страницы
 app.use("/admin/login", express.static(path.join(__dirname, "admin/login")));
@@ -28,18 +33,19 @@ function checkAuth(req, res, next) {
 // Защищаем search
 app.use("/admin/search", checkAuth, express.static(path.join(__dirname, "admin/search")));
 
-// Вход: POST /login
+// POST /login — создаём сессию
 app.post("/login", async (req, res) => {
   const { idToken } = req.body;
   if (!idToken) return res.status(400).json({ error: "Нет токена" });
 
   try {
-    const expiresIn = 60 * 60 * 24 * 1000; // 1 день
+    // Сессия на 1 день
+    const expiresIn = 60 * 60 * 24 * 1000;
     const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
 
     res.cookie("session", sessionCookie, {
-      httpOnly: true,
-      secure: true,  // на HTTPS
+      httpOnly: true, // защищено от JS
+      secure: true,   // на HTTPS
       maxAge: expiresIn,
     });
 
@@ -56,7 +62,11 @@ app.get("/api/search", checkAuth, async (req, res) => {
 
   try {
     const user = await admin.auth().getUserByEmail(email);
-    res.json({ uid: user.uid, email: user.email, displayName: user.displayName });
+    res.json({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName
+    });
   } catch (err) {
     res.status(404).json({ error: "Пользователь не найден" });
   }
