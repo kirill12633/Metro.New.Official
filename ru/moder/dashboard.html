@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro New - Admin Dashboard</title>
+    
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --metro-red: #D52B1E;
+            --metro-blue: #0078BE;
+            --metro-green: #009D58;
+            --metro-gold: #FFD700;
+            --bg-dark: #0A0A14;
+            --sidebar: #1A1A2E;
+            --card: #16213E;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-dark);
+            color: white;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: var(--metro-gold);
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar);
+            padding: 20px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--metro-red), var(--metro-blue));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--metro-gold);
+        }
+        
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--metro-gold);
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .user-email {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--metro-red), var(--metro-blue));
+            color: white;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px;
+            background: var(--metro-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: none;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .page-title {
+            font-size: 24px;
+            color: var(--metro-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--metro-gold);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+        
+        .content-section {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            color: var(--metro-gold);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background: var(--metro-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+        }
+        
+        .btn-danger {
+            background: var(--metro-red);
+        }
+        
+        .btn-success {
+            background: var(--metro-green);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: rgba(0, 157, 88, 0.2);
+            color: var(--metro-green);
+        }
+        
+        .status-banned {
+            background: rgba(213, 43, 30, 0.2);
+            color: var(--metro-red);
+        }
+        
+        /* Error */
+        .error-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error-icon {
+            font-size: 64px;
+            color: var(--metro-red);
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                left: -100%;
+                transition: left 0.3s;
+                height: 100vh;
+                z-index: 100;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 99;
+                background: var(--metro-blue);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loadingScreen">
+        <div class="spinner"></div>
+        <div>Загрузка админ-панели...</div>
+    </div>
+    
+    <!-- Error Screen -->
+    <div class="error-screen" id="errorScreen">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2>Ошибка доступа</h2>
+        <p id="errorText">У вас нет прав для доступа к админ-панели</p>
+        <button class="btn" onclick="window.location.href='login.html'" style="margin-top: 20px;">
+            <i class="fas fa-sign-in-alt"></i>
+            Вернуться на страницу входа
+        </button>
+    </div>
+    
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <div class="logo-icon">M</div>
+            <div class="logo-text">Metro Admin</div>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-email" id="sidebarEmail">Загрузка...</div>
+            <div class="user-role" id="sidebarRole">Администратор</div>
+        </div>
+        
+        <div class="nav-item active" onclick="loadSection('dashboard')">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Дашборд</span>
+        </div>
+        
+        <div class="nav-item" onclick="loadSection('users')">
+            <i class="fas fa-users"></i>
+            <span>Пользователи</span>
+        </div>
+        
+        <div class="nav-item" onclick="loadSection('content')">
+            <i class="fas fa-newspaper"></i>
+            <span>Контент</span>
+        </div>
+        
+        <div class="nav-item" onclick="loadSection('moderation')">
+            <i class="fas fa-gavel"></i>
+            <span>Модерация</span>
+        </div>
+        
+        <div class="nav-item" onclick="loadSection('reports')">
+            <i class="fas fa-chart-bar"></i>
+            <span>Отчеты</span>
+        </div>
+        
+        <div class="nav-item" onclick="loadSection('settings')">
+            <i class="fas fa-cog"></i>
+            <span>Настройки</span>
+        </div>
+        
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Выйти</span>
+        </button>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <h1 class="page-title" id="pageTitle">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Дашборд</span>
+            </h1>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    Обновить
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content will be loaded here -->
+        <div id="contentArea">
+            <!-- Dashboard Content -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statUsers">0</div>
+                    <div class="stat-label">Пользователей</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="statPosts">0</div>
+                    <div class="stat-label">Постов</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="statReports">0</div>
+                    <div class="stat-label">Жалоб</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="statBanned">0</div>
+                    <div class="stat-label">Заблокировано</div>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    <span>Последние действия</span>
+                </h2>
+                <div id="recentActivity">
+                    <p style="color: rgba(255,255,255,0.5);">Действий пока нет</p>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-clock"></i>
+                    <span>Последние пользователи</span>
+                </h2>
+                <div id="recentUsers">
+                    <p style="color: rgba(255,255,255,0.5);">Пользователи не найдены</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // 🔥 КОНФИГУРАЦИЯ
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
+
+        // 🚀 ИНИЦИАЛИЗАЦИЯ
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // 📊 ДАННЫЕ АДМИНА
+        let adminData = null;
+        let userPermissions = {};
+
+        // 🔐 ПРОВЕРКА ДОСТУПА
+        async function checkAccess() {
+            try {
+                // 1. Проверяем авторизацию
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error("Не авторизован");
+                }
+                
+                // 2. Проверяем данные в localStorage
+                const storedData = localStorage.getItem('metro_admin');
+                if (!storedData) {
+                    throw new Error("Данные сессии не найдены");
+                }
+                
+                adminData = JSON.parse(storedData);
+                
+                // 3. Проверяем UID
+                if (adminData.uid !== user.uid) {
+                    throw new Error("Несоответствие сессии");
+                }
+                
+                // 4. Загружаем права доступа
+                userPermissions = adminData.permissions || {};
+                
+                // 5. Обновляем UI
+                updateUserInfo();
+                
+                // 6. Показываем панель
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('sidebar').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'block';
+                
+                // 7. Загружаем данные
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error("❌ Ошибка доступа:", error);
+                showError("Ошибка доступа: " + error.message);
+            }
+        }
+
+        // 👤 ОБНОВЛЕНИЕ ИНФОРМАЦИИ
+        function updateUserInfo() {
+            if (adminData) {
+                document.getElementById('sidebarEmail').textContent = adminData.email || "Неизвестно";
+                document.getElementById('sidebarRole').textContent = 
+                    adminData.role === 'admin' ? 'Администратор' : 'Модератор';
+            }
+        }
+
+        // 📊 ЗАГРУЗКА ДАННЫХ ДАШБОРДА
+        async function loadDashboardData() {
+            try {
+                // Попробуем загрузить данные из Firestore
+                await loadFirestoreData();
+            } catch (firestoreError) {
+                console.warn("⚠️ Firestore недоступен, используем тестовые данные");
+                loadMockData();
+            }
+        }
+
+        // 📡 ЗАГРУЗКА ИЗ FIRESTORE
+        async function loadFirestoreData() {
+            try {
+                // Статистика пользователей
+                const usersSnapshot = await db.collection("users").limit(1).get();
+                document.getElementById('statUsers').textContent = "100+";
+                
+                // Последние пользователи
+                const recentUsers = await db.collection("users")
+                    .orderBy("createdAt", "desc")
+                    .limit(5)
+                    .get();
+                
+                let usersHtml = '';
+                if (!recentUsers.empty) {
+                    recentUsers.forEach(doc => {
+                        const user = doc.data();
+                        usersHtml += `
+                            <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <div style="font-weight: 500;">${user.email || 'Нет email'}</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.6);">
+                                    ${new Date(user.createdAt?.toDate() || Date.now()).toLocaleDateString()}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('recentUsers').innerHTML = usersHtml;
+                }
+                
+                // Тестовые данные для остального
+                document.getElementById('statPosts').textContent = "24";
+                document.getElementById('statReports').textContent = "3";
+                document.getElementById('statBanned').textContent = "1";
+                
+                // Последние действия
+                const logs = await db.collection("admin_security_logs")
+                    .orderBy("timestamp", "desc")
+                    .limit(5)
+                    .get();
+                
+                let logsHtml = '';
+                if (!logs.empty) {
+                    logs.forEach(doc => {
+                        const log = doc.data();
+                        logsHtml += `
+                            <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-weight: 500;">${log.eventType || 'Действие'}</span>
+                                    <span style="font-size: 12px; color: rgba(255,255,255,0.6);">
+                                        ${new Date(log.timestamp?.toDate() || Date.now()).toLocaleTimeString()}
+                                    </span>
+                                </div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.7);">
+                                    ${log.userEmail || 'Система'}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('recentActivity').innerHTML = logsHtml;
+                }
+                
+            } catch (error) {
+                console.error("❌ Ошибка загрузки данных:", error);
+                throw error;
+            }
+        }
+
+        // 🎮 ТЕСТОВЫЕ ДАННЫЕ
+        function loadMockData() {
+            document.getElementById('statUsers').textContent = "1,024";
+            document.getElementById('statPosts').textContent = "456";
+            document.getElementById('statReports').textContent = "23";
+            document.getElementById('statBanned').textContent = "15";
+            
+            // Последние действия
+            const actions = [
+                { action: "Вход в систему", user: adminData?.email || "Админ", time: "Только что" },
+                { action: "Обновление настроек", user: "Система", time: "5 мин назад" },
+                { action: "Создание отчета", user: "Система", time: "1 час назад" }
+            ];
+            
+            let actionsHtml = '';
+            actions.forEach(item => {
+                actionsHtml += `
+                    <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-weight: 500;">${item.action}</span>
+                            <span style="font-size: 12px; color: rgba(255,255,255,0.6);">${item.time}</span>
+                        </div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.7);">${item.user}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('recentActivity').innerHTML = actionsHtml;
+            
+            // Последние пользователи
+            const users = [
+                { email: "user1@example.com", date: "Сегодня" },
+                { email: "user2@example.com", date: "Вчера" },
+                { email: "user3@example.com", date: "2 дня назад" }
+            ];
+            
+            let usersHtml = '';
+            users.forEach(user => {
+                usersHtml += `
+                    <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-weight: 500;">${user.email}</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.6);">${user.date}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('recentUsers').innerHTML = usersHtml;
+        }
+
+        // 🔄 ОБНОВИТЬ ДАННЫЕ
+        function refreshData() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+            
+            setTimeout(() => {
+                loadDashboardData();
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            }, 1000);
+        }
+
+        // 🗂️ ЗАГРУЗКА РАЗДЕЛА
+        function loadSection(section) {
+            // Обновляем активную кнопку
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Обновляем заголовок
+            const titles = {
+                'dashboard': 'Дашборд',
+                'users': 'Пользователи',
+                'content': 'Контент',
+                'moderation': 'Модерация',
+                'reports': 'Отчеты',
+                'settings': 'Настройки'
+            };
+            
+            document.getElementById('pageTitle').innerHTML = `
+                <i class="fas fa-${getSectionIcon(section)}"></i>
+                <span>${titles[section] || section}</span>
+            `;
+            
+            // Загружаем контент раздела
+            let content = '';
+            
+            switch(section) {
+                case 'dashboard':
+                    content = getDashboardContent();
+                    break;
+                case 'users':
+                    content = getUsersContent();
+                    break;
+                case 'content':
+                    content = getContentContent();
+                    break;
+                case 'moderation':
+                    content = getModerationContent();
+                    break;
+                case 'reports':
+                    content = getReportsContent();
+                    break;
+                case 'settings':
+                    content = getSettingsContent();
+                    break;
+                default:
+                    content = '<p>Раздел в разработке</p>';
+            }
+            
+            document.getElementById('contentArea').innerHTML = content;
+            
+            // Закрываем меню на мобильных
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+
+        // 🎨 КОНТЕНТ РАЗДЕЛОВ
+        function getDashboardContent() {
+            return `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="statUsers">0</div>
+                        <div class="stat-label">Пользователей</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="statPosts">0</div>
+                        <div class="stat-label">Постов</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="statReports">0</div>
+                        <div class="stat-label">Жалоб</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="statBanned">0</div>
+                        <div class="stat-label">Заблокировано</div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-history"></i>
+                        <span>Последние действия</span>
+                    </h2>
+                    <div id="recentActivity">
+                        <p style="color: rgba(255,255,255,0.5);">Загрузка...</p>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-user-clock"></i>
+                        <span>Последние пользователи</span>
+                    </h2>
+                    <div id="recentUsers">
+                        <p style="color: rgba(255,255,255,0.5);">Загрузка...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getUsersContent() {
+            return `
+                <div class="content-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-users"></i>
+                        <span>Управление пользователями</span>
+                    </h2>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" placeholder="Поиск пользователей..." style="flex: 1; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: white;">
+                        <button class="btn">
+                            <i class="fas fa-search"></i>
+                            Поиск
+                        </button>
+                        <button class="btn btn-success">
+                            <i class="fas fa-plus"></i>
+                            Добавить
+                        </button>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Роль</th>
+                                <th>Статус</th>
+                                <th>Дата регистрации</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${adminData?.email || 'Админ'}</td>
+                                <td>Администратор</td>
+                                <td><span class="status status-active">Активен</span></td>
+                                <td>Сегодня</td>
+                                <td>
+                                    <button class="btn" style="padding: 5px 10px; font-size: 12px;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getSectionIcon(section) {
+            const icons = {
+                'dashboard': 'tachometer-alt',
+                'users': 'users',
+                'content': 'newspaper',
+                'moderation': 'gavel',
+                'reports': 'chart-bar',
+                'settings': 'cog'
+            };
+            return icons[section] || 'folder';
+        }
+
+        // ⚠️ ПОКАЗАТЬ ОШИБКУ
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('errorScreen').style.display = 'flex';
+        }
+
+        // 🚪 ВЫХОД
+        async function logout() {
+            try {
+                await auth.signOut();
+                localStorage.removeItem('metro_admin');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Ошибка выхода:", error);
+            }
+        }
+
+        // 🚀 ЗАПУСК
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверяем доступ
+            checkAccess();
+            
+            // Настройка мобильного меню
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (window.innerWidth <= 768) {
+                menuToggle.style.display = 'block';
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // Скрываем меню при клике на контент
+            document.getElementById('mainContent').addEventListener('click', () => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
