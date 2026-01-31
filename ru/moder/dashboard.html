@@ -1,80 +1,24 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Metro New — Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f5f5f5;
-    }
+<meta charset="UTF-8">
+<title>Metro New — Dashboard</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+  header { height: 60px; background: #222; color: #fff; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
+  header h2 { margin: 0; font-size: 20px; }
+  #welcome { font-size: 14px; color: #ccc; }
 
-    header {
-      height: 60px;
-      background: #222;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      justify-content: space-between;
-    }
+  .sidebar { position: fixed; top: 60px; left: 0; width: 220px; bottom: 0; background: #fff; border-right: 1px solid #ccc; padding: 10px; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+  .sidebar button { display: block; width: 100%; padding: 10px; margin: 5px 0; border: none; background: #eee; cursor: pointer; border-radius: 4px; font-size: 14px; text-align: left; }
+  .sidebar button:hover { background: #ddd; }
+  .sidebar button.logout { background: #f66; color: #fff; }
 
-    header h2 { margin: 0; font-size: 20px; }
-    #welcome { font-size: 14px; color: #ccc; }
-
-    /* Левая панель */
-    .sidebar {
-      position: fixed;
-      top: 60px;
-      left: 0;
-      width: 220px;
-      bottom: 0;
-      background: #fff;
-      border-right: 1px solid #ccc;
-      padding: 10px;
-      overflow-y: auto;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-
-    .sidebar button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border: none;
-      background: #eee;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 14px;
-      text-align: left;
-    }
-
-    .sidebar button:hover { background: #ddd; }
-
-    .sidebar button.logout { background: #f66; color: #fff; }
-
-    /* Контент справа */
-    .content {
-      margin-left: 240px;
-      padding: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: #fff;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th { background: #eee; }
-  </style>
+  .content { margin-left: 240px; padding: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background: #eee; }
+</style>
 </head>
 <body>
 
@@ -83,7 +27,6 @@
   <div id="welcome">Загрузка данных...</div>
 </header>
 
-<!-- Левая панель -->
 <div class="sidebar">
   <button onclick="action('deleted')">Удалённые</button>
   <button onclick="action('complaints')">Жалобы</button>
@@ -111,7 +54,6 @@
 
 <!-- Конфиг Firebase -->
 <script>
-  // Один глобальный объект конфигурации
   window.firebaseConfig = {
     apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
     authDomain: "metro-new-admin.firebaseapp.com",
@@ -122,11 +64,8 @@
   };
 </script>
 
-<!-- Guard и логика -->
 <script>
-if (!firebase.apps.length) {
-  firebase.initializeApp(window.firebaseConfig);
-}
+if (!firebase.apps.length) { firebase.initializeApp(window.firebaseConfig); }
 
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -136,57 +75,104 @@ const mainContent = document.getElementById("main-content");
 // Проверка доступа
 auth.onAuthStateChanged(user => {
   if (!user) { window.location.href = "index.html"; return; }
-
   db.collection("users").doc(user.uid).get()
     .then(doc => {
-      if (!doc.exists) { throw "Пользователь не найден"; }
+      if (!doc.exists) throw "Пользователь не найден";
       const role = doc.data().role;
-      if (role !== "moder" && role !== "admin") { throw "Нет доступа"; }
+      if (role !== "moder" && role !== "admin") throw "Нет доступа";
       welcome.innerText = `${user.email} — роль: ${role}`;
     })
-    .catch(err => {
-      console.error(err);
-      window.location.href = "index.html";
-    });
+    .catch(err => { console.error(err); window.location.href = "index.html"; });
 });
 
-// Функция выхода
-window.logout = function() {
-  auth.signOut().then(() => window.location.href = "index.html");
-};
+// Выход
+window.logout = () => auth.signOut().then(() => window.location.href="index.html");
 
 // Действия панели
 function action(section) {
   mainContent.innerHTML = "";
-  if(section === "complaints") {
-    mainContent.innerHTML = `
-      <h3>Жалобы пользователей</h3>
-      <table>
-        <tr><th>ID</th><th>Пользователь</th><th>Причина</th><th>Статус</th><th>Действие</th></tr>
-        <tr><td>1</td><td>user1@mail.com</td><td>Спам</td><td>Новая</td><td><button>Разрешить</button></td></tr>
-        <tr><td>2</td><td>user2@mail.com</td><td>Оскорбление</td><td>Новая</td><td><button>Блокировать</button></td></tr>
-      </table>
-    `;
-  } else if(section === "queue") {
-    mainContent.innerHTML = `
-      <h3>Очередь одобрения</h3>
-      <table>
-        <tr><th>ID</th><th>Пользователь</th><th>Контент</th><th>Статус</th><th>Действие</th></tr>
-        <tr><td>1</td><td>user3@mail.com</td><td>Пост 1</td><td>Ожидает</td><td><button>Одобрить</button></td></tr>
-        <tr><td>2</td><td>user4@mail.com</td><td>Пост 2</td><td>Ожидает</td><td><button>Отклонить</button></td></tr>
-      </table>
-    `;
-  } else if(section === "deleted") {
-    mainContent.innerHTML = `
-      <h3>Удалённый контент</h3>
-      <table>
-        <tr><th>ID</th><th>Пользователь</th><th>Контент</th><th>Причина</th></tr>
-        <tr><td>1</td><td>user5@mail.com</td><td>Пост 3</td><td>Спам</td></tr>
-        <tr><td>2</td><td>user6@mail.com</td><td>Комментарий 7</td><td>Оскорбление</td></tr>
-      </table>
-    `;
-  } else {
-    mainContent.innerHTML = `<p>Вы открыли раздел: <strong>${section}</strong></p>`;
+  switch(section) {
+    case "deleted":
+      mainContent.innerHTML = `
+        <h3>Удалённый контент</h3>
+        <table>
+          <tr><th>ID</th><th>Пользователь</th><th>Контент</th><th>Причина</th></tr>
+          <tr><td>1</td><td>user5@mail.com</td><td>Пост 3</td><td>Спам</td></tr>
+          <tr><td>2</td><td>user6@mail.com</td><td>Комментарий 7</td><td>Оскорбление</td></tr>
+        </table>`;
+      break;
+    case "complaints":
+      mainContent.innerHTML = `
+        <h3>Жалобы пользователей</h3>
+        <table>
+          <tr><th>ID</th><th>Пользователь</th><th>Причина</th><th>Статус</th><th>Действие</th></tr>
+          <tr><td>1</td><td>user1@mail.com</td><td>Спам</td><td>Новая</td><td><button>Разрешить</button></td></tr>
+          <tr><td>2</td><td>user2@mail.com</td><td>Оскорбление</td><td>Новая</td><td><button>Блокировать</button></td></tr>
+        </table>`;
+      break;
+    case "queue":
+      mainContent.innerHTML = `
+        <h3>Очередь одобрения</h3>
+        <table>
+          <tr><th>ID</th><th>Пользователь</th><th>Контент</th><th>Статус</th><th>Действие</th></tr>
+          <tr><td>1</td><td>user3@mail.com</td><td>Пост 1</td><td>Ожидает</td><td><button>Одобрить</button></td></tr>
+          <tr><td>2</td><td>user4@mail.com</td><td>Пост 2</td><td>Ожидает</td><td><button>Отклонить</button></td></tr>
+        </table>`;
+      break;
+    case "punishments":
+      mainContent.innerHTML = `
+        <h3>Наказания</h3>
+        <table>
+          <tr><th>ID</th><th>Пользователь</th><th>Тип</th><th>Срок</th></tr>
+          <tr><td>1</td><td>user7@mail.com</td><td>Блокировка</td><td>7 дней</td></tr>
+        </table>`;
+      break;
+    case "banned":
+      mainContent.innerHTML = `
+        <h3>Заблокированные</h3>
+        <table>
+          <tr><th>ID</th><th>Пользователь</th><th>Причина</th></tr>
+          <tr><td>1</td><td>user8@mail.com</td><td>Оскорбления</td></tr>
+        </table>`;
+      break;
+    case "reports":
+      mainContent.innerHTML = `
+        <h3>Отчёты</h3>
+        <table>
+          <tr><th>ID</th><th>Название</th><th>Автор</th></tr>
+          <tr><td>1</td><td>Еженедельный отчёт</td><td>admin@mail.com</td></tr>
+        </table>`;
+      break;
+    case "statistics":
+      mainContent.innerHTML = `
+        <h3>Статистика</h3>
+        <p>Пользователи: 1024</p>
+        <p>Постов: 456</p>`;
+      break;
+    case "users":
+      mainContent.innerHTML = `
+        <h3>Пользователи</h3>
+        <table>
+          <tr><th>ID</th><th>Email</th><th>Роль</th></tr>
+          <tr><td>1</td><td>user1@mail.com</td><td>moder</td></tr>
+          <tr><td>2</td><td>user2@mail.com</td><td>admin</td></tr>
+        </table>`;
+      break;
+    case "logs":
+      mainContent.innerHTML = `
+        <h3>Логи действий</h3>
+        <table>
+          <tr><th>Время</th><th>Действие</th><th>Пользователь</th></tr>
+          <tr><td>12:00</td><td>Одобрил пост</td><td>moder@mail.com</td></tr>
+        </table>`;
+      break;
+    case "settings":
+      mainContent.innerHTML = `
+        <h3>Настройки</h3>
+        <p>Здесь можно менять настройки панели.</p>`;
+      break;
+    default:
+      mainContent.innerHTML = `<p>Вы выбрали раздел: ${section}</p>`;
   }
 }
 </script>
