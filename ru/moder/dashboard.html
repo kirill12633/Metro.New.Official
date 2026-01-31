@@ -1,181 +1,321 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Metro New — Dashboard</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-  header { height: 60px; background: #222; color: #fff; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
-  header h2 { margin: 0; font-size: 20px; }
-  #welcome { font-size: 14px; color: #ccc; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Metro New Admin</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
-  .sidebar { position: fixed; top: 60px; left: 0; width: 220px; bottom: 0; background: #fff; border-right: 1px solid #ccc; padding: 10px; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
-  .sidebar button { display: block; width: 100%; padding: 10px; margin: 5px 0; border: none; background: #eee; cursor: pointer; border-radius: 4px; font-size: 14px; text-align: left; }
-  .sidebar button:hover { background: #ddd; }
-  .sidebar button.logout { background: #f66; color: #fff; }
-
-  .content { margin-left: 240px; padding: 20px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-  th { background: #eee; }
-</style>
+    <style>
+        /* Стили из предыдущего dashboard.html */
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --admin-bg: #1a1a2e;
+            --admin-sidebar: #16213e;
+            --admin-card: #0f3460;
+            --metro-red: #D52B1E;
+            --metro-blue: #0078BE;
+            --metro-green: #009D58;
+        }
+        
+        /* ... остальные стили ... */
+    </style>
 </head>
 <body>
+    <!-- Нотификации -->
+    <div class="notification" id="notification"></div>
+    
+    <!-- Загрузочный экран -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <h3 id="loadingText">Загрузка данных...</h3>
+    </div>
+    
+    <div class="admin-container" id="adminContainer" style="display: none;">
+        <!-- Сайдбар -->
+        <div class="admin-sidebar">
+            <div class="admin-logo">
+                <div class="admin-logo-icon">M</div>
+                <div class="admin-logo-text">
+                    <div>Metro New</div>
+                    <div style="font-size: 0.9rem; color: var(--secondary);">Admin Panel</div>
+                </div>
+            </div>
+            
+            <!-- Информация о пользователе -->
+            <div class="admin-user-info" id="userInfo">
+                <div class="user-detail">
+                    <span class="user-detail-label">Пользователь:</span>
+                    <span class="user-detail-value" id="userEmail">-</span>
+                </div>
+                <div class="user-detail">
+                    <span class="user-detail-label">Роль:</span>
+                    <span class="user-detail-value" id="userRole">-</span>
+                </div>
+                <div class="user-detail">
+                    <span class="user-detail-label">IP:</span>
+                    <span class="user-detail-value" id="userIP">-</span>
+                </div>
+            </div>
+            
+            <!-- Навигация -->
+            <nav class="admin-nav">
+                <a href="#dashboard" class="nav-item active" onclick="loadSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Дашборд
+                </a>
+                <a href="#complaints" class="nav-item" onclick="loadSection('complaints')">
+                    <i class="fas fa-exclamation-triangle"></i> Жалобы
+                    <span class="badge" id="complaintsBadge">0</span>
+                </a>
+                <a href="#queue" class="nav-item" onclick="loadSection('queue')">
+                    <i class="fas fa-hourglass-half"></i> Очередь
+                    <span class="badge" id="queueBadge">0</span>
+                </a>
+                <a href="#users" class="nav-item" onclick="loadSection('users')">
+                    <i class="fas fa-users"></i> Пользователи
+                </a>
+                <a href="#banned" class="nav-item" onclick="loadSection('banned')">
+                    <i class="fas fa-ban"></i> Блокировки
+                </a>
+                <a href="#reports" class="nav-item" onclick="loadSection('reports')">
+                    <i class="fas fa-chart-bar"></i> Отчёты
+                </a>
+                <a href="#logs" class="nav-item" onclick="loadSection('logs')">
+                    <i class="fas fa-history"></i> Логи
+                </a>
+                <a href="#settings" class="nav-item" onclick="loadSection('settings')">
+                    <i class="fas fa-cog"></i> Настройки
+                </a>
+            </nav>
+            
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </button>
+        </div>
+        
+        <!-- Основной контент -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Обновить
+                    </button>
+                </div>
+            </header>
+            
+            <div id="contentArea">
+                <!-- Контент будет загружаться здесь -->
+            </div>
+        </main>
+    </div>
 
-<header>
-  <h2>Metro New — Dashboard</h2>
-  <div id="welcome">Загрузка данных...</div>
-</header>
+    <script>
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
 
-<div class="sidebar">
-  <button onclick="action('deleted')">Удалённые</button>
-  <button onclick="action('complaints')">Жалобы</button>
-  <button onclick="action('queue')">Очередь одобрения</button>
-  <button onclick="action('punishments')">Наказания</button>
-  <button onclick="action('banned')">Заблокированные</button>
-  <button onclick="action('reports')">Отчёты</button>
-  <button onclick="action('statistics')">Статистика</button>
-  <button onclick="action('users')">Пользователи</button>
-  <button onclick="action('logs')">Логи действий</button>
-  <button onclick="action('settings')">Настройки</button>
-  <button onclick="logout()" class="logout">Выйти</button>
-</div>
+        // Инициализация Firebase с App Check
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+            
+            // Активация App Check
+            const appCheck = firebase.appCheck();
+            appCheck.activate('6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7', true);
+        }
 
-<div class="content">
-  <div id="main-content">
-    <p>Выберите раздел слева, чтобы начать работу с админкой Metro New.</p>
-  </div>
-</div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<!-- Конфиг Firebase -->
-<script>
-  window.firebaseConfig = {
-    apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
-    authDomain: "metro-new-admin.firebaseapp.com",
-    projectId: "metro-new-admin",
-    storageBucket: "metro-new-admin.firebasestorage.app",
-    messagingSenderId: "769002010414",
-    appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-  };
-</script>
-
-<script>
-if (!firebase.apps.length) { firebase.initializeApp(window.firebaseConfig); }
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-const welcome = document.getElementById("welcome");
-const mainContent = document.getElementById("main-content");
-
-// Проверка доступа
-auth.onAuthStateChanged(user => {
-  if (!user) { window.location.href = "index.html"; return; }
-  db.collection("users").doc(user.uid).get()
-    .then(doc => {
-      if (!doc.exists) throw "Пользователь не найден";
-      const role = doc.data().role;
-      if (role !== "moder" && role !== "admin") throw "Нет доступа";
-      welcome.innerText = `${user.email} — роль: ${role}`;
-    })
-    .catch(err => { console.error(err); window.location.href = "index.html"; });
-});
-
-// Выход
-window.logout = () => auth.signOut().then(() => window.location.href="index.html");
-
-// Действия панели
-function action(section) {
-  mainContent.innerHTML = "";
-  switch(section) {
-    case "deleted":
-      mainContent.innerHTML = `
-        <h3>Удалённый контент</h3>
-        <table>
-          <tr><th>ID</th><th>Пользователь</th><th>Контент</th><th>Причина</th></tr>
-          <tr><td>1</td><td>user5@mail.com</td><td>Пост 3</td><td>Спам</td></tr>
-          <tr><td>2</td><td>user6@mail.com</td><td>Комментарий 7</td><td>Оскорбление</td></tr>
-        </table>`;
-      break;
-    case "complaints":
-      mainContent.innerHTML = `
-        <h3>Жалобы пользователей</h3>
-        <table>
-          <tr><th>ID</th><th>Пользователь</th><th>Причина</th><th>Статус</th><th>Действие</th></tr>
-          <tr><td>1</td><td>user1@mail.com</td><td>Спам</td><td>Новая</td><td><button>Разрешить</button></td></tr>
-          <tr><td>2</td><td>user2@mail.com</td><td>Оскорбление</td><td>Новая</td><td><button>Блокировать</button></td></tr>
-        </table>`;
-      break;
-    case "queue":
-      mainContent.innerHTML = `
-        <h3>Очередь одобрения</h3>
-        <table>
-          <tr><th>ID</th><th>Пользователь</th><th>Контент</th><th>Статус</th><th>Действие</th></tr>
-          <tr><td>1</td><td>user3@mail.com</td><td>Пост 1</td><td>Ожидает</td><td><button>Одобрить</button></td></tr>
-          <tr><td>2</td><td>user4@mail.com</td><td>Пост 2</td><td>Ожидает</td><td><button>Отклонить</button></td></tr>
-        </table>`;
-      break;
-    case "punishments":
-      mainContent.innerHTML = `
-        <h3>Наказания</h3>
-        <table>
-          <tr><th>ID</th><th>Пользователь</th><th>Тип</th><th>Срок</th></tr>
-          <tr><td>1</td><td>user7@mail.com</td><td>Блокировка</td><td>7 дней</td></tr>
-        </table>`;
-      break;
-    case "banned":
-      mainContent.innerHTML = `
-        <h3>Заблокированные</h3>
-        <table>
-          <tr><th>ID</th><th>Пользователь</th><th>Причина</th></tr>
-          <tr><td>1</td><td>user8@mail.com</td><td>Оскорбления</td></tr>
-        </table>`;
-      break;
-    case "reports":
-      mainContent.innerHTML = `
-        <h3>Отчёты</h3>
-        <table>
-          <tr><th>ID</th><th>Название</th><th>Автор</th></tr>
-          <tr><td>1</td><td>Еженедельный отчёт</td><td>admin@mail.com</td></tr>
-        </table>`;
-      break;
-    case "statistics":
-      mainContent.innerHTML = `
-        <h3>Статистика</h3>
-        <p>Пользователи: 1024</p>
-        <p>Постов: 456</p>`;
-      break;
-    case "users":
-      mainContent.innerHTML = `
-        <h3>Пользователи</h3>
-        <table>
-          <tr><th>ID</th><th>Email</th><th>Роль</th></tr>
-          <tr><td>1</td><td>user1@mail.com</td><td>moder</td></tr>
-          <tr><td>2</td><td>user2@mail.com</td><td>admin</td></tr>
-        </table>`;
-      break;
-    case "logs":
-      mainContent.innerHTML = `
-        <h3>Логи действий</h3>
-        <table>
-          <tr><th>Время</th><th>Действие</th><th>Пользователь</th></tr>
-          <tr><td>12:00</td><td>Одобрил пост</td><td>moder@mail.com</td></tr>
-        </table>`;
-      break;
-    case "settings":
-      mainContent.innerHTML = `
-        <h3>Настройки</h3>
-        <p>Здесь можно менять настройки панели.</p>`;
-      break;
-    default:
-      mainContent.innerHTML = `<p>Вы выбрали раздел: ${section}</p>`;
-  }
-}
-</script>
-
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Проверка авторизации
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Проверяем роль пользователя
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    await auth.signOut();
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                
+                // Проверка роли
+                if (userData.role !== 'admin' && userData.role !== 'moder') {
+                    await auth.signOut();
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Обновляем информацию о пользователе
+                updateUserInfo(user, userData);
+                
+                // Показываем панель
+                document.getElementById('adminContainer').style.display = 'flex';
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                // Загружаем начальную секцию
+                loadSection('dashboard');
+                
+                // Загружаем уведомления
+                loadNotifications();
+                
+                // Логируем вход
+                await logAction('login', 'success', 'Вход в админ-панель');
+                
+            } catch (error) {
+                console.error('Ошибка проверки доступа:', error);
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // Функции для работы с админ-панелью
+        async function loadSection(section) {
+            // Обновляем активный пункт меню
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Показываем загрузку
+            showLoading();
+            
+            try {
+                let content = '';
+                
+                switch(section) {
+                    case 'dashboard':
+                        content = await loadDashboard();
+                        document.getElementById('pageTitle').textContent = 'Dashboard';
+                        break;
+                    case 'complaints':
+                        content = await loadComplaints();
+                        document.getElementById('pageTitle').textContent = 'Жалобы';
+                        break;
+                    case 'queue':
+                        content = await loadQueue();
+                        document.getElementById('pageTitle').textContent = 'Очередь одобрения';
+                        break;
+                    case 'users':
+                        content = await loadUsers();
+                        document.getElementById('pageTitle').textContent = 'Пользователи';
+                        break;
+                    case 'banned':
+                        content = await loadBannedUsers();
+                        document.getElementById('pageTitle').textContent = 'Блокировки';
+                        break;
+                    case 'reports':
+                        content = await loadReports();
+                        document.getElementById('pageTitle').textContent = 'Отчёты';
+                        break;
+                    case 'logs':
+                        content = await loadLogs();
+                        document.getElementById('pageTitle').textContent = 'Логи действий';
+                        break;
+                    case 'settings':
+                        content = await loadSettings();
+                        document.getElementById('pageTitle').textContent = 'Настройки';
+                        break;
+                }
+                
+                document.getElementById('contentArea').innerHTML = content;
+                
+            } catch (error) {
+                console.error('Ошибка загрузки секции:', error);
+                showNotification('Ошибка загрузки данных', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Загрузка Dashboard
+        async function loadDashboard() {
+            const stats = await getStats();
+            
+            return `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>${stats.totalUsers}</h3>
+                        <p>Пользователей</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.activeUsers}</h3>
+                        <p>Онлайн</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.pendingComplaints}</h3>
+                        <p>Жалоб</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.queueItems}</h3>
+                        <p>В очереди</p>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Последние действия</h3>
+                    ${await getRecentActivity()}
+                </div>
+            `;
+        }
+        
+        // Получение статистики
+        async function getStats() {
+            // Здесь реализация запросов к Firestore
+            return {
+                totalUsers: 1024,
+                activeUsers: 156,
+                pendingComplaints: 23,
+                queueItems: 15
+            };
+        }
+        
+        // Выход из системы
+        async function logout() {
+            try {
+                await logAction('logout', 'info', 'Выход из системы');
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+            }
+        }
+        
+        // Другие функции...
+        
+    </script>
 </body>
 </html>
