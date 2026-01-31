@@ -6,60 +6,73 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
       margin: 0;
-      padding: 0;
+      background: #f5f5f5;
     }
 
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      height: 60px;
       background: #222;
       color: #fff;
-      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      justify-content: space-between;
     }
 
-    h2 { margin: 0; }
+    header h2 { margin: 0; font-size: 20px; }
     #welcome { font-size: 14px; color: #ccc; }
 
-    .moder-panel {
+    /* Левая панель */
+    .sidebar {
       position: fixed;
-      top: 50px;
-      right: 20px;
+      top: 60px;
+      left: 0;
+      width: 220px;
+      bottom: 0;
       background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border-right: 1px solid #ccc;
       padding: 10px;
-      width: 200px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     }
 
-    .moder-panel button {
+    .sidebar button {
       display: block;
       width: 100%;
+      padding: 10px;
       margin: 5px 0;
-      padding: 8px;
-      font-size: 14px;
+      border: none;
+      background: #eee;
       cursor: pointer;
       border-radius: 4px;
-      border: 1px solid #888;
-      background: #eee;
+      font-size: 14px;
+      text-align: left;
     }
 
-    .moder-panel button:hover { background: #ddd; }
+    .sidebar button:hover { background: #ddd; }
 
-    .content { padding: 60px 20px; }
+    .sidebar button.logout { background: #f66; color: #fff; }
+
+    /* Контент справа */
+    .content {
+      margin-left: 240px;
+      padding: 20px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      background: #fff;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 8px;
       text-align: left;
     }
+
     th { background: #eee; }
   </style>
 </head>
@@ -70,56 +83,81 @@
   <div id="welcome">Загрузка данных...</div>
 </header>
 
-<div class="moder-panel">
+<!-- Левая панель -->
+<div class="sidebar">
   <button onclick="action('deleted')">Удалённые</button>
   <button onclick="action('complaints')">Жалобы</button>
   <button onclick="action('queue')">Очередь одобрения</button>
-  <button onclick="action('punishments')">Вдача наказаний</button>
+  <button onclick="action('punishments')">Наказания</button>
   <button onclick="action('banned')">Заблокированные</button>
   <button onclick="action('reports')">Отчёты</button>
   <button onclick="action('statistics')">Статистика</button>
   <button onclick="action('users')">Пользователи</button>
   <button onclick="action('logs')">Логи действий</button>
   <button onclick="action('settings')">Настройки</button>
-  <button onclick="logout()">Выйти</button>
+  <button onclick="logout()" class="logout">Выйти</button>
 </div>
 
 <div class="content">
   <div id="main-content">
-    <p>Добро пожаловать в админ-панель Metro New! Выберите раздел в панели справа.</p>
+    <p>Выберите раздел слева, чтобы начать работу с админкой Metro New.</p>
   </div>
 </div>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<script src="config.js"></script>
-<script src="guard.js"></script>
-
+<!-- Конфиг Firebase -->
 <script>
+  // Один глобальный объект конфигурации
+  window.firebaseConfig = {
+    apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+    authDomain: "metro-new-admin.firebaseapp.com",
+    projectId: "metro-new-admin",
+    storageBucket: "metro-new-admin.firebasestorage.app",
+    messagingSenderId: "769002010414",
+    appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+  };
+</script>
+
+<!-- Guard и логика -->
+<script>
+if (!firebase.apps.length) {
+  firebase.initializeApp(window.firebaseConfig);
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 const welcome = document.getElementById("welcome");
 const mainContent = document.getElementById("main-content");
 
-// Приветствие пользователя
+// Проверка доступа
 auth.onAuthStateChanged(user => {
-  if (user) {
-    db.collection("users").doc(user.uid).get()
-      .then(doc => {
-        if (doc.exists) {
-          const role = doc.data().role;
-          welcome.innerText = `${user.email} — роль: ${role}`;
-        }
-      });
-  }
+  if (!user) { window.location.href = "index.html"; return; }
+
+  db.collection("users").doc(user.uid).get()
+    .then(doc => {
+      if (!doc.exists) { throw "Пользователь не найден"; }
+      const role = doc.data().role;
+      if (role !== "moder" && role !== "admin") { throw "Нет доступа"; }
+      welcome.innerText = `${user.email} — роль: ${role}`;
+    })
+    .catch(err => {
+      console.error(err);
+      window.location.href = "index.html";
+    });
 });
+
+// Функция выхода
+window.logout = function() {
+  auth.signOut().then(() => window.location.href = "index.html");
+};
 
 // Действия панели
 function action(section) {
-  mainContent.innerHTML = ""; // очистка
-
+  mainContent.innerHTML = "";
   if(section === "complaints") {
     mainContent.innerHTML = `
       <h3>Жалобы пользователей</h3>
@@ -150,8 +188,6 @@ function action(section) {
   } else {
     mainContent.innerHTML = `<p>Вы открыли раздел: <strong>${section}</strong></p>`;
   }
-
-  console.log("Открыт раздел:", section);
 }
 </script>
 
