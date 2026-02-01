@@ -20,18 +20,42 @@
     <link rel="stylesheet" href="https://kirill12633.github.io/Metro.New.Official/ru/css/main.css">
 </head>
 <body>
-    <!-- ВЕСЬ HTML КОД СТРАНИЦЫ АВТОРИЗАЦИИ -->
-    <div class="container">
-        <div class="card">
-            <div class="header">
-                <div class="discord-logo">
-                    <i class="fab fa-discord"></i>
-                </div>
-                <h1>Discord Авторизация</h1>
-                <p>Полный цикл безопасности для сообщества Метро New</p>
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="https://kirill12633.github.io/Metro.New.Official/" class="logo">
+                    <div class="logo-icon">M</div>
+                    <span>Метро New</span>
+                </a>
             </div>
             
+            <div class="header-right">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Discord Авторизация</span>
+                        <span class="user-status">Процесс верификации</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main>
+        <div class="container">
             <div class="content">
+                <div class="content-header">
+                    <h2>
+                        <i class="fab fa-discord"></i>
+                        Discord Авторизация
+                    </h2>
+                    <p>Полный цикл безопасности для сообщества Метро New</p>
+                </div>
+                
                 <div class="status" id="statusSection">
                     <div class="status-icon" id="statusIcon">
                         <i class="fas fa-user-shield"></i>
@@ -48,85 +72,98 @@
                     <span id="notificationText"></span>
                 </div>
                 
-                <div class="security-panel" id="securityPanel">
-                    <div class="security-header">
-                        <i class="fas fa-shield-alt"></i>
-                        <div>
-                            <h4 style="margin: 0; color: white;">Система безопасности</h4>
-                            <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Защита от ботов и мошенников</p>
+                <div class="security-panel" id="securityPanel" style="display: none;">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <h4>Система безопасности</h4>
+                        </div>
+                        <p>Защита от ботов и мошенников</p>
+                        
+                        <div class="storage-bar">
+                            <div class="storage-progress" id="securityProgress"></div>
+                        </div>
+                        
+                        <div class="storage-breakdown" id="securityMetrics">
+                            <!-- Метрики безопасности будут здесь -->
                         </div>
                     </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress" id="securityProgress"></div>
-                    </div>
-                    
-                    <div class="security-metrics" id="securityMetrics"></div>
                 </div>
                 
                 <div class="input-group" id="tokenSection">
-                    <input type="text" class="token-input" id="tokenInput" 
-                           placeholder="verify-discord-XXXXXXXXXX" 
-                           pattern="verify-discord-[a-zA-Z0-9]{10}"
-                           maxlength="25">
+                    <div class="form-group">
+                        <label for="tokenInput">Токен верификации</label>
+                        <input type="text" class="token-input" id="tokenInput" 
+                               placeholder="verify-discord-XXXXXXXXXX" 
+                               pattern="verify-discord-[a-zA-Z0-9]{10}"
+                               maxlength="25">
+                    </div>
                     <button class="btn btn-primary" id="verifyTokenBtn">
                         <i class="fas fa-check"></i>
-                        Проверить токен верификации
+                        Проверить токен
                     </button>
                     <p class="note">Токен автоматически заполняется после авторизации</p>
                 </div>
                 
-                <div class="user-info" id="userInfoSection">
-                    <h4><i class="fas fa-user-circle"></i> Discord аккаунт</h4>
+                <div class="user-info" id="userInfoSection" style="display: none;">
+                    <h3><i class="fas fa-user-circle"></i> Discord аккаунт</h3>
                     <div class="info-grid" id="userInfoGrid"></div>
                 </div>
                 
-                <button class="btn btn-success" id="startAuthBtn">
-                    <i class="fab fa-discord"></i>
-                    Начать авторизацию через Discord
-                </button>
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" id="startAuthBtn">
+                        <i class="fab fa-discord"></i>
+                        Начать авторизацию через Discord
+                    </button>
+                    
+                    <button class="btn btn-warning" id="securityCheckBtn" style="display: none;">
+                        <i class="fas fa-shield-alt"></i>
+                        Проверить безопасность
+                    </button>
+                    
+                    <button class="btn btn-outline" onclick="window.location.href='https://kirill12633.github.io/Metro.New.Official/'">
+                        <i class="fas fa-home"></i>
+                        На главную страницу
+                    </button>
+                </div>
                 
-                <button class="btn btn-warning" id="securityCheckBtn" style="display: none;">
-                    <i class="fas fa-shield-alt"></i>
-                    Проверить безопасность
-                </button>
-                
-                <button class="btn btn-outline" onclick="window.location.href='https://kirill12633.github.io/Metro.New.Official/'">
-                    <i class="fas fa-home"></i>
-                    На главную страницу
-                </button>
-                
-                <div class="loading" id="loadingSection">
-                    <div class="spinner"></div>
+                <div class="loading" id="loadingSection" style="display: none;">
+                    <div class="loading-spinner"></div>
                     <h3 id="loadingTitle">Проверка безопасности...</h3>
                     <p id="loadingText">Пожалуйста, подождите</p>
                 </div>
             </div>
-            
-            <div class="footer">
-                <p>© <span id="currentYear">2026</span> Метро New. Все права защищены.</p>
-                <p style="font-size: 0.8rem; margin-top: 0.5rem;">
-                    <i class="fas fa-shield-alt"></i> Защищено Cloudflare Workers & reCAPTCHA v3
-                </p>
-            </div>
         </div>
-    </div>
-    
+    </main>
+
+    <!-- ФУТЕР -->
+    <footer style="background-color: var(--dark); color: white; padding: 2rem 0; margin-top: 3rem;">
+        <div class="container" style="text-align: center;">
+            <p>© <span id="currentYear">2026</span> Метро New. Все права защищены.</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">
+                <i class="fas fa-shield-alt"></i> Защищено Cloudflare Workers & reCAPTCHA v3
+            </p>
+        </div>
+    </footer>
+
     <!-- МОДАЛЬНЫЕ ОКНА -->
     <div class="modal" id="errorModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon">
+                <h3>
                     <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <h3>Ошибка безопасности</h3>
-                <p id="errorModalText">Произошла ошибка при проверке безопасности</p>
+                    Ошибка безопасности
+                </h3>
+                <button class="modal-close" onclick="hideModal('errorModal')">&times;</button>
             </div>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <button class="btn btn-primary" onclick="hideModal('errorModal')">
-                    <i class="fas fa-redo"></i>
-                    Попробовать снова
-                </button>
+            <div class="modal-body">
+                <p id="errorModalText">Произошла ошибка при проверке безопасности</p>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="hideModal('errorModal')">
+                        <i class="fas fa-redo"></i>
+                        Попробовать снова
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -134,25 +171,28 @@
     <div class="modal" id="blockedModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon">
+                <h3>
                     <i class="fas fa-ban"></i>
-                </div>
-                <h3>Доступ ограничен</h3>
-                <p>Обнаружена подозрительная активность</p>
+                    Доступ ограничен
+                </h3>
+                <button class="modal-close" onclick="location.reload()">&times;</button>
             </div>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <p style="color: var(--gray); margin-bottom: 1rem;">
-                    Доступ будет восстановлен через: <strong id="blockTime">5 минут</strong>
-                </p>
-                <button class="btn btn-outline" onclick="location.reload()">
-                    <i class="fas fa-redo"></i>
-                    Обновить страницу
-                </button>
+            <div class="modal-body">
+                <p>Обнаружена подозрительная активность</p>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <p style="color: var(--gray); margin-bottom: 1rem;">
+                        Доступ будет восстановлен через: <strong id="blockTime">5 минут</strong>
+                    </p>
+                    <button class="btn btn-outline" onclick="location.reload()">
+                        <i class="fas fa-redo"></i>
+                        Обновить страницу
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ВЕСЬ JAVASCRIPT КОД ДЛЯ ЭТОЙ СТРАНИЦЫ -->
+    <!-- ВЕСЬ JAVASCRIPT КОД -->
     <script>
         // Функция для обновления года
         function updateCurrentYear() {
@@ -240,7 +280,7 @@
                     state.userData = JSON.parse(savedData);
                     state.isVerified = true;
                     showUserInfo(state.userData);
-                    updateStatus('verified', 'Аккаунт верифицирован', 'badge-success');
+                    updateStatus('verified', 'Аккаунт верифицирован', 'Готов', 'badge-primary');
                 } catch (e) {
                     console.warn('Ошибка загрузки сохраненных данных:', e);
                 }
@@ -643,9 +683,9 @@
             
             metrics.forEach(metric => {
                 html += `
-                    <div class="metric">
-                        <div class="metric-value">${metric.value}</div>
-                        <div class="metric-label">${metric.label}</div>
+                    <div class="storage-item">
+                        <div class="storage-item-name">${metric.label}</div>
+                        <div class="storage-item-size">${metric.value}</div>
                     </div>
                 `;
             });
@@ -670,16 +710,12 @@
                 verified: 'fas fa-user-check'
             };
             
-            elements.statusIcon.className = 'status-icon animate';
+            elements.statusIcon.className = 'status-icon';
             elements.statusIcon.innerHTML = `<i class="${icons[type] || icons.ready}"></i>`;
             elements.statusTitle.textContent = title;
             elements.statusText.textContent = text;
             elements.statusBadge.className = `badge ${badgeClass}`;
             elements.statusBadge.innerHTML = `<i class="${icons[type] || icons.ready}"></i> ${text}`;
-            
-            setTimeout(() => {
-                elements.statusIcon.classList.remove('animate');
-            }, 500);
         }
 
         // Показать информацию о пользователе
@@ -693,36 +729,36 @@
             };
             
             elements.userInfoGrid.innerHTML = `
-                <div class="info-item">
-                    <div class="info-label">Discord:</div>
-                    <div class="info-value">${userData.username}#${userData.discriminator}</div>
+                <div class="setting-item">
+                    <div class="setting-label">Discord:</div>
+                    <div class="setting-value">${userData.username}#${userData.discriminator}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">ID:</div>
-                    <div class="info-value" style="font-family: monospace; font-size: 0.9rem;">${userData.id}</div>
+                <div class="setting-item">
+                    <div class="setting-label">ID:</div>
+                    <div class="setting-value" style="font-family: monospace; font-size: 0.9rem;">${userData.id}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Email:</div>
-                    <div class="info-value">${userData.email || 'Не указан'}</div>
+                <div class="setting-item">
+                    <div class="setting-label">Email:</div>
+                    <div class="setting-value">${userData.email || 'Не указан'}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Верификация:</div>
-                    <div class="info-value">${userData.verified ? '✓ Подтвержден' : '✗ Не подтвержден'}</div>
+                <div class="setting-item">
+                    <div class="setting-label">Верификация:</div>
+                    <div class="setting-value">${userData.verified ? '✓ Подтвержден' : '✗ Не подтвержден'}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">IP:</div>
-                    <div class="info-value" style="font-family: monospace; font-size: 0.9rem;">${userData.ip || state.userIP}</div>
+                <div class="setting-item">
+                    <div class="setting-label">IP:</div>
+                    <div class="setting-value" style="font-family: monospace; font-size: 0.9rem;">${userData.ip || state.userIP}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Время:</div>
-                    <div class="info-value">${formatDate(userData.timestamp)}</div>
+                <div class="setting-item">
+                    <div class="setting-label">Время:</div>
+                    <div class="setting-value">${formatDate(userData.timestamp)}</div>
                 </div>
             `;
             
             elements.userInfoSection.style.display = 'block';
             elements.tokenSection.style.display = 'none';
             
-            updateStatus('verified', 'Discord аккаунт верифицирован', 'Аккаунт подключен', 'badge-success');
+            updateStatus('verified', 'Discord аккаунт верифицирован', 'Аккаунт подключен', 'badge-primary');
             
             // Показываем кнопку проверки безопасности
             elements.securityCheckBtn.style.display = 'inline-flex';
@@ -914,12 +950,24 @@
         }
 
         function showNotification(message, type = 'info') {
-            elements.notificationText.textContent = message;
-            elements.notification.className = `notification ${type}`;
-            elements.notification.style.display = 'block';
+            // Создаем элемент уведомления
+            const notification = document.createElement('div');
+            notification.className = `message ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
             
+            document.body.appendChild(notification);
+            
+            // Удаляем через 5 секунд
             setTimeout(() => {
-                elements.notification.style.display = 'none';
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
             }, 5000);
         }
 
