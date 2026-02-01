@@ -4,15 +4,964 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Авторизация | Метро New</title>
-    <link rel="stylesheet" href="/ru/css/style.css">
-    <script src="https://www.google.com/recaptcha/api.js?render=6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-"></script>
-    <script src="/ru/js/auth.js"></script>
-    <script src="/ru/js/security.js"></script>
-    <script src="/ru/js/utils.js"></script>
-</head>
-<body>
-    <!-- Ваш HTML код страницы авторизации -->
     
-    <script src="script.js"></script>
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-"></script>
+    
+    <!-- CSS файл -->
+    <link rel="stylesheet" href="ru/css/main.css">
+    
+    <!-- ВЕСЬ HTML КОД СТРАНИЦЫ АВТОРИЗАЦИИ -->
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="discord-logo">
+                    <i class="fab fa-discord"></i>
+                </div>
+                <h1>Discord Авторизация</h1>
+                <p>Полный цикл безопасности для сообщества Метро New</p>
+            </div>
+            
+            <div class="content">
+                <div class="status" id="statusSection">
+                    <div class="status-icon" id="statusIcon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 id="statusTitle">Начало авторизации</h3>
+                    <p id="statusText">Готовы начать процесс авторизации через Discord</p>
+                    <div class="badge badge-primary" id="statusBadge">
+                        <i class="fas fa-circle"></i> Готов
+                    </div>
+                </div>
+                
+                <div class="notification" id="notification">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="notificationText"></span>
+                </div>
+                
+                <div class="security-panel" id="securityPanel">
+                    <div class="security-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <h4 style="margin: 0; color: white;">Система безопасности</h4>
+                            <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Защита от ботов и мошенников</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress" id="securityProgress"></div>
+                    </div>
+                    
+                    <div class="security-metrics" id="securityMetrics"></div>
+                </div>
+                
+                <div class="input-group" id="tokenSection">
+                    <input type="text" class="token-input" id="tokenInput" 
+                           placeholder="verify-discord-XXXXXXXXXX" 
+                           pattern="verify-discord-[a-zA-Z0-9]{10}"
+                           maxlength="25">
+                    <button class="btn btn-primary" id="verifyTokenBtn">
+                        <i class="fas fa-check"></i>
+                        Проверить токен верификации
+                    </button>
+                    <p class="note">Токен автоматически заполняется после авторизации</p>
+                </div>
+                
+                <div class="user-info" id="userInfoSection">
+                    <h4><i class="fas fa-user-circle"></i> Discord аккаунт</h4>
+                    <div class="info-grid" id="userInfoGrid"></div>
+                </div>
+                
+                <button class="btn btn-success" id="startAuthBtn">
+                    <i class="fab fa-discord"></i>
+                    Начать авторизацию через Discord
+                </button>
+                
+                <button class="btn btn-warning" id="securityCheckBtn" style="display: none;">
+                    <i class="fas fa-shield-alt"></i>
+                    Проверить безопасность
+                </button>
+                
+                <button class="btn btn-outline" onclick="window.location.href='https://kirill12633.github.io/Metro.New.Official/'">
+                    <i class="fas fa-home"></i>
+                    На главную страницу
+                </button>
+                
+                <div class="loading" id="loadingSection">
+                    <div class="spinner"></div>
+                    <h3 id="loadingTitle">Проверка безопасности...</h3>
+                    <p id="loadingText">Пожалуйста, подождите</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>© 2023 Метро New. Полная система безопасности Discord</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem;">
+                    <i class="fas fa-shield-alt"></i> Защищено Cloudflare Workers & reCAPTCHA v3
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div class="modal" id="errorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Ошибка безопасности</h3>
+                <p id="errorModalText">Произошла ошибка при проверке безопасности</p>
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="hideModal('errorModal')">
+                    <i class="fas fa-redo"></i>
+                    Попробовать снова
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="blockedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <h3>Доступ ограничен</h3>
+                <p>Обнаружена подозрительная активность</p>
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p style="color: var(--gray); margin-bottom: 1rem;">
+                    Доступ будет восстановлен через: <strong id="blockTime">5 минут</strong>
+                </p>
+                <button class="btn btn-outline" onclick="location.reload()">
+                    <i class="fas fa-redo"></i>
+                    Обновить страницу
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВЕСЬ JAVASCRIPT КОД ДЛЯ ЭТОЙ СТРАНИЦЫ -->
+    <script>
+        // КОНФИГУРАЦИЯ
+        const CONFIG = {
+            WORKER_URL: 'https://metro-new-auth.kirilltyr123.workers.dev',
+            RECAPTCHA_KEY: '6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-',
+            WEBHOOK_URL: 'https://discord.com/api/webhooks/1467223608089776159/zvnTCqZAEA7gCGvzs9o7AiAmS3WOcornH--mwIDVxWr7EI1L1Hj29blBjUiH27an6-tB',
+            MAX_ATTEMPTS: 5,
+            BLOCK_TIME: 5 * 60 * 1000,
+            IP_API: 'https://api.ipify.org?format=json',
+            SECURITY_THRESHOLD: 0.5
+        };
+
+        // СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+        const state = {
+            userIP: null,
+            attempts: 0,
+            isBlocked: false,
+            blockEndTime: null,
+            securityScore: 0,
+            recaptchaToken: null,
+            isLoading: false,
+            mouseMovements: 0,
+            reactionTime: null,
+            currentToken: null,
+            userData: null,
+            isVerified: false,
+            mouseMonitor: null,
+            lastActivity: Date.now()
+        };
+
+        // ИНИЦИАЛИЗАЦИЯ
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Запуск системы Discord авторизации...');
+            
+            try {
+                // Инициализация состояния
+                await initState();
+                
+                // Проверка блокировки
+                checkBlockStatus();
+                
+                // Проверка токена из URL
+                checkUrlToken();
+                
+                // Инициализация интерфейса
+                initUI();
+                
+                // Запуск мониторинга безопасности
+                startSecurityMonitoring();
+                
+                // Обновление активности
+                updateLastActivity();
+                
+                console.log('✅ Система готова к работе');
+                
+            } catch (error) {
+                console.error('❌ Ошибка инициализации:', error);
+                showNotification('Ошибка инициализации системы', 'error');
+            }
+        });
+
+        // ИНИЦИАЛИЗАЦИЯ СОСТОЯНИЯ
+        async function initState() {
+            // Получаем IP
+            state.userIP = await getClientIP();
+            console.log('🌐 IP пользователя:', state.userIP);
+            
+            // Загружаем историю
+            state.attempts = parseInt(localStorage.getItem('discord_auth_attempts') || '0');
+            
+            // Загружаем сохраненные данные
+            const savedData = localStorage.getItem('discord_verification_data');
+            if (savedData) {
+                try {
+                    state.userData = JSON.parse(savedData);
+                    state.isVerified = true;
+                    showUserInfo(state.userData);
+                    updateStatus('verified', 'Аккаунт верифицирован', 'badge-success');
+                } catch (e) {
+                    console.warn('Ошибка загрузки сохраненных данных:', e);
+                }
+            }
+        }
+
+        // ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА
+        function initUI() {
+            // Элементы DOM
+            window.elements = {
+                statusSection: document.getElementById('statusSection'),
+                statusIcon: document.getElementById('statusIcon'),
+                statusTitle: document.getElementById('statusTitle'),
+                statusText: document.getElementById('statusText'),
+                statusBadge: document.getElementById('statusBadge'),
+                tokenSection: document.getElementById('tokenSection'),
+                tokenInput: document.getElementById('tokenInput'),
+                verifyTokenBtn: document.getElementById('verifyTokenBtn'),
+                userInfoSection: document.getElementById('userInfoSection'),
+                userInfoGrid: document.getElementById('userInfoGrid'),
+                startAuthBtn: document.getElementById('startAuthBtn'),
+                securityCheckBtn: document.getElementById('securityCheckBtn'),
+                securityPanel: document.getElementById('securityPanel'),
+                securityProgress: document.getElementById('securityProgress'),
+                securityMetrics: document.getElementById('securityMetrics'),
+                loadingSection: document.getElementById('loadingSection'),
+                loadingTitle: document.getElementById('loadingTitle'),
+                loadingText: document.getElementById('loadingText'),
+                notification: document.getElementById('notification'),
+                notificationText: document.getElementById('notificationText')
+            };
+
+            // ОБРАБОТЧИКИ СОБЫТИЙ
+            elements.startAuthBtn.addEventListener('click', startDiscordAuth);
+            elements.securityCheckBtn.addEventListener('click', runSecurityCheck);
+            elements.verifyTokenBtn.addEventListener('click', verifyTokenHandler);
+            elements.tokenInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') elements.verifyTokenBtn.click();
+            });
+
+            // Мониторинг мыши для безопасности
+            startMouseMonitoring();
+        }
+
+        // ОСНОВНЫЕ ФУНКЦИИ
+
+        // 1. НАЧАТЬ АВТОРИЗАЦИЮ DISCORD
+        async function startDiscordAuth() {
+            if (state.isBlocked) {
+                showBlockedModal();
+                return;
+            }
+
+            if (state.isLoading) return;
+
+            try {
+                // Проверка безопасности
+                await runSecurityCheck();
+                
+                // Если security score низкий, показываем предупреждение
+                if (state.securityScore < CONFIG.SECURITY_THRESHOLD) {
+                    showModal('errorModal', 'Низкий уровень безопасности. Попробуйте снова.');
+                    return;
+                }
+
+                // Увеличиваем счетчик попыток
+                state.attempts++;
+                localStorage.setItem('discord_auth_attempts', state.attempts);
+                
+                // Проверяем лимит попыток
+                if (state.attempts >= CONFIG.MAX_ATTEMPTS) {
+                    blockUser('Слишком много попыток авторизации');
+                    return;
+                }
+
+                // Получаем reCAPTCHA токен
+                showLoading('Подготовка авторизации...');
+                const recaptchaToken = await getRecaptchaToken('discord_auth');
+                
+                // Создаем сессию
+                const sessionId = generateSessionId();
+                sessionStorage.setItem('auth_session_id', sessionId);
+                sessionStorage.setItem('auth_timestamp', Date.now());
+                sessionStorage.setItem('security_score', state.securityScore);
+
+                // Сохраняем попытку
+                await saveAuthAttempt({
+                    sessionId,
+                    ip: state.userIP,
+                    securityScore: state.securityScore,
+                    recaptchaToken,
+                    timestamp: new Date().toISOString(),
+                    action: 'discord_auth_start'
+                });
+
+                // Перенаправляем на Discord OAuth
+                const authUrl = `${CONFIG.WORKER_URL}/login?` + new URLSearchParams({
+                    session: sessionId,
+                    ip: state.userIP,
+                    recaptcha: recaptchaToken,
+                    score: state.securityScore.toFixed(2),
+                    ua: encodeURIComponent(navigator.userAgent)
+                }).toString();
+
+                showNotification('Перенаправление на Discord...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = authUrl;
+                }, 1000);
+
+            } catch (error) {
+                console.error('Ошибка авторизации:', error);
+                showNotification('Ошибка авторизации: ' + error.message, 'error');
+                hideLoading();
+            }
+        }
+
+        // 2. ПРОВЕРКА ТОКЕНА ВЕРИФИКАЦИИ
+        async function verifyTokenHandler() {
+            const token = elements.tokenInput.value.trim();
+            
+            if (!validateTokenFormat(token)) {
+                showNotification('Неверный формат токена! Используйте: verify-discord-XXXXXXXXXX', 'error');
+                return;
+            }
+
+            await verifyToken(token);
+        }
+
+        // 3. ПРОВЕРКА БЕЗОПАСНОСТИ
+        async function runSecurityCheck() {
+            try {
+                showLoading('Проверка безопасности...');
+                
+                // Сбрасываем счетчик
+                state.securityScore = 0.5;
+                state.mouseMovements = 0;
+                
+                // Проверка поведения мыши
+                await analyzeMouseBehavior();
+                updateSecurityMetric('mouse', 'Поведение мыши', state.mouseMovements > 10 ? 'Хорошо' : 'Подозрительно');
+                
+                // Проверка времени реакции
+                await testReactionTime();
+                updateSecurityMetric('reaction', 'Время реакции', state.reactionTime ? `${state.reactionTime}мс` : 'Ошибка');
+                
+                // Проверка reCAPTCHA
+                try {
+                    const recaptchaToken = await getRecaptchaToken('security_check');
+                    state.recaptchaToken = recaptchaToken;
+                    updateSecurityMetric('recaptcha', 'reCAPTCHA v3', '✓ Проверен');
+                    state.securityScore += 0.2;
+                } catch (e) {
+                    updateSecurityMetric('recaptcha', 'reCAPTCHA v3', '✗ Ошибка');
+                }
+                
+                // Проверка браузера
+                checkBrowserFeatures();
+                
+                // Итоговый расчет
+                calculateFinalSecurityScore();
+                
+                // Показываем панель безопасности
+                showSecurityPanel();
+                
+                // Если score высокий - показываем успех
+                if (state.securityScore > 0.7) {
+                    showNotification('✅ Проверка безопасности пройдена успешно!', 'success');
+                }
+                
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Ошибка проверки безопасности:', error);
+                showNotification('Ошибка проверки безопасности', 'error');
+                hideLoading();
+            }
+        }
+
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+
+        // Валидация формата токена
+        function validateTokenFormat(token) {
+            return token && token.match(/^verify-discord-[a-zA-Z0-9]{10}$/);
+        }
+
+        // Проверка токена из URL
+        function checkUrlToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (token && validateTokenFormat(token)) {
+                elements.tokenInput.value = token;
+                setTimeout(() => verifyToken(token), 500);
+            }
+        }
+
+        // Проверка блокировки
+        function checkBlockStatus() {
+            const blockedUntil = localStorage.getItem('blocked_until');
+            const blockReason = localStorage.getItem('block_reason');
+            
+            if (blockedUntil && Date.now() < parseInt(blockedUntil)) {
+                state.isBlocked = true;
+                state.blockEndTime = parseInt(blockedUntil);
+                setTimeout(() => showBlockedModal(), 1000);
+            } else {
+                clearBlock();
+            }
+        }
+
+        // Блокировка пользователя
+        function blockUser(reason) {
+            state.isBlocked = true;
+            state.blockEndTime = Date.now() + CONFIG.BLOCK_TIME;
+            
+            localStorage.setItem('blocked_until', state.blockEndTime);
+            localStorage.setItem('block_reason', reason);
+            
+            showBlockedModal();
+            
+            // Логирование блокировки
+            logSecurityEvent('USER_BLOCKED', {
+                reason,
+                ip: state.userIP,
+                attempts: state.attempts,
+                blockUntil: new Date(state.blockEndTime).toISOString()
+            });
+        }
+
+        // Снятие блокировки
+        function clearBlock() {
+            state.isBlocked = false;
+            state.blockEndTime = null;
+            localStorage.removeItem('blocked_until');
+            localStorage.removeItem('block_reason');
+            
+            // Сброс счетчика через час
+            setTimeout(() => {
+                state.attempts = 0;
+                localStorage.removeItem('discord_auth_attempts');
+            }, 60 * 60 * 1000);
+        }
+
+        // Получение reCAPTCHA токена
+        async function getRecaptchaToken(action) {
+            return new Promise((resolve, reject) => {
+                grecaptcha.ready(async () => {
+                    try {
+                        const token = await grecaptcha.execute(CONFIG.RECAPTCHA_KEY, { action });
+                        resolve(token);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            });
+        }
+
+        // Генерация ID сессии
+        function generateSessionId() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Получение IP клиента
+        async function getClientIP() {
+            try {
+                const response = await fetch(CONFIG.IP_API);
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        // Мониторинг мыши
+        function startMouseMonitoring() {
+            let moveCount = 0;
+            let lastMoveTime = Date.now();
+            
+            state.mouseMonitor = setInterval(() => {
+                const now = Date.now();
+                const timeDiff = now - lastMoveTime;
+                
+                if (timeDiff < 100) {
+                    moveCount++;
+                    if (moveCount > 5) {
+                        state.securityScore += 0.01;
+                    }
+                }
+                
+                lastMoveTime = now;
+                state.mouseMovements = moveCount;
+            }, 1000);
+        }
+
+        // Анализ поведения мыши
+        async function analyzeMouseBehavior() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    if (state.mouseMovements > 20) {
+                        state.securityScore += 0.3;
+                    } else if (state.mouseMovements > 10) {
+                        state.securityScore += 0.2;
+                    } else if (state.mouseMovements > 5) {
+                        state.securityScore += 0.1;
+                    }
+                    resolve();
+                }, 2000);
+            });
+        }
+
+        // Тест времени реакции
+        async function testReactionTime() {
+            return new Promise((resolve) => {
+                const startTime = Date.now();
+                const waitTime = 150 + Math.random() * 350;
+                
+                const testBtn = document.createElement('button');
+                testBtn.textContent = 'КЛИКНИТЕ!';
+                testBtn.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    padding: 1rem 2rem;
+                    background: var(--primary);
+                    color: white;
+                    border: none;
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
+                    z-index: 3000;
+                    font-weight: bold;
+                    box-shadow: var(--shadow-lg);
+                `;
+                
+                document.body.appendChild(testBtn);
+                
+                const clickHandler = () => {
+                    const reactionTime = Date.now() - startTime - waitTime;
+                    state.reactionTime = reactionTime;
+                    
+                    if (reactionTime > 100 && reactionTime < 500) {
+                        state.securityScore += 0.3;
+                    } else if (reactionTime >= 500 && reactionTime < 1000) {
+                        state.securityScore += 0.2;
+                    } else {
+                        state.securityScore += 0.1;
+                    }
+                    
+                    document.body.removeChild(testBtn);
+                    resolve();
+                };
+                
+                testBtn.addEventListener('click', clickHandler);
+                
+                setTimeout(() => {
+                    if (testBtn.parentNode) {
+                        document.body.removeChild(testBtn);
+                        state.reactionTime = null;
+                        resolve();
+                    }
+                }, 3000);
+            });
+        }
+
+        // Проверка возможностей браузера
+        function checkBrowserFeatures() {
+            const features = {
+                cookies: navigator.cookieEnabled,
+                javascript: true,
+                localStorage: true,
+                sessionStorage: true
+            };
+            
+            let validFeatures = Object.values(features).filter(v => v).length;
+            state.securityScore += (validFeatures / Object.keys(features).length) * 0.1;
+        }
+
+        // Расчет итогового security score
+        function calculateFinalSecurityScore() {
+            // Ограничиваем от 0 до 1
+            state.securityScore = Math.max(0, Math.min(1, state.securityScore));
+            
+            // Обновляем прогресс-бар
+            elements.securityProgress.style.width = `${state.securityScore * 100}%`;
+        }
+
+        // Обновление метрики безопасности
+        function updateSecurityMetric(id, label, value) {
+            let html = '';
+            
+            const metrics = [
+                { id: 'mouse', label: 'Поведение мыши', value: state.mouseMovements > 10 ? 'Хорошо' : 'Подозрительно' },
+                { id: 'reaction', label: 'Время реакции', value: state.reactionTime ? `${state.reactionTime}мс` : '—' },
+                { id: 'recaptcha', label: 'reCAPTCHA v3', value: state.recaptchaToken ? '✓ Проверен' : '✗ Ошибка' },
+                { id: 'score', label: 'Security Score', value: state.securityScore.toFixed(2) }
+            ];
+            
+            metrics.forEach(metric => {
+                html += `
+                    <div class="metric">
+                        <div class="metric-value">${metric.value}</div>
+                        <div class="metric-label">${metric.label}</div>
+                    </div>
+                `;
+            });
+            
+            elements.securityMetrics.innerHTML = html;
+        }
+
+        // Показать панель безопасности
+        function showSecurityPanel() {
+            elements.securityPanel.style.display = 'block';
+            elements.securityCheckBtn.style.display = 'inline-flex';
+        }
+
+        // Обновление статуса
+        function updateStatus(type, title, text, badgeClass = 'badge-primary') {
+            const icons = {
+                ready: 'fas fa-user-shield',
+                loading: 'fas fa-spinner fa-spin',
+                success: 'fas fa-check-circle',
+                error: 'fas fa-times-circle',
+                warning: 'fas fa-exclamation-triangle',
+                verified: 'fas fa-user-check'
+            };
+            
+            elements.statusIcon.className = 'status-icon animate';
+            elements.statusIcon.innerHTML = `<i class="${icons[type] || icons.ready}"></i>`;
+            elements.statusTitle.textContent = title;
+            elements.statusText.textContent = text;
+            elements.statusBadge.className = `badge ${badgeClass}`;
+            elements.statusBadge.innerHTML = `<i class="${icons[type] || icons.ready}"></i> ${text}`;
+            
+            setTimeout(() => {
+                elements.statusIcon.classList.remove('animate');
+            }, 500);
+        }
+
+        // Показать информацию о пользователе
+        function showUserInfo(userData) {
+            const formatDate = (timestamp) => {
+                try {
+                    return new Date(timestamp).toLocaleString('ru-RU');
+                } catch {
+                    return 'Неизвестно';
+                }
+            };
+            
+            elements.userInfoGrid.innerHTML = `
+                <div class="info-item">
+                    <div class="info-label">Discord:</div>
+                    <div class="info-value">${userData.username}#${userData.discriminator}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">ID:</div>
+                    <div class="info-value" style="font-family: monospace; font-size: 0.9rem;">${userData.id}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email:</div>
+                    <div class="info-value">${userData.email || 'Не указан'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Верификация:</div>
+                    <div class="info-value">${userData.verified ? '✓ Подтвержден' : '✗ Не подтвержден'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">IP:</div>
+                    <div class="info-value" style="font-family: monospace; font-size: 0.9rem;">${userData.ip || state.userIP}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Время:</div>
+                    <div class="info-value">${formatDate(userData.timestamp)}</div>
+                </div>
+            `;
+            
+            elements.userInfoSection.style.display = 'block';
+            elements.tokenSection.style.display = 'none';
+            
+            updateStatus('verified', 'Discord аккаунт верифицирован', 'Аккаунт подключен', 'badge-success');
+            
+            // Показываем кнопку проверки безопасности
+            elements.securityCheckBtn.style.display = 'inline-flex';
+        }
+
+        // Проверка токена через Workers
+        async function verifyToken(token) {
+            try {
+                showLoading('Проверка токена верификации...');
+                
+                const response = await fetch(`${CONFIG.WORKER_URL}/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        ip: state.userIP,
+                        userAgent: navigator.userAgent,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера при проверке токена');
+                }
+                
+                const data = await response.json();
+                
+                if (data.valid && data.user) {
+                    // Сохраняем данные
+                    state.userData = data.user;
+                    state.isVerified = true;
+                    state.currentToken = token;
+                    
+                    localStorage.setItem('discord_verification_data', JSON.stringify(data.user));
+                    localStorage.setItem('discord_verification_token', token);
+                    
+                    // Показываем информацию
+                    showUserInfo(data.user);
+                    
+                    // Отправляем webhook
+                    await sendVerificationWebhook(data.user);
+                    
+                    // Показываем успех
+                    showNotification('✅ Discord аккаунт успешно верифицирован!', 'success');
+                    
+                } else {
+                    throw new Error(data.error || 'Неверный токен верификации');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка верификации токена:', error);
+                showNotification('❌ Ошибка: ' + error.message, 'error');
+                updateStatus('error', 'Ошибка верификации', error.message, 'badge-danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Отправка webhook уведомления
+        async function sendVerificationWebhook(userData) {
+            try {
+                const embed = {
+                    title: '✅ Discord верификация',
+                    color: 0x43B581,
+                    fields: [
+                        { name: '👤 Пользователь', value: `${userData.username}#${userData.discriminator}`, inline: true },
+                        { name: '🆔 Discord ID', value: userData.id, inline: true },
+                        { name: '📧 Email', value: userData.email || 'Не указан', inline: true },
+                        { name: '✅ Верификация', value: userData.verified ? 'Да' : 'Нет', inline: true },
+                        { name: '🌐 IP', value: state.userIP, inline: true },
+                        { name: '🔐 Security Score', value: state.securityScore.toFixed(2), inline: true },
+                        { name: '📅 Время', value: new Date().toLocaleString('ru-RU'), inline: false }
+                    ],
+                    footer: { text: 'Метро New • Полная система безопасности' },
+                    timestamp: new Date().toISOString()
+                };
+                
+                await fetch(CONFIG.WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+                
+            } catch (error) {
+                console.error('Ошибка отправки webhook:', error);
+            }
+        }
+
+        // Сохранение попытки авторизации
+        async function saveAuthAttempt(data) {
+            try {
+                const attempts = JSON.parse(localStorage.getItem('auth_attempts_history') || '[]');
+                attempts.push({ ...data, timestamp: new Date().toISOString() });
+                
+                if (attempts.length > 50) {
+                    attempts.shift();
+                }
+                
+                localStorage.setItem('auth_attempts_history', JSON.stringify(attempts));
+            } catch (error) {
+                console.error('Ошибка сохранения попытки:', error);
+            }
+        }
+
+        // Запуск мониторинга безопасности
+        function startSecurityMonitoring() {
+            // Мониторинг изменений DOM
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1) {
+                                checkNodeSecurity(node);
+                            }
+                        });
+                    }
+                });
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            
+            console.log('🔒 Система мониторинга безопасности запущена');
+        }
+
+        // Проверка узлов на безопасность
+        function checkNodeSecurity(node) {
+            if (node.tagName === 'SCRIPT') {
+                const src = node.src || '';
+                if (src.includes('malicious') || src.includes('hack')) {
+                    node.remove();
+                    logSecurityEvent('MALICIOUS_SCRIPT_BLOCKED', { src });
+                    showNotification('⚠️ Обнаружен и заблокирован подозрительный скрипт', 'error');
+                }
+            }
+        }
+
+        // Логирование событий безопасности
+        function logSecurityEvent(type, data) {
+            console.log(`[SECURITY] ${type}:`, data);
+            
+            const events = JSON.parse(localStorage.getItem('security_events') || '[]');
+            events.push({
+                type,
+                timestamp: new Date().toISOString(),
+                ip: state.userIP,
+                ...data
+            });
+            
+            if (events.length > 100) {
+                events.shift();
+            }
+            
+            localStorage.setItem('security_events', JSON.stringify(events));
+        }
+
+        // Обновление последней активности
+        function updateLastActivity() {
+            state.lastActivity = Date.now();
+            setTimeout(updateLastActivity, 30000);
+        }
+
+        // УТИЛИТЫ ИНТЕРФЕЙСА
+
+        function showLoading(title = 'Загрузка...', text = 'Пожалуйста, подождите') {
+            state.isLoading = true;
+            elements.loadingTitle.textContent = title;
+            elements.loadingText.textContent = text;
+            elements.loadingSection.style.display = 'block';
+            
+            // Блокируем кнопки
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function hideLoading() {
+            state.isLoading = false;
+            elements.loadingSection.style.display = 'none';
+            
+            // Разблокируем кнопки
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.disabled = false;
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            elements.notificationText.textContent = message;
+            elements.notification.className = `notification ${type}`;
+            elements.notification.style.display = 'block';
+            
+            setTimeout(() => {
+                elements.notification.style.display = 'none';
+            }, 5000);
+        }
+
+        function showModal(modalId, text = '') {
+            const modal = document.getElementById(modalId);
+            if (text && modalId === 'errorModal') {
+                document.getElementById('errorModalText').textContent = text;
+            }
+            modal.classList.add('show');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function showBlockedModal() {
+            if (!state.isBlocked) return;
+            
+            const remaining = state.blockEndTime - Date.now();
+            const minutes = Math.ceil(remaining / (60 * 1000));
+            
+            document.getElementById('blockTime').textContent = `${minutes} минут`;
+            showModal('blockedModal');
+            
+            // Обновляем таймер
+            updateBlockTimer();
+        }
+
+        function updateBlockTimer() {
+            if (!state.isBlocked) return;
+            
+            const remaining = state.blockEndTime - Date.now();
+            if (remaining <= 0) {
+                clearBlock();
+                hideModal('blockedModal');
+                return;
+            }
+            
+            const minutes = Math.ceil(remaining / (60 * 1000));
+            document.getElementById('blockTime').textContent = `${minutes} минут`;
+            
+            setTimeout(updateBlockTimer, 60000);
+        }
+
+        // ЭКСПОРТ ФУНКЦИЙ ДЛЯ ОТЛАДКИ
+        window.discordAuthSystem = {
+            getState: () => ({ ...state }),
+            clearBlock,
+            testSecurity: runSecurityCheck,
+            getLogs: () => JSON.parse(localStorage.getItem('security_events') || '[]'),
+            verifyToken: verifyTokenHandler,
+            startAuth: startDiscordAuth
+        };
+    </script>
 </body>
 </html>
