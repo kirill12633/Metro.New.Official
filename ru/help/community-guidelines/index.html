@@ -17,9 +17,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- reCAPTCHA v3 -->
-    <script src="https://www.google.com/recaptcha/api.js?render=6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7"></script>
-
     <!-- Firebase JS SDK v9 (modular, recommended) -->
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -41,7 +38,7 @@
             reauthenticateWithCredential,
             EmailAuthProvider
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
         
         // Your web app's Firebase configuration
@@ -93,6 +90,7 @@
             doc,
             setDoc,
             getDoc,
+            updateDoc,
             ref,
             uploadBytes,
             getDownloadURL,
@@ -103,7 +101,6 @@
     </script>
     
     <style>
-        /* Все стили остаются БЕЗ ИЗМЕНЕНИЙ как в предыдущей версии */
         :root {
             --primary: #0066CC;
             --primary-dark: #0052a3;
@@ -143,10 +140,6 @@
         main {
             flex: 1;
         }
-        
-        /* Все остальные стили... */
-        /* (Весь CSS из предыдущей версии остается без изменений) */
-        /* ХЕДЕР, КОНТЕНТ, ФУТЕР, МОДАЛЬНЫЕ ОКНА и т.д. */
         
         .main-header {
             background-color: white;
@@ -249,69 +242,36 @@
             justify-content: flex-end;
         }
         
-        .search-container {
-            position: relative;
-            width: 200px;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 0.6rem 1rem 0.6rem 2.5rem;
-            background-color: var(--gray-light);
-            border: 1px solid transparent;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            color: var(--dark);
-            transition: all 0.3s;
-        }
-        
-        .search-input:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: white;
-            width: 250px;
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-        
         .user-profile {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
             cursor: pointer;
             transition: all 0.3s;
-            min-width: 160px;
+            position: relative;
+            border: 2px solid var(--gray-light);
+            min-width: 200px;
         }
         
         .user-profile:hover {
             background-color: var(--gray-light);
+            border-color: var(--primary);
         }
         
         .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6c757d, #495057);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.5rem;
             overflow: hidden;
+            flex-shrink: 0;
         }
         
         .user-avatar i {
@@ -329,21 +289,24 @@
             flex-direction: column;
             gap: 0.1rem;
             flex: 1;
+            min-width: 0;
         }
         
         .user-name {
             font-weight: 600;
             font-size: 0.95rem;
             color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        .user-status {
+        .user-email {
             font-size: 0.8rem;
             color: var(--gray);
-        }
-        
-        .dropdown {
-            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .dropdown-menu {
@@ -355,7 +318,7 @@
             border: 1px solid var(--gray-light);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
-            min-width: 250px;
+            min-width: 300px;
             padding: 0.5rem;
             opacity: 0;
             visibility: hidden;
@@ -364,10 +327,29 @@
             z-index: 1001;
         }
         
-        .dropdown.show .dropdown-menu {
+        .user-profile.active .dropdown-menu {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
+        }
+        
+        .dropdown-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .dropdown-header .user-avatar {
+            width: 48px;
+            height: 48px;
+        }
+        
+        .dropdown-header .user-info {
+            flex: 1;
+            min-width: 0;
         }
         
         .dropdown-item {
@@ -399,41 +381,103 @@
             background-color: rgba(220, 53, 69, 0.1);
         }
         
-        /* ОСНОВНОЙ КОНТЕНТ */
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 15px;
-        }
-        
-        .hero {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark)), 
-                        url('https://images.unsplash.com/photo-1542553458-79a13aebfda6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
-            border-radius: var(--radius-xl);
-            padding: 4rem 2rem;
-            color: white;
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .hero p {
-            font-size: 1.1rem;
-            max-width: 800px;
-            margin: 0 auto 2rem;
-            opacity: 0.9;
-        }
-        
-        .hero-buttons {
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
             display: flex;
-            gap: 1rem;
+            align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-header h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--gray);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            color: var(--dark);
+            background-color: white;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
         }
         
         .btn {
@@ -452,162 +496,143 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: var(--dark);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
             box-shadow: var(--shadow-md);
+            width: 100%;
         }
         
         .btn-primary:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
         
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-        }
-        
-        .btn-outline:hover {
-            background: var(--secondary);
+        .btn-secondary {
+            background: var(--gray-light);
             color: var(--dark);
+            width: 100%;
         }
         
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: white;
         }
         
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-        
-        .content-card {
-            background-color: white;
-            border-radius: var(--radius-xl);
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.3s;
-        }
-        
-        .content-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .content-card h3 {
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .feature-list {
-            list-style: none;
-            padding-left: 0;
-        }
-        
-        .feature-list li {
-            margin-bottom: 1rem;
-            padding-left: 2rem;
+        .auth-divider {
+            text-align: center;
+            margin: 1.5rem 0;
             position: relative;
         }
         
-        .feature-list li i {
+        .auth-divider::before {
+            content: '';
             position: absolute;
+            top: 50%;
             left: 0;
-            top: 0.2rem;
-            color: var(--primary);
+            right: 0;
+            height: 1px;
+            background-color: var(--gray-light);
         }
         
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 1rem;
-            background: var(--gray-light);
-            border-radius: var(--radius-lg);
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
+        .auth-divider span {
+            background-color: white;
+            padding: 0 1rem;
             color: var(--gray);
+            position: relative;
+            z-index: 1;
+            font-size: 0.9rem;
         }
         
-        .metro-lines h2 {
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            text-align: center;
+        .social-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .btn-social {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .lines-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .line-card {
-            text-align: center;
-            padding: 1.5rem;
-            background: var(--gray-light);
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
             border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-light);
+            background-color: white;
+            color: var(--dark);
+            font-weight: 500;
+            cursor: pointer;
             transition: all 0.3s;
-        }
-        
-        .line-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .line-color {
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
+        }
+        
+        .btn-social:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .btn-social.google {
+            border-color: #DB4437;
+            color: #DB4437;
+        }
+        
+        .btn-social.google:hover {
+            background-color: rgba(219, 68, 55, 0.1);
+        }
+        
+        .auth-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
             margin-bottom: 1rem;
         }
         
-        .line-name {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--dark);
+        .page-header .breadcrumbs {
+            color: rgba(255, 255, 255, 0.9);
+            justify-content: center;
+            margin-bottom: 1rem;
         }
         
-        .line-stations {
-            color: var(--gray);
-            font-size: 0.9rem;
+        .page-header .breadcrumb-item a {
+            color: white;
         }
         
-        /* НОВЫЙ РАЗДЕЛ: Правила сообщества Discord */
+        .page-header .breadcrumb-current {
+            color: var(--secondary);
+            background-color: rgba(255, 215, 0, 0.2);
+        }
+        
+        .page-description {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
         .discord-rules {
             margin: 3rem 0;
-        }
-        
-        .discord-rules h2 {
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
         
         .rules-container {
@@ -634,7 +659,6 @@
             font-style: italic;
         }
         
-        /* ФУТЕР */
         .main-footer {
             background-color: var(--dark);
             color: white;
@@ -720,662 +744,6 @@
             color: rgba(255, 255, 255, 0.7);
         }
         
-        /* МОДАЛЬНЫЕ ОКНА */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-        }
-        
-        .modal.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: var(--radius-xl);
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .modal-header h3 {
-            color: var(--dark);
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: var(--gray);
-            cursor: pointer;
-            line-height: 1;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-close:hover {
-            color: var(--dark);
-        }
-        
-        .modal-body {
-            padding: 2rem;
-        }
-        
-        /* ОКНО АККАУНТА */
-        .account-header {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .account-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6c757d, #495057);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            overflow: hidden;
-        }
-        
-        .account-avatar i {
-            font-size: 3.5rem;
-        }
-        
-        .account-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .account-info h4 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--dark);
-        }
-        
-        .account-info p {
-            color: var(--gray);
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-        
-        .account-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background-color: var(--primary);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .account-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .account-tab {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: var(--gray);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .account-tab i {
-            font-size: 1.2rem;
-        }
-        
-        .account-tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        
-        .tab-badge {
-            background-color: var(--danger);
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-        
-        .account-tab-content {
-            display: none;
-        }
-        
-        .account-tab-content.active {
-            display: block;
-        }
-        
-        .account-section {
-            margin-bottom: 2rem;
-        }
-        
-        .account-section h5 {
-            color: var(--dark);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .account-note {
-            color: var(--gray);
-            font-size: 0.9rem;
-            font-style: italic;
-        }
-        
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .info-label {
-            color: var(--gray);
-            font-weight: 500;
-        }
-        
-        .info-value {
-            color: var(--dark);
-            font-weight: 600;
-        }
-        
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .setting-info {
-            flex: 1;
-        }
-        
-        .setting-label {
-            display: block;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-        
-        .setting-desc {
-            display: block;
-            color: var(--gray);
-            font-size: 0.85rem;
-        }
-        
-        .theme-toggle {
-            display: flex;
-            gap: 0.5rem;
-            background-color: var(--gray-light);
-            border-radius: var(--radius-md);
-            padding: 0.25rem;
-        }
-        
-        .theme-option {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: none;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            color: var(--gray);
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .theme-option.active {
-            background-color: white;
-            color: var(--dark);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .lang-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .lang-option {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: none;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            color: var(--dark);
-            transition: all 0.3s;
-            text-align: left;
-        }
-        
-        .lang-option.active {
-            border-color: var(--primary);
-            background-color: rgba(0, 102, 204, 0.1);
-        }
-        
-        .lang-flag {
-            width: 24px;
-            height: 16px;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        .lang-flag.ru {
-            background: linear-gradient(to bottom, white 33%, blue 33% 66%, red 66%);
-        }
-        
-        .lang-flag.en {
-            background-color: #00247D;
-            position: relative;
-        }
-        
-        .lang-flag.en::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(0deg, transparent 40%, white 40% 45%, transparent 45% 55%, white 55% 60%, transparent 60%),
-                      linear-gradient(90deg, transparent 40%, white 40% 45%, transparent 45% 55%, white 55% 60%, transparent 60%);
-        }
-        
-        .flag-icon {
-            width: 24px;
-            text-align: center;
-            font-size: 1rem;
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        
-        .notifications-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 1.5rem;
-        }
-        
-        .notification-empty {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--gray);
-        }
-        
-        .notification-empty i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .notifications-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-        
-        /* ФОРМЫ АВТОРИЗАЦИИ */
-        .auth-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 1rem;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-weight: 600;
-            color: var(--gray);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .auth-tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark);
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            color: var(--dark);
-            background-color: white;
-            transition: all 0.3s;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-        }
-        
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .checkbox {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-        
-        .checkbox input {
-            width: auto;
-        }
-        
-        .forgot-password {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-        
-        .auth-divider {
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
-        }
-        
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: var(--gray-light);
-        }
-        
-        .auth-divider span {
-            background-color: white;
-            padding: 0 1rem;
-            color: var(--gray);
-            position: relative;
-            z-index: 1;
-            font-size: 0.9rem;
-        }
-        
-        .social-auth {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .btn-social {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-light);
-            background-color: white;
-            color: var(--dark);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-social:hover {
-            background-color: var(--gray-light);
-        }
-        
-        .btn-social.google {
-            border-color: #DB4437;
-            color: #DB4437;
-        }
-        
-        .btn-social.google:hover {
-            background-color: rgba(219, 68, 55, 0.1);
-        }
-        
-        .btn-social.anonymous {
-            border-color: var(--gray);
-            color: var(--gray);
-        }
-        
-        .btn-social.anonymous:hover {
-            background-color: rgba(108, 117, 125, 0.1);
-        }
-        
-        /* Проверка пароля */
-        .password-requirements {
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-        
-        .password-strength {
-            margin-top: 0.5rem;
-        }
-        
-        .strength-bar {
-            height: 4px;
-            background-color: var(--gray-light);
-            border-radius: 2px;
-            margin-bottom: 0.25rem;
-            overflow: hidden;
-        }
-        
-        .strength-bar::after {
-            content: '';
-            display: block;
-            height: 100%;
-            width: 0%;
-            background-color: var(--danger);
-            transition: width 0.3s, background-color 0.3s;
-        }
-        
-        .strength-text {
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-        
-        .auth-error {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius-md);
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        /* Загрузка аватара */
-        .avatar-upload {
-            text-align: center;
-        }
-        
-        .avatar-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: var(--gray-light);
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .avatar-preview i {
-            font-size: 4rem;
-            color: var(--gray);
-        }
-        
-        .avatar-message {
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius-md);
-            font-size: 0.9rem;
-        }
-        
-        .avatar-message.success {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: var(--success);
-        }
-        
-        .avatar-message.error {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-        }
-        
-        /* Окно смены пароля */
-        .password-change-modal {
-            max-width: 400px;
-        }
-        
-        /* АДАПТИВНОСТЬ */
         @media (max-width: 1024px) {
             .header-container {
                 flex-wrap: wrap;
@@ -1398,16 +766,8 @@
                 min-width: auto;
             }
             
-            .search-container {
-                width: 150px;
-            }
-            
-            .search-input:focus {
-                width: 200px;
-            }
-            
-            .user-info {
-                display: none;
+            .user-profile {
+                min-width: auto;
             }
         }
         
@@ -1416,73 +776,30 @@
                 gap: 0.5rem;
             }
             
-            .search-container {
-                width: 40px;
+            .user-info {
+                display: none;
             }
             
-            .search-input {
-                width: 40px;
-                padding: 0.6rem;
+            .user-profile {
+                padding: 0.5rem;
+                min-width: auto;
             }
             
-            .search-input:focus {
-                width: 200px;
-                padding: 0.6rem 1rem 0.6rem 2.5rem;
+            .dropdown-menu {
+                min-width: 280px;
+                right: -50px;
             }
             
             .breadcrumbs {
                 font-size: 0.85rem;
             }
             
-            .hero h1 {
+            .page-header h1 {
                 font-size: 2rem;
             }
             
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 300px;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 1rem;
-            }
-            
-            .modal-body {
-                padding: 1.5rem;
-            }
-            
-            .account-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-            
-            .auth-buttons {
-                flex-direction: column;
-            }
-            
-            .social-auth {
-                flex-direction: column;
-            }
-            
-            .account-tabs {
-                flex-direction: column;
-            }
-            
-            .setting-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .notifications-actions {
-                flex-direction: column;
+            .page-description {
+                font-size: 1rem;
             }
             
             .rules-iframe {
@@ -1496,7 +813,7 @@
     <header class="main-header">
         <div class="header-container">
             <div class="header-left">
-                <a href="/" class="logo">
+                <a href="https://kirill12633.github.io/Metro.New.Official/" class="logo">
                     <span class="logo-icon">M</span>
                     <span>Метро New</span>
                 </a>
@@ -1505,36 +822,33 @@
             <div class="header-center">
                 <nav class="breadcrumbs">
                     <div class="breadcrumb-item">
-                        <a href="/">Главная</a>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/">Главная</a>
                         <span class="breadcrumb-separator">›</span>
                     </div>
                     <div class="breadcrumb-item">
-                        <a href="/games">Игры</a>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help">Правовые документы</a>
                         <span class="breadcrumb-separator">›</span>
                     </div>
                     <div class="breadcrumb-item">
-                        <span class="breadcrumb-current">Метро New</span>
+                        <span class="breadcrumb-current">Правила Discord</span>
                     </div>
                 </nav>
             </div>
             
             <div class="header-right">
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Поиск..." disabled>
-                </div>
-                
-                <div class="dropdown user-profile" id="userDropdown">
+                <!-- Меню профиля с Firebase -->
+                <div class="user-profile" id="userProfile">
                     <div class="user-avatar" id="userAvatar">
-                        <i class="fas fa-user-circle"></i>
+                        <i class="fas fa-user"></i>
                     </div>
                     <div class="user-info">
-                        <div class="user-name" id="userName">Загрузка...</div>
-                        <div class="user-status" id="userStatus">Инициализация...</div>
+                        <div class="user-name" id="userName">Гость</div>
+                        <div class="user-email" id="userEmail">Войти в аккаунт</div>
                     </div>
                     <i class="fas fa-chevron-down"></i>
                     
-                    <div class="dropdown-menu" id="userMenu">
+                    <!-- Выпадающее меню -->
+                    <div class="dropdown-menu" id="dropdownMenu">
                         <!-- Заполнится через Firebase -->
                     </div>
                 </div>
@@ -1544,91 +858,37 @@
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="container">
-        <section class="hero">
-            <h1>Метро New - Московский метрополитен в Roblox</h1>
-            <p>Погрузитесь в уникальную атмосферу московского метро, воссозданную с максимальной детализацией в Roblox. Исследуйте станции, управляйте поездами и становись частью нашего сообщества!</p>
-            <div class="hero-buttons">
-                <a href="https://www.roblox.com/communities/34820737/RP-NEW" class="btn btn-primary" target="_blank">
-                    <i class="fas fa-play"></i>
-                    Играть сейчас
-                </a>
-                <a href="#" class="btn btn-outline" id="aboutBtn">
-                    <i class="fas fa-info-circle"></i>
-                    Узнать больше
-                </a>
-            </div>
+        <section class="page-header">
+            <nav class="breadcrumbs">
+                <div class="breadcrumb-item">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/">Главная</a>
+                    <span class="breadcrumb-separator">›</span>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help">Правовые документы</a>
+                    <span class="breadcrumb-separator">›</span>
+                </div>
+                <div class="breadcrumb-item">
+                    <span class="breadcrumb-current">Правила Discord</span>
+                </div>
+            </nav>
+            
+            <h1>Правила сообщества сервера Discord</h1>
+            <p class="page-description">Ознакомьтесь с правилами нашего сообщества Discord. Соблюдение этих правил обеспечивает комфортную атмосферу для всех участников и помогает поддерживать порядок на нашем сервере.</p>
         </section>
         
-        <div class="content-grid">
-            <div class="content-card">
-                <h3><i class="fas fa-gamepad"></i> Особенности игры</h3>
-                <ul class="feature-list">
-                    <li><i class="fas fa-subway"></i> Реалистичные поезда московского метро</li>
-                    <li><i class="fas fa-map-marked-alt"></i> Точные копии станций</li>
-                    <li><i class="fas fa-users"></i> Многопользовательский режим</li>
-                    <li><i class="fas fa-train"></i> Управление поездами</li>
-                </ul>
-            </div>
-            
-            <div class="content-card">
-                <h3><i class="fas fa-chart-line"></i> Статистика сообщества</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">15K+</div>
-                        <div class="stat-label">Игроков</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">247</div>
-                        <div class="stat-label">Онлайн сейчас</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">1.2M+</div>
-                        <div class="stat-label">Км пройдено</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">Линии метро</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="content-card metro-lines">
-            <h2><i class="fas fa-subway"></i> Линии метро в игре</h2>
-            <div class="lines-grid">
-                <div class="line-card">
-                    <div class="line-color" style="background-color: #FF0000;"></div>
-                    <div class="line-name">Сокольническая</div>
-                    <div class="line-stations">3 станции</div>
-                </div>
-                <div class="line-card">
-                    <div class="line-color" style="background-color: #008000;"></div>
-                    <div class="line-name">Замоскворецкая</div>
-                    <div class="line-stations">Скоро</div>
-                </div>
-                <div class="line-card">
-                    <div class="line-color" style="background-color: #0000FF;"></div>
-                    <div class="line-name">Арбатско.Покровская</div>
-                    <div class="line-stations">Скоро</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- НОВЫЙ РАЗДЕЛ: Правила сообщества Discord -->
         <section class="discord-rules">
-            <div class="content-card">
+            <div class="rules-container">
                 <h2><i class="fab fa-discord"></i> Правила сообщества сервера Discord</h2>
-                <div class="rules-container">
-                    <iframe src="https://docs.google.com/document/d/e/2PACX-1vTJkl7bVtTlgzpVSOl3nFcaPp_PbbC2z7Rkxf9ICY-C4pd-dpoh2yy7yFudc2tjwROvi_O6pPOeXiQi/pub?embedded=true" 
-                            class="rules-iframe"
-                            title="Правила сообщества Discord Метро New">
-                    </iframe>
-                    <p class="rules-note">Если документ не загружается, перейдите по прямой ссылке: 
-                        <a href="https://docs.google.com/document/d/e/2PACX-1vTJkl7bVtTlgzpVSOl3nFcaPp_PbbC2z7Rkxf9ICY-C4pd-dpoh2yy7yFudc2tjwROvi_O6pPOeXiQi/pub" target="_blank">
-                            Открыть правила в новом окне
-                        </a>
-                    </p>
-                </div>
+                <iframe src="https://docs.google.com/document/d/e/2PACX-1vTJkl7bVtTlgzpVSOl3nFcaPp_PbbC2z7Rkxf9ICY-C4pd-dpoh2yy7yFudc2tjwROvi_O6pPOeXiQi/pub?embedded=true" 
+                        class="rules-iframe"
+                        title="Правила сообщества Discord Метро New">
+                </iframe>
+                <p class="rules-note">Если документ не загружается, перейдите по прямой ссылке: 
+                    <a href="https://docs.google.com/document/d/e/2PACX-1vTJkl7bVtTlgzpVSOl3nFcaPp_PbbC2z7Rkxf9ICY-C4pd-dpoh2yy7yFudc2tjwROvi_O6pPOeXiQi/pub" target="_blank">
+                        Открыть правила в новом окне
+                    </a>
+                </p>
             </div>
         </section>
     </main>
@@ -1640,30 +900,31 @@
                 <div class="footer-column">
                     <h4><i class="fas fa-info-circle"></i> Информация</h4>
                     <ul>
-                        <li><a href="#">О проекте</a></li>
-                        <li><a href="#">Наша команда</a></li>
-                        <li><a href="#">Контакты</a></li>
-                        <li><a href="#">Частые вопросы</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/">Главная</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/games">Игры</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Новости</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about">О проекте</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
                     <h4><i class="fas fa-file-contract"></i> Документы</h4>
                     <ul>
-                        <li><a href="#" id="privacyPolicyBtn">Политика конфиденциальности</a></li>
-                        <li><a href="#" id="termsOfServiceBtn">Пользовательское соглашение</a></li>
-                        <li><a href="#" id="rulesBtn">Правила сообщества</a></li>
-                        <li><a href="#" id="refundPolicyBtn">Политика возврата</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy">Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service">Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/community-guidelines">Правила сообщества</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy">Политика авторских прав</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines">Правила сайта</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
                     <h4><i class="fas fa-headset"></i> Поддержка</h4>
                     <ul>
-                        <li><a href="#">Техническая поддержка</a></li>
-                        <li><a href="#">Статус сервисов</a></li>
-                        <li><a href="#">Сообщить об ошибке</a></li>
-                        <li><a href="#">Предложить идею</a></li>
+                        <li><a href="https://kirill12633.github.io/support.metro.new/">Техническая поддержка</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
+                        <li><a href="mailto:metro.new.help@gmail.com">Написать на почту</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/faq">Частые вопросы</a></li>
                     </ul>
                 </div>
                 
@@ -1674,7 +935,7 @@
                             <i class="fab fa-discord"></i>
                             <span>Discord</span>
                         </a>
-                        <a href="https://t.me/metronewroblox" class="social-link" target="_blank">
+                        <a href="https://t.me/Metro_New_Official" class="social-link" target="_blank">
                             <i class="fab fa-telegram"></i>
                             <span>Telegram</span>
                         </a>
@@ -1698,220 +959,15 @@
         </div>
     </footer>
 
-    <!-- МОДАЛЬНЫЕ ОКНА -->
-    <!-- Основное окно аккаунта -->
-    <div class="modal" id="accountModal">
+    <!-- МОДАЛЬНОЕ ОКНО ВХОДА -->
+    <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-user-circle"></i> Мой аккаунт</h3>
+                <h3><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="account-header">
-                    <div class="account-avatar" id="accountAvatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="account-info">
-                        <h4 id="accountName">Загрузка...</h4>
-                        <p id="accountEmail">Загрузка...</p>
-                        <span class="account-badge" id="accountBadge">Гость</span>
-                    </div>
-                </div>
-                
-                <div class="account-tabs">
-                    <button class="account-tab active" data-tab="profile">
-                        <i class="fas fa-user"></i>
-                        <span>Профиль</span>
-                    </button>
-                    <button class="account-tab" data-tab="settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Настройки</span>
-                    </button>
-                    <button class="account-tab" data-tab="notifications">
-                        <i class="fas fa-bell"></i>
-                        <span>Уведомления</span>
-                        <span class="tab-badge" id="notifBadge">0</span>
-                    </button>
-                </div>
-                
-                <div class="account-tab-content active" id="profileTab">
-                    <div class="account-section">
-                        <h5><i class="fas fa-sign-in-alt"></i> Авторизация</h5>
-                        <div class="auth-buttons">
-                            <button class="btn btn-primary" id="loginBtn">
-                                <i class="fas fa-sign-in-alt"></i>
-                                Войти в аккаунт
-                            </button>
-                            <button class="btn btn-outline" id="registerBtn">
-                                <i class="fas fa-user-plus"></i>
-                                Зарегистрироваться
-                            </button>
-                        </div>
-                        <p class="account-note" id="authNote"></p>
-                    </div>
-                    
-                    <div class="account-section">
-                        <h5><i class="fas fa-user"></i> Информация профиля</h5>
-                        <div class="profile-info">
-                            <div class="info-item">
-                                <span class="info-label">Статус:</span>
-                                <span class="info-value" id="profileStatus">Загрузка...</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Дата регистрации:</span>
-                                <span class="info-value" id="profileRegDate">—</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Последний вход:</span>
-                                <span class="info-value" id="profileLastLogin">—</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">UID:</span>
-                                <span class="info-value" id="profileUID">—</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="account-section" id="profileActionsSection" style="display: none;">
-                        <h5><i class="fas fa-user-edit"></i> Управление профилем</h5>
-                        <div class="profile-actions">
-                            <button class="btn btn-small" id="changeAvatarBtn">
-                                <i class="fas fa-camera"></i>
-                                Сменить аватар
-                            </button>
-                            <button class="btn btn-small btn-outline" id="changePasswordBtn">
-                                <i class="fas fa-key"></i>
-                                Сменить пароль
-                            </button>
-                            <button class="btn btn-small btn-outline" id="linkGoogleBtn" style="display: none;">
-                                <i class="fab fa-google"></i>
-                                Привязать Google
-                            </button>
-                            <button class="btn btn-small btn-outline" id="unlinkGoogleBtn" style="display: none;">
-                                <i class="fab fa-google"></i>
-                                Отвязать Google
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="account-tab-content" id="settingsTab">
-                    <div class="account-section">
-                        <h5><i class="fas fa-palette"></i> Внешний вид</h5>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <span class="setting-label">Тема оформления</span>
-                                <span class="setting-desc">Выберите светлую или тёмную тему</span>
-                            </div>
-                            <div class="setting-control">
-                                <div class="theme-toggle" id="themeToggle">
-                                    <button class="theme-option active" data-theme="light">
-                                        <i class="fas fa-sun"></i>
-                                        <span>Светлая</span>
-                                    </button>
-                                    <button class="theme-option" data-theme="dark">
-                                        <i class="fas fa-moon"></i>
-                                        <span>Тёмная</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <span class="setting-label">Язык интерфейса</span>
-                                <span class="setting-desc">Выберите язык сайта</span>
-                            </div>
-                            <div class="setting-control">
-                                <div class="lang-selector" id="langSelector">
-                                    <button class="lang-option active" data-lang="ru">
-                                        <span class="lang-flag ru"></span>
-                                        <span>Русский</span>
-                                    </button>
-                                    <button class="lang-option" data-lang="en">
-                                        <span class="lang-flag en"></span>
-                                        <span>English</span>
-                                    </button>
-                                    <button class="lang-option" data-lang="es">
-                                        <span class="flag-icon">🇪🇸</span>
-                                        <span>Español</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="account-section">
-                        <h5><i class="fas fa-envelope"></i> Уведомления и почта</h5>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <span class="setting-label">Email уведомления</span>
-                                <span class="setting-desc">Получать уведомления на почту</span>
-                            </div>
-                            <div class="setting-control">
-                                <label class="switch">
-                                    <input type="checkbox" id="emailNotifications" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <span class="setting-label">Новости проекта</span>
-                                <span class="setting-desc">Получать новости о обновлениях</span>
-                            </div>
-                            <div class="setting-control">
-                                <label class="switch">
-                                    <input type="checkbox" id="projectNews" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="account-tab-content" id="notificationsTab">
-                    <div class="account-section">
-                        <h5><i class="fas fa-bell"></i> Последние уведомления</h5>
-                        <div class="notifications-list" id="notificationsList">
-                            <div class="notification-empty">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Загрузка уведомлений...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="notifications-actions" id="notificationsActions" style="display: none;">
-                            <button class="btn btn-small" id="markAllReadBtn">
-                                <i class="fas fa-check-double"></i>
-                                Отметить всё как прочитанное
-                            </button>
-                            <button class="btn btn-small btn-outline" id="clearNotificationsBtn">
-                                <i class="fas fa-trash"></i>
-                                Очистить все
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-sign-in-alt"></i> Авторизация</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="auth-tabs">
-                    <button class="auth-tab active" data-tab="login">Вход</button>
-                    <button class="auth-tab" data-tab="register">Регистрация</button>
-                </div>
-                
-                <!-- Форма входа -->
-                <form id="loginForm" class="auth-form active">
+                <form id="loginForm">
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" id="loginEmail" placeholder="example@mail.ru" required>
@@ -1919,60 +975,12 @@
                     <div class="form-group">
                         <label>Пароль</label>
                         <input type="password" id="loginPassword" placeholder="••••••••" required>
-                        <div class="password-requirements">
-                            <small>Минимум 8 символов: заглавные, строчные, цифры, спецсимволы</small>
-                        </div>
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox">
-                            <input type="checkbox" id="rememberMe" checked>
-                            <span>Запомнить меня</span>
-                        </label>
-                        <a href="#" class="forgot-password" id="forgotPasswordBtn">Забыли пароль?</a>
                     </div>
                     <button type="submit" class="btn btn-primary" id="loginSubmitBtn">
                         <i class="fas fa-sign-in-alt"></i>
                         Войти
                     </button>
-                    <div class="auth-error" id="loginError" style="display: none;"></div>
-                </form>
-                
-                <!-- Форма регистрации -->
-                <form id="registerForm" class="auth-form">
-                    <div class="form-group">
-                        <label>Имя пользователя</label>
-                        <input type="text" id="registerUsername" placeholder="MetroDriver" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="registerEmail" placeholder="example@mail.ru" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Пароль</label>
-                        <input type="password" id="registerPassword" placeholder="••••••••" required>
-                        <div class="password-strength" id="passwordStrength">
-                            <div class="strength-bar"></div>
-                            <div class="strength-text">Надёжность пароля: <span id="strengthText">слабый</span></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Подтвердите пароль</label>
-                        <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
-                        <div class="password-match" id="passwordMatch" style="display: none;">
-                            <small style="color: var(--success);">✓ Пароли совпадают</small>
-                        </div>
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox">
-                            <input type="checkbox" id="agreeTerms" required>
-                            <span>Я согласен с <a href="#" id="termsLink">пользовательским соглашением</a>, <a href="#" id="privacyLink">политикой конфиденциальности</a> и <a href="#" id="rulesLink">правилами сайта</a></span>
-                        </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="registerSubmitBtn">
-                        <i class="fas fa-user-plus"></i>
-                        Зарегистрироваться
-                    </button>
-                    <div class="auth-error" id="registerError" style="display: none;"></div>
+                    <div class="auth-error" id="loginError"></div>
                 </form>
                 
                 <div class="auth-divider">
@@ -1984,237 +992,156 @@
                         <i class="fab fa-google"></i>
                         Войти через Google
                     </button>
-                    <button class="btn-social anonymous" id="anonymousLoginBtn">
+                    <button class="btn-social" id="guestLoginBtn">
                         <i class="fas fa-user-secret"></i>
                         Продолжить как гость
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ВОССТАНОВЛЕНИЯ ПАРОЛЯ -->
-    <div class="modal" id="passwordResetModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-key"></i> Восстановление пароля</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Введите ваш email</label>
-                    <input type="email" id="resetEmail" placeholder="example@mail.ru" required>
-                    <small>На этот email будет отправлена ссылка для восстановления пароля</small>
-                </div>
-                <button class="btn btn-primary" id="sendResetBtn">
-                    <i class="fas fa-paper-plane"></i>
-                    Отправить ссылку
-                </button>
-                <div class="reset-message" id="resetMessage" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--light); border-radius: var(--radius-md);"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ЗАГРУЗКИ АВАТАРА -->
-    <div class="modal" id="avatarModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-camera"></i> Смена аватара</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="avatar-upload">
-                    <div class="avatar-preview" id="avatarPreview">
-                        <img src="" alt="Предпросмотр" id="avatarPreviewImg" style="display: none;">
-                        <i class="fas fa-user" id="avatarPreviewIcon"></i>
-                    </div>
-                    <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
-                    <button class="btn btn-outline" id="chooseAvatarBtn">
-                        <i class="fas fa-folder-open"></i>
-                        Выбрать файл
-                    </button>
-                    <small style="display: block; margin-top: 0.5rem; color: var(--gray);">
-                        Максимальный размер: 2MB. Форматы: JPG, PNG, GIF
-                    </small>
-                </div>
-                <div class="avatar-actions" style="margin-top: 2rem;">
-                    <button class="btn btn-primary" id="uploadAvatarBtn" disabled>
-                        <i class="fas fa-upload"></i>
-                        Загрузить аватар
-                    </button>
-                    <button class="btn btn-outline" id="removeAvatarBtn" style="display: none;">
-                        <i class="fas fa-trash"></i>
-                        Удалить аватар
-                    </button>
-                </div>
-                <div class="avatar-message" id="avatarMessage" style="display: none; margin-top: 1rem;"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО СМЕНЫ ПАРОЛЯ -->
-    <div class="modal password-change-modal" id="passwordChangeModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-key"></i> Смена пароля</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Текущий пароль</label>
-                    <input type="password" id="currentPassword" placeholder="••••••••" required>
-                </div>
-                <div class="form-group">
-                    <label>Новый пароль</label>
-                    <input type="password" id="newPassword" placeholder="••••••••" required>
-                    <div class="password-requirements">
-                        <small>Минимум 8 символов: заглавные, строчные, цифры, спецсимволы</small>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Подтвердите новый пароль</label>
-                    <input type="password" id="confirmNewPassword" placeholder="••••••••" required>
-                </div>
-                <button class="btn btn-primary" id="submitPasswordChangeBtn">
-                    <i class="fas fa-save"></i>
-                    Сменить пароль
-                </button>
-                <div class="password-change-message" id="passwordChangeMessage" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: var(--radius-md);"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ПРАВИЛ -->
-    <div class="modal" id="termsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-file-contract"></i> Пользовательское соглашение</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-                    <h4>Условия использования</h4>
-                    <p>Последнее обновление: <span id="currentDate"></span></p>
-                    
-                    <h5>1. Общие положения</h5>
-                    <p>1.1. Настоящее Пользовательское соглашение (далее - Соглашение) регулирует отношения между администрацией сайта "Метро New" (далее - Администрация) и пользователем (далее - Пользователь) по использованию сайта и связанных с ним услуг.</p>
-                    
-                    <h5>2. Регистрация и учетная запись</h5>
-                    <p>2.1. Для доступа к некоторым функциям сайта Пользователю необходимо создать учетную запись.</p>
-                    <p>2.2. Пользователь обязуется предоставлять достоверную и полную информацию при регистрации.</p>
-                    <p>2.3. Пользователь несет ответственность за сохранность своих учетных данных.</p>
-                    
-                    <h5>3. Правила поведения</h5>
-                    <p>3.1. Пользователь обязуется не нарушать законодательство Российской Федерации.</p>
-                    <p>3.2. Запрещается размещение незаконного контента.</p>
-                    <p>3.3. Запрещены оскорбления других пользователей.</p>
-                    
-                    <h5>4. Ограничение ответственности</h5>
-                    <p>4.1. Администрация не несет ответственности за возможные сбои в работе сайта.</p>
-                    <p>4.2. Администрация не гарантирует бесперебойную работу сайта.</p>
-                    
-                    <h5>5. Заключительные положения</h5>
-                    <p>5.1. Администрация оставляет за собой право изменять настоящее Соглашение.</p>
-                    <p>5.2. Продолжение использования сайта после изменений означает принятие новой версии Соглашения.</p>
-                </div>
+                
                 <div style="margin-top: 1.5rem; text-align: center;">
-                    <button class="btn btn-primary" id="acceptTermsBtn">
-                        <i class="fas fa-check"></i>
-                        Принимаю условия соглашения
+                    <p style="font-size: 0.9rem; color: var(--gray);">
+                        Нет аккаунта? 
+                        <a href="#" id="showRegisterBtn" style="color: var(--primary); text-decoration: none; font-weight: 600;">Зарегистрироваться</a>
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem;">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/account/change-password" id="forgotPasswordBtn" style="color: var(--primary); text-decoration: none;">Забыли пароль?</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Имя пользователя</label>
+                        <input type="text" id="registerUsername" placeholder="MetroDriver" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="registerEmail" placeholder="example@mail.ru" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="registerPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Подтвердите пароль</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="agreeTerms" required style="width: auto; margin-top: 0.25rem;">
+                            <span style="font-size: 0.9rem;">
+                                Я согласен с 
+                                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank" style="color: var(--primary);">пользовательским соглашением</a>
+                                и 
+                                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank" style="color: var(--primary);">политикой конфиденциальности</a>
+                            </span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="registerSubmitBtn">
+                        <i class="fas fa-user-plus"></i>
+                        Зарегистрироваться
                     </button>
+                    <div class="auth-error" id="registerError"></div>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>или</span>
+                </div>
+                
+                <button class="btn-social google" id="googleRegisterBtn">
+                    <i class="fab fa-google"></i>
+                    Зарегистрироваться через Google
+                </button>
+                
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <p style="font-size: 0.9rem; color: var(--gray);">
+                        Уже есть аккаунт? 
+                        <a href="#" id="showLoginBtn" style="color: var(--primary); text-decoration: none; font-weight: 600;">Войти</a>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Ждем загрузки Firebase модулей
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('DOM загружен, ожидаем инициализацию Firebase...');
+            // Ждем инициализации Firebase
+            await waitForFirebase();
             
-            // Проверяем каждые 100ms, инициализирован ли Firebase
-            const checkFirebase = setInterval(() => {
-                if (window.auth && window.db && window.storage) {
-                    clearInterval(checkFirebase);
-                    initApplication();
-                }
-            }, 100);
+            // Устанавливаем текущий год
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
             
-            // Таймаут на случай проблем
-            setTimeout(() => {
-                if (!window.auth) {
-                    console.error('Firebase не инициализирован в течение 5 секунд');
-                    showMessage('Ошибка загрузки Firebase. Обновите страницу.', 'error');
-                }
-            }, 5000);
+            // Обновляем заголовок страницы
+            updatePageTitle();
+            
+            // Инициализируем приложение
+            initApp();
         });
 
-        async function initApplication() {
-            try {
-                console.log('Инициализация приложения...');
-                
-                // Устанавливаем текущий год и дату
-                document.getElementById('currentYear').textContent = new Date().getFullYear();
-                document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ru-RU');
-                
-                // Инициализация интерфейса
-                initUI();
-                
-                // Проверяем состояние аутентификации
-                checkAuthState();
-                
-                console.log('Приложение успешно загружено');
-                
-            } catch (error) {
-                console.error('Ошибка инициализации:', error);
-                showMessage('Ошибка загрузки приложения. Пожалуйста, обновите страницу.', 'error');
+        async function waitForFirebase() {
+            return new Promise((resolve) => {
+                const check = setInterval(() => {
+                    if (window.auth && window.db && window.storage) {
+                        clearInterval(check);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+
+        function updatePageTitle() {
+            const pageTitle = "Правила сообщества сервера Discord";
+            document.title = `Метро New - ${pageTitle}`;
+            
+            // Обновляем заголовок вверху страницы
+            const headerBreadcrumbs = document.querySelector('.header-center .breadcrumbs');
+            if (headerBreadcrumbs) {
+                headerBreadcrumbs.innerHTML = `
+                    <div class="breadcrumb-item">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/">Главная</a>
+                        <span class="breadcrumb-separator">›</span>
+                    </div>
+                    <div class="breadcrumb-item">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help">Правовые документы</a>
+                        <span class="breadcrumb-separator">›</span>
+                    </div>
+                    <div class="breadcrumb-item">
+                        <span class="breadcrumb-current">${pageTitle}</span>
+                    </div>
+                `;
             }
         }
 
-        function initUI() {
-            console.log('Инициализация интерфейса...');
+        function initApp() {
+            // Получаем элементы
+            const userProfile = document.getElementById('userProfile');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            const userAvatar = document.getElementById('userAvatar');
+            const dropdownMenu = document.getElementById('dropdownMenu');
             
-            // Инициализация выпадающих меню
-            initDropdowns();
+            // Модальные окна
+            const loginModal = document.getElementById('loginModal');
+            const registerModal = document.getElementById('registerModal');
             
-            // Инициализация модальных окон
-            initModals();
-            
-            // Инициализация форм
-            initForms();
-            
-            // Инициализация обработчиков
-            initEventHandlers();
-            
-            // Загружаем сохранённые настройки
-            loadSavedSettings();
-            
-            console.log('Интерфейс инициализирован');
-        }
-
-        function initDropdowns() {
-            const userDropdown = document.getElementById('userDropdown');
-            
-            userDropdown.addEventListener('click', function(e) {
-                e.stopPropagation();
-                this.classList.toggle('show');
-            });
-            
-            document.addEventListener('click', function() {
-                userDropdown.classList.remove('show');
-            });
-        }
-
-        function initModals() {
-            console.log('Инициализация модальных окон...');
-            
-            // Закрытие модалок
+            // Кнопки закрытия модальных окон
             document.querySelectorAll('.modal-close').forEach(btn => {
                 btn.addEventListener('click', function() {
                     this.closest('.modal').classList.remove('show');
                 });
             });
             
+            // Закрытие модальных окон при клике вне
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', function(e) {
                     if (e.target === this) {
@@ -2223,163 +1150,210 @@
                 });
             });
             
-            // Переключение вкладок в аккаунте
-            document.querySelectorAll('.account-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    document.querySelectorAll('.account-tab-content').forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === `${tabName}Tab`) {
-                            content.classList.add('active');
-                        }
-                    });
-                });
+            // Переключение меню профиля
+            userProfile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
             });
             
-            // Переключение вкладок авторизации
-            document.querySelectorAll('.auth-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    document.querySelectorAll('.auth-form').forEach(form => {
-                        form.classList.remove('active');
-                        if (form.id === `${tabName}Form`) {
-                            form.classList.add('active');
-                        }
-                    });
-                });
+            // Закрытие меню при клике вне его
+            document.addEventListener('click', function() {
+                userProfile.classList.remove('active');
             });
             
-            console.log('Модальные окна инициализированы');
+            // Предотвращаем закрытие при клике внутри меню
+            dropdownMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Проверка состояния аутентификации
+            checkAuthState();
+            
+            // Инициализация форм
+            initForms();
+        }
+
+        function checkAuthState() {
+            const { onAuthStateChanged } = window.firebaseModules;
+            
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    await updateUserProfile(user);
+                } else {
+                    updateGuestProfile();
+                }
+            });
+        }
+
+        async function updateUserProfile(user) {
+            const displayName = user.displayName || 'Пользователь';
+            const email = user.email || 'Без email';
+            const photoURL = user.photoURL;
+            const isAnonymous = user.isAnonymous;
+            const isEmailVerified = user.emailVerified;
+            
+            // Обновляем хедер
+            document.getElementById('userName').textContent = isAnonymous ? 'Гость' : displayName;
+            document.getElementById('userEmail').textContent = isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email;
+            
+            const userAvatar = document.getElementById('userAvatar');
+            if (photoURL) {
+                userAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user\"></i>';">`;
+            } else {
+                userAvatar.innerHTML = '<i class="fas fa-user"></i>';
+            }
+            
+            // Обновляем меню пользователя
+            updateUserMenu(user);
+            
+            // Загружаем дополнительные данные из Firestore
+            await loadUserData(user.uid);
+        }
+
+        function updateGuestProfile() {
+            document.getElementById('userName').textContent = 'Гость';
+            document.getElementById('userEmail').textContent = 'Войти в аккаунт';
+            document.getElementById('userAvatar').innerHTML = '<i class="fas fa-user"></i>';
+            
+            // Обновляем меню для гостя
+            updateGuestMenu();
+        }
+
+        function updateUserMenu(user) {
+            const displayName = user.displayName || 'Пользователь';
+            const email = user.email || 'Без email';
+            const isAnonymous = user.isAnonymous;
+            const isEmailVerified = user.emailVerified;
+            const photoURL = user.photoURL;
+            
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            dropdownMenu.innerHTML = `
+                <div class="dropdown-header">
+                    <div class="user-avatar">
+                        ${photoURL ? 
+                            `<img src="${photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user\"></i>';">` : 
+                            '<i class="fas fa-user"></i>'
+                        }
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">${isAnonymous ? 'Гость' : displayName}</div>
+                        <div class="user-email">${isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email}</div>
+                    </div>
+                </div>
+                
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/account/settings" class="dropdown-item">
+                    <i class="fas fa-user-cog"></i>
+                    Мой аккаунт
+                </a>
+                
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/account/" class="dropdown-item">
+                    <i class="fas fa-bell"></i>
+                    Уведомления
+                </a>
+                
+                <a href="https://kirill12633.github.io/mail.metro.new/" class="dropdown-item">
+                    <i class="fas fa-envelope"></i>
+                    Почта
+                </a>
+                
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" class="dropdown-item">
+                    <i class="fas fa-file-contract"></i>
+                    Правовые документы
+                </a>
+                
+                <a href="https://kirill12633.github.io/support.metro.new/" class="dropdown-item">
+                    <i class="fas fa-headset"></i>
+                    Служба поддержки
+                </a>
+                
+                <div class="dropdown-divider" style="height: 1px; background: var(--gray-light); margin: 0.5rem 0;"></div>
+                
+                ${isAnonymous ? `
+                    <button class="dropdown-item" id="upgradeAccountBtn">
+                        <i class="fas fa-user-plus"></i>
+                        Создать аккаунт
+                    </button>
+                ` : ''}
+                
+                <button class="dropdown-item logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    ${isAnonymous ? 'Выйти из гостевого режима' : 'Выйти'}
+                </button>
+            `;
+            
+            // Добавляем обработчики
+            setTimeout(() => {
+                document.getElementById('logoutBtn')?.addEventListener('click', signOutUser);
+                document.getElementById('upgradeAccountBtn')?.addEventListener('click', function() {
+                    document.getElementById('userProfile').classList.remove('active');
+                    document.getElementById('registerModal').classList.add('show');
+                });
+            }, 100);
+        }
+
+        function updateGuestMenu() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            dropdownMenu.innerHTML = `
+                <div class="dropdown-header">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Гость</div>
+                        <div class="user-email">Не авторизован</div>
+                    </div>
+                </div>
+                
+                <button class="dropdown-item" id="loginMenuBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Вход
+                </button>
+                
+                <button class="dropdown-item" id="registerMenuBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Регистрация
+                </button>
+                
+                <button class="dropdown-item" id="guestLoginBtnMenu">
+                    <i class="fas fa-user-secret"></i>
+                    Продолжить как гость
+                </button>
+                
+                <div class="dropdown-divider" style="height: 1px; background: var(--gray-light); margin: 0.5rem 0;"></div>
+                
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" class="dropdown-item">
+                    <i class="fas fa-file-contract"></i>
+                    Правовые документы
+                </a>
+                
+                <a href="https://kirill12633.github.io/support.metro.new/" class="dropdown-item">
+                    <i class="fas fa-headset"></i>
+                    Служба поддержки
+                </a>
+            `;
+            
+            // Добавляем обработчики для гостевого меню
+            setTimeout(() => {
+                document.getElementById('loginMenuBtn')?.addEventListener('click', function() {
+                    document.getElementById('userProfile').classList.remove('active');
+                    document.getElementById('loginModal').classList.add('show');
+                });
+                
+                document.getElementById('registerMenuBtn')?.addEventListener('click', function() {
+                    document.getElementById('userProfile').classList.remove('active');
+                    document.getElementById('registerModal').classList.add('show');
+                });
+                
+                document.getElementById('guestLoginBtnMenu')?.addEventListener('click', function() {
+                    document.getElementById('userProfile').classList.remove('active');
+                    signInAnonymously();
+                });
+            }, 100);
         }
 
         function initForms() {
-            console.log('Инициализация форм...');
-            
-            // Проверка сложности пароля при регистрации
-            const registerPassword = document.getElementById('registerPassword');
-            const confirmPassword = document.getElementById('registerConfirmPassword');
-            
-            if (registerPassword) {
-                registerPassword.addEventListener('input', function() {
-                    checkPasswordStrength(this.value);
-                });
-                
-                registerPassword.addEventListener('blur', function() {
-                    validatePassword(this.value);
-                });
-            }
-            
-            if (confirmPassword) {
-                confirmPassword.addEventListener('input', function() {
-                    checkPasswordMatch();
-                });
-            }
-            
-            console.log('Формы инициализированы');
-        }
-
-        function initEventHandlers() {
-            console.log('Инициализация обработчиков событий...');
-            
-            // Кнопки в хедере
-            document.getElementById('aboutBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                showMessage('Информация о проекте скоро будет доступна!', 'info');
-            });
-            
-            // Клики по документу
-            document.addEventListener('click', function(e) {
-                // Открытие модалки аккаунта
-                if (e.target.closest('#openAccountBtn') || e.target.closest('.user-profile')) {
-                    e.preventDefault();
-                    document.getElementById('accountModal').classList.add('show');
-                    updateAccountModal();
-                    document.getElementById('userDropdown').classList.remove('show');
-                }
-            });
-            
-            // Кнопки в модалке аккаунта
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            
-            if (loginBtn) {
-                loginBtn.addEventListener('click', function() {
-                    document.getElementById('accountModal').classList.remove('show');
-                    setTimeout(() => {
-                        document.getElementById('authModal').classList.add('show');
-                        document.querySelector('[data-tab="login"]').click();
-                    }, 300);
-                });
-            }
-            
-            if (registerBtn) {
-                registerBtn.addEventListener('click', function() {
-                    document.getElementById('accountModal').classList.remove('show');
-                    setTimeout(() => {
-                        document.getElementById('authModal').classList.add('show');
-                        document.querySelector('[data-tab="register"]').click();
-                    }, 300);
-                });
-            }
-            
-            // Смена аватара
-            document.getElementById('changeAvatarBtn')?.addEventListener('click', function() {
-                document.getElementById('avatarModal').classList.add('show');
-                initAvatarUpload();
-            });
-            
-            // Восстановление пароля
-            document.getElementById('forgotPasswordBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('authModal').classList.remove('show');
-                setTimeout(() => {
-                    document.getElementById('passwordResetModal').classList.add('show');
-                }, 300);
-            });
-            
-            // Отправка ссылки восстановления
-            document.getElementById('sendResetBtn')?.addEventListener('click', async function() {
-                await sendPasswordReset();
-            });
-            
-            // Гостевая аутентификация
-            document.getElementById('anonymousLoginBtn')?.addEventListener('click', async function() {
-                await signInAnonymously();
-            });
-            
-            // Google авторизация
-            document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
-                await signInWithGoogle();
-            });
-            
-            // Привязка Google аккаунта
-            document.getElementById('linkGoogleBtn')?.addEventListener('click', async function() {
-                await linkGoogleAccount();
-            });
-            
-            // Отвязка Google аккаунта
-            document.getElementById('unlinkGoogleBtn')?.addEventListener('click', async function() {
-                await unlinkGoogleAccount();
-            });
-            
-            // Смена пароля
-            document.getElementById('changePasswordBtn')?.addEventListener('click', function() {
-                document.getElementById('passwordChangeModal').classList.add('show');
-            });
-            
-            // Отправка формы смены пароля
-            document.getElementById('submitPasswordChangeBtn')?.addEventListener('click', async function() {
-                await changePassword();
-            });
-            
             // Форма входа
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
@@ -2398,364 +1372,51 @@
                 });
             }
             
-            // Ссылки на документы в форме регистрации
-            document.getElementById('termsLink')?.addEventListener('click', function(e) {
+            // Кнопка показа регистрации
+            document.getElementById('showRegisterBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
-                document.getElementById('termsModal').classList.add('show');
+                document.getElementById('loginModal').classList.remove('show');
+                document.getElementById('registerModal').classList.add('show');
             });
             
-            document.getElementById('privacyLink')?.addEventListener('click', function(e) {
+            // Кнопка показа входа
+            document.getElementById('showLoginBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
-                showMessage('Политика конфиденциальности скоро будет доступна', 'info');
+                document.getElementById('registerModal').classList.remove('show');
+                document.getElementById('loginModal').classList.add('show');
             });
             
-            document.getElementById('rulesLink')?.addEventListener('click', function(e) {
+            // Вход через Google
+            document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
+                await signInWithGoogle();
+            });
+            
+            // Регистрация через Google
+            document.getElementById('googleRegisterBtn')?.addEventListener('click', async function() {
+                await signInWithGoogle();
+            });
+            
+            // Гостевой вход
+            document.getElementById('guestLoginBtn')?.addEventListener('click', async function() {
+                await signInAnonymously();
+            });
+            
+            // Забыли пароль - ссылка на страницу восстановления
+            document.getElementById('forgotPasswordBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
-                showMessage('Правила сайта скоро будут доступны', 'info');
-            });
-            
-            // Принятие условий соглашения
-            document.getElementById('acceptTermsBtn')?.addEventListener('click', function() {
-                document.getElementById('termsModal').classList.remove('show');
-                document.getElementById('agreeTerms').checked = true;
-                showMessage('Условия соглашения приняты', 'success');
-            });
-            
-            // Ссылки в футере
-            document.getElementById('privacyPolicyBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                showMessage('Политика конфиденциальности скоро будет доступна', 'info');
-            });
-            
-            document.getElementById('termsOfServiceBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('termsModal').classList.add('show');
-            });
-            
-            document.getElementById('rulesBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                showMessage('Правила сообщества скоро будут доступны', 'info');
-            });
-            
-            document.getElementById('refundPolicyBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                showMessage('Политика возврата скоро будет доступна', 'info');
-            });
-            
-            // Выбор файла аватара
-            document.getElementById('chooseAvatarBtn')?.addEventListener('click', function() {
-                document.getElementById('avatarFileInput').click();
-            });
-            
-            // Загрузка аватара
-            document.getElementById('uploadAvatarBtn')?.addEventListener('click', async function() {
-                await uploadAvatar();
-            });
-            
-            // Удаление аватара
-            document.getElementById('removeAvatarBtn')?.addEventListener('click', async function() {
-                await removeAvatar();
-            });
-            
-            // Изменение файла аватара
-            document.getElementById('avatarFileInput')?.addEventListener('change', function(e) {
-                previewAvatar(e.target.files[0]);
-            });
-            
-            // Настройки темы
-            document.querySelectorAll('.theme-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    setTheme(theme);
-                });
-            });
-            
-            // Настройки языка
-            document.querySelectorAll('.lang-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const lang = this.getAttribute('data-lang');
-                    setLanguage(lang);
-                });
-            });
-            
-            console.log('Обработчики событий инициализированы');
-        }
-
-        function loadSavedSettings() {
-            console.log('Загрузка сохранённых настроек...');
-            
-            // Загружаем тему
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            const themeOption = document.querySelector(`.theme-option[data-theme="${savedTheme}"]`);
-            if (themeOption) {
-                document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
-                themeOption.classList.add('active');
-                
-                if (savedTheme === 'dark') {
-                    document.body.classList.add('dark-theme');
-                } else {
-                    document.body.classList.remove('dark-theme');
-                }
-            }
-            
-            // Загружаем язык
-            const savedLang = localStorage.getItem('language') || 'ru';
-            const langOption = document.querySelector(`.lang-option[data-lang="${savedLang}"]`);
-            if (langOption) {
-                document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
-                langOption.classList.add('active');
-            }
-            
-            console.log('Настройки загружены');
-        }
-
-        function checkAuthState() {
-            console.log('Проверка состояния аутентификации...');
-            
-            const { onAuthStateChanged } = window.firebaseModules;
-            
-            onAuthStateChanged(auth, async (user) => {
-                console.log('Состояние аутентификации изменено:', user ? 'Пользователь найден' : 'Пользователь не найден');
-                
-                if (user) {
-                    // Пользователь авторизован
-                    await updateUserProfile(user);
-                    await loadUserData(user.uid);
-                    checkGoogleAccountLinked(user);
-                } else {
-                    // Пользователь не авторизован
-                    updateGuestProfile();
-                }
+                window.location.href = "https://kirill12633.github.io/Metro.New.Official/ru/account/change-password";
             });
         }
 
-        function checkGoogleAccountLinked(user) {
-            const isGoogleLinked = user.providerData.some(
-                provider => provider.providerId === 'google.com'
-            );
-            
-            const linkBtn = document.getElementById('linkGoogleBtn');
-            const unlinkBtn = document.getElementById('unlinkGoogleBtn');
-            
-            if (linkBtn && unlinkBtn) {
-                if (isGoogleLinked) {
-                    linkBtn.style.display = 'none';
-                    unlinkBtn.style.display = 'inline-flex';
-                } else {
-                    linkBtn.style.display = 'inline-flex';
-                    unlinkBtn.style.display = 'none';
-                }
-            }
-        }
-
-        async function updateUserProfile(user) {
-            console.log('Обновление профиля пользователя:', user.uid);
-            
-            const displayName = user.displayName || 'Пользователь';
-            const email = user.email || 'Без email';
-            const photoURL = user.photoURL;
-            const isAnonymous = user.isAnonymous;
-            const isEmailVerified = user.emailVerified;
-            
-            // Обновляем хедер
-            document.getElementById('userName').textContent = isAnonymous ? 'Гость' : displayName;
-            document.getElementById('userStatus').textContent = isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email;
-            
-            const userAvatar = document.getElementById('userAvatar');
-            if (photoURL) {
-                userAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user-circle\"></i>';">`;
-            } else {
-                userAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
-            }
-            
-            // Обновляем меню пользователя
-            updateUserMenu(user);
-            
-            // Обновляем модалку аккаунта
-            updateAccountModal(user);
-            
-            console.log('Профиль пользователя обновлён');
-        }
-
-        function updateGuestProfile() {
-            console.log('Обновление гостевого профиля');
-            
-            document.getElementById('userName').textContent = 'Гость';
-            document.getElementById('userStatus').textContent = 'Войти в аккаунт';
-            document.getElementById('userAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
-            
-            // Обновляем меню для гостя
-            updateGuestMenu();
-            
-            // Обновляем модалку аккаунта для гостя
-            updateGuestAccountModal();
-            
-            console.log('Гостевой профиль обновлён');
-        }
-
-        function updateUserMenu(user) {
-            const userMenu = document.getElementById('userMenu');
-            const displayName = user.displayName || 'Пользователь';
-            const email = user.email || 'Без email';
-            const isAnonymous = user.isAnonymous;
-            const isEmailVerified = user.emailVerified;
-            
-            userMenu.innerHTML = `
-                <div class="dropdown-header" style="padding: 0.75rem 1rem;">
-                    <div style="font-weight: 600;">${isAnonymous ? 'Гость' : displayName}</div>
-                    <small style="color: var(--gray);">${isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email}</small>
-                </div>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" id="openAccountBtn">
-                    <i class="fas fa-user-circle"></i>
-                    <span>Мой аккаунт</span>
-                </button>
-                <div class="dropdown-divider"></div>
-                ${isAnonymous ? `
-                    <button class="dropdown-item" id="upgradeAccountBtn">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Создать аккаунт</span>
-                    </button>
-                ` : ''}
-                <button class="dropdown-item logout" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>${isAnonymous ? 'Выйти из гостевого режима' : 'Выйти'}</span>
-                </button>
-            `;
-            
-            // Добавляем обработчики
-            setTimeout(() => {
-                document.getElementById('logoutBtn')?.addEventListener('click', signOut);
-                document.getElementById('upgradeAccountBtn')?.addEventListener('click', function() {
-                    document.getElementById('userDropdown').classList.remove('show');
-                    document.getElementById('authModal').classList.add('show');
-                    document.querySelector('[data-tab="register"]').click();
-                });
-            }, 100);
-        }
-
-        function updateGuestMenu() {
-            const userMenu = document.getElementById('userMenu');
-            
-            userMenu.innerHTML = `
-                <div class="dropdown-header" style="padding: 0.75rem 1rem;">
-                    <div style="font-weight: 600;">Гость</div>
-                    <small style="color: var(--gray);">Не авторизован</small>
-                </div>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" id="openAccountBtn">
-                    <i class="fas fa-user-circle"></i>
-                    <span>Мой аккаунт</span>
-                </button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" id="loginMenuBtn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Войти в аккаунт</span>
-                </button>
-                <button class="dropdown-item" id="registerMenuBtn">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Зарегистрироваться</span>
-                </button>
-                <button class="dropdown-item" id="guestLoginBtn">
-                    <i class="fas fa-user-secret"></i>
-                    <span>Продолжить как гость</span>
-                </button>
-            `;
-            
-            // Добавляем обработчики для гостевого меню
-            setTimeout(() => {
-                document.getElementById('loginMenuBtn')?.addEventListener('click', function() {
-                    document.getElementById('userDropdown').classList.remove('show');
-                    document.getElementById('authModal').classList.add('show');
-                    document.querySelector('[data-tab="login"]').click();
-                });
-                
-                document.getElementById('registerMenuBtn')?.addEventListener('click', function() {
-                    document.getElementById('userDropdown').classList.remove('show');
-                    document.getElementById('authModal').classList.add('show');
-                    document.querySelector('[data-tab="register"]').click();
-                });
-                
-                document.getElementById('guestLoginBtn')?.addEventListener('click', function() {
-                    document.getElementById('userDropdown').classList.remove('show');
-                    signInAnonymously();
-                });
-            }, 100);
-        }
-
-        function updateAccountModal(user) {
-            if (user) {
-                // Пользователь авторизован
-                const displayName = user.displayName || 'Пользователь';
-                const email = user.email || 'Без email';
-                const isAnonymous = user.isAnonymous;
-                const isEmailVerified = user.emailVerified;
-                const uid = user.uid;
-                const creationTime = user.metadata.creationTime;
-                const lastSignInTime = user.metadata.lastSignInTime;
-                
-                document.getElementById('accountName').textContent = isAnonymous ? 'Гость' : displayName;
-                document.getElementById('accountEmail').textContent = isAnonymous ? 'Гостевой режим' : (isEmailVerified ? '✓ ' : '') + email;
-                document.getElementById('accountBadge').textContent = isAnonymous ? 'Гость' : (isEmailVerified ? 'Верифицирован' : 'Пользователь');
-                document.getElementById('profileStatus').textContent = isAnonymous ? 'Гость' : (isEmailVerified ? 'Верифицированный пользователь' : 'Пользователь');
-                document.getElementById('profileRegDate').textContent = new Date(creationTime).toLocaleDateString('ru-RU');
-                document.getElementById('profileLastLogin').textContent = new Date(lastSignInTime).toLocaleDateString('ru-RU');
-                document.getElementById('profileUID').textContent = uid.substring(0, 8) + '...';
-                
-                const accountAvatar = document.getElementById('accountAvatar');
-                if (user.photoURL) {
-                    accountAvatar.innerHTML = `<img src="${user.photoURL}" alt="${displayName}" onerror="this.onerror=null; this.innerHTML='<i class=\"fas fa-user-circle\"></i>';">`;
-                } else {
-                    accountAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
-                }
-                
-                // Показываем действия профиля для неанонимных пользователей
-                if (!isAnonymous) {
-                    document.getElementById('profileActionsSection').style.display = 'block';
-                    document.getElementById('authNote').textContent = isEmailVerified ? 'Ваш email подтверждён ✓' : 'Подтвердите email для полного доступа';
-                } else {
-                    document.getElementById('profileActionsSection').style.display = 'none';
-                    document.getElementById('authNote').textContent = 'Вы в гостевом режиме. Создайте аккаунт, чтобы сохранить прогресс.';
-                }
-                
-            } else {
-                // Гость
-                updateGuestAccountModal();
-            }
-        }
-
-        function updateGuestAccountModal() {
-            document.getElementById('accountName').textContent = 'Гость';
-            document.getElementById('accountEmail').textContent = 'Не авторизован';
-            document.getElementById('accountBadge').textContent = 'Гость';
-            document.getElementById('profileStatus').textContent = 'Гость';
-            document.getElementById('profileRegDate').textContent = '—';
-            document.getElementById('profileLastLogin').textContent = '—';
-            document.getElementById('profileUID').textContent = '—';
-            document.getElementById('accountAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
-            document.getElementById('profileActionsSection').style.display = 'none';
-            document.getElementById('authNote').textContent = 'Войдите в аккаунт, чтобы получить доступ ко всем функциям';
-        }
-
-        // ФУНКЦИИ АУТЕНТИФИКАЦИИ
         async function signInWithEmail() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            
             const loginSubmitBtn = document.getElementById('loginSubmitBtn');
             const loginError = document.getElementById('loginError');
             
-            console.log('Попытка входа по email:', email);
-            
             try {
-                // Валидация
                 if (!email || !password) {
                     throw new Error('Заполните все поля');
-                }
-                
-                if (!validateEmail(email)) {
-                    throw new Error('Неверный формат email');
                 }
                 
                 loginSubmitBtn.disabled = true;
@@ -2763,21 +1424,15 @@
                 loginError.style.display = 'none';
                 
                 const { signInWithEmailAndPassword } = window.firebaseModules;
-                
-                // Вход
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 
-                // Проверка email
                 if (userCredential.user.emailVerified === false) {
-                    console.log('Email не подтверждён');
-                    showMessage('Подтвердите email для полного доступа к функциям', 'warning');
+                    showMessage('Подтвердите email для полного доступа', 'warning');
                 } else {
-                    showMessage(`Добро пожаловать, ${userCredential.user.displayName || userCredential.user.email || 'пользователь'}!`, 'success');
+                    showMessage(`Добро пожаловать, ${userCredential.user.displayName || 'пользователь'}!`, 'success');
                 }
                 
-                document.getElementById('authModal').classList.remove('show');
-                
-                // Очищаем форму
+                document.getElementById('loginModal').classList.remove('show');
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
                 
@@ -2789,24 +1444,14 @@
                     case 'auth/invalid-email':
                         errorMessage += 'Неверный формат email.';
                         break;
-                    case 'auth/user-disabled':
-                        errorMessage += 'Аккаунт заблокирован.';
-                        break;
-                    case 'auth/user-not-found':
                     case 'auth/invalid-login-credentials':
                         errorMessage += 'Неверный email или пароль.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage += 'Неверный пароль.';
                         break;
                     case 'auth/too-many-requests':
                         errorMessage += 'Слишком много попыток. Попробуйте позже.';
                         break;
-                    case 'auth/network-request-failed':
-                        errorMessage += 'Ошибка сети. Проверьте подключение.';
-                        break;
                     default:
-                        errorMessage += error.message || 'Проверьте правильность введенных данных';
+                        errorMessage += error.message;
                 }
                 
                 loginError.textContent = errorMessage;
@@ -2828,10 +1473,7 @@
             const registerSubmitBtn = document.getElementById('registerSubmitBtn');
             const registerError = document.getElementById('registerError');
             
-            console.log('Попытка регистрации:', email, username);
-            
             try {
-                // Валидация
                 if (!username || !email || !password || !confirmPassword) {
                     throw new Error('Заполните все поля');
                 }
@@ -2850,12 +1492,6 @@
                 
                 if (password !== confirmPassword) {
                     throw new Error('Пароли не совпадают');
-                }
-                
-                // Проверка сложности пароля
-                const passwordValidation = validatePassword(password);
-                if (!passwordValidation.valid) {
-                    throw new Error(passwordValidation.message);
                 }
                 
                 registerSubmitBtn.disabled = true;
@@ -2878,22 +1514,16 @@
                     handleCodeInApp: true
                 });
                 
-                // Сохранение дополнительных данных в Firestore
+                // Сохранение данных в Firestore
                 await saveUserData(userCredential.user.uid, {
                     username: username,
                     email: email,
                     createdAt: new Date().toISOString(),
-                    emailVerified: false,
-                    settings: {
-                        theme: 'light',
-                        language: 'ru',
-                        emailNotifications: true,
-                        projectNews: true
-                    }
+                    emailVerified: false
                 });
                 
                 showMessage(`Аккаунт успешно создан! Проверьте почту ${email} для подтверждения.`, 'success');
-                document.getElementById('authModal').classList.remove('show');
+                document.getElementById('registerModal').classList.remove('show');
                 
                 // Очищаем форму
                 document.getElementById('registerUsername').value = '';
@@ -2913,14 +1543,8 @@
                     case 'auth/invalid-email':
                         errorMessage += 'Неверный формат email.';
                         break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage += 'Регистрация по email отключена.';
-                        break;
                     case 'auth/weak-password':
-                        errorMessage += 'Пароль слишком слабый. Минимум 8 символов: заглавные, строчные, цифры, спецсимволы.';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage += 'Ошибка сети. Проверьте подключение.';
+                        errorMessage += 'Пароль слишком слабый. Минимум 8 символов.';
                         break;
                     default:
                         errorMessage += error.message;
@@ -2937,9 +1561,7 @@
 
         async function signInWithGoogle() {
             try {
-                console.log('Попытка входа через Google...');
-                
-                const { signInWithPopup, GoogleAuthProvider } = window.firebaseModules;
+                const { signInWithPopup } = window.firebaseModules;
                 const userCredential = await signInWithPopup(auth, window.googleProvider);
                 
                 // Проверяем, новый ли пользователь
@@ -2951,20 +1573,15 @@
                         username: userCredential.user.displayName,
                         email: userCredential.user.email,
                         createdAt: new Date().toISOString(),
-                        emailVerified: userCredential.user.emailVerified,
-                        settings: {
-                            theme: 'light',
-                            language: 'ru',
-                            emailNotifications: true,
-                            projectNews: true
-                        }
+                        emailVerified: userCredential.user.emailVerified
                     });
                     showMessage('Аккаунт успешно создан через Google!', 'success');
                 } else {
                     showMessage(`Добро пожаловать, ${userCredential.user.displayName || 'пользователь'}!`, 'success');
                 }
                 
-                document.getElementById('authModal').classList.remove('show');
+                document.getElementById('loginModal').classList.remove('show');
+                document.getElementById('registerModal').classList.remove('show');
                 
             } catch (error) {
                 console.error('Ошибка входа через Google:', error);
@@ -2974,359 +1591,42 @@
                     case 'auth/popup-closed-by-user':
                         errorMessage = 'Вход отменен пользователем';
                         break;
-                    case 'auth/cancelled-popup-request':
-                        errorMessage = 'Вход отменен';
-                        break;
                     case 'auth/popup-blocked':
-                        errorMessage = 'Всплывающее окно было заблокировано браузером. Разрешите всплывающие окна для этого сайта.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        errorMessage = 'Домен не авторизован для входа через Google.';
+                        errorMessage = 'Всплывающее окно заблокировано. Разрешите всплывающие окна.';
                         break;
                     default:
                         errorMessage += error.message;
                 }
                 
                 showMessage(errorMessage, 'error');
-            }
-        }
-
-        async function linkGoogleAccount() {
-            try {
-                const user = auth.currentUser;
-                if (!user) return;
-                
-                const { linkWithPopup, GoogleAuthProvider } = window.firebaseModules;
-                const result = await linkWithPopup(user, window.googleProvider);
-                
-                showMessage('Google аккаунт успешно привязан!', 'success');
-                checkGoogleAccountLinked(result.user);
-                
-            } catch (error) {
-                console.error('Ошибка привязки Google аккаунта:', error);
-                
-                let errorMessage = 'Ошибка привязки Google аккаунта. ';
-                switch (error.code) {
-                    case 'auth/provider-already-linked':
-                        errorMessage = 'Google аккаунт уже привязан';
-                        break;
-                    case 'auth/credential-already-in-use':
-                        errorMessage = 'Этот Google аккаунт уже используется другим пользователем';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                showMessage(errorMessage, 'error');
-            }
-        }
-
-        async function unlinkGoogleAccount() {
-            try {
-                const user = auth.currentUser;
-                if (!user) return;
-                
-                // Для отвязки нужно перенастроить провайдеры
-                // В этом примере просто показываем сообщение
-                // В реальном приложении нужно реализовать отвязку через reauthenticate
-                
-                showMessage('Для отвязки Google аккаунта обратитесь в поддержку', 'warning');
-                
-            } catch (error) {
-                console.error('Ошибка отвязки Google аккаунта:', error);
-                showMessage('Ошибка отвязки Google аккаунта', 'error');
             }
         }
 
         async function signInAnonymously() {
             try {
-                console.log('Попытка гостевого входа...');
-                
                 const { signInAnonymously } = window.firebaseModules;
-                const userCredential = await signInAnonymously(auth);
+                await signInAnonymously(auth);
                 
-                showMessage('Вход в гостевом режиме. Ваш прогресс будет сохранён локально.', 'info');
-                document.getElementById('authModal').classList.remove('show');
+                showMessage('Вход в гостевом режиме', 'info');
+                document.getElementById('loginModal').classList.remove('show');
                 
             } catch (error) {
                 console.error('Ошибка гостевого входа:', error);
-                showMessage('Ошибка гостевого входа. Попробуйте ещё раз.', 'error');
+                showMessage('Ошибка гостевого входа', 'error');
             }
         }
 
-        async function signOut() {
+        async function signOutUser() {
             try {
-                console.log('Выход из аккаунта...');
-                
                 const { signOut } = window.firebaseModules;
                 await signOut(auth);
                 
                 showMessage('Вы вышли из аккаунта', 'info');
+                document.getElementById('userProfile').classList.remove('active');
                 
             } catch (error) {
                 console.error('Ошибка выхода:', error);
-                showMessage('Ошибка выхода. Попробуйте ещё раз.', 'error');
-            }
-        }
-
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-            const submitBtn = document.getElementById('submitPasswordChangeBtn');
-            const messageEl = document.getElementById('passwordChangeMessage');
-            
-            try {
-                const user = auth.currentUser;
-                if (!user || !user.email) {
-                    throw new Error('Пользователь не найден');
-                }
-                
-                if (!currentPassword || !newPassword || !confirmNewPassword) {
-                    throw new Error('Заполните все поля');
-                }
-                
-                if (newPassword !== confirmNewPassword) {
-                    throw new Error('Новые пароли не совпадают');
-                }
-                
-                // Проверка сложности нового пароля
-                const passwordValidation = validatePassword(newPassword);
-                if (!passwordValidation.valid) {
-                    throw new Error(passwordValidation.message);
-                }
-                
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Смена пароля...';
-                messageEl.style.display = 'none';
-                
-                const { reauthenticateWithCredential, EmailAuthProvider, updatePassword } = window.firebaseModules;
-                
-                // Реаутентификация
-                const credential = EmailAuthProvider.credential(user.email, currentPassword);
-                await reauthenticateWithCredential(user, credential);
-                
-                // Смена пароля
-                await updatePassword(user, newPassword);
-                
-                messageEl.textContent = 'Пароль успешно изменён!';
-                messageEl.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
-                messageEl.style.color = 'var(--success)';
-                messageEl.style.display = 'block';
-                
-                // Очищаем форму
-                document.getElementById('currentPassword').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('confirmNewPassword').value = '';
-                
-                setTimeout(() => {
-                    document.getElementById('passwordChangeModal').classList.remove('show');
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Ошибка смены пароля:', error);
-                
-                messageEl.textContent = `Ошибка: ${error.message}`;
-                messageEl.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
-                messageEl.style.color = 'var(--danger)';
-                messageEl.style.display = 'block';
-                
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Сменить пароль';
-            }
-        }
-
-        async function sendPasswordReset() {
-            const email = document.getElementById('resetEmail').value;
-            const sendResetBtn = document.getElementById('sendResetBtn');
-            const resetMessage = document.getElementById('resetMessage');
-            
-            console.log('Отправка запроса на восстановление пароля:', email);
-            
-            if (!email) {
-                resetMessage.textContent = 'Введите email';
-                resetMessage.style.color = 'var(--danger)';
-                resetMessage.style.display = 'block';
-                return;
-            }
-            
-            if (!validateEmail(email)) {
-                resetMessage.textContent = 'Неверный формат email';
-                resetMessage.style.color = 'var(--danger)';
-                resetMessage.style.display = 'block';
-                return;
-            }
-            
-            try {
-                sendResetBtn.disabled = true;
-                sendResetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
-                
-                const { sendPasswordResetEmail } = window.firebaseModules;
-                await sendPasswordResetEmail(auth, email);
-                
-                resetMessage.textContent = `Ссылка для восстановления пароля отправлена на ${email}. Проверьте почту.`;
-                resetMessage.style.color = 'var(--success)';
-                resetMessage.style.display = 'block';
-                
-                setTimeout(() => {
-                    document.getElementById('passwordResetModal').classList.remove('show');
-                    document.getElementById('resetEmail').value = '';
-                }, 3000);
-                
-            } catch (error) {
-                console.error('Ошибка восстановления пароля:', error);
-                
-                let errorMessage = 'Ошибка отправки ссылки. ';
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage += 'Неверный формат email.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage += 'Пользователь с таким email не найден.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage += 'Слишком много запросов. Попробуйте позже.';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                resetMessage.textContent = errorMessage;
-                resetMessage.style.color = 'var(--danger)';
-                resetMessage.style.display = 'block';
-                
-            } finally {
-                sendResetBtn.disabled = false;
-                sendResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить ссылку';
-            }
-        }
-
-        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        function validatePassword(password) {
-            const minLength = 8;
-            const maxLength = 32;
-            
-            if (password.length < minLength) {
-                return {
-                    valid: false,
-                    message: `Пароль должен быть не менее ${minLength} символов`
-                };
-            }
-            
-            if (password.length > maxLength) {
-                return {
-                    valid: false,
-                    message: `Пароль должен быть не более ${maxLength} символов`
-                };
-            }
-            
-            const hasUpperCase = /[A-Z]/.test(password);
-            const hasLowerCase = /[a-z]/.test(password);
-            const hasNumbers = /\d/.test(password);
-            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-            
-            if (!hasUpperCase) {
-                return {
-                    valid: false,
-                    message: 'Добавьте хотя бы одну заглавную букву'
-                };
-            }
-            
-            if (!hasLowerCase) {
-                return {
-                    valid: false,
-                    message: 'Добавьте хотя бы одну строчную букву'
-                };
-            }
-            
-            if (!hasNumbers) {
-                return {
-                    valid: false,
-                    message: 'Добавьте хотя бы одну цифру'
-                };
-            }
-            
-            if (!hasSpecialChar) {
-                return {
-                    valid: false,
-                    message: 'Добавьте хотя бы один специальный символ (!@#$%^&* и т.д.)'
-                };
-            }
-            
-            return { valid: true, message: 'Пароль соответствует требованиям' };
-        }
-
-        function checkPasswordStrength(password) {
-            const strengthBar = document.querySelector('.strength-bar');
-            const strengthText = document.getElementById('strengthText') || document.querySelector('.strength-text span');
-            
-            if (!password) {
-                if (strengthBar) {
-                    strengthBar.style.width = '0%';
-                    strengthBar.style.backgroundColor = 'var(--danger)';
-                }
-                if (strengthText) {
-                    strengthText.textContent = 'слабый';
-                }
-                return;
-            }
-            
-            let strength = 0;
-            
-            // Длина
-            if (password.length >= 8) strength += 25;
-            if (password.length >= 12) strength += 10;
-            
-            // Сложность
-            if (/[A-Z]/.test(password)) strength += 15;
-            if (/[a-z]/.test(password)) strength += 15;
-            if (/\d/.test(password)) strength += 15;
-            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength += 20;
-            
-            // Ограничиваем 100%
-            strength = Math.min(strength, 100);
-            
-            // Обновляем отображение
-            if (strengthBar) {
-                strengthBar.style.width = `${strength}%`;
-                
-                if (strength < 40) {
-                    strengthBar.style.backgroundColor = 'var(--danger)';
-                } else if (strength < 70) {
-                    strengthBar.style.backgroundColor = 'var(--warning)';
-                } else {
-                    strengthBar.style.backgroundColor = 'var(--success)';
-                }
-            }
-            
-            if (strengthText) {
-                if (strength < 40) {
-                    strengthText.textContent = 'слабый';
-                } else if (strength < 70) {
-                    strengthText.textContent = 'средний';
-                } else {
-                    strengthText.textContent = 'сильный';
-                }
-            }
-        }
-
-        function checkPasswordMatch() {
-            const password = document.getElementById('registerPassword')?.value;
-            const confirmPassword = document.getElementById('registerConfirmPassword')?.value;
-            const passwordMatch = document.getElementById('passwordMatch');
-            
-            if (password && confirmPassword && passwordMatch) {
-                if (password === confirmPassword) {
-                    passwordMatch.style.display = 'block';
-                } else {
-                    passwordMatch.style.display = 'none';
-                }
+                showMessage('Ошибка выхода', 'error');
             }
         }
 
@@ -3349,189 +1649,21 @@
                 const docSnap = await getDoc(docRef);
                 
                 if (docSnap.exists()) {
-                    console.log('Данные пользователя загружены из Firestore:', docSnap.data());
+                    console.log('Данные пользователя загружены:', docSnap.data());
                     return docSnap.data();
                 } else {
-                    console.log('Документ пользователя не найден в Firestore');
+                    console.log('Документ пользователя не найден');
                     return null;
                 }
             } catch (error) {
-                console.error('Ошибка загрузки данных из Firestore:', error);
+                console.error('Ошибка загрузки данных:', error);
                 return null;
             }
         }
 
-        function initAvatarUpload() {
-            const user = auth.currentUser;
-            if (!user || user.isAnonymous) {
-                document.getElementById('avatarMessage').textContent = 'Недоступно для гостевого режима';
-                document.getElementById('avatarMessage').style.color = 'var(--danger)';
-                document.getElementById('avatarMessage').style.display = 'block';
-                document.getElementById('uploadAvatarBtn').disabled = true;
-                return;
-            }
-            
-            // Сбрасываем состояние
-            document.getElementById('avatarPreviewImg').style.display = 'none';
-            document.getElementById('avatarPreviewIcon').style.display = 'block';
-            document.getElementById('removeAvatarBtn').style.display = user.photoURL ? 'inline-flex' : 'none';
-            document.getElementById('uploadAvatarBtn').disabled = true;
-            document.getElementById('avatarMessage').style.display = 'none';
-            
-            // Показываем текущий аватар
-            if (user.photoURL) {
-                document.getElementById('avatarPreviewImg').src = user.photoURL;
-                document.getElementById('avatarPreviewImg').style.display = 'block';
-                document.getElementById('avatarPreviewIcon').style.display = 'none';
-            }
-        }
-
-        function previewAvatar(file) {
-            if (!file) return;
-            
-            // Проверяем тип и размер файла
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            const maxSize = 2 * 1024 * 1024; // 2MB
-            
-            if (!validTypes.includes(file.type)) {
-                document.getElementById('avatarMessage').textContent = 'Только JPG, PNG, GIF или WebP';
-                document.getElementById('avatarMessage').style.color = 'var(--danger)';
-                document.getElementById('avatarMessage').style.display = 'block';
-                return;
-            }
-            
-            if (file.size > maxSize) {
-                document.getElementById('avatarMessage').textContent = 'Максимальный размер: 2MB';
-                document.getElementById('avatarMessage').style.color = 'var(--danger)';
-                document.getElementById('avatarMessage').style.display = 'block';
-                return;
-            }
-            
-            // Превью
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('avatarPreviewImg').src = e.target.result;
-                document.getElementById('avatarPreviewImg').style.display = 'block';
-                document.getElementById('avatarPreviewIcon').style.display = 'none';
-                document.getElementById('uploadAvatarBtn').disabled = false;
-                document.getElementById('avatarMessage').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function uploadAvatar() {
-            const fileInput = document.getElementById('avatarFileInput');
-            const file = fileInput.files[0];
-            const user = auth.currentUser;
-            
-            if (!file || !user || user.isAnonymous) return;
-            
-            const uploadBtn = document.getElementById('uploadAvatarBtn');
-            const avatarMessage = document.getElementById('avatarMessage');
-            
-            try {
-                uploadBtn.disabled = true;
-                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
-                avatarMessage.style.display = 'none';
-                
-                const { ref, uploadBytes, getDownloadURL, updateProfile } = window.firebaseModules;
-                
-                // Загружаем в Storage
-                const storageRef = ref(storage, `avatars/${user.uid}/${Date.now()}_${file.name}`);
-                const snapshot = await uploadBytes(storageRef, file);
-                const downloadURL = await getDownloadURL(snapshot.ref);
-                
-                // Обновляем профиль
-                await updateProfile(user, {
-                    photoURL: downloadURL
-                });
-                
-                // Сохраняем URL в Firestore
-                await saveUserData(user.uid, {
-                    avatarUrl: downloadURL
-                });
-                
-                avatarMessage.textContent = 'Аватар успешно обновлён!';
-                avatarMessage.style.color = 'var(--success)';
-                avatarMessage.style.display = 'block';
-                
-                // Обновляем отображение
-                setTimeout(() => {
-                    document.getElementById('avatarModal').classList.remove('show');
-                    updateUserProfile(user);
-                    updateAccountModal(user);
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Ошибка загрузки аватара:', error);
-                
-                avatarMessage.textContent = 'Ошибка загрузки аватара. Попробуйте ещё раз.';
-                avatarMessage.style.color = 'var(--danger)';
-                avatarMessage.style.display = 'block';
-                
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить аватар';
-            }
-        }
-
-        async function removeAvatar() {
-            const user = auth.currentUser;
-            if (!user || user.isAnonymous) return;
-            
-            try {
-                const { ref, deleteObject, updateProfile } = window.firebaseModules;
-                
-                // Удаляем из Storage (если был загружен)
-                if (user.photoURL && user.photoURL.includes('firebasestorage')) {
-                    try {
-                        const photoRef = ref(storage, user.photoURL);
-                        await deleteObject(photoRef);
-                    } catch (storageError) {
-                        console.warn('Не удалось удалить из Storage:', storageError);
-                    }
-                }
-                
-                // Обновляем профиль
-                await updateProfile(user, {
-                    photoURL: null
-                });
-                
-                // Обновляем Firestore
-                await saveUserData(user.uid, {
-                    avatarUrl: null
-                });
-                
-                showMessage('Аватар удалён', 'info');
-                document.getElementById('avatarModal').classList.remove('show');
-                updateUserProfile(user);
-                updateAccountModal(user);
-                
-            } catch (error) {
-                console.error('Ошибка удаления аватара:', error);
-                showMessage('Ошибка удаления аватара', 'error');
-            }
-        }
-
-        function setTheme(theme) {
-            localStorage.setItem('theme', theme);
-            
-            if (theme === 'dark') {
-                document.body.classList.add('dark-theme');
-                document.documentElement.style.setProperty('--light', '#1A1A1A');
-                document.documentElement.style.setProperty('--dark', '#F8F9FA');
-                document.documentElement.style.setProperty('--gray-light', '#2D2D2D');
-            } else {
-                document.body.classList.remove('dark-theme');
-                document.documentElement.style.setProperty('--light', '#F8F9FA');
-                document.documentElement.style.setProperty('--dark', '#1A1A1A');
-                document.documentElement.style.setProperty('--gray-light', '#e9ecef');
-            }
-        }
-
-        function setLanguage(lang) {
-            localStorage.setItem('language', lang);
-            showMessage(`Язык изменён на ${lang === 'ru' ? 'Русский' : lang === 'en' ? 'English' : 'Español'}`, 'info');
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
 
         function showMessage(message, type = 'info') {
@@ -3542,11 +1674,11 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : type === 'warning' ? 'var(--warning)' : 'var(--primary)'};
-                color: ${type === 'warning' ? 'var(--dark)' : 'white'};
+                background: ${type === 'error' ? '#DC3545' : type === 'success' ? '#28A745' : type === 'warning' ? '#FFC107' : '#0066CC'};
+                color: ${type === 'warning' ? '#1A1A1A' : 'white'};
                 padding: 1rem 1.5rem;
-                border-radius: var(--radius-lg);
-                box-shadow: var(--shadow-lg);
+                border-radius: 8px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
                 z-index: 3000;
                 animation: slideIn 0.3s ease;
                 max-width: 300px;
@@ -3596,41 +1728,14 @@
             }, 3000);
         }
 
-        // Тестовая функция для проверки подключения
-        async function testFirebaseConnection() {
-            try {
-                console.log('Тестирование подключения Firebase...');
-                
-                const user = auth.currentUser;
-                console.log('Текущий пользователь:', user);
-                
-                if (user) {
-                    const data = await loadUserData(user.uid);
-                    console.log('Данные пользователя:', data || 'Нет данных');
-                }
-                
-                return true;
-            } catch (error) {
-                console.error('Ошибка подключения:', error);
-                return false;
-            }
-        }
-
-        // Запускаем тест через 3 секунды после загрузки
-        setTimeout(async () => {
-            const connected = await testFirebaseConnection();
-            if (!connected) {
-                console.log('Возможны проблемы с подключением Firebase');
-            }
-        }, 3000);
-
         // Экспортируем функции для отладки
-        window.firebaseTest = {
-            testConnection: testFirebaseConnection,
-            getCurrentUser: () => auth.currentUser,
-            signOut: signOut,
-            showMessage: showMessage,
-            signInWithGoogle: signInWithGoogle
+        window.firebaseApp = {
+            auth: window.auth,
+            db: window.db,
+            storage: window.storage,
+            signInWithGoogle: signInWithGoogle,
+            signOut: signOutUser,
+            showMessage: showMessage
         };
     </script>
 </body>
