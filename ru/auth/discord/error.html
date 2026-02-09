@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка | Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS файл -->
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="https://kirill12633.github.io/Metro.New.Official/" class="logo">
+                    <div class="logo-icon">M</div>
+                    <span>Метро New</span>
+                </a>
+            </div>
+            
+            <div class="header-right">
+                <div class="user-profile">
+                    <div class="user-avatar" style="background: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Ошибка системы</span>
+                        <span class="user-status">Требуется действие</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main>
+        <div class="content-container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Произошла ошибка
+                    </h2>
+                    <p id="errorMessage">Произошла неизвестная ошибка</p>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Что можно сделать:</h3>
+                    </div>
+                    
+                    <ul class="suggestions-list" id="suggestionsList">
+                        <li>Обновите страницу и попробуйте снова</li>
+                        <li>Очистите кэш и cookies браузера</li>
+                        <li>Попробуйте использовать другой браузер</li>
+                        <li>Свяжитесь с поддержкой, если проблема повторится</li>
+                    </ul>
+                </div>
+                
+                <div class="btn-group btn-group-column">
+                    <button class="btn btn-primary btn-full" onclick="tryAgain()">
+                        <i class="fas fa-redo"></i>
+                        Попробовать снова
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="goHome()">
+                        <i class="fas fa-home"></i>
+                        Вернуться на главную
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                        Вернуться назад
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="window.location.href='mailto:metro.new.help@gmail.com?subject=Ошибка в Discord Auth&body=Здравствуйте!%0A%0AЯ получил ошибку при использовании Discord Auth:%0A%0AОшибка: [опишите ошибку]%0AURL: ' + encodeURIComponent(window.location.href)">
+                        <i class="fas fa-envelope"></i>
+                        Сообщить об ошибке
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ФУТЕР -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© <span id="currentYear">2026</span> Метро New. Все права защищены.</p>
+                <p class="form-note mt-2">
+                    <i class="fas fa-envelope"></i> Поддержка: 
+                    <a href="mailto:metro.new.help@gmail.com" class="support-link">metro.new.help@gmail.com</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error') || 'Неизвестная ошибка';
+        const code = urlParams.get('code') || 'UNKNOWN_ERROR';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCurrentYear();
+            displayError();
+        });
+        
+        function displayError() {
+            const decodedError = decodeURIComponent(error);
+            document.getElementById('errorMessage').textContent = 
+                `Произошла ошибка: ${decodedError}`;
+                
+            document.title = `Ошибка: ${decodedError.substring(0, 30)}... | Метро New`;
+        }
+        
+        function tryAgain() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = './index.html';
+            }
+        }
+        
+        function goHome() {
+            window.location.href = 'https://kirill12633.github.io/Metro.New.Official/';
+        }
+        
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                goHome();
+            }
+        }
+        
+        function updateCurrentYear() {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        }
+        
+        // Логирование ошибки
+        try {
+            const errorLog = JSON.parse(localStorage.getItem('error_log') || '[]');
+            errorLog.push({
+                code,
+                message: decodeURIComponent(error),
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+            
+            if (errorLog.length > 50) {
+                errorLog.shift();
+            }
+            
+            localStorage.setItem('error_log', JSON.stringify(errorLog));
+        } catch (e) {
+            console.warn('Не удалось сохранить лог ошибки:', e);
+        }
+    </script>
+</body>
+</html>
