@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступ ограничен | Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS файл -->
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="https://kirill12633.github.io/Metro.New.Official/" class="logo">
+                    <div class="logo-icon">M</div>
+                    <span>Метро New</span>
+                </a>
+            </div>
+            
+            <div class="header-right">
+                <div class="user-profile">
+                    <div class="user-avatar" style="background: var(--danger);">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Доступ ограничен</span>
+                        <span class="user-status" id="timerStatus">Блокировка активна</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main>
+        <div class="content-container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <i class="fas fa-ban"></i>
+                        Доступ временно ограничен
+                    </h2>
+                    <p>Обнаружена подозрительная активность</p>
+                </div>
+                
+                <div class="timer timer-danger" id="countdown">05:00</div>
+                
+                <div class="text-center mb-4">
+                    <p class="form-note">Доступ будет автоматически восстановлен через:</p>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Детали блокировки</h3>
+                    </div>
+                    
+                    <div class="details-grid" id="blockedDetails">
+                        <div class="detail-item">
+                            <div class="detail-label">Причина:</div>
+                            <div class="detail-value" id="blockReason">Слишком много попыток авторизации</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">IP-адрес:</div>
+                            <div class="detail-value" id="blockIP">Загрузка...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Время блокировки:</div>
+                            <div class="detail-value" id="blockTime">Загрузка...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Разблокировка:</div>
+                            <div class="detail-value" id="unblockTime">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-group btn-group-column">
+                    <button class="btn btn-outline btn-full" onclick="location.reload()" id="refreshBtn" disabled>
+                        <i class="fas fa-redo"></i>
+                        Обновить страницу (через <span id="refreshTimer">5:00</span>)
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="window.location.href='https://kirill12633.github.io/Metro.New.Official/'">
+                        <i class="fas fa-home"></i>
+                        Вернуться на главную
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="window.location.href='mailto:metro.new.help@gmail.com?subject=Разблокировка доступа&body=Здравствуйте!%0A%0AМой IP был заблокирован в системе Discord Auth.%0AПричина: [укажите причину из сообщения выше]%0A%0AПожалуйста, рассмотрите возможность разблокировки.'">
+                        <i class="fas fa-envelope"></i>
+                        Связаться с поддержкой
+                    </button>
+                </div>
+                
+                <div class="auto-redirect">
+                    <i class="fas fa-shield-alt"></i>
+                    Эта мера безопасности защищает систему от злоумышленников.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ФУТЕР -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© <span id="currentYear">2026</span> Метро New. Все права защищены.</p>
+                <p class="form-note mt-2">
+                    <i class="fas fa-envelope"></i> Поддержка: 
+                    <a href="mailto:metro.new.help@gmail.com" class="support-link">metro.new.help@gmail.com</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const reason = urlParams.get('reason') || 'Слишком много попыток авторизации';
+        const duration = parseInt(urlParams.get('duration')) || 300;
+        
+        let timeRemaining = duration;
+        let countdownInterval;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            updateCurrentYear();
+            await initBlockDetails();
+            startCountdown();
+        });
+        
+        async function initBlockDetails() {
+            document.getElementById('blockReason').textContent = decodeURIComponent(reason);
+            
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('blockIP').textContent = data.ip;
+            } catch (error) {
+                document.getElementById('blockIP').textContent = 'Не удалось определить';
+            }
+            
+            const now = new Date();
+            document.getElementById('blockTime').textContent = formatTime(now);
+            
+            const unblockTime = new Date(now.getTime() + (duration * 1000));
+            document.getElementById('unblockTime').textContent = formatTime(unblockTime);
+            
+            updateErrorMessage(reason);
+        }
+        
+        function updateErrorMessage(reason) {
+            const messages = {
+                'too_many_attempts': 'Обнаружено слишком много попыток авторизации с вашего IP-адреса.',
+                'recaptcha_failed': 'Не удалось пройти проверку безопасности reCAPTCHA.',
+                'suspicious_activity': 'Обнаружена подозрительная активность с вашего IP-адреса.',
+                'ip_blocked': 'Ваш IP-адрес был временно заблокирован системой безопасности.'
+            };
+            
+            const key = reason.toLowerCase().replace(/[^a-z_]/g, '');
+            const message = messages[key] || 'Обнаружена подозрительная активность с вашего IP-адреса.';
+            
+            document.querySelector('.card-header p').textContent = message;
+        }
+        
+        function startCountdown() {
+            updateCountdownDisplay();
+            
+            countdownInterval = setInterval(() => {
+                timeRemaining--;
+                updateCountdownDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                    enableRefresh();
+                }
+            }, 1000);
+        }
+        
+        function updateCountdownDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            
+            document.getElementById('countdown').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('refreshTimer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timerStatus').textContent = 
+                `Блокировка: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function enableRefresh() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="fas fa-redo"></i> Обновить страницу';
+            refreshBtn.onclick = () => location.reload();
+            
+            document.getElementById('timerStatus').textContent = 'Доступ восстановлен';
+            document.getElementById('timerStatus').style.color = 'var(--secondary)';
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+        
+        function updateCurrentYear() {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        }
+        
+        localStorage.setItem('blocked_until', Date.now() + (duration * 1000));
+        localStorage.setItem('block_reason', reason);
+        
+        setTimeout(() => {
+            localStorage.removeItem('blocked_until');
+            localStorage.removeItem('block_reason');
+        }, duration * 1000);
+    </script>
+</body>
+</html>
