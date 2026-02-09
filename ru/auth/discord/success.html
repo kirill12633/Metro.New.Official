@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Успешно! | Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS файл -->
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="https://kirill12633.github.io/Metro.New.Official/" class="logo">
+                    <div class="logo-icon">M</div>
+                    <span>Метро New</span>
+                </a>
+            </div>
+            
+            <div class="header-right">
+                <div class="user-profile">
+                    <div class="user-avatar" style="background: var(--success);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Авторизация успешна</span>
+                        <span class="user-status">Добро пожаловать!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main>
+        <div class="content-container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <i class="fas fa-check-circle"></i>
+                        Авторизация успешно завершена!
+                    </h2>
+                    <p id="successMessage">Ваш Discord аккаунт успешно подключен к системе Метро New</p>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <i class="fas fa-user-check"></i>
+                        <h3>Ваш Discord аккаунт</h3>
+                    </div>
+                    
+                    <div class="user-info-grid" id="userDetails">
+                        <!-- Заполняется динамически -->
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-header">
+                        <i class="fas fa-arrow-right"></i>
+                        <h3>Что дальше?</h3>
+                    </div>
+                    
+                    <ul class="steps-list">
+                        <li><strong>Доступ к функциям:</strong> Теперь вы можете использовать все возможности системы</li>
+                        <li><strong>Безопасность:</strong> Ваш аккаунт защищен системой аутентификации</li>
+                        <li><strong>Сессия:</strong> Вы останетесь авторизованным в течение 24 часов</li>
+                        <li><strong>Поддержка:</strong> При возникновении проблем обращайтесь в поддержку</li>
+                    </ul>
+                </div>
+                
+                <div class="btn-group btn-group-column">
+                    <button class="btn btn-success btn-full" onclick="goToDashboard()" id="dashboardBtn">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Перейти в панель управления
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="goHome()">
+                        <i class="fas fa-home"></i>
+                        Вернуться на главную
+                    </button>
+                    
+                    <button class="btn btn-outline btn-full" onclick="showTokenInfo()" id="showTokenBtn">
+                        <i class="fas fa-key"></i>
+                        Информация о токене
+                    </button>
+                </div>
+                
+                <div class="auto-redirect" id="redirectNotice" style="display: none;">
+                    <i class="fas fa-clock"></i>
+                    Автоматический переход через: <span id="countdown">10</span> секунд
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно информации о токене -->
+    <div class="modal-overlay" id="tokenModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-key"></i>
+                    Информация о токене
+                </h3>
+                <button class="modal-close" onclick="closeTokenModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="section">
+                    <div class="details-grid" id="tokenDetails">
+                        <!-- Заполняется динамически -->
+                    </div>
+                    
+                    <div class="btn-group btn-group-column mt-4">
+                        <button class="btn btn-outline btn-full" onclick="copyToken()" id="copyTokenBtn">
+                            <i class="fas fa-copy"></i>
+                            Копировать токен
+                        </button>
+                        <button class="btn btn-outline btn-full" onclick="closeTokenModal()">
+                            <i class="fas fa-times"></i>
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФУТЕР -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© <span id="currentYear">2026</span> Метро New. Все права защищены.</p>
+                <p class="form-note mt-2">
+                    <i class="fas fa-envelope"></i> Поддержка: 
+                    <a href="mailto:metro.new.help@gmail.com" class="support-link">metro.new.help@gmail.com</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const username = urlParams.get('username');
+        const userId = urlParams.get('user_id');
+        const autoRedirect = urlParams.get('redirect') !== 'false';
+        
+        let redirectCountdown = 10;
+        let countdownInterval;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCurrentYear();
+            displayUserInfo();
+            
+            if (autoRedirect) {
+                startAutoRedirect();
+            }
+        });
+        
+        function displayUserInfo() {
+            const userData = JSON.parse(localStorage.getItem('discord_user_data') || '{}');
+            const displayUsername = username || userData.username || 'Неизвестно';
+            const displayUserId = userId || userData.id || 'Неизвестно';
+            const displayEmail = userData.email || 'Не указан';
+            const displayAvatar = userData.avatar || null;
+            
+            document.getElementById('successMessage').textContent = 
+                `Добро пожаловать, ${displayUsername}! Ваш Discord аккаунт успешно подключен к системе Метро New.`;
+            
+            document.getElementById('userDetails').innerHTML = `
+                <div class="user-info-item">
+                    <div class="info-label">Discord пользователь</div>
+                    <div class="info-value">
+                        <i class="fab fa-discord"></i> ${displayUsername}
+                    </div>
+                </div>
+                <div class="user-info-item">
+                    <div class="info-label">ID аккаунта</div>
+                    <div class="info-value">
+                        <code>${displayUserId}</code>
+                    </div>
+                </div>
+                <div class="user-info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">${displayEmail}</div>
+                </div>
+                <div class="user-info-item">
+                    <div class="info-label">Статус</div>
+                    <div class="info-value" style="color: var(--secondary);">
+                        <i class="fas fa-check-circle"></i> Верифицирован
+                    </div>
+                </div>
+            `;
+            
+            document.title = `Добро пожаловать, ${displayUsername}! | Метро New`;
+            
+            // Заполняем информацию о токене в модальном окне
+            if (token || userData.metadata?.token) {
+                const currentToken = token || userData.metadata?.token;
+                const tokenAge = userData.metadata?.token_age || 0;
+                const expiresIn = Math.max(0, 86400000 - tokenAge); // 24 часа - возраст токена
+                
+                document.getElementById('tokenDetails').innerHTML = `
+                    <div class="detail-item">
+                        <div class="detail-label">Токен:</div>
+                        <div class="detail-value">
+                            <code style="font-size: 0.8rem;">${currentToken}</code>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Создан:</div>
+                        <div class="detail-value">${formatTime(new Date(Date.now() - tokenAge))}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Истекает через:</div>
+                        <div class="detail-value">${formatDuration(expiresIn)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Статус:</div>
+                        <div class="detail-value" style="color: var(--secondary);">
+                            <i class="fas fa-check-circle"></i> Активен
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function startAutoRedirect() {
+            document.getElementById('redirectNotice').style.display = 'block';
+            updateCountdown();
+            
+            countdownInterval = setInterval(() => {
+                redirectCountdown--;
+                updateCountdown();
+                
+                if (redirectCountdown <= 0) {
+                    clearInterval(countdownInterval);
+                    goToDashboard();
+                }
+            }, 1000);
+        }
+        
+        function updateCountdown() {
+            document.getElementById('countdown').textContent = redirectCountdown;
+        }
+        
+        function goToDashboard() {
+            window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/dashboard/';
+        }
+        
+        function goHome() {
+            clearInterval(countdownInterval);
+            window.location.href = 'https://kirill12633.github.io/Metro.New.Official/';
+        }
+        
+        function showTokenInfo() {
+            document.getElementById('tokenModal').classList.add('show');
+        }
+        
+        function closeTokenModal() {
+            document.getElementById('tokenModal').classList.remove('show');
+        }
+        
+        function copyToken() {
+            const userData = JSON.parse(localStorage.getItem('discord_user_data') || '{}');
+            const currentToken = token || userData.metadata?.token;
+            
+            if (!currentToken) {
+                alert('Токен не найден');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentToken).then(() => {
+                const copyBtn = document.getElementById('copyTokenBtn');
+                const originalHtml = copyBtn.innerHTML;
+                
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                copyBtn.classList.add('btn-success');
+                copyBtn.classList.remove('btn-outline');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHtml;
+                    copyBtn.classList.remove('btn-success');
+                    copyBtn.classList.add('btn-outline');
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать токен. Скопируйте его вручную.');
+            });
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+        
+        function formatDuration(ms) {
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours}ч ${minutes}м`;
+        }
+        
+        function updateCurrentYear() {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        }
+        
+        // Отмена автоматического редиректа при взаимодействии
+        ['click', 'mousemove', 'keypress'].forEach(event => {
+            document.addEventListener(event, () => {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('redirectNotice').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
