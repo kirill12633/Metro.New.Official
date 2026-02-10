@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New - Регистрация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase JS SDK v9 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword,
+            updateProfile,
+            sendEmailVerification,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            serverTimestamp,
+            query,
+            where,
+            getDocs,
+            collection
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        window.firebaseApp = app;
+        window.auth = auth;
+        window.db = db;
+        window.googleProvider = googleProvider;
+        window.firebaseModules = {
+            createUserWithEmailAndPassword,
+            updateProfile,
+            sendEmailVerification,
+            signInWithPopup,
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail,
+            doc,
+            setDoc,
+            serverTimestamp,
+            query,
+            where,
+            getDocs,
+            collection
+        };
+        
+        console.log('Firebase успешно инициализирован');
+    </script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+        }
+        
+        /* КАРТОЧКА */
+        .auth-card {
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        /* ХЕДЕР */
+        .auth-header {
+            padding: 24px 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .auth-title {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .auth-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        /* ТЕЛО КАРТОЧКИ */
+        .auth-body {
+            padding: 24px;
+        }
+        
+        /* ФОРМЫ */
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        /* ШАГИ РЕГИСТРАЦИИ */
+        .registration-progress {
+            margin-bottom: 24px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: var(--gray-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 11px;
+            left: calc(50% + 12px);
+            right: calc(-50% + 12px);
+            height: 2px;
+            background: var(--gray-border);
+            z-index: 0;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gray-border);
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step.active .step-number {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: var(--success);
+            color: white;
+        }
+        
+        .step.completed .step-number::after {
+            content: '✓';
+        }
+        
+        .step-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            display: block;
+        }
+        
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* ШАГИ ФОРМЫ */
+        .registration-step {
+            display: none;
+        }
+        
+        .registration-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* СИЛА ПАРОЛЯ */
+        .password-strength {
+            margin-top: 8px;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-text {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .strength-weak .strength-fill {
+            background: var(--danger);
+            width: 20%;
+        }
+        
+        .strength-medium .strength-fill {
+            background: var(--warning);
+            width: 60%;
+        }
+        
+        .strength-strong .strength-fill {
+            background: var(--success);
+            width: 100%;
+        }
+        
+        .strength-weak .strength-text {
+            color: var(--danger);
+        }
+        
+        .strength-medium .strength-text {
+            color: var(--warning);
+        }
+        
+        .strength-strong .strength-text {
+            color: var(--success);
+        }
+        
+        /* КНОПКИ НАВИГАЦИИ */
+        .step-navigation {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .step-navigation .btn {
+            flex: 1;
+        }
+        
+        /* ФОРМЫ */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--dark);
+        }
+        
+        .form-label .optional {
+            color: var(--gray);
+            font-weight: 400;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: var(--danger);
+        }
+        
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .form-hint.error {
+            color: var(--danger);
+        }
+        
+        .form-hint.success {
+            color: var(--success);
+        }
+        
+        /* ДАТА РОЖДЕНИЯ */
+        .birthday-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .birthday-select {
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--light);
+            cursor: pointer;
+        }
+        
+        .birthday-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* ПАРОЛЬ */
+        .password-wrapper {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        /* КНОПКИ */
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--dark);
+            border: 1px solid var(--gray-border);
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-google {
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--gray-border);
+        }
+        
+        .btn-google:hover {
+            background: var(--gray-light);
+        }
+        
+        /* РАЗДЕЛИТЕЛЬ */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-border);
+        }
+        
+        .divider span {
+            padding: 0 16px;
+        }
+        
+        /* ССЫЛКИ */
+        .auth-links {
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        .auth-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* СООБЩЕНИЯ */
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .alert-error {
+            background: rgba(217, 48, 37, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(217, 48, 37, 0.2);
+        }
+        
+        .alert-success {
+            background: rgba(30, 142, 62, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(30, 142, 62, 0.2);
+        }
+        
+        .alert-info {
+            background: rgba(0, 102, 204, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(0, 102, 204, 0.2);
+        }
+        
+        .alert-warning {
+            background: rgba(251, 188, 4, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(251, 188, 4, 0.2);
+        }
+        
+        /* ЗАГРУЗКА */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--gray-border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* УСПЕШНЫЙ ЭКРАН */
+        .success-screen {
+            text-align: center;
+            padding: 40px 24px;
+        }
+        
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 24px;
+        }
+        
+        .success-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--success);
+        }
+        
+        .success-text {
+            color: var(--gray);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        
+        /* ФУТЕР */
+        .auth-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 480px) {
+            .auth-container {
+                max-width: 100%;
+            }
+            
+            .auth-card {
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+            
+            .auth-header {
+                padding: 16px;
+            }
+            
+            .auth-body {
+                padding: 16px;
+            }
+            
+            .birthday-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .step-navigation {
+                flex-direction: column;
+            }
+        }
+        
+        /* ТЕМНАЯ ТЕМА */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #e8eaed;
+                --light: #202124;
+                --gray: #9aa0a6;
+                --gray-light: #292a2d;
+                --gray-border: #5f6368;
+            }
+            
+            body {
+                background: #1a1a1a;
+            }
+            
+            .form-input {
+                background: #292a2d;
+                color: var(--dark);
+                border-color: var(--gray-border);
+            }
+            
+            .birthday-select {
+                background: #292a2d;
+                color: var(--dark);
+                border-color: var(--gray-border);
+            }
+            
+            .btn-secondary {
+                background: #292a2d;
+                color: var(--dark);
+                border-color: var(--gray-border);
+            }
+            
+            .btn-google {
+                background: #292a2d;
+                color: var(--dark);
+                border-color: var(--gray-border);
+            }
+        }
+        
+        /* МОДАЛЬНОЕ ОКНО */
+        .policy-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .policy-modal.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--light);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 4px;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+        
+        .modal-iframe {
+            width: 100%;
+            height: 70vh;
+            border: none;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                height: 95vh;
+            }
+            
+            .modal-iframe {
+                height: calc(95vh - 120px);
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .modal-content {
+                background: #202124;
+            }
+            
+            .modal-header {
+                border-bottom-color: #5f6368;
+            }
+            
+            .modal-footer {
+                border-top-color: #5f6368;
+            }
+        }
+        
+        /* БЛОКИРОВКА ДЛЯ -13 ЛЕТ */
+        .age-restriction {
+            text-align: center;
+            padding: 40px 24px;
+        }
+        
+        .age-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--warning);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 24px;
+        }
+        
+        .age-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--warning);
+        }
+        
+        .age-text {
+            color: var(--gray);
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        /* ИНДИКАТОР СИЛЫ ПАРОЛЯ */
+        .strength-requirements {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        
+        .requirement.met {
+            color: var(--success);
+        }
+        
+        .requirement.met i {
+            color: var(--success);
+        }
+        
+        .requirement i {
+            font-size: 0.7rem;
+        }
+        
+        /* ПОЛЕ НИКНЕЙМА */
+        .username-suggestions {
+            margin-top: 8px;
+        }
+        
+        .suggestions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .suggestion-tag {
+            padding: 6px 12px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-tag:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- РЕГИСТРАЦИЯ -->
+        <div class="auth-card" id="registerCard">
+            <div class="auth-header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h2 class="auth-title" id="formTitle">Создать аккаунт</h2>
+                <p class="auth-subtitle" id="formSubtitle">Для входа в Метро New</p>
+            </div>
+            
+            <div class="auth-body">
+                <!-- ФОРМА РЕГИСТРАЦИИ (МУЛЬТИШАГОВАЯ) -->
+                <div class="form-container active" id="registerForm">
+                    <!-- ПРОГРЕСС БАР -->
+                    <div class="registration-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 33%"></div>
+                        </div>
+                        <div class="progress-steps">
+                            <div class="step active" data-step="1">
+                                <div class="step-number">1</div>
+                                <span class="step-label">Основное</span>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="step-number">2</div>
+                                <span class="step-label">Дополнительно</span>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="step-number">3</div>
+                                <span class="step-label">Подтверждение</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ШАГ 1: ОСНОВНАЯ ИНФОРМАЦИЯ -->
+                    <div class="registration-step active" id="step1">
+                        <form id="step1Form">
+                            <!-- ИМЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Имя</label>
+                                <input type="text" class="form-input" id="firstName" 
+                                       placeholder="Ваше имя" maxlength="30" required>
+                                <div class="form-hint" id="nameHint">
+                                    Как к вам обращаться
+                                </div>
+                            </div>
+                            
+                            <!-- ФАМИЛИЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Фамилия <span class="optional">(опционально)</span></label>
+                                <input type="text" class="form-input" id="lastName" 
+                                       placeholder="Ваша фамилия" maxlength="30">
+                            </div>
+                            
+                            <!-- НИКНЕЙМ -->
+                            <div class="form-group">
+                                <label class="form-label">Никнейм</label>
+                                <input type="text" class="form-input" id="username" 
+                                       placeholder="Уникальное имя пользователя" maxlength="20" required>
+                                <div class="form-hint" id="usernameHint">
+                                    Будет отображаться другим пользователям
+                                </div>
+                                <div class="username-suggestions" id="usernameSuggestions" style="display: none;">
+                                    <div style="font-size: 0.75rem; color: var(--gray); margin-bottom: 4px;">
+                                        Предложения:
+                                    </div>
+                                    <div class="suggestions-list" id="suggestionsList"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- ДАТА РОЖДЕНИЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Дата рождения</label>
+                                <div class="birthday-group">
+                                    <select class="birthday-select" id="birthDay" required>
+                                        <option value="">День</option>
+                                        <!-- Заполнится JS -->
+                                    </select>
+                                    <select class="birthday-select" id="birthMonth" required>
+                                        <option value="">Месяц</option>
+                                        <option value="1">Январь</option>
+                                        <option value="2">Февраль</option>
+                                        <option value="3">Март</option>
+                                        <option value="4">Апрель</option>
+                                        <option value="5">Май</option>
+                                        <option value="6">Июнь</option>
+                                        <option value="7">Июль</option>
+                                        <option value="8">Август</option>
+                                        <option value="9">Сентябрь</option>
+                                        <option value="10">Октябрь</option>
+                                        <option value="11">Ноябрь</option>
+                                        <option value="12">Декабрь</option>
+                                    </select>
+                                    <select class="birthday-select" id="birthYear" required>
+                                        <option value="">Год</option>
+                                        <!-- Заполнится JS -->
+                                    </select>
+                                </div>
+                                <div class="form-hint" id="ageHint">
+                                    Для подтверждения возраста
+                                </div>
+                            </div>
+                            
+                            <!-- КНОПКИ НАВИГАЦИИ -->
+                            <div class="step-navigation">
+                                <button type="button" class="btn btn-secondary" id="cancelRegistration">
+                                    Отмена
+                                </button>
+                                <button type="button" class="btn btn-primary" id="nextStep1">
+                                    Далее
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- ШАГ 2: ПАРОЛЬ И EMAIL -->
+                    <div class="registration-step" id="step2">
+                        <form id="step2Form">
+                            <!-- EMAIL -->
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" id="email" 
+                                       placeholder="your@email.com" required>
+                                <div class="form-hint" id="emailHint">
+                                    Ваш email для входа
+                                </div>
+                            </div>
+                            
+                            <!-- ПАРОЛЬ -->
+                            <div class="form-group">
+                                <label class="form-label">Пароль</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-input" id="password" 
+                                           placeholder="Создайте пароль" required>
+                                    <button type="button" class="toggle-password" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <div class="strength-text" id="strengthText">Введите пароль</div>
+                                </div>
+                                <div class="strength-requirements" id="passwordRequirements">
+                                    <div class="requirement" id="reqLength">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Минимум 8 символов</span>
+                                    </div>
+                                    <div class="requirement" id="reqUppercase">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Заглавная буква</span>
+                                    </div>
+                                    <div class="requirement" id="reqLowercase">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Строчная буква</span>
+                                    </div>
+                                    <div class="requirement" id="reqNumber">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Цифра</span>
+                                    </div>
+                                    <div class="requirement" id="reqSpecial">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Специальный символ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ПОДТВЕРЖДЕНИЕ ПАРОЛЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Подтвердите пароль</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-input" id="confirmPassword" 
+                                           placeholder="Повторите пароль" required>
+                                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-hint" id="confirmPasswordHint">
+                                    Пароли должны совпадать
+                                </div>
+                            </div>
+                            
+                            <!-- КНОПКИ НАВИГАЦИИ -->
+                            <div class="step-navigation">
+                                <button type="button" class="btn btn-secondary" id="prevStep2">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Назад
+                                </button>
+                                <button type="button" class="btn btn-primary" id="nextStep2">
+                                    Далее
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- ШАГ 3: ПОДТВЕРЖДЕНИЕ И СОГЛАШЕНИЯ -->
+                    <div class="registration-step" id="step3">
+                        <form id="step3Form">
+                            <!-- СОГЛАШЕНИЯ -->
+                            <div class="form-group">
+                                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                    <input type="checkbox" id="agreeTerms" required style="margin-top: 3px;">
+                                    <label for="agreeTerms" style="font-size: 0.875rem; color: var(--gray);">
+                                        Я принимаю 
+                                        <a href="#" class="terms-link" style="color: var(--primary); text-decoration: none;">
+                                            Пользовательское соглашение
+                                        </a> 
+                                        и 
+                                        <a href="#" class="privacy-link" style="color: var(--primary); text-decoration: none;">
+                                            Политику конфиденциальности
+                                        </a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- ПРОВЕРКА ДАННЫХ -->
+                            <div class="alert alert-info" id="dataSummary">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <strong>Проверьте ваши данные:</strong>
+                                    <div id="userDataSummary" style="margin-top: 4px; font-size: 0.8125rem;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- СООБЩЕНИЯ ОБ ОШИБКАХ -->
+                            <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
+                            
+                            <!-- КНОПКИ НАВИГАЦИИ -->
+                            <div class="step-navigation">
+                                <button type="button" class="btn btn-secondary" id="prevStep3">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Назад
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitRegistration">
+                                    <i class="fas fa-user-plus"></i>
+                                    Создать аккаунт
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- РАЗДЕЛИТЕЛЬ -->
+                    <div class="divider" id="registerDivider" style="display: none;">
+                        <span>или</span>
+                    </div>
+                    
+                    <!-- GOOGLE РЕГИСТРАЦИЯ -->
+                    <button class="btn btn-google btn-block" id="googleRegisterBtn" style="display: none;">
+                        <i class="fab fa-google"></i>
+                        Продолжить с Google
+                    </button>
+                    
+                    <!-- ССЫЛКА НА ВХОД -->
+                    <div class="auth-links" id="registerLinks" style="display: none;">
+                        <span style="color: var(--gray); font-size: 0.875rem;">
+                            Уже есть аккаунт?
+                        </span>
+                        <a href="#" class="auth-link" id="showLoginLink">Войти</a>
+                    </div>
+                </div>
+                
+                <!-- ФОРМА ВХОДА -->
+                <div class="form-container" id="loginForm">
+                    <form id="loginFormElement">
+                        <!-- EMAIL -->
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="loginEmail" 
+                                   placeholder="your@email.com" required>
+                        </div>
+                        
+                        <!-- ПАРОЛЬ -->
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-input" id="loginPassword" 
+                                       placeholder="Ваш пароль" required>
+                                <button type="button" class="toggle-password" id="toggleLoginPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- ЗАБЫЛИ ПАРОЛЬ -->
+                        <div style="text-align: right; margin-bottom: 16px;">
+                            <a href="#" class="auth-link" id="forgotPasswordLink">Забыли пароль?</a>
+                        </div>
+                        
+                        <!-- СООБЩЕНИЯ ОБ ОШИБКАХ -->
+                        <div class="alert" id="loginErrorAlert" style="display: none;"></div>
+                        
+                        <!-- КНОПКА ВХОДА -->
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Войти
+                        </button>
+                    </form>
+                    
+                    <!-- РАЗДЕЛИТЕЛЬ -->
+                    <div class="divider">
+                        <span>или</span>
+                    </div>
+                    
+                    <!-- GOOGLE ВХОД -->
+                    <button class="btn btn-google btn-block" id="googleLoginBtn">
+                        <i class="fab fa-google"></i>
+                        Войти с Google
+                    </button>
+                    
+                    <!-- ССЫЛКА НА РЕГИСТРАЦИЮ -->
+                    <div class="auth-links">
+                        <span style="color: var(--gray); font-size: 0.875rem;">
+                            Нет аккаунта?
+                        </span>
+                        <a href="#" class="auth-link" id="showRegisterLink">Создать аккаунт</a>
+                    </div>
+                </div>
+                
+                <!-- СБРОС ПАРОЛЯ -->
+                <div class="form-container" id="resetPasswordForm">
+                    <form id="resetPasswordFormElement">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="resetEmail" 
+                                   placeholder="your@email.com" required>
+                            <div class="form-hint">
+                                Введите email вашего аккаунта
+                            </div>
+                        </div>
+                        
+                        <!-- СООБЩЕНИЯ -->
+                        <div class="alert" id="resetErrorAlert" style="display: none;"></div>
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-secondary" id="cancelResetBtn">
+                                Отмена
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="resetPasswordBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                Отправить ссылку
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- ЗАГРУЗКА -->
+                <div class="form-container" id="loadingScreen">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <span id="loadingText">Загрузка...</span>
+                    </div>
+                </div>
+                
+                <!-- БЛОКИРОВКА ДЛЯ -13 ЛЕТ -->
+                <div class="form-container" id="ageRestrictionScreen">
+                    <div class="age-restriction">
+                        <div class="age-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="age-title">Регистрация недоступна</h3>
+                        <p class="age-text">
+                            Для регистрации в Метро New необходимо быть старше 13 лет.
+                        </p>
+                        <p class="age-text">
+                            Это требование связано с безопасностью и защитой персональных данных 
+                            несовершеннолетних в соответствии с законодательством.
+                        </p>
+                        <div class="alert alert-warning" style="margin: 20px 0;">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <strong>Важная информация:</strong><br>
+                                Для пользователей младше 13 лет доступ к платформе возможен 
+                                только с согласия родителей или законных представителей.
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="goToParentPageBtn">
+                            <i class="fas fa-external-link-alt"></i>
+                            Перейти на страницу для родителей
+                        </button>
+                        <div class="auth-links" style="margin-top: 16px;">
+                            <a href="#" class="auth-link" id="backFromAgeRestriction">
+                                <i class="fas fa-arrow-left"></i>
+                                Вернуться назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- УСПЕШНАЯ РЕГИСТРАЦИЯ -->
+                <div class="form-container" id="successScreen">
+                    <div class="success-screen">
+                        <div class="success-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h3 class="success-title">Аккаунт создан!</h3>
+                        <p class="success-text" id="successMessage">
+                            Проверьте ваш email для подтверждения регистрации.
+                        </p>
+                        <div class="email-timer" style="margin-bottom: 20px; padding: 10px; background: rgba(0,102,204,0.1); border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                                <i class="fas fa-envelope" style="color: var(--primary);"></i>
+                                <span style="font-size: 0.875rem;">Не получили письмо?</span>
+                            </div>
+                            <button class="btn btn-secondary btn-block" id="resendEmailBtn" style="margin-top: 8px;">
+                                <i class="fas fa-redo"></i>
+                                <span id="resendTimerText">Отправить повторно (60)</span>
+                            </button>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="goToLoginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Перейти к входу
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- УСПЕШНЫЙ СБРОС ПАРОЛЯ -->
+                <div class="form-container" id="resetSuccessScreen">
+                    <div class="success-screen">
+                        <div class="success-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3 class="success-title">Письмо отправлено</h3>
+                        <p class="success-text" id="resetSuccessMessage">
+                            Ссылка для сброса пароля отправлена на ваш email.
+                        </p>
+                        <button class="btn btn-primary btn-block" id="backToLoginFromResetBtn">
+                            <i class="fas fa-arrow-left"></i>
+                            Вернуться к входу
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="auth-footer">
+                <div id="copyrightYear">© 2026 Метро New. Все права защищены.</div>
+                <div class="footer-links">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" 
+                       target="_blank" class="footer-link">Помощь</a>
+                    <a href="https://kirill12633.github.io/support.metro.new/" 
+                       target="_blank" class="footer-link">Поддержка</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ПОЛИТИК -->
+    <div class="policy-modal" id="policyModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Политика конфиденциальности</h3>
+                <button class="modal-close" id="closePolicyModal">×</button>
+            </div>
+            <div class="modal-body">
+                <iframe class="modal-iframe" id="policyIframe"></iframe>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="closePolicyModalBtn">
+                        <i class="fas fa-times"></i>
+                        Закрыть
+                    </button>
+                    <button class="btn btn-primary" id="acceptPolicyBtn">
+                        <i class="fas fa-check"></i>
+                        Принять
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+        let currentForm = 'register';
+        let currentStep = 1;
+        let resendTimer = 60;
+        let resendInterval = null;
+        let currentPolicyType = '';
+        
+        // ОСНОВНАЯ ИНИЦИАЛИЗАЦИЯ
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Система регистрации и входа загружена');
+            
+            // Обновить год в копирайте
+            updateCopyrightYear();
+            
+            const checkFirebase = setInterval(() => {
+                if (window.auth && window.db) {
+                    clearInterval(checkFirebase);
+                    initAuthSystem();
+                }
+            }, 100);
+        });
+        
+        function initAuthSystem() {
+            console.log('Инициализация системы...');
+            
+            initUI();
+            initEventHandlers();
+            
+            console.log('Система готова');
+        }
+        
+        function initUI() {
+            // Заполняем дни и годы
+            fillDateSelectors();
+            
+            // Устанавливаем заголовки
+            updateFormTitles('register');
+            
+            // Инициализируем прогресс-бар
+            updateProgressBar();
+            
+            // Генерируем никнейм на основе имени
+            setupUsernameGeneration();
+        }
+        
+        function updateCopyrightYear() {
+            const currentYear = new Date().getFullYear();
+            document.getElementById('copyrightYear').textContent = 
+                `© ${currentYear} Метро New. Все права защищены.`;
+        }
+        
+        function fillDateSelectors() {
+            const daySelect = document.getElementById('birthDay');
+            const yearSelect = document.getElementById('birthYear');
+            const currentYear = new Date().getFullYear();
+            
+            // Дни (1-31)
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+            
+            // Годы (текущий год - 100 лет назад)
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+        }
+        
+        function setupUsernameGeneration() {
+            document.getElementById('firstName').addEventListener('blur', function() {
+                const firstName = this.value.trim();
+                const lastName = document.getElementById('lastName')?.value.trim() || '';
+                
+                if (firstName && !document.getElementById('username').value) {
+                    const suggestions = generateUsernameSuggestions(firstName, lastName);
+                    showUsernameSuggestions(suggestions);
+                }
+            });
+            
+            document.getElementById('lastName').addEventListener('blur', function() {
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = this.value.trim();
+                
+                if (firstName && !document.getElementById('username').value) {
+                    const suggestions = generateUsernameSuggestions(firstName, lastName);
+                    showUsernameSuggestions(suggestions);
+                }
+            });
+        }
+        
+        function generateUsernameSuggestions(firstName, lastName) {
+            const baseName = firstName.toLowerCase().replace(/[^a-zа-яё0-9]/g, '');
+            const lastInitial = lastName ? lastName[0].toLowerCase() : '';
+            
+            const suggestions = [];
+            
+            // Простые варианты
+            suggestions.push(`${baseName}${Math.floor(Math.random() * 99)}`);
+            
+            if (lastInitial) {
+                suggestions.push(`${baseName}.${lastInitial}`);
+            }
+            
+            suggestions.push(`${baseName}_${Date.now().toString().slice(-4)}`);
+            
+            // Случайные варианты
+            const prefixes = ['user', 'metro', 'travel', 'city'];
+            const suffixes = ['2024', 'user', 'metro', 'travel'];
+            
+            suggestions.push(`${prefixes[Math.floor(Math.random() * prefixes.length)]}_${baseName}`);
+            suggestions.push(`${baseName}_${suffixes[Math.floor(Math.random() * suffixes.length)]}`);
+            
+            // Уникальные варианты
+            const adjectives = ['cool', 'fast', 'smart', 'happy', 'bright'];
+            suggestions.push(`${adjectives[Math.floor(Math.random() * adjectives.length)]}_${baseName}`);
+            
+            return suggestions.slice(0, 5); // Максимум 5 предложений
+        }
+        
+        function showUsernameSuggestions(suggestions) {
+            const container = document.getElementById('usernameSuggestions');
+            const list = document.getElementById('suggestionsList');
+            
+            if (suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            list.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const tag = document.createElement('div');
+                tag.className = 'suggestion-tag';
+                tag.textContent = suggestion;
+                tag.addEventListener('click', () => {
+                    document.getElementById('username').value = suggestion;
+                    container.style.display = 'none';
+                    validateUsername(suggestion);
+                });
+                list.appendChild(tag);
+            });
+            
+            container.style.display = 'block';
+        }
+        
+        async function validateUsername(username) {
+            if (username.length < 3) {
+                showFieldError('username', 'Минимум 3 символа');
+                return false;
+            }
+            
+            if (username.length > 20) {
+                showFieldError('username', 'Максимум 20 символов');
+                return false;
+            }
+            
+            // Проверка на допустимые символы
+            const validRegex = /^[a-zA-Zа-яА-ЯёЁ0-9_.-]+$/;
+            if (!validRegex.test(username)) {
+                showFieldError('username', 'Только буквы, цифры, точка, дефис и подчеркивание');
+                return false;
+            }
+            
+            // Проверка на занятость (можно добавить позже)
+            // const isAvailable = await checkUsernameAvailability(username);
+            // if (!isAvailable) {
+            //     showFieldError('username', 'Имя уже занято');
+            //     return false;
+            // }
+            
+            clearFieldError('username');
+            return true;
+        }
+        
+        function initEventHandlers() {
+            // Переключение между формами
+            document.getElementById('showLoginLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                showForm('login');
+            });
+            
+            document.getElementById('showRegisterLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                resetRegistration();
+                showForm('register');
+            });
+            
+            // Сброс пароля
+            document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                showForm('reset');
+            });
+            
+            document.getElementById('cancelResetBtn').addEventListener('click', function() {
+                showForm('login');
+            });
+            
+            document.getElementById('backToLoginFromResetBtn').addEventListener('click', function() {
+                showForm('login');
+            });
+            
+            // Переход к входу после регистрации
+            document.getElementById('goToLoginBtn').addEventListener('click', function() {
+                showForm('login');
+            });
+            
+            // Блокировка для -13 лет
+            document.getElementById('backFromAgeRestriction').addEventListener('click', function(e) {
+                e.preventDefault();
+                resetRegistration();
+                showForm('register');
+            });
+            
+            document.getElementById('goToParentPageBtn').addEventListener('click', function() {
+                window.open('https://kirill12633.github.io/Metro.New.Official/ru/parents', '_blank');
+            });
+            
+            // Отмена регистрации
+            document.getElementById('cancelRegistration').addEventListener('click', function() {
+                resetRegistration();
+                document.getElementById('registerDivider').style.display = 'block';
+                document.getElementById('googleRegisterBtn').style.display = 'block';
+                document.getElementById('registerLinks').style.display = 'block';
+            });
+            
+            // Показать/скрыть пароль
+            document.getElementById('togglePassword').addEventListener('click', togglePasswordVisibility);
+            document.getElementById('toggleConfirmPassword').addEventListener('click', toggleConfirmPasswordVisibility);
+            document.getElementById('toggleLoginPassword').addEventListener('click', toggleLoginPasswordVisibility);
+            
+            // Навигация по шагам регистрации
+            document.getElementById('nextStep1').addEventListener('click', goToStep2);
+            document.getElementById('prevStep2').addEventListener('click', goToStep1);
+            document.getElementById('nextStep2').addEventListener('click', goToStep3);
+            document.getElementById('prevStep3').addEventListener('click', goToStep2);
+            document.getElementById('submitRegistration').addEventListener('click', submitRegistration);
+            
+            // Форма входа
+            document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+                e.preventDefault();
+                loginUser();
+            });
+            
+            // Форма сброса пароля
+            document.getElementById('resetPasswordFormElement').addEventListener('submit', function(e) {
+                e.preventDefault();
+                resetPassword();
+            });
+            
+            // Google регистрация/вход
+            document.getElementById('googleRegisterBtn').addEventListener('click', googleAuth);
+            document.getElementById('googleLoginBtn').addEventListener('click', googleAuth);
+            
+            // Повторная отправка email
+            document.getElementById('resendEmailBtn').addEventListener('click', resendVerificationEmail);
+            
+            // Валидация в реальном времени
+            document.getElementById('firstName').addEventListener('input', validateName);
+            document.getElementById('lastName').addEventListener('input', validateLastName);
+            document.getElementById('username').addEventListener('input', function() {
+                validateUsername(this.value);
+                document.getElementById('usernameSuggestions').style.display = 'none';
+            });
+            document.getElementById('email').addEventListener('input', validateEmail);
+            document.getElementById('password').addEventListener('input', validatePassword);
+            document.getElementById('confirmPassword').addEventListener('input', validatePasswordMatch);
+            document.getElementById('birthDay').addEventListener('change', validateAge);
+            document.getElementById('birthMonth').addEventListener('change', validateAge);
+            document.getElementById('birthYear').addEventListener('change', validateAge);
+            
+            // Политика и соглашения
+            document.querySelector('.terms-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showPolicyModal(
+                    'Пользовательское соглашение',
+                    'https://docs.google.com/document/d/e/2PACX-1vQ86klpumdzVv8phucQPYhv-ZSqS75ZpQB0t8NdSmPu7zo0EY3tesGqFgiPscv5cp-5ouw8oRHeyFwG/pub?embedded=true',
+                    'terms'
+                );
+            });
+            
+            document.querySelector('.privacy-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showPolicyModal(
+                    'Политика конфиденциальности',
+                    'https://docs.google.com/document/d/e/2PACX-1vRvligepysBxTXy4KcWzNquDcvaKLr9E4rO6_KuKUr0ELwDlq8qafWuiGY7aM4wDmZ24XNmBahgoh8t/pub?embedded=true',
+                    'privacy'
+                );
+            });
+            
+            // Модальное окно
+            document.getElementById('closePolicyModal').addEventListener('click', closePolicyModal);
+            document.getElementById('closePolicyModalBtn').addEventListener('click', closePolicyModal);
+            document.getElementById('acceptPolicyBtn').addEventListener('click', acceptPolicy);
+            document.querySelector('.modal-overlay').addEventListener('click', closePolicyModal);
+            
+            // Закрытие по ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePolicyModal();
+                }
+            });
+        }
+        
+        // НАВИГАЦИЯ ПО ШАГАМ
+        function goToStep1() {
+            currentStep = 1;
+            showStep(1);
+            updateProgressBar();
+        }
+        
+        function goToStep2() {
+            if (validateStep1()) {
+                // Проверка возраста
+                const birthDay = document.getElementById('birthDay').value;
+                const birthMonth = document.getElementById('birthMonth').value;
+                const birthYear = document.getElementById('birthYear').value;
+                
+                if (birthDay && birthMonth && birthYear) {
+                    const age = calculateAge(birthYear, birthMonth, birthDay);
+                    
+                    if (age < 13) {
+                        // Показать экран блокировки для -13 лет
+                        showForm('ageRestrictionScreen');
+                        return;
+                    }
+                }
+                
+                currentStep = 2;
+                showStep(2);
+                updateProgressBar();
+            }
+        }
+        
+        function goToStep3() {
+            if (validateStep2()) {
+                currentStep = 3;
+                showStep(3);
+                updateProgressBar();
+                updateDataSummary();
+            }
+        }
+        
+        function showStep(stepNumber) {
+            // Скрыть все шаги
+            document.querySelectorAll('.registration-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Показать нужный шаг
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            
+            // Обновить индикаторы шагов
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active', 'completed');
+                const stepNum = parseInt(step.dataset.step);
+                
+                if (stepNum === stepNumber) {
+                    step.classList.add('active');
+                } else if (stepNum < stepNumber) {
+                    step.classList.add('completed');
+                }
+            });
+            
+            // Показать/скрыть дополнительные элементы
+            const showExtra = stepNumber === 1;
+            document.getElementById('registerDivider').style.display = showExtra ? 'block' : 'none';
+            document.getElementById('googleRegisterBtn').style.display = showExtra ? 'block' : 'none';
+            document.getElementById('registerLinks').style.display = showExtra ? 'block' : 'none';
+        }
+        
+        function updateProgressBar() {
+            const percentage = (currentStep / 3) * 100;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+        }
+        
+        // ВАЛИДАЦИЯ ШАГОВ
+        function validateStep1() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const birthDay = document.getElementById('birthDay').value;
+            const birthMonth = document.getElementById('birthMonth').value;
+            const birthYear = document.getElementById('birthYear').value;
+            
+            let isValid = true;
+            
+            // Имя
+            if (!firstName) {
+                showFieldError('firstName', 'Введите ваше имя');
+                isValid = false;
+            } else if (firstName.length < 2) {
+                showFieldError('firstName', 'Имя должно быть не менее 2 символов');
+                isValid = false;
+            } else {
+                clearFieldError('firstName');
+            }
+            
+            // Никнейм
+            if (!username) {
+                showFieldError('username', 'Введите никнейм');
+                isValid = false;
+            } else if (username.length < 3) {
+                showFieldError('username', 'Никнейм должен быть не менее 3 символов');
+                isValid = false;
+            } else if (username.length > 20) {
+                showFieldError('username', 'Никнейм должен быть не более 20 символов');
+                isValid = false;
+            } else {
+                clearFieldError('username');
+            }
+            
+            // Дата рождения
+            if (!birthDay || !birthMonth || !birthYear) {
+                showFieldError('birthDay', 'Выберите дату рождения');
+                isValid = false;
+            } else {
+                clearFieldError('birthDay');
+            }
+            
+            return isValid;
+        }
+        
+        function validateStep2() {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            let isValid = true;
+            
+            // Email
+            if (!email) {
+                showFieldError('email', 'Введите email');
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                showFieldError('email', 'Введите корректный email');
+                isValid = false;
+            } else {
+                clearFieldError('email');
+            }
+            
+            // Пароль
+            if (!password) {
+                showFieldError('password', 'Введите пароль');
+                isValid = false;
+            } else if (password.length < 8) {
+                showFieldError('password', 'Пароль должен быть не менее 8 символов');
+                isValid = false;
+            } else {
+                // Проверка требований к паролю
+                const requirements = checkPasswordRequirements(password);
+                if (!requirements.allMet) {
+                    showFieldError('password', 'Пароль не соответствует требованиям');
+                    isValid = false;
+                } else {
+                    clearFieldError('password');
+                }
+            }
+            
+            // Подтверждение пароля
+            if (!confirmPassword) {
+                showFieldError('confirmPassword', 'Подтвердите пароль');
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                showFieldError('confirmPassword', 'Пароли не совпадают');
+                isValid = false;
+            } else {
+                clearFieldError('confirmPassword');
+            }
+            
+            return isValid;
+        }
+        
+        function updateDataSummary() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName')?.value.trim() || '';
+            const username = document.getElementById('username').value.trim();
+            const birthDay = document.getElementById('birthDay').value;
+            const birthMonth = document.getElementById('birthMonth').value;
+            const birthYear = document.getElementById('birthYear').value;
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            
+            const age = calculateAge(birthYear, birthMonth, birthDay);
+            const months = [
+                'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
+                'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'
+            ];
+            
+            let summary = `
+                <div>Имя: <strong>${firstName} ${lastName}</strong></div>
+                <div>Никнейм: <strong>@${username}</strong></div>
+                <div>Дата рождения: <strong>${birthDay} ${months[birthMonth - 1]} ${birthYear} года (${age} лет)</strong></div>
+                <div>Email: <strong>${email}</strong></div>
+            `;
+            
+            document.getElementById('userDataSummary').innerHTML = summary;
+        }
+        
+        // ПОКАЗАТЬ ФОРМУ
+        function showForm(formName) {
+            currentForm = formName;
+            
+            // Скрыть все формы
+            document.querySelectorAll('.form-container').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            // Показать нужную форму
+            document.getElementById(formName + 'Form').classList.add('active');
+            
+            // Сбросить шаги регистрации если показываем форму регистрации
+            if (formName === 'register') {
+                resetRegistration();
+            }
+            
+            // Обновить заголовки
+            updateFormTitles(formName);
+            
+            // Очистить ошибки
+            clearErrors();
+        }
+        
+        function updateFormTitles(formName) {
+            const titles = {
+                'register': {
+                    title: 'Создать аккаунт',
+                    subtitle: 'Для входа в Метро New'
+                },
+                'login': {
+                    title: 'Войти в аккаунт',
+                    subtitle: 'Добро пожаловать обратно'
+                },
+                'reset': {
+                    title: 'Сброс пароля',
+                    subtitle: 'Восстановление доступа'
+                },
+                'loading': {
+                    title: 'Загрузка...',
+                    subtitle: 'Пожалуйста, подождите'
+                },
+                'success': {
+                    title: 'Аккаунт создан',
+                    subtitle: 'Регистрация завершена'
+                },
+                'ageRestrictionScreen': {
+                    title: 'Ограничение по возрасту',
+                    subtitle: 'Для вашей безопасности'
+                }
+            };
+            
+            const titleData = titles[formName] || titles.register;
+            document.getElementById('formTitle').textContent = titleData.title;
+            document.getElementById('formSubtitle').textContent = titleData.subtitle;
+        }
+        
+        // РЕГИСТРАЦИЯ
+        async function submitRegistration() {
+            // Проверка согласия с условиями
+            if (!document.getElementById('agreeTerms').checked) {
+                showError('Необходимо принять пользовательское соглашение и политику конфиденциальности');
+                return;
+            }
+            
+            // Получаем данные
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName')?.value.trim() || '';
+            const username = document.getElementById('username').value.trim();
+            const birthDay = document.getElementById('birthDay').value;
+            const birthMonth = document.getElementById('birthMonth').value;
+            const birthYear = document.getElementById('birthYear').value;
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            
+            // Проверка возраста
+            const age = calculateAge(birthYear, birthMonth, birthDay);
+            if (age < 13) {
+                showError('Для регистрации должно быть не менее 13 лет');
+                return;
+            }
+            
+            // Проверка никнейма
+            if (!await validateUsername(username)) {
+                return;
+            }
+            
+            // Показать загрузку
+            showLoading('Создание аккаунта...');
+            
+            try {
+                const { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } = window.firebaseModules;
+                const { doc, setDoc, serverTimestamp } = window.firebaseModules;
+                
+                // 1. Создать пользователя в Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // 2. Обновить профиль
+                await updateProfile(userCredential.user, {
+                    displayName: firstName + (lastName ? ' ' + lastName : '')
+                });
+                
+                // 3. Отправить email для подтверждения
+                await sendEmailVerification(userCredential.user);
+                
+                // 4. Сохранить данные в Firestore
+                let collectionName = 'users_public';
+                if (age < 18) {
+                    collectionName = 'users_kid';
+                }
+                
+                const userData = {
+                    uid: userCredential.user.uid,
+                    firstName: firstName,
+                    lastName: lastName,
+                    username: username,
+                    birthDay: parseInt(birthDay),
+                    birthMonth: parseInt(birthMonth),
+                    birthYear: parseInt(birthYear),
+                    age: age,
+                    email: email,
+                    displayName: firstName + (lastName ? ' ' + lastName : ''),
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    emailVerified: false,
+                    status: 'active',
+                    accountType: age < 18 ? 'kid' : 'standard'
+                };
+                
+                await setDoc(doc(db, collectionName, userCredential.user.uid), userData);
+                
+                // 5. Показать успех
+                setTimeout(() => {
+                    showForm('success');
+                    document.getElementById('successMessage').textContent = 
+                        `На адрес ${email} отправлено письмо для подтверждения регистрации.`;
+                    
+                    // Запустить таймер для повторной отправки
+                    startResendTimer();
+                }, 1000);
+                
+                console.log('Аккаунт создан:', { 
+                    uid: userCredential.user.uid, 
+                    collection: collectionName,
+                    username: username 
+                });
+                
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                
+                let errorMessage = 'Ошибка регистрации. ';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Этот email уже используется.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Неверный формат email.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Слишком слабый пароль. Используйте минимум 8 символов.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showStep(3);
+                showError(errorMessage);
+            }
+        }
+        
+        // ВХОД
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showLoginError('Заполните все поля');
+                return;
+            }
+            
+            showLoading('Вход...');
+            
+            try {
+                const { signInWithEmailAndPassword } = window.firebaseModules;
+                
+                await signInWithEmailAndPassword(auth, email, password);
+                
+                // Успешный вход - перенаправляем
+                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/account';
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                let errorMessage = 'Ошибка входа. ';
+                
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+                    errorMessage = 'Неверный email или пароль.';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'Аккаунт не найден.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Слишком много попыток. Попробуйте позже.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showForm('login');
+                showLoginError(errorMessage);
+            }
+        }
+        
+        // СБРОС ПАРОЛЯ
+        async function resetPassword() {
+            const email = document.getElementById('resetEmail').value.trim().toLowerCase();
+            
+            if (!email) {
+                showResetError('Введите email');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showResetError('Введите корректный email');
+                return;
+            }
+            
+            showLoading('Отправка письма...');
+            
+            try {
+                const { sendPasswordResetEmail } = window.firebaseModules;
+                
+                await sendPasswordResetEmail(auth, email);
+                
+                // Успех
+                setTimeout(() => {
+                    showForm('resetSuccess');
+                    document.getElementById('resetSuccessMessage').textContent = 
+                        `Ссылка для сброса пароля отправлена на ${email}.`;
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Ошибка сброса пароля:', error);
+                
+                let errorMessage = 'Ошибка отправки письма. ';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'Аккаунт с таким email не найден.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Неверный формат email.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showForm('reset');
+                showResetError(errorMessage);
+            }
+        }
+        
+        // GOOGLE АВТОРИЗАЦИЯ
+        async function googleAuth() {
+            try {
+                const { signInWithPopup } = window.firebaseModules;
+                const { doc, setDoc, serverTimestamp } = window.firebaseModules;
+                
+                showLoading('Авторизация через Google...');
+                
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                // Проверяем, есть ли пользователь в базе
+                const userDoc = doc(db, 'users_public', user.uid);
+                
+                // Если пользователь новый, сохраняем данные
+                if (!user.displayName) {
+                    const firstName = user.email ? user.email.split('@')[0] : 'Пользователь';
+                    
+                    const userData = {
+                        uid: user.uid,
+                        firstName: firstName,
+                        email: user.email,
+                        displayName: firstName,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                        emailVerified: user.emailVerified,
+                        status: 'active',
+                        accountType: 'google',
+                        googleLinked: true
+                    };
+                    
+                    await setDoc(userDoc, userData);
+                }
+                
+                // Перенаправляем в личный кабинет
+                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/account';
+                
+            } catch (error) {
+                console.error('Ошибка Google авторизации:', error);
+                
+                let errorMessage = 'Ошибка авторизации через Google. ';
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = 'Окно авторизации закрыто.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showForm(currentForm);
+                showError(errorMessage);
+            }
+        }
+        
+        // ПОВТОРНАЯ ОТПРАВКА EMAIL
+        async function resendVerificationEmail() {
+            if (!auth.currentUser) return;
+            
+            try {
+                const { sendEmailVerification } = window.firebaseModules;
+                await sendEmailVerification(auth.currentUser);
+                
+                // Сбросить таймер
+                resendTimer = 60;
+                startResendTimer();
+                
+                // Показать сообщение об успехе
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <span>Письмо отправлено повторно! Проверьте папку "Спам", если не видите письмо.</span>
+                `;
+                document.querySelector('.success-screen').insertBefore(alert, document.getElementById('goToLoginBtn'));
+                
+                // Автоудаление сообщения
+                setTimeout(() => {
+                    alert.remove();
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Ошибка отправки email:', error);
+                showError('Не удалось отправить письмо. Попробуйте позже.');
+            }
+        }
+        
+        function startResendTimer() {
+            const resendBtn = document.getElementById('resendEmailBtn');
+            const timerText = document.getElementById('resendTimerText');
+            
+            if (resendInterval) {
+                clearInterval(resendInterval);
+            }
+            
+            resendBtn.disabled = true;
+            
+            resendInterval = setInterval(() => {
+                resendTimer--;
+                timerText.textContent = `Отправить повторно (${resendTimer})`;
+                
+                if (resendTimer <= 0) {
+                    clearInterval(resendInterval);
+                    resendBtn.disabled = false;
+                    timerText.textContent = 'Отправить повторно';
+                }
+            }, 1000);
+        }
+        
+        // ПОЛИТИКА И СОГЛАШЕНИЯ
+        function showPolicyModal(title, url, type) {
+            const modal = document.getElementById('policyModal');
+            document.getElementById('modalTitle').textContent = title;
+            
+            const iframe = document.getElementById('policyIframe');
+            iframe.src = url;
+            
+            currentPolicyType = type;
+            modal.dataset.type = type;
+            modal.style.display = 'block';
+            
+            setTimeout(() => {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }, 10);
+        }
+        
+        function closePolicyModal() {
+            const modal = document.getElementById('policyModal');
+            modal.classList.remove('show');
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.getElementById('policyIframe').src = '';
+                document.body.style.overflow = '';
+                currentPolicyType = '';
+            }, 300);
+        }
+        
+        function acceptPolicy() {
+            if (currentPolicyType === 'terms') {
+                document.getElementById('agreeTerms').checked = true;
+            }
+            closePolicyModal();
+        }
+        
+        // ВАЛИДАЦИЯ В РЕАЛЬНОМ ВРЕМЕНИ
+        function validateName() {
+            const input = document.getElementById('firstName');
+            const value = input.value.trim();
+            
+            if (!value) {
+                showFieldError('firstName', 'Введите ваше имя');
+            } else if (value.length < 2) {
+                showFieldError('firstName', 'Имя должно быть не менее 2 символов');
+            } else {
+                clearFieldError('firstName');
+            }
+        }
+        
+        function validateLastName() {
+            const input = document.getElementById('lastName');
+            const value = input.value.trim();
+            
+            if (value && value.length < 2) {
+                showFieldError('lastName', 'Фамилия должна быть не менее 2 символов');
+            } else {
+                clearFieldError('lastName');
+            }
+        }
+        
+        function validateEmail() {
+            const input = document.getElementById('email');
+            const value = input.value.trim().toLowerCase();
+            
+            if (!value) {
+                showFieldError('email', 'Введите email');
+            } else if (!isValidEmail(value)) {
+                showFieldError('email', 'Введите корректный email');
+            } else {
+                clearFieldError('email');
+            }
+        }
+        
+        function validatePassword() {
+            const input = document.getElementById('password');
+            const value = input.value;
+            const strength = checkPasswordStrength(value);
+            const requirements = checkPasswordRequirements(value);
+            
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (!value) {
+                showFieldError('password', 'Введите пароль');
+                strengthDiv.className = 'password-strength';
+                document.getElementById('strengthText').textContent = 'Введите пароль';
+            } else if (value.length < 8) {
+                showFieldError('password', 'Минимум 8 символов');
+                strengthDiv.className = 'password-strength strength-weak';
+                document.getElementById('strengthText').textContent = 'Слишком слабый';
+            } else {
+                clearFieldError('password');
+                
+                // Обновить индикатор силы
+                strengthDiv.className = `password-strength strength-${strength.class}`;
+                document.getElementById('strengthText').textContent = strength.text;
+                
+                // Обновить требования
+                updatePasswordRequirements(requirements);
+            }
+        }
+        
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!confirmPassword) {
+                showFieldError('confirmPassword', 'Подтвердите пароль');
+            } else if (password !== confirmPassword) {
+                showFieldError('confirmPassword', 'Пароли не совпадают');
+            } else {
+                clearFieldError('confirmPassword');
+            }
+        }
+        
+        function validateAge() {
+            const day = document.getElementById('birthDay').value;
+            const month = document.getElementById('birthMonth').value;
+            const year = document.getElementById('birthYear').value;
+            
+            if (!day || !month || !year) {
+                showFieldError('birthDay', 'Выберите дату рождения');
+            } else {
+                const age = calculateAge(year, month, day);
+                
+                if (age < 13) {
+                    // Не показываем ошибку сразу, покажем на шаге 2
+                    clearFieldError('birthDay');
+                } else if (age > 120) {
+                    showFieldError('birthDay', 'Проверьте правильность даты');
+                } else {
+                    clearFieldError('birthDay');
+                    
+                    // Обновляем подсказку
+                    const hint = document.getElementById('ageHint');
+                    hint.textContent = `Возраст: ${age} лет`;
+                    hint.className = 'form-hint success';
+                }
+            }
+        }
+        
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        function checkPasswordStrength(password) {
+            let score = 0;
+            
+            // Длина
+            if (password.length >= 8) score++;
+            if (password.length >= 12) score++;
+            
+            // Сложность
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            
+            let text, strengthClass;
+            if (score <= 2) {
+                text = 'Слабый';
+                strengthClass = 'weak';
+            } else if (score <= 4) {
+                text = 'Средний';
+                strengthClass = 'medium';
+            } else {
+                text = 'Сильный';
+                strengthClass = 'strong';
+            }
+            
+            return {
+                score: score,
+                text: text,
+                class: strengthClass
+            };
+        }
+        
+        function checkPasswordRequirements(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[^A-Za-z0-9]/.test(password),
+                allMet: false
+            };
+            
+            requirements.allMet = requirements.length && 
+                                 requirements.uppercase && 
+                                 requirements.lowercase && 
+                                 requirements.number && 
+                                 requirements.special;
+            
+            return requirements;
+        }
+        
+        function updatePasswordRequirements(requirements) {
+            const reqElements = {
+                length: document.getElementById('reqLength'),
+                uppercase: document.getElementById('reqUppercase'),
+                lowercase: document.getElementById('reqLowercase'),
+                number: document.getElementById('reqNumber'),
+                special: document.getElementById('reqSpecial')
+            };
+            
+            Object.keys(requirements).forEach(key => {
+                if (key !== 'allMet' && reqElements[key]) {
+                    const element = reqElements[key];
+                    if (requirements[key]) {
+                        element.classList.add('met');
+                        element.querySelector('i').className = 'fas fa-check-circle';
+                    } else {
+                        element.classList.remove('met');
+                        element.querySelector('i').className = 'fas fa-circle';
+                    }
+                }
+            });
+        }
+        
+        function calculateAge(year, month, day) {
+            const birthDate = new Date(year, month - 1, day);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const hint = document.getElementById(fieldId + 'Hint');
+            
+            if (field) field.classList.add('error');
+            
+            if (hint) {
+                hint.textContent = message;
+                hint.className = 'form-hint error';
+            }
+        }
+        
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const hint = document.getElementById(fieldId + 'Hint');
+            
+            if (field) field.classList.remove('error');
+            
+            if (hint) {
+                hint.className = 'form-hint';
+                // Возвращаем стандартную подсказку
+                const defaultHints = {
+                    'firstName': 'Как к вам обращаться',
+                    'lastName': 'Ваша фамилия (необязательно)',
+                    'username': 'Будет отображаться другим пользователям',
+                    'email': 'Ваш email для входа',
+                    'password': 'Минимум 8 символов',
+                    'confirmPassword': 'Пароли должны совпадать',
+                    'birthDay': 'Для подтверждения возраста'
+                };
+                hint.textContent = defaultHints[fieldId] || '';
+            }
+        }
+        
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            `;
+            alert.className = 'alert alert-error';
+            alert.style.display = 'flex';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showLoginError(message) {
+            const alert = document.getElementById('loginErrorAlert');
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            `;
+            alert.className = 'alert alert-error';
+            alert.style.display = 'flex';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showResetError(message) {
+            const alert = document.getElementById('resetErrorAlert');
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            `;
+            alert.className = 'alert alert-error';
+            alert.style.display = 'flex';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        function clearErrors() {
+            document.getElementById('errorAlert').style.display = 'none';
+            document.getElementById('loginErrorAlert').style.display = 'none';
+            document.getElementById('resetErrorAlert').style.display = 'none';
+        }
+        
+        function showLoading(text) {
+            currentForm = 'loading';
+            updateFormTitles('loading');
+            
+            document.querySelectorAll('.form-container').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            document.getElementById('loadingScreen').classList.add('active');
+            document.getElementById('loadingText').textContent = text;
+        }
+        
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        function toggleConfirmPasswordVisibility() {
+            const input = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        function toggleLoginPasswordVisibility() {
+            const input = document.getElementById('loginPassword');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        function resetRegistration() {
+            currentStep = 1;
+            showStep(1);
+            updateProgressBar();
+            
+            // Сброс полей
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('birthDay').value = '';
+            document.getElementById('birthMonth').value = '';
+            document.getElementById('birthYear').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('agreeTerms').checked = false;
+            
+            // Сброс ошибок
+            clearFieldError('firstName');
+            clearFieldError('lastName');
+            clearFieldError('username');
+            clearFieldError('birthDay');
+            clearFieldError('email');
+            clearFieldError('password');
+            clearFieldError('confirmPassword');
+            clearErrors();
+            
+            // Сброс индикатора силы пароля
+            document.getElementById('passwordStrength').className = 'password-strength';
+            document.getElementById('strengthText').textContent = 'Введите пароль';
+            
+            // Скрыть предложения никнеймов
+            document.getElementById('usernameSuggestions').style.display = 'none';
+            
+            // Сброс требований пароля
+            document.querySelectorAll('.requirement').forEach(req => {
+                req.classList.remove('met');
+                req.querySelector('i').className = 'fas fa-circle';
+            });
+        }
+        
+        // ЭКСПОРТ ДЛЯ ТЕСТИРОВАНИЯ
+        window.authSystem = {
+            showForm: showForm,
+            validateEmail: isValidEmail,
+            calculateAge: calculateAge,
+            checkPasswordStrength: checkPasswordStrength,
+            checkPasswordRequirements: checkPasswordRequirements
+        };
+        
+        console.log('Система регистрации и входа готова');
+    </script>
+</body>
+</html>
