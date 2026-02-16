@@ -2,21 +2,384 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Метро New - Регистрация и вход</title>
-    
-    <!-- Шрифты и иконки -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New - Регистрация</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Наш CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container { width: 100%; max-width: 480px; }
+        
+        .auth-card {
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .auth-header {
+            padding: 24px 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logo-text { font-size: 1.5rem; font-weight: 700; }
+        .auth-title { font-size: 1.25rem; font-weight: 400; margin-bottom: 4px; }
+        .auth-subtitle { font-size: 0.875rem; color: var(--gray); }
+        
+        .auth-body { padding: 24px; }
+        
+        .form-container { display: none; }
+        .form-container.active { display: block; }
+        
+        .registration-progress { margin-bottom: 24px; }
+        
+        .progress-bar {
+            height: 6px;
+            background: var(--gray-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 11px;
+            left: calc(50% + 12px);
+            right: calc(-50% + 12px);
+            height: 2px;
+            background: var(--gray-border);
+            z-index: 0;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gray-border);
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 4px;
+            font-size: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step.active .step-number { background: var(--primary); color: white; }
+        .step.completed .step-number { background: var(--success); color: white; }
+        .step.completed .step-number::after { content: '✓'; }
+        
+        .step-label { font-size: 0.75rem; color: var(--gray); }
+        .step.active .step-label { color: var(--primary); font-weight: 500; }
+        
+        .registration-step { display: none; }
+        .registration-step.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group { margin-bottom: 16px; }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .form-label .optional { color: var(--gray); font-weight: 400; }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
+        }
+        
+        .form-input.error { border-color: var(--danger); }
+        
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+        
+        .form-hint.error { color: var(--danger); }
+        .form-hint.success { color: var(--success); }
+        
+        .birthday-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .birthday-select {
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            background: var(--light);
+            cursor: pointer;
+        }
+        
+        .password-wrapper { position: relative; }
+        
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-block { width: 100%; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--gray-light); color: var(--dark); border: 1px solid var(--gray-border); }
+        .btn-google { background: white; color: var(--dark); border: 1px solid var(--gray-border); }
+        
+        .step-navigation {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .step-navigation .btn { flex: 1; }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--gray);
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-border);
+        }
+        
+        .divider span { padding: 0 16px; }
+        
+        .auth-links { text-align: center; margin-top: 16px; }
+        .auth-link { color: var(--primary); text-decoration: none; cursor: pointer; }
+        .auth-link:hover { text-decoration: underline; }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert-error {
+            background: rgba(217,48,37,0.1);
+            color: var(--danger);
+            border: 1px solid rgba(217,48,37,0.2);
+        }
+        
+        .alert-success {
+            background: rgba(30,142,62,0.1);
+            color: var(--success);
+            border: 1px solid rgba(30,142,62,0.2);
+        }
+        
+        .alert-info {
+            background: rgba(0,102,204,0.1);
+            color: var(--primary);
+            border: 1px solid rgba(0,102,204,0.2);
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .success-screen { text-align: center; padding: 40px 24px; }
+        
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 24px;
+        }
+        
+        .success-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--success);
+        }
+        
+        .success-text { color: var(--gray); margin-bottom: 24px; }
+        
+        .age-restriction { text-align: center; padding: 40px 24px; }
+        
+        .age-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--warning);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 24px;
+        }
+        
+        .age-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--warning);
+        }
+        
+        .age-text { color: var(--gray); margin-bottom: 8px; }
+        
+        @media (max-width: 480px) {
+            .auth-card { border: none; box-shadow: none; background: transparent; }
+            .auth-header { padding: 16px; }
+            .auth-body { padding: 16px; }
+            .birthday-group { grid-template-columns: 1fr; }
+            .step-navigation { flex-direction: column; }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #e8eaed;
+                --light: #202124;
+                --gray: #9aa0a6;
+                --gray-light: #292a2d;
+                --gray-border: #5f6368;
+            }
+            body { background: #1a1a1a; }
+            .form-input, .birthday-select { background: #292a2d; color: var(--dark); }
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
-        <!-- ОСНОВНАЯ КАРТОЧКА -->
-        <div class="auth-card" id="registerCard">
-            <!-- ХЕДЕР -->
+        <div class="auth-card">
             <div class="auth-header">
                 <div class="logo">
                     <div class="logo-icon">M</div>
@@ -26,11 +389,9 @@
                 <p class="auth-subtitle" id="formSubtitle">Для входа в Метро New</p>
             </div>
             
-            <!-- ТЕЛО КАРТОЧКИ -->
             <div class="auth-body">
-                <!-- ФОРМА РЕГИСТРАЦИИ -->
+                <!-- РЕГИСТРАЦИЯ -->
                 <div class="form-container active" id="registerForm">
-                    <!-- ПРОГРЕСС БАР -->
                     <div class="registration-progress">
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill" style="width: 33%"></div>
@@ -51,44 +412,27 @@
                         </div>
                     </div>
                     
-                    <!-- ШАГ 1: ОСНОВНАЯ ИНФОРМАЦИЯ -->
+                    <!-- ШАГ 1 -->
                     <div class="registration-step active" id="step1">
                         <form id="step1Form">
-                            <!-- ИМЯ -->
                             <div class="form-group">
                                 <label class="form-label">Имя</label>
-                                <input type="text" class="form-input" id="firstName" 
-                                       placeholder="Ваше имя" maxlength="30" required>
-                                <div class="form-hint" id="firstNameHint">
-                                    Как к вам обращаться
-                                </div>
+                                <input type="text" class="form-input" id="firstName" placeholder="Ваше имя" maxlength="30" required>
+                                <div class="form-hint" id="firstNameHint">Как к вам обращаться</div>
                             </div>
                             
-                            <!-- ФАМИЛИЯ -->
                             <div class="form-group">
                                 <label class="form-label">Фамилия <span class="optional">(опционально)</span></label>
-                                <input type="text" class="form-input" id="lastName" 
-                                       placeholder="Ваша фамилия" maxlength="30">
+                                <input type="text" class="form-input" id="lastName" placeholder="Ваша фамилия" maxlength="30">
                                 <div class="form-hint" id="lastNameHint"></div>
                             </div>
                             
-                            <!-- НИКНЕЙМ -->
                             <div class="form-group">
                                 <label class="form-label">Никнейм</label>
-                                <input type="text" class="form-input" id="username" 
-                                       placeholder="Уникальное имя пользователя" maxlength="20" required>
-                                <div class="form-hint" id="usernameHint">
-                                    Будет отображаться другим пользователям
-                                </div>
-                                <div class="username-suggestions" id="usernameSuggestions" style="display: none;">
-                                    <div style="font-size: 0.75rem; color: var(--gray); margin-bottom: 4px;">
-                                        Предложения:
-                                    </div>
-                                    <div class="suggestions-list" id="suggestionsList"></div>
-                                </div>
+                                <input type="text" class="form-input" id="username" placeholder="Уникальное имя пользователя" maxlength="20" required>
+                                <div class="form-hint" id="usernameHint">Будет отображаться другим пользователям</div>
                             </div>
                             
-                            <!-- ДАТА РОЖДЕНИЯ -->
                             <div class="form-group">
                                 <label class="form-label">Дата рождения</label>
                                 <div class="birthday-group">
@@ -114,127 +458,69 @@
                                         <option value="">Год</option>
                                     </select>
                                 </div>
-                                <div class="form-hint" id="birthDayHint">
-                                    Для подтверждения возраста
-                                </div>
+                                <div class="form-hint" id="birthDayHint">Для подтверждения возраста</div>
                             </div>
                             
-                            <!-- КНОПКИ НАВИГАЦИИ -->
                             <div class="step-navigation">
-                                <button type="button" class="btn btn-secondary" id="cancelRegistration">
-                                    Отмена
-                                </button>
-                                <button type="button" class="btn btn-primary" id="nextStep1">
-                                    Далее
-                                    <i class="fas fa-arrow-right"></i>
-                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelRegistration">Отмена</button>
+                                <button type="button" class="btn btn-primary" id="nextStep1">Далее <i class="fas fa-arrow-right"></i></button>
                             </div>
                         </form>
                     </div>
                     
-                    <!-- ШАГ 2: ПАРОЛЬ И EMAIL -->
+                    <!-- ШАГ 2 -->
                     <div class="registration-step" id="step2">
                         <form id="step2Form">
-                            <!-- EMAIL -->
                             <div class="form-group">
                                 <label class="form-label">Email</label>
-                                <input type="email" class="form-input" id="email" 
-                                       placeholder="your@email.com" required>
-                                <div class="form-hint" id="emailHint">
-                                    Ваш email для входа
-                                </div>
+                                <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+                                <div class="form-hint" id="emailHint">Ваш email для входа</div>
                             </div>
                             
-                            <!-- ПАРОЛЬ -->
                             <div class="form-group">
                                 <label class="form-label">Пароль</label>
                                 <div class="password-wrapper">
-                                    <input type="password" class="form-input" id="password" 
-                                           placeholder="Создайте пароль" required>
+                                    <input type="password" class="form-input" id="password" placeholder="Создайте пароль" required>
                                     <button type="button" class="toggle-password" id="togglePassword">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="password-strength" id="passwordStrength">
-                                    <div class="strength-bar">
-                                        <div class="strength-fill"></div>
-                                    </div>
-                                    <div class="strength-text" id="strengthText">Введите пароль</div>
-                                </div>
-                                <div class="strength-requirements" id="passwordRequirements">
-                                    <div class="requirement" id="reqLength">
-                                        <i class="fas fa-circle"></i>
-                                        <span>Минимум 8 символов</span>
-                                    </div>
-                                    <div class="requirement" id="reqUppercase">
-                                        <i class="fas fa-circle"></i>
-                                        <span>Заглавная буква</span>
-                                    </div>
-                                    <div class="requirement" id="reqLowercase">
-                                        <i class="fas fa-circle"></i>
-                                        <span>Строчная буква</span>
-                                    </div>
-                                    <div class="requirement" id="reqNumber">
-                                        <i class="fas fa-circle"></i>
-                                        <span>Цифра</span>
-                                    </div>
-                                    <div class="requirement" id="reqSpecial">
-                                        <i class="fas fa-circle"></i>
-                                        <span>Специальный символ</span>
-                                    </div>
-                                </div>
+                                <div class="form-hint" id="passwordHint">Минимум 6 символов</div>
                             </div>
                             
-                            <!-- ПОДТВЕРЖДЕНИЕ ПАРОЛЯ -->
                             <div class="form-group">
                                 <label class="form-label">Подтвердите пароль</label>
                                 <div class="password-wrapper">
-                                    <input type="password" class="form-input" id="confirmPassword" 
-                                           placeholder="Повторите пароль" required>
+                                    <input type="password" class="form-input" id="confirmPassword" placeholder="Повторите пароль" required>
                                     <button type="button" class="toggle-password" id="toggleConfirmPassword">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="form-hint" id="confirmPasswordHint">
-                                    Пароли должны совпадать
-                                </div>
+                                <div class="form-hint" id="confirmPasswordHint">Пароли должны совпадать</div>
                             </div>
                             
-                            <!-- КНОПКИ НАВИГАЦИИ -->
                             <div class="step-navigation">
-                                <button type="button" class="btn btn-secondary" id="prevStep2">
-                                    <i class="fas fa-arrow-left"></i>
-                                    Назад
-                                </button>
-                                <button type="button" class="btn btn-primary" id="nextStep2">
-                                    Далее
-                                    <i class="fas fa-arrow-right"></i>
-                                </button>
+                                <button type="button" class="btn btn-secondary" id="prevStep2"><i class="fas fa-arrow-left"></i> Назад</button>
+                                <button type="button" class="btn btn-primary" id="nextStep2">Далее <i class="fas fa-arrow-right"></i></button>
                             </div>
                         </form>
                     </div>
                     
-                    <!-- ШАГ 3: ПОДТВЕРЖДЕНИЕ -->
+                    <!-- ШАГ 3 -->
                     <div class="registration-step" id="step3">
                         <form id="step3Form">
-                            <!-- СОГЛАШЕНИЯ -->
                             <div class="form-group">
                                 <div style="display: flex; align-items: flex-start; gap: 8px;">
                                     <input type="checkbox" id="agreeTerms" required style="margin-top: 3px;">
                                     <label for="agreeTerms" style="font-size: 0.875rem; color: var(--gray);">
                                         Я принимаю 
-                                        <a href="#" class="terms-link" style="color: var(--primary); text-decoration: none;">
-                                            Пользовательское соглашение
-                                        </a> 
+                                        <a href="https://docs.google.com/document/d/e/2PACX-1vQ86klpumdzVv8phucQPYhv-ZSqS75ZpQB0t8NdSmPu7zo0EY3tesGqFgiPscv5cp-5ouw8oRHeyFwG/pub" target="_blank" style="color: var(--primary);">Пользовательское соглашение</a> 
                                         и 
-                                        <a href="#" class="privacy-link" style="color: var(--primary); text-decoration: none;">
-                                            Политику конфиденциальности
-                                        </a>
+                                        <a href="https://docs.google.com/document/d/e/2PACX-1vRvligepysBxTXy4KcWzNquDcvaKLr9E4rO6_KuKUr0ELwDlq8qafWuiGY7aM4wDmZ24XNmBahgoh8t/pub" target="_blank" style="color: var(--primary);">Политику конфиденциальности</a>
                                     </label>
                                 </div>
                             </div>
                             
-                            <!-- ПРОВЕРКА ДАННЫХ -->
                             <div class="alert alert-info" id="dataSummary">
                                 <i class="fas fa-info-circle"></i>
                                 <div>
@@ -243,57 +529,41 @@
                                 </div>
                             </div>
                             
-                            <!-- СООБЩЕНИЯ -->
                             <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
                             
-                            <!-- КНОПКИ -->
                             <div class="step-navigation">
-                                <button type="button" class="btn btn-secondary" id="prevStep3">
-                                    <i class="fas fa-arrow-left"></i>
-                                    Назад
-                                </button>
+                                <button type="button" class="btn btn-secondary" id="prevStep3"><i class="fas fa-arrow-left"></i> Назад</button>
                                 <button type="submit" class="btn btn-primary" id="submitRegistration">
-                                    <i class="fas fa-user-plus"></i>
-                                    Создать аккаунт
+                                    <i class="fas fa-user-plus"></i> Создать аккаунт
                                 </button>
                             </div>
                         </form>
                     </div>
                     
-                    <!-- РАЗДЕЛИТЕЛЬ -->
-                    <div class="divider" id="registerDivider" style="display: none;">
-                        <span>или</span>
-                    </div>
+                    <div class="divider" id="registerDivider"><span>или</span></div>
                     
-                    <!-- GOOGLE -->
-                    <button class="btn btn-google btn-block" id="googleRegisterBtn" style="display: none;">
-                        <i class="fab fa-google"></i>
-                        Продолжить с Google
+                    <button class="btn btn-google btn-block" id="googleRegisterBtn">
+                        <i class="fab fa-google"></i> Продолжить с Google
                     </button>
                     
-                    <!-- ССЫЛКА НА ВХОД -->
-                    <div class="auth-links" id="registerLinks" style="display: none;">
-                        <span style="color: var(--gray); font-size: 0.875rem;">
-                            Уже есть аккаунт?
-                        </span>
+                    <div class="auth-links" id="registerLinks">
+                        <span style="color: var(--gray);">Уже есть аккаунт?</span>
                         <a href="#" class="auth-link" id="showLoginLink">Войти</a>
                     </div>
                 </div>
                 
-                <!-- ФОРМА ВХОДА -->
+                <!-- ВХОД -->
                 <div class="form-container" id="loginForm">
                     <form id="loginFormElement">
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-input" id="loginEmail" 
-                                   placeholder="your@email.com" required>
+                            <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Пароль</label>
                             <div class="password-wrapper">
-                                <input type="password" class="form-input" id="loginPassword" 
-                                       placeholder="Ваш пароль" required>
+                                <input type="password" class="form-input" id="loginPassword" placeholder="Ваш пароль" required>
                                 <button type="button" class="toggle-password" id="toggleLoginPassword">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -307,24 +577,18 @@
                         <div class="alert" id="loginErrorAlert" style="display: none;"></div>
                         
                         <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Войти
+                            <i class="fas fa-sign-in-alt"></i> Войти
                         </button>
                     </form>
                     
-                    <div class="divider">
-                        <span>или</span>
-                    </div>
+                    <div class="divider"><span>или</span></div>
                     
                     <button class="btn btn-google btn-block" id="googleLoginBtn">
-                        <i class="fab fa-google"></i>
-                        Войти с Google
+                        <i class="fab fa-google"></i> Войти с Google
                     </button>
                     
                     <div class="auth-links">
-                        <span style="color: var(--gray); font-size: 0.875rem;">
-                            Нет аккаунта?
-                        </span>
+                        <span style="color: var(--gray);">Нет аккаунта?</span>
                         <a href="#" class="auth-link" id="showRegisterLink">Создать аккаунт</a>
                     </div>
                 </div>
@@ -334,8 +598,7 @@
                     <form id="resetPasswordFormElement">
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-input" id="resetEmail" 
-                                   placeholder="your@email.com" required>
+                            <input type="email" class="form-input" id="resetEmail" placeholder="your@email.com" required>
                             <div class="form-hint">Введите email вашего аккаунта</div>
                         </div>
                         
@@ -344,8 +607,7 @@
                         <div style="display: flex; gap: 8px;">
                             <button type="button" class="btn btn-secondary" id="cancelResetBtn">Отмена</button>
                             <button type="submit" class="btn btn-primary" id="resetPasswordBtn">
-                                <i class="fas fa-paper-plane"></i>
-                                Отправить ссылку
+                                <i class="fas fa-paper-plane"></i> Отправить ссылку
                             </button>
                         </div>
                     </form>
@@ -359,31 +621,24 @@
                     </div>
                 </div>
                 
-                <!-- БЛОКИРОВКА -13 ЛЕТ -->
+                <!-- ВОЗРАСТНОЕ ОГРАНИЧЕНИЕ -->
                 <div class="form-container" id="ageRestrictionScreen">
                     <div class="age-restriction">
-                        <div class="age-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
+                        <div class="age-icon"><i class="fas fa-exclamation-triangle"></i></div>
                         <h3 class="age-title">Регистрация недоступна</h3>
                         <p class="age-text" id="ageRestrictionMessage">
                             Для регистрации необходимо быть старше 13 лет.
                         </p>
                         <div class="alert alert-warning" style="margin: 20px 0;">
                             <i class="fas fa-shield-alt"></i>
-                            <div>
-                                <strong>Важно:</strong><br>
-                                Вернитесь, когда вам исполнится 13 лет
-                            </div>
+                            <div>Вернитесь, когда вам исполнится 13 лет</div>
                         </div>
                         <button class="btn btn-primary btn-block" id="goToParentPageBtn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Информация для родителей
+                            <i class="fas fa-external-link-alt"></i> Информация для родителей
                         </button>
                         <div class="auth-links" style="margin-top: 16px;">
                             <a href="#" class="auth-link" id="backFromAgeRestriction">
-                                <i class="fas fa-arrow-left"></i>
-                                Вернуться назад
+                                <i class="fas fa-arrow-left"></i> Вернуться назад
                             </a>
                         </div>
                     </div>
@@ -392,26 +647,22 @@
                 <!-- УСПЕХ -->
                 <div class="form-container" id="successScreen">
                     <div class="success-screen">
-                        <div class="success-icon">
-                            <i class="fas fa-check"></i>
-                        </div>
+                        <div class="success-icon"><i class="fas fa-check"></i></div>
                         <h3 class="success-title">Аккаунт создан!</h3>
                         <p class="success-text" id="successMessage">
                             Проверьте ваш email для подтверждения
                         </p>
-                        <div class="email-timer" style="margin-bottom: 20px; padding: 10px; background: rgba(0,102,204,0.1); border-radius: 8px;">
+                        <div style="margin-bottom: 20px; padding: 10px; background: rgba(0,102,204,0.1); border-radius: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
                                 <i class="fas fa-envelope" style="color: var(--primary);"></i>
                                 <span style="font-size: 0.875rem;">Не получили письмо?</span>
                             </div>
                             <button class="btn btn-secondary btn-block" id="resendEmailBtn" style="margin-top: 8px;">
-                                <i class="fas fa-redo"></i>
-                                <span id="resendTimerText">Отправить повторно (60)</span>
+                                <i class="fas fa-redo"></i> <span id="resendTimerText">Отправить повторно</span>
                             </button>
                         </div>
                         <button class="btn btn-primary btn-block" id="goToLoginBtn">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Перейти к входу
+                            <i class="fas fa-sign-in-alt"></i> Перейти к входу
                         </button>
                     </div>
                 </div>
@@ -419,379 +670,589 @@
                 <!-- СБРОС УСПЕХ -->
                 <div class="form-container" id="resetSuccessScreen">
                     <div class="success-screen">
-                        <div class="success-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
+                        <div class="success-icon"><i class="fas fa-envelope"></i></div>
                         <h3 class="success-title">Письмо отправлено</h3>
                         <p class="success-text" id="resetSuccessMessage">
                             Ссылка для сброса пароля отправлена на ваш email
                         </p>
                         <button class="btn btn-primary btn-block" id="backToLoginFromResetBtn">
-                            <i class="fas fa-arrow-left"></i>
-                            Вернуться к входу
+                            <i class="fas fa-arrow-left"></i> Вернуться к входу
                         </button>
                     </div>
                 </div>
             </div>
             
-            <!-- ФУТЕР -->
             <div class="auth-footer">
-                <div id="copyrightYear">© 2026 Метро New. Все права защищены.</div>
+                <div id="copyrightYear"></div>
                 <div class="footer-links">
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" 
-                       target="_blank" class="footer-link">Помощь</a>
-                    <a href="https://kirill12633.github.io/support.metro.new/" 
-                       target="_blank" class="footer-link">Поддержка</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- МОДАЛКА ПОЛИТИКИ -->
-    <div class="policy-modal" id="policyModal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Политика конфиденциальности</h3>
-                <button class="modal-close" id="closePolicyModal">×</button>
-            </div>
-            <div class="modal-body">
-                <iframe class="modal-iframe" id="policyIframe"></iframe>
-            </div>
-            <div class="modal-footer">
-                <div class="modal-buttons">
-                    <button class="btn btn-secondary" id="closePolicyModalBtn">Закрыть</button>
-                    <button class="btn btn-primary" id="acceptPolicyBtn">Принять</button>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" target="_blank" class="footer-link">Помощь</a>
+                    <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="footer-link">Поддержка</a>
                 </div>
             </div>
         </div>
     </div>
 
-<!-- ЕДИНЫЙ СКРИПТ АВТОРИЗАЦИИ -->
-<script type="module">
-// ============================================
-// FIREBASE КОНФИГУРАЦИЯ
-// ============================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword,
-    updateProfile,
-    sendEmailVerification,
-    signInWithPopup,
-    GoogleAuthProvider,
-    signInWithEmailAndPassword,
-    sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    <script type="module">
+        // ============================================
+        // FIREBASE С App Check
+        // ============================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword,
+            updateProfile,
+            sendEmailVerification,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { 
+            initializeAppCheck, 
+            ReCaptchaV3Provider 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-    authDomain: "metro-new-85226.firebaseapp.com",
-    databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
-    projectId: "metro-new-85226",
-    storageBucket: "metro-new-85226.firebasestorage.app",
-    messagingSenderId: "905640751733",
-    appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
-};
+        // Конфигурация
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
+        // Инициализация Firebase
+        const app = initializeApp(firebaseConfig);
+        
+        // App Check с reCAPTCHA
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
+            isTokenAutoRefreshEnabled: true
+        });
+        
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
-// ============================================
-// ФИЛЬТР МАТОВ (УПРОЩЕННЫЙ)
-// ============================================
-const ProfanityFilter = {
-    blacklist: ['хуй', 'пизда', 'блядь', 'сука', 'fuck', 'shit'],
-    check(text) {
-        if (!text) return { hasProfanity: false };
-        const lowerText = text.toLowerCase();
-        for (let word of this.blacklist) {
-            if (lowerText.includes(word)) {
-                return { hasProfanity: true, foundWords: [word] };
-            }
-        }
-        return { hasProfanity: false };
-    }
-};
+        // ============================================
+        // ОСНОВНОЙ КОД
+        // ============================================
+        let currentStep = 1;
 
-// ============================================
-// ПРОВЕРКА ВОЗРАСТА
-// ============================================
-const AgeValidator = {
-    minAge: 13,
-    
-    check(day, month, year) {
-        if (!day || !month || !year) {
-            return { isValid: false, message: 'Выберите дату рождения' };
-        }
-        
-        const today = new Date();
-        const birthDate = new Date(year, month - 1, day);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        
-        if (age >= this.minAge) {
-            return { isValid: true, age: age, message: `✅ Возраст: ${age} лет` };
-        } else {
-            return { 
-                isValid: false, 
-                age: age, 
-                message: `❌ Тебе ${age} лет. Регистрация с 13 лет` 
-            };
-        }
-    }
-};
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Система запущена с App Check');
+            fillDateSelectors();
+            initEventHandlers();
+            updateCopyrightYear();
+        });
 
-// ============================================
-// УВЕДОМЛЕНИЯ
-// ============================================
-const Notifications = {
-    error(message) {
-        alert('❌ ' + message);
-    },
-    warning(message) {
-        alert('⚠️ ' + message);
-    },
-    success(message) {
-        alert('✅ ' + message);
-    }
-};
-
-// ============================================
-// ОСНОВНОЙ КОД
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Система запущена');
-    fillDateSelectors();
-    initEventHandlers();
-});
-
-// ========== ЗАПОЛНЕНИЕ ДАТ ==========
-function fillDateSelectors() {
-    const daySelect = document.getElementById('birthDay');
-    const yearSelect = document.getElementById('birthYear');
-    const currentYear = new Date().getFullYear();
-    
-    if (!daySelect || !yearSelect) return;
-    
-    daySelect.innerHTML = '<option value="">День</option>';
-    yearSelect.innerHTML = '<option value="">Год</option>';
-    
-    for (let i = 1; i <= 31; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        daySelect.appendChild(option);
-    }
-    
-    for (let i = currentYear; i >= currentYear - 100; i--) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        yearSelect.appendChild(option);
-    }
-    
-    console.log('✅ Даты загружены');
-}
-
-// ========== ОБРАБОТЧИКИ ==========
-function initEventHandlers() {
-    // Шаг 1 -> Шаг 2
-    document.getElementById('nextStep1')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const firstName = document.getElementById('firstName')?.value.trim();
-        const username = document.getElementById('username')?.value.trim();
-        const birthDay = document.getElementById('birthDay')?.value;
-        const birthMonth = document.getElementById('birthMonth')?.value;
-        const birthYear = document.getElementById('birthYear')?.value;
-        
-        // Проверка имени
-        if (!firstName) {
-            document.getElementById('firstNameHint').textContent = 'Введите имя';
-            document.getElementById('firstNameHint').className = 'form-hint error';
-            return;
-        }
-        
-        // Проверка ника
-        if (!username) {
-            document.getElementById('usernameHint').textContent = 'Введите никнейм';
-            document.getElementById('usernameHint').className = 'form-hint error';
-            return;
-        }
-        
-        // Проверка матов
-        const profanityCheck = ProfanityFilter.check(username);
-        if (profanityCheck.hasProfanity) {
-            document.getElementById('usernameHint').textContent = 'Никнейм содержит запрещенные слова';
-            document.getElementById('usernameHint').className = 'form-hint error';
-            return;
-        }
-        
-        // Проверка возраста
-        const ageCheck = AgeValidator.check(birthDay, birthMonth, birthYear);
-        if (!ageCheck.isValid) {
-            document.getElementById('birthDayHint').textContent = ageCheck.message;
-            document.getElementById('birthDayHint').className = 'form-hint error';
-            return;
-        }
-        
-        if (ageCheck.age < 13) {
-            // Показываем экран возрастного ограничения
-            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-            document.getElementById('ageRestrictionScreen').classList.add('active');
+        function fillDateSelectors() {
+            const daySelect = document.getElementById('birthDay');
+            const yearSelect = document.getElementById('birthYear');
+            const currentYear = new Date().getFullYear();
             
-            const messageEl = document.getElementById('ageRestrictionMessage');
-            if (messageEl) {
-                messageEl.innerHTML = `Тебе ${ageCheck.age} лет. Регистрация доступна с 13 лет.`;
+            if (!daySelect || !yearSelect) return;
+            
+            daySelect.innerHTML = '<option value="">День</option>';
+            yearSelect.innerHTML = '<option value="">Год</option>';
+            
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
             }
-            return;
+            
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+            
+            console.log('✅ Даты загружены');
         }
-        
-        // Всё хорошо - переходим на шаг 2
-        document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step2').classList.add('active');
-        
-        // Обновляем прогресс
-        document.querySelectorAll('.step').forEach((s, i) => {
-            if (i === 0) s.classList.add('completed');
-            if (i === 1) s.classList.add('active');
-        });
-        document.getElementById('progressFill').style.width = '66%';
-    });
-    
-    // Шаг 2 -> Шаг 3
-    document.getElementById('nextStep2')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email')?.value.trim();
-        const password = document.getElementById('password')?.value;
-        const confirmPassword = document.getElementById('confirmPassword')?.value;
-        
-        // Проверка email
-        if (!email || !email.includes('@')) {
-            document.getElementById('emailHint').textContent = 'Введите корректный email';
-            document.getElementById('emailHint').className = 'form-hint error';
-            return;
+
+        function updateCopyrightYear() {
+            const year = new Date().getFullYear();
+            const el = document.getElementById('copyrightYear');
+            if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
         }
-        
-        // Проверка пароля
-        if (!password || password.length < 6) {
-            document.getElementById('passwordHint').textContent = 'Пароль должен быть минимум 6 символов';
-            document.getElementById('passwordHint').className = 'form-hint error';
-            return;
+
+        function calculateAge(day, month, year) {
+            const today = new Date();
+            const birthDate = new Date(year, month - 1, day);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
         }
-        
-        if (password !== confirmPassword) {
-            document.getElementById('confirmPasswordHint').textContent = 'Пароли не совпадают';
-            document.getElementById('confirmPasswordHint').className = 'form-hint error';
-            return;
+
+        function showLoading(message) {
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            document.getElementById('loadingScreen').classList.add('active');
+            document.getElementById('loadingText').textContent = message;
         }
-        
-        // Всё хорошо - переходим на шаг 3
-        document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step3').classList.add('active');
-        
-        // Обновляем прогресс
-        document.querySelectorAll('.step').forEach((s, i) => {
-            if (i < 2) s.classList.add('completed');
-            if (i === 2) s.classList.add('active');
-        });
-        document.getElementById('progressFill').style.width = '100%';
-        
-        // Показываем данные
-        const summary = document.getElementById('userDataSummary');
-        if (summary) {
-            summary.innerHTML = `
-                <div>👤 ${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</div>
-                <div>📧 ${email}</div>
-                <div>📅 ${birthDay}.${birthMonth}.${birthYear}</div>
-            `;
+
+        function hideLoading() {
+            document.getElementById('loadingScreen').classList.remove('active');
         }
-    });
-    
-    // Кнопки "Назад"
-    document.getElementById('prevStep2')?.addEventListener('click', function() {
-        document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step1').classList.add('active');
-        
-        document.querySelectorAll('.step').forEach((s, i) => {
-            if (i === 0) s.classList.add('active');
-            if (i > 0) s.classList.remove('active', 'completed');
-        });
-        document.getElementById('progressFill').style.width = '33%';
-    });
-    
-    document.getElementById('prevStep3')?.addEventListener('click', function() {
-        document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step2').classList.add('active');
-        
-        document.querySelectorAll('.step').forEach((s, i) => {
-            if (i === 0) s.classList.add('completed');
-            if (i === 1) s.classList.add('active');
-            if (i === 2) s.classList.remove('active', 'completed');
-        });
-        document.getElementById('progressFill').style.width = '66%';
-    });
-    
-    // Отмена регистрации
-    document.getElementById('cancelRegistration')?.addEventListener('click', function() {
-        if (confirm('Отменить регистрацию?')) {
-            location.reload();
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            if (alert) {
+                alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
+                alert.style.display = 'flex';
+                setTimeout(() => alert.style.display = 'none', 5000);
+            }
         }
-    });
-    
-    // Возврат с экрана возрастного ограничения
-    document.getElementById('backFromAgeRestriction')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-        document.getElementById('registerForm').classList.add('active');
-    });
-    
-    // Переключение между формами
-    document.getElementById('showLoginLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-        document.getElementById('loginForm').classList.add('active');
-        document.getElementById('formTitle').textContent = 'Войти в аккаунт';
-        document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
-    });
-    
-    document.getElementById('showRegisterLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-        document.getElementById('registerForm').classList.add('active');
-        document.getElementById('formTitle').textContent = 'Создать аккаунт';
-        document.getElementById('formSubtitle').textContent = 'Для входа в Метро New';
-    });
-    
-    // Забыли пароль
-    document.getElementById('forgotPasswordLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-        document.getElementById('resetPasswordForm').classList.add('active');
-        document.getElementById('formTitle').textContent = 'Сброс пароля';
-        document.getElementById('formSubtitle').textContent = 'Восстановление доступа';
-    });
-    
-    document.getElementById('cancelResetBtn')?.addEventListener('click', function() {
-        document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-        document.getElementById('loginForm').classList.add('active');
-    });
-}
-</script>
-    
+
+        function showSuccess(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
+            document.querySelector('.auth-body').prepend(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function initEventHandlers() {
+            // Показать/скрыть пароль
+            document.getElementById('togglePassword')?.addEventListener('click', function() {
+                const input = document.getElementById('password');
+                const icon = this.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
+            document.getElementById('toggleConfirmPassword')?.addEventListener('click', function() {
+                const input = document.getElementById('confirmPassword');
+                const icon = this.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
+            document.getElementById('toggleLoginPassword')?.addEventListener('click', function() {
+                const input = document.getElementById('loginPassword');
+                const icon = this.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
+            // Шаг 1 -> Шаг 2
+            document.getElementById('nextStep1')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const firstName = document.getElementById('firstName')?.value.trim();
+                const username = document.getElementById('username')?.value.trim();
+                const birthDay = document.getElementById('birthDay')?.value;
+                const birthMonth = document.getElementById('birthMonth')?.value;
+                const birthYear = document.getElementById('birthYear')?.value;
+                
+                // Валидация
+                if (!firstName) {
+                    document.getElementById('firstNameHint').textContent = 'Введите имя';
+                    document.getElementById('firstNameHint').className = 'form-hint error';
+                    return;
+                }
+                
+                if (!username) {
+                    document.getElementById('usernameHint').textContent = 'Введите никнейм';
+                    document.getElementById('usernameHint').className = 'form-hint error';
+                    return;
+                }
+                
+                if (username.length < 3) {
+                    document.getElementById('usernameHint').textContent = 'Минимум 3 символа';
+                    document.getElementById('usernameHint').className = 'form-hint error';
+                    return;
+                }
+                
+                if (!birthDay || !birthMonth || !birthYear) {
+                    document.getElementById('birthDayHint').textContent = 'Выберите дату рождения';
+                    document.getElementById('birthDayHint').className = 'form-hint error';
+                    return;
+                }
+                
+                // Проверка возраста
+                const age = calculateAge(birthDay, birthMonth, birthYear);
+                
+                if (age < 13) {
+                    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                    document.getElementById('ageRestrictionScreen').classList.add('active');
+                    document.getElementById('ageRestrictionMessage').innerHTML = 
+                        `Тебе ${age} лет. Регистрация доступна с 13 лет.<br>Вернись через ${13 - age} ${(13-age) === 1 ? 'год' : (13-age) < 5 ? 'года' : 'лет'}`;
+                    return;
+                }
+                
+                // Переход на шаг 2
+                document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
+                document.getElementById('step2').classList.add('active');
+                
+                // Обновляем прогресс
+                document.querySelectorAll('.step')[0].classList.add('completed');
+                document.querySelectorAll('.step')[1].classList.add('active');
+                document.getElementById('progressFill').style.width = '66%';
+                
+                currentStep = 2;
+            });
+
+            // Шаг 2 -> Шаг 3
+            document.getElementById('nextStep2')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email')?.value.trim();
+                const password = document.getElementById('password')?.value;
+                const confirmPassword = document.getElementById('confirmPassword')?.value;
+                
+                if (!email || !email.includes('@')) {
+                    document.getElementById('emailHint').textContent = 'Введите корректный email';
+                    document.getElementById('emailHint').className = 'form-hint error';
+                    return;
+                }
+                
+                if (!password || password.length < 6) {
+                    document.getElementById('passwordHint').textContent = 'Пароль должен быть минимум 6 символов';
+                    document.getElementById('passwordHint').className = 'form-hint error';
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmPasswordHint').textContent = 'Пароли не совпадают';
+                    document.getElementById('confirmPasswordHint').className = 'form-hint error';
+                    return;
+                }
+                
+                // Переход на шаг 3
+                document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
+                document.getElementById('step3').classList.add('active');
+                
+                // Обновляем прогресс
+                document.querySelectorAll('.step')[0].classList.add('completed');
+                document.querySelectorAll('.step')[1].classList.add('completed');
+                document.querySelectorAll('.step')[2].classList.add('active');
+                document.getElementById('progressFill').style.width = '100%';
+                
+                // Показываем данные
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const birthDay = document.getElementById('birthDay').value;
+                const birthMonth = document.getElementById('birthMonth').value;
+                const birthYear = document.getElementById('birthYear').value;
+                
+                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                
+                document.getElementById('userDataSummary').innerHTML = `
+                    <div>👤 ${firstName} ${lastName}</div>
+                    <div>📧 ${email}</div>
+                    <div>📅 ${birthDay} ${months[birthMonth-1]} ${birthYear}</div>
+                `;
+                
+                currentStep = 3;
+            });
+
+            // Кнопки назад
+            document.getElementById('prevStep2')?.addEventListener('click', function() {
+                document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
+                document.getElementById('step1').classList.add('active');
+                
+                document.querySelectorAll('.step')[0].classList.add('active');
+                document.querySelectorAll('.step')[1].classList.remove('active', 'completed');
+                document.querySelectorAll('.step')[2].classList.remove('active', 'completed');
+                document.getElementById('progressFill').style.width = '33%';
+                
+                currentStep = 1;
+            });
+
+            document.getElementById('prevStep3')?.addEventListener('click', function() {
+                document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
+                document.getElementById('step2').classList.add('active');
+                
+                document.querySelectorAll('.step')[0].classList.add('completed');
+                document.querySelectorAll('.step')[1].classList.add('active');
+                document.querySelectorAll('.step')[2].classList.remove('active', 'completed');
+                document.getElementById('progressFill').style.width = '66%';
+                
+                currentStep = 2;
+            });
+
+            // Отмена
+            document.getElementById('cancelRegistration')?.addEventListener('click', function() {
+                if (confirm('Отменить регистрацию?')) {
+                    location.reload();
+                }
+            });
+
+            // Возрастное ограничение - назад
+            document.getElementById('backFromAgeRestriction')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('registerForm').classList.add('active');
+                document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
+                document.getElementById('step1').classList.add('active');
+            });
+
+            document.getElementById('goToParentPageBtn')?.addEventListener('click', function() {
+                window.open('https://kirill12633.github.io/Metro.New.Official/ru/parents', '_blank');
+            });
+
+            // Переключение между формами
+            document.getElementById('showLoginLink')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('formTitle').textContent = 'Войти в аккаунт';
+                document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
+            });
+
+            document.getElementById('showRegisterLink')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('registerForm').classList.add('active');
+                document.getElementById('formTitle').textContent = 'Создать аккаунт';
+                document.getElementById('formSubtitle').textContent = 'Для входа в Метро New';
+            });
+
+            document.getElementById('forgotPasswordLink')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('resetPasswordForm').classList.add('active');
+                document.getElementById('formTitle').textContent = 'Сброс пароля';
+                document.getElementById('formSubtitle').textContent = 'Восстановление доступа';
+            });
+
+            document.getElementById('cancelResetBtn')?.addEventListener('click', function() {
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('loginForm').classList.add('active');
+            });
+
+            document.getElementById('backToLoginFromResetBtn')?.addEventListener('click', function() {
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('loginForm').classList.add('active');
+            });
+
+            // Google авторизация
+            document.getElementById('googleRegisterBtn')?.addEventListener('click', async function() {
+                try {
+                    showLoading('Авторизация через Google...');
+                    const result = await signInWithPopup(auth, googleProvider);
+                    hideLoading();
+                    showSuccess('Вход выполнен! Перенаправление...');
+                    setTimeout(() => {
+                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                    }, 1500);
+                } catch (error) {
+                    hideLoading();
+                    showError('Ошибка авторизации: ' + error.message);
+                }
+            });
+
+            document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
+                try {
+                    showLoading('Авторизация через Google...');
+                    const result = await signInWithPopup(auth, googleProvider);
+                    hideLoading();
+                    showSuccess('Вход выполнен! Перенаправление...');
+                    setTimeout(() => {
+                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                    }, 1500);
+                } catch (error) {
+                    hideLoading();
+                    showError('Ошибка авторизации: ' + error.message);
+                }
+            });
+
+            // Регистрация
+            document.getElementById('submitRegistration')?.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                if (!document.getElementById('agreeTerms').checked) {
+                    showError('Необходимо принять пользовательское соглашение');
+                    return;
+                }
+                
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim() || '';
+                const username = document.getElementById('username').value.trim();
+                const birthDay = document.getElementById('birthDay').value;
+                const birthMonth = document.getElementById('birthMonth').value;
+                const birthYear = document.getElementById('birthYear').value;
+                
+                showLoading('Создание аккаунта...');
+                
+                try {
+                    // Создание пользователя
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    
+                    // Обновление профиля
+                    await updateProfile(userCredential.user, {
+                        displayName: firstName + (lastName ? ' ' + lastName : '')
+                    });
+                    
+                    // Отправка подтверждения email
+                    await sendEmailVerification(userCredential.user);
+                    
+                    // Сохранение в Firestore
+                    await setDoc(doc(db, 'users_public', userCredential.user.uid), {
+                        uid: userCredential.user.uid,
+                        firstName: firstName,
+                        lastName: lastName,
+                        username: username,
+                        displayName: firstName + (lastName ? ' ' + lastName : ''),
+                        email: email,
+                        birthDate: {
+                            day: parseInt(birthDay),
+                            month: parseInt(birthMonth),
+                            year: parseInt(birthYear)
+                        },
+                        age: calculateAge(birthDay, birthMonth, birthYear),
+                        createdAt: serverTimestamp(),
+                        agreedToTerms: true
+                    });
+                    
+                    hideLoading();
+                    
+                    // Показываем успех
+                    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                    document.getElementById('successScreen').classList.add('active');
+                    document.getElementById('successMessage').textContent = 
+                        `На адрес ${email} отправлено письмо для подтверждения.`;
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error(error);
+                    
+                    let message = 'Ошибка регистрации';
+                    if (error.code === 'auth/email-already-in-use') {
+                        message = 'Этот email уже используется';
+                    } else if (error.code === 'auth/invalid-email') {
+                        message = 'Неверный формат email';
+                    } else if (error.code === 'auth/weak-password') {
+                        message = 'Слишком слабый пароль';
+                    } else {
+                        message = error.message;
+                    }
+                    
+                    showError(message);
+                    
+                    // Возвращаемся на шаг 3
+                    document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
+                    document.getElementById('step3').classList.add('active');
+                }
+            });
+
+            // Вход
+            document.getElementById('loginFormElement')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!email || !password) {
+                    document.getElementById('loginErrorAlert').innerHTML = 
+                        '<i class="fas fa-exclamation-circle"></i> Заполните все поля';
+                    document.getElementById('loginErrorAlert').style.display = 'flex';
+                    return;
+                }
+                
+                showLoading('Вход...');
+                
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    hideLoading();
+                    showSuccess('Вход выполнен! Перенаправление...');
+                    setTimeout(() => {
+                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                    }, 1500);
+                } catch (error) {
+                    hideLoading();
+                    
+                    let message = 'Ошибка входа';
+                    if (error.code === 'auth/invalid-credential') {
+                        message = 'Неверный email или пароль';
+                    } else {
+                        message = error.message;
+                    }
+                    
+                    document.getElementById('loginErrorAlert').innerHTML = 
+                        `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                    document.getElementById('loginErrorAlert').style.display = 'flex';
+                }
+            });
+
+            // Сброс пароля
+            document.getElementById('resetPasswordFormElement')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('resetEmail').value.trim();
+                
+                if (!email || !email.includes('@')) {
+                    document.getElementById('resetErrorAlert').innerHTML = 
+                        '<i class="fas fa-exclamation-circle"></i> Введите корректный email';
+                    document.getElementById('resetErrorAlert').style.display = 'flex';
+                    return;
+                }
+                
+                showLoading('Отправка письма...');
+                
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    hideLoading();
+                    
+                    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                    document.getElementById('resetSuccessScreen').classList.add('active');
+                    document.getElementById('resetSuccessMessage').textContent = 
+                        `Ссылка для сброса пароля отправлена на ${email}`;
+                } catch (error) {
+                    hideLoading();
+                    
+                    let message = 'Ошибка отправки';
+                    if (error.code === 'auth/user-not-found') {
+                        message = 'Пользователь с таким email не найден';
+                    } else {
+                        message = error.message;
+                    }
+                    
+                    document.getElementById('resetErrorAlert').innerHTML = 
+                        `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                    document.getElementById('resetErrorAlert').style.display = 'flex';
+                }
+            });
+
+            // Переход к входу после регистрации
+            document.getElementById('goToLoginBtn')?.addEventListener('click', function() {
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('formTitle').textContent = 'Войти в аккаунт';
+                document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
+            });
+        }
+    </script>
 </body>
 </html>
