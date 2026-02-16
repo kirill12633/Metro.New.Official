@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Метро New - Регистрация</title>
+    <title>Метро New - Регистрация и вход</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ========== ОСНОВНЫЕ СТИЛИ ========== */
         :root {
             --primary: #0066CC;
             --primary-dark: #0052a3;
@@ -31,6 +32,7 @@
             font-family: 'Montserrat', sans-serif;
             min-height: 100vh;
             background: #f8f9fa;
+            color: var(--dark);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,6 +73,7 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            font-size: 1.2rem;
         }
         
         .logo-text { font-size: 1.5rem; font-weight: 700; }
@@ -168,6 +171,7 @@
             border-radius: var(--radius-sm);
             font-size: 0.9375rem;
             font-family: 'Montserrat', sans-serif;
+            transition: border-color 0.2s;
         }
         
         .form-input:focus {
@@ -198,8 +202,14 @@
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-sm);
             font-size: 0.9375rem;
+            font-family: 'Montserrat', sans-serif;
             background: var(--light);
             cursor: pointer;
+        }
+        
+        .birthday-select:focus {
+            outline: none;
+            border-color: var(--primary);
         }
         
         .password-wrapper { position: relative; }
@@ -213,6 +223,7 @@
             border: none;
             color: var(--gray);
             cursor: pointer;
+            padding: 4px;
         }
         
         .btn {
@@ -220,8 +231,10 @@
             border-radius: var(--radius-sm);
             font-size: 0.9375rem;
             font-weight: 500;
+            font-family: 'Montserrat', sans-serif;
             cursor: pointer;
             border: none;
+            transition: background-color 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -230,9 +243,12 @@
         
         .btn-block { width: 100%; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-secondary { background: var(--gray-light); color: var(--dark); border: 1px solid var(--gray-border); }
+        .btn-secondary:hover { background: #e9ecef; }
         .btn-google { background: white; color: var(--dark); border: 1px solid var(--gray-border); }
+        .btn-google:hover { background: var(--gray-light); }
         
         .step-navigation {
             display: flex;
@@ -247,6 +263,7 @@
             align-items: center;
             margin: 20px 0;
             color: var(--gray);
+            font-size: 0.875rem;
         }
         
         .divider::before, .divider::after {
@@ -266,8 +283,9 @@
             padding: 12px 16px;
             border-radius: var(--radius-sm);
             margin-bottom: 16px;
+            font-size: 0.875rem;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
         }
         
@@ -287,6 +305,12 @@
             background: rgba(0,102,204,0.1);
             color: var(--primary);
             border: 1px solid rgba(0,102,204,0.2);
+        }
+        
+        .alert-warning {
+            background: rgba(251,188,4,0.1);
+            color: var(--warning);
+            border: 1px solid rgba(251,188,4,0.2);
         }
         
         .loading {
@@ -330,7 +354,7 @@
             color: var(--success);
         }
         
-        .success-text { color: var(--gray); margin-bottom: 24px; }
+        .success-text { color: var(--gray); margin-bottom: 24px; line-height: 1.5; }
         
         .age-restriction { text-align: center; padding: 40px 24px; }
         
@@ -354,7 +378,32 @@
             color: var(--warning);
         }
         
-        .age-text { color: var(--gray); margin-bottom: 8px; }
+        .age-text { color: var(--gray); margin-bottom: 8px; line-height: 1.6; }
+        
+        .auth-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
         
         @media (max-width: 480px) {
             .auth-card { border: none; box-shadow: none; background: transparent; }
@@ -373,7 +422,11 @@
                 --gray-border: #5f6368;
             }
             body { background: #1a1a1a; }
-            .form-input, .birthday-select { background: #292a2d; color: var(--dark); }
+            .form-input, .birthday-select, .btn-secondary, .btn-google {
+                background: #292a2d;
+                color: var(--dark);
+                border-color: var(--gray-border);
+            }
         }
     </style>
 </head>
@@ -390,8 +443,9 @@
             </div>
             
             <div class="auth-body">
-                <!-- РЕГИСТРАЦИЯ -->
+                <!-- ========== РЕГИСТРАЦИЯ ========== -->
                 <div class="form-container active" id="registerForm">
+                    <!-- Прогресс-бар -->
                     <div class="registration-progress">
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill" style="width: 33%"></div>
@@ -412,7 +466,7 @@
                         </div>
                     </div>
                     
-                    <!-- ШАГ 1 -->
+                    <!-- ШАГ 1: Основная информация -->
                     <div class="registration-step active" id="step1">
                         <form id="step1Form">
                             <div class="form-group">
@@ -468,7 +522,7 @@
                         </form>
                     </div>
                     
-                    <!-- ШАГ 2 -->
+                    <!-- ШАГ 2: Email и пароль -->
                     <div class="registration-step" id="step2">
                         <form id="step2Form">
                             <div class="form-group">
@@ -506,7 +560,7 @@
                         </form>
                     </div>
                     
-                    <!-- ШАГ 3 -->
+                    <!-- ШАГ 3: Подтверждение -->
                     <div class="registration-step" id="step3">
                         <form id="step3Form">
                             <div class="form-group">
@@ -548,11 +602,11 @@
                     
                     <div class="auth-links" id="registerLinks">
                         <span style="color: var(--gray);">Уже есть аккаунт?</span>
-                        <a href="#" class="auth-link" id="showLoginLink">Войти</a>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="auth-link">Войти</a>
                     </div>
                 </div>
                 
-                <!-- ВХОД -->
+                <!-- ========== ВХОД ========== -->
                 <div class="form-container" id="loginForm">
                     <form id="loginFormElement">
                         <div class="form-group">
@@ -589,11 +643,11 @@
                     
                     <div class="auth-links">
                         <span style="color: var(--gray);">Нет аккаунта?</span>
-                        <a href="#" class="auth-link" id="showRegisterLink">Создать аккаунт</a>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="auth-link">Создать аккаунт</a>
                     </div>
                 </div>
                 
-                <!-- СБРОС ПАРОЛЯ -->
+                <!-- ========== СБРОС ПАРОЛЯ ========== -->
                 <div class="form-container" id="resetPasswordForm">
                     <form id="resetPasswordFormElement">
                         <div class="form-group">
@@ -613,7 +667,7 @@
                     </form>
                 </div>
                 
-                <!-- ЗАГРУЗКА -->
+                <!-- ========== ЗАГРУЗКА ========== -->
                 <div class="form-container" id="loadingScreen">
                     <div class="loading">
                         <div class="loading-spinner"></div>
@@ -621,7 +675,7 @@
                     </div>
                 </div>
                 
-                <!-- ВОЗРАСТНОЕ ОГРАНИЧЕНИЕ -->
+                <!-- ========== ВОЗРАСТНОЕ ОГРАНИЧЕНИЕ ========== -->
                 <div class="form-container" id="ageRestrictionScreen">
                     <div class="age-restriction">
                         <div class="age-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -644,7 +698,7 @@
                     </div>
                 </div>
                 
-                <!-- УСПЕХ -->
+                <!-- ========== УСПЕШНАЯ РЕГИСТРАЦИЯ ========== -->
                 <div class="form-container" id="successScreen">
                     <div class="success-screen">
                         <div class="success-icon"><i class="fas fa-check"></i></div>
@@ -661,13 +715,13 @@
                                 <i class="fas fa-redo"></i> <span id="resendTimerText">Отправить повторно</span>
                             </button>
                         </div>
-                        <button class="btn btn-primary btn-block" id="goToLoginBtn">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" style="text-decoration: none;">
                             <i class="fas fa-sign-in-alt"></i> Перейти к входу
-                        </button>
+                        </a>
                     </div>
                 </div>
                 
-                <!-- СБРОС УСПЕХ -->
+                <!-- ========== СБРОС УСПЕХ ========== -->
                 <div class="form-container" id="resetSuccessScreen">
                     <div class="success-screen">
                         <div class="success-icon"><i class="fas fa-envelope"></i></div>
@@ -675,18 +729,19 @@
                         <p class="success-text" id="resetSuccessMessage">
                             Ссылка для сброса пароля отправлена на ваш email
                         </p>
-                        <button class="btn btn-primary btn-block" id="backToLoginFromResetBtn">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" style="text-decoration: none;">
                             <i class="fas fa-arrow-left"></i> Вернуться к входу
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
             
+            <!-- ========== ФУТЕР ========== -->
             <div class="auth-footer">
                 <div id="copyrightYear"></div>
                 <div class="footer-links">
                     <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" target="_blank" class="footer-link">Помощь</a>
-                    <a href="https://kirill12633.github.io/support.metro.new/" target="_blank" class="footer-link">Поддержка</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/support" target="_blank" class="footer-link">Поддержка</a>
                 </div>
             </div>
         </div>
@@ -694,7 +749,7 @@
 
     <script type="module">
         // ============================================
-        // FIREBASE С App Check
+        // FIREBASE ИМПОРТЫ
         // ============================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { 
@@ -718,7 +773,9 @@
             ReCaptchaV3Provider 
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check.js";
 
-        // Конфигурация
+        // ============================================
+        // КОНФИГУРАЦИЯ FIREBASE
+        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
             authDomain: "metro-new-85226.firebaseapp.com",
@@ -742,10 +799,15 @@
         const googleProvider = new GoogleAuthProvider();
 
         // ============================================
-        // ОСНОВНОЙ КОД
+        // ОСНОВНЫЕ ПЕРЕМЕННЫЕ
         // ============================================
         let currentStep = 1;
+        let resendTimer = 60;
+        let resendInterval = null;
 
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Система запущена с App Check');
             fillDateSelectors();
@@ -753,6 +815,9 @@
             updateCopyrightYear();
         });
 
+        // ============================================
+        // ЗАПОЛНЕНИЕ ДАТ
+        // ============================================
         function fillDateSelectors() {
             const daySelect = document.getElementById('birthDay');
             const yearSelect = document.getElementById('birthYear');
@@ -780,12 +845,18 @@
             console.log('✅ Даты загружены');
         }
 
+        // ============================================
+        // ОБНОВЛЕНИЕ КОПИРАЙТА
+        // ============================================
         function updateCopyrightYear() {
             const year = new Date().getFullYear();
             const el = document.getElementById('copyrightYear');
             if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
         }
 
+        // ============================================
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ============================================
         function calculateAge(day, month, year) {
             const today = new Date();
             const birthDate = new Date(year, month - 1, day);
@@ -817,6 +888,24 @@
             }
         }
 
+        function showLoginError(message) {
+            const alert = document.getElementById('loginErrorAlert');
+            if (alert) {
+                alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
+                alert.style.display = 'flex';
+                setTimeout(() => alert.style.display = 'none', 5000);
+            }
+        }
+
+        function showResetError(message) {
+            const alert = document.getElementById('resetErrorAlert');
+            if (alert) {
+                alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
+                alert.style.display = 'flex';
+                setTimeout(() => alert.style.display = 'none', 5000);
+            }
+        }
+
         function showSuccess(message) {
             const alert = document.createElement('div');
             alert.className = 'alert alert-success';
@@ -825,6 +914,9 @@
             setTimeout(() => alert.remove(), 5000);
         }
 
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
+        // ============================================
         function initEventHandlers() {
             // Показать/скрыть пароль
             document.getElementById('togglePassword')?.addEventListener('click', function() {
@@ -832,10 +924,12 @@
                 const icon = this.querySelector('i');
                 if (input.type === 'password') {
                     input.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
                 } else {
                     input.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
                 }
             });
 
@@ -844,10 +938,12 @@
                 const icon = this.querySelector('i');
                 if (input.type === 'password') {
                     input.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
                 } else {
                     input.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
                 }
             });
 
@@ -856,14 +952,16 @@
                 const icon = this.querySelector('i');
                 if (input.type === 'password') {
                     input.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
                 } else {
                     input.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
                 }
             });
 
-            // Шаг 1 -> Шаг 2
+            // ========== ШАГ 1 -> ШАГ 2 ==========
             document.getElementById('nextStep1')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 
@@ -873,25 +971,31 @@
                 const birthMonth = document.getElementById('birthMonth')?.value;
                 const birthYear = document.getElementById('birthYear')?.value;
                 
-                // Валидация
+                // Валидация имени
                 if (!firstName) {
                     document.getElementById('firstNameHint').textContent = 'Введите имя';
                     document.getElementById('firstNameHint').className = 'form-hint error';
                     return;
+                } else {
+                    document.getElementById('firstNameHint').textContent = 'Как к вам обращаться';
+                    document.getElementById('firstNameHint').className = 'form-hint';
                 }
                 
+                // Валидация никнейма
                 if (!username) {
                     document.getElementById('usernameHint').textContent = 'Введите никнейм';
                     document.getElementById('usernameHint').className = 'form-hint error';
                     return;
-                }
-                
-                if (username.length < 3) {
+                } else if (username.length < 3) {
                     document.getElementById('usernameHint').textContent = 'Минимум 3 символа';
                     document.getElementById('usernameHint').className = 'form-hint error';
                     return;
+                } else {
+                    document.getElementById('usernameHint').textContent = 'Будет отображаться другим пользователям';
+                    document.getElementById('usernameHint').className = 'form-hint';
                 }
                 
+                // Валидация даты
                 if (!birthDay || !birthMonth || !birthYear) {
                     document.getElementById('birthDayHint').textContent = 'Выберите дату рождения';
                     document.getElementById('birthDayHint').className = 'form-hint error';
@@ -904,8 +1008,15 @@
                 if (age < 13) {
                     document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
                     document.getElementById('ageRestrictionScreen').classList.add('active');
+                    
+                    const yearsLeft = 13 - age;
+                    let yearWord = 'лет';
+                    if (yearsLeft === 1) yearWord = 'год';
+                    else if (yearsLeft < 5) yearWord = 'года';
+                    
                     document.getElementById('ageRestrictionMessage').innerHTML = 
-                        `Тебе ${age} лет. Регистрация доступна с 13 лет.<br>Вернись через ${13 - age} ${(13-age) === 1 ? 'год' : (13-age) < 5 ? 'года' : 'лет'}`;
+                        `Тебе ${age} лет. Регистрация доступна с 13 лет.<br><br>
+                         <strong>Вернись через ${yearsLeft} ${yearWord}</strong> 😊`;
                     return;
                 }
                 
@@ -913,15 +1024,15 @@
                 document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
                 document.getElementById('step2').classList.add('active');
                 
-                // Обновляем прогресс
                 document.querySelectorAll('.step')[0].classList.add('completed');
                 document.querySelectorAll('.step')[1].classList.add('active');
-                document.getElementById('progressFill').style.width = '66%';
+                document.querySelectorAll('.step')[2].classList.remove('active', 'completed');
                 
+                document.getElementById('progressFill').style.width = '66%';
                 currentStep = 2;
             });
 
-            // Шаг 2 -> Шаг 3
+            // ========== ШАГ 2 -> ШАГ 3 ==========
             document.getElementById('nextStep2')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 
@@ -929,53 +1040,73 @@
                 const password = document.getElementById('password')?.value;
                 const confirmPassword = document.getElementById('confirmPassword')?.value;
                 
-                if (!email || !email.includes('@')) {
+                // Валидация email
+                if (!email) {
+                    document.getElementById('emailHint').textContent = 'Введите email';
+                    document.getElementById('emailHint').className = 'form-hint error';
+                    return;
+                } else if (!email.includes('@') || !email.includes('.')) {
                     document.getElementById('emailHint').textContent = 'Введите корректный email';
                     document.getElementById('emailHint').className = 'form-hint error';
                     return;
+                } else {
+                    document.getElementById('emailHint').textContent = 'Ваш email для входа';
+                    document.getElementById('emailHint').className = 'form-hint';
                 }
                 
-                if (!password || password.length < 6) {
+                // Валидация пароля
+                if (!password) {
+                    document.getElementById('passwordHint').textContent = 'Введите пароль';
+                    document.getElementById('passwordHint').className = 'form-hint error';
+                    return;
+                } else if (password.length < 6) {
                     document.getElementById('passwordHint').textContent = 'Пароль должен быть минимум 6 символов';
                     document.getElementById('passwordHint').className = 'form-hint error';
                     return;
+                } else {
+                    document.getElementById('passwordHint').textContent = 'Минимум 6 символов';
+                    document.getElementById('passwordHint').className = 'form-hint';
                 }
                 
+                // Проверка совпадения паролей
                 if (password !== confirmPassword) {
                     document.getElementById('confirmPasswordHint').textContent = 'Пароли не совпадают';
                     document.getElementById('confirmPasswordHint').className = 'form-hint error';
                     return;
+                } else {
+                    document.getElementById('confirmPasswordHint').textContent = 'Пароли должны совпадать';
+                    document.getElementById('confirmPasswordHint').className = 'form-hint';
                 }
                 
                 // Переход на шаг 3
                 document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
                 document.getElementById('step3').classList.add('active');
                 
-                // Обновляем прогресс
                 document.querySelectorAll('.step')[0].classList.add('completed');
                 document.querySelectorAll('.step')[1].classList.add('completed');
                 document.querySelectorAll('.step')[2].classList.add('active');
-                document.getElementById('progressFill').style.width = '100%';
                 
-                // Показываем данные
+                document.getElementById('progressFill').style.width = '100%';
+                currentStep = 3;
+                
+                // Показываем данные для подтверждения
                 const firstName = document.getElementById('firstName').value;
                 const lastName = document.getElementById('lastName').value;
                 const birthDay = document.getElementById('birthDay').value;
                 const birthMonth = document.getElementById('birthMonth').value;
                 const birthYear = document.getElementById('birthYear').value;
                 
-                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
+                               'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
                 
                 document.getElementById('userDataSummary').innerHTML = `
-                    <div>👤 ${firstName} ${lastName}</div>
+                    <div>👤 <strong>${firstName} ${lastName}</strong> (@${document.getElementById('username').value})</div>
                     <div>📧 ${email}</div>
-                    <div>📅 ${birthDay} ${months[birthMonth-1]} ${birthYear}</div>
+                    <div>📅 ${birthDay} ${months[parseInt(birthMonth)-1]} ${birthYear} (${calculateAge(birthDay, birthMonth, birthYear)} лет)</div>
                 `;
-                
-                currentStep = 3;
             });
 
-            // Кнопки назад
+            // ========== КНОПКИ НАЗАД ==========
             document.getElementById('prevStep2')?.addEventListener('click', function() {
                 document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
                 document.getElementById('step1').classList.add('active');
@@ -983,8 +1114,8 @@
                 document.querySelectorAll('.step')[0].classList.add('active');
                 document.querySelectorAll('.step')[1].classList.remove('active', 'completed');
                 document.querySelectorAll('.step')[2].classList.remove('active', 'completed');
-                document.getElementById('progressFill').style.width = '33%';
                 
+                document.getElementById('progressFill').style.width = '33%';
                 currentStep = 1;
             });
 
@@ -995,19 +1126,19 @@
                 document.querySelectorAll('.step')[0].classList.add('completed');
                 document.querySelectorAll('.step')[1].classList.add('active');
                 document.querySelectorAll('.step')[2].classList.remove('active', 'completed');
-                document.getElementById('progressFill').style.width = '66%';
                 
+                document.getElementById('progressFill').style.width = '66%';
                 currentStep = 2;
             });
 
-            // Отмена
+            // ========== ОТМЕНА РЕГИСТРАЦИИ ==========
             document.getElementById('cancelRegistration')?.addEventListener('click', function() {
                 if (confirm('Отменить регистрацию?')) {
-                    location.reload();
+                    window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
                 }
             });
 
-            // Возрастное ограничение - назад
+            // ========== ВОЗРАСТНОЕ ОГРАНИЧЕНИЕ ==========
             document.getElementById('backFromAgeRestriction')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -1017,10 +1148,10 @@
             });
 
             document.getElementById('goToParentPageBtn')?.addEventListener('click', function() {
-                window.open('https://kirill12633.github.io/Metro.New.Official/ru/parents', '_blank');
+                window.open('https://kirill12633.github.io/Metro.New.Official/ru/help/parents', '_blank');
             });
 
-            // Переключение между формами
+            // ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ФОРМАМИ ==========
             document.getElementById('showLoginLink')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -1055,11 +1186,11 @@
                 document.getElementById('loginForm').classList.add('active');
             });
 
-            // Google авторизация
+            // ========== GOOGLE АВТОРИЗАЦИЯ ==========
             document.getElementById('googleRegisterBtn')?.addEventListener('click', async function() {
                 try {
                     showLoading('Авторизация через Google...');
-                    const result = await signInWithPopup(auth, googleProvider);
+                    await signInWithPopup(auth, googleProvider);
                     hideLoading();
                     showSuccess('Вход выполнен! Перенаправление...');
                     setTimeout(() => {
@@ -1067,14 +1198,15 @@
                     }, 1500);
                 } catch (error) {
                     hideLoading();
-                    showError('Ошибка авторизации: ' + error.message);
+                    console.error('Google auth error:', error);
+                    showError('Ошибка авторизации: ' + (error.message || 'Попробуйте позже'));
                 }
             });
 
             document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
                 try {
                     showLoading('Авторизация через Google...');
-                    const result = await signInWithPopup(auth, googleProvider);
+                    await signInWithPopup(auth, googleProvider);
                     hideLoading();
                     showSuccess('Вход выполнен! Перенаправление...');
                     setTimeout(() => {
@@ -1082,11 +1214,12 @@
                     }, 1500);
                 } catch (error) {
                     hideLoading();
-                    showError('Ошибка авторизации: ' + error.message);
+                    console.error('Google auth error:', error);
+                    showError('Ошибка авторизации: ' + (error.message || 'Попробуйте позже'));
                 }
             });
 
-            // Регистрация
+            // ========== РЕГИСТРАЦИЯ ==========
             document.getElementById('submitRegistration')?.addEventListener('click', async function(e) {
                 e.preventDefault();
                 
@@ -1133,7 +1266,9 @@
                         },
                         age: calculateAge(birthDay, birthMonth, birthYear),
                         createdAt: serverTimestamp(),
-                        agreedToTerms: true
+                        updatedAt: serverTimestamp(),
+                        agreedToTerms: true,
+                        agreedToTermsAt: new Date().toISOString()
                     });
                     
                     hideLoading();
@@ -1146,7 +1281,7 @@
                     
                 } catch (error) {
                     hideLoading();
-                    console.error(error);
+                    console.error('Registration error:', error);
                     
                     let message = 'Ошибка регистрации';
                     if (error.code === 'auth/email-already-in-use') {
@@ -1154,7 +1289,7 @@
                     } else if (error.code === 'auth/invalid-email') {
                         message = 'Неверный формат email';
                     } else if (error.code === 'auth/weak-password') {
-                        message = 'Слишком слабый пароль';
+                        message = 'Слишком слабый пароль (минимум 6 символов)';
                     } else {
                         message = error.message;
                     }
@@ -1167,7 +1302,7 @@
                 }
             });
 
-            // Вход
+            // ========== ВХОД ==========
             document.getElementById('loginFormElement')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -1175,9 +1310,7 @@
                 const password = document.getElementById('loginPassword').value;
                 
                 if (!email || !password) {
-                    document.getElementById('loginErrorAlert').innerHTML = 
-                        '<i class="fas fa-exclamation-circle"></i> Заполните все поля';
-                    document.getElementById('loginErrorAlert').style.display = 'flex';
+                    showLoginError('Заполните все поля');
                     return;
                 }
                 
@@ -1192,30 +1325,33 @@
                     }, 1500);
                 } catch (error) {
                     hideLoading();
+                    console.error('Login error:', error);
                     
                     let message = 'Ошибка входа';
                     if (error.code === 'auth/invalid-credential') {
                         message = 'Неверный email или пароль';
+                    } else if (error.code === 'auth/user-not-found') {
+                        message = 'Пользователь не найден';
+                    } else if (error.code === 'auth/wrong-password') {
+                        message = 'Неверный пароль';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        message = 'Слишком много попыток. Попробуйте позже';
                     } else {
                         message = error.message;
                     }
                     
-                    document.getElementById('loginErrorAlert').innerHTML = 
-                        `<i class="fas fa-exclamation-circle"></i> ${message}`;
-                    document.getElementById('loginErrorAlert').style.display = 'flex';
+                    showLoginError(message);
                 }
             });
 
-            // Сброс пароля
+            // ========== СБРОС ПАРОЛЯ ==========
             document.getElementById('resetPasswordFormElement')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const email = document.getElementById('resetEmail').value.trim();
                 
                 if (!email || !email.includes('@')) {
-                    document.getElementById('resetErrorAlert').innerHTML = 
-                        '<i class="fas fa-exclamation-circle"></i> Введите корректный email';
-                    document.getElementById('resetErrorAlert').style.display = 'flex';
+                    showResetError('Введите корректный email');
                     return;
                 }
                 
@@ -1231,6 +1367,7 @@
                         `Ссылка для сброса пароля отправлена на ${email}`;
                 } catch (error) {
                     hideLoading();
+                    console.error('Password reset error:', error);
                     
                     let message = 'Ошибка отправки';
                     if (error.code === 'auth/user-not-found') {
@@ -1239,18 +1376,41 @@
                         message = error.message;
                     }
                     
-                    document.getElementById('resetErrorAlert').innerHTML = 
-                        `<i class="fas fa-exclamation-circle"></i> ${message}`;
-                    document.getElementById('resetErrorAlert').style.display = 'flex';
+                    showResetError(message);
                 }
             });
 
-            // Переход к входу после регистрации
-            document.getElementById('goToLoginBtn')?.addEventListener('click', function() {
-                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-                document.getElementById('loginForm').classList.add('active');
-                document.getElementById('formTitle').textContent = 'Войти в аккаунт';
-                document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
+            // ========== ПОВТОРНАЯ ОТПРАВКА EMAIL ==========
+            document.getElementById('resendEmailBtn')?.addEventListener('click', async function() {
+                if (!auth.currentUser) return;
+                
+                try {
+                    await sendEmailVerification(auth.currentUser);
+                    showSuccess('Письмо отправлено повторно!');
+                    
+                    // Блокируем кнопку на 60 секунд
+                    const btn = document.getElementById('resendEmailBtn');
+                    const timerText = document.getElementById('resendTimerText');
+                    
+                    btn.disabled = true;
+                    resendTimer = 60;
+                    
+                    if (resendInterval) clearInterval(resendInterval);
+                    
+                    resendInterval = setInterval(() => {
+                        resendTimer--;
+                        timerText.textContent = `Отправить повторно (${resendTimer})`;
+                        
+                        if (resendTimer <= 0) {
+                            clearInterval(resendInterval);
+                            btn.disabled = false;
+                            timerText.textContent = 'Отправить повторно';
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    showError('Не удалось отправить письмо');
+                }
             });
         }
     </script>
