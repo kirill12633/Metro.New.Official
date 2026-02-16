@@ -187,4 +187,37 @@ service cloud.firestore {
     },
 
     // ========== СОЗДАТЬ ПОЛЬЗОВАТЕЛЯ ==========
-    async createUserInFirestore(db, uid, formData, email, ip
+    async createUserInFirestore(db, uid, formData, email, ip) {
+        try {
+            // 1. Публичные данные
+            const publicData = this.getPublicUserData(uid, formData);
+            await setDoc(doc(db, this.collections.USERS_PUBLIC, uid), publicData);
+            
+            // 2. Приватные данные
+            const privateData = this.getPrivateUserData(uid, email, ip);
+            await setDoc(doc(db, this.collections.USERS_PRIVATE, uid), privateData);
+            
+            // 3. Юридические согласия
+            const consentData = this.getLegalConsentData(uid, ip);
+            await setDoc(doc(db, this.collections.LEGAL_CONSENTS, uid), consentData);
+            
+            // 4. Индекс никнейма
+            const indexData = this.getUsernameIndexData(formData.username, uid);
+            await setDoc(doc(db, this.collections.USERNAME_INDEX, formData.username.toLowerCase()), indexData);
+            
+            console.log('✅ Пользователь создан в Firestore');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Ошибка создания в Firestore:', error);
+            throw error;
+        }
+    }
+};
+
+// ========== ЭКСПОРТ ==========
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = FirebaseStructure;
+} else {
+    window.FirebaseStructure = FirebaseStructure;
+}
