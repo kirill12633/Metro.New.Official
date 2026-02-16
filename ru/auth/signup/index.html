@@ -467,14 +467,105 @@
         </div>
     </div>
 
-<!-- ПОДКЛЮЧАЕМ JAVASCRIPT -->
-<script src="js/profanity-filter.js"></script>
-<script src="js/email-blacklist.js"></script>
-<script src="js/age-validator.js"></script>
-<script src="js/notifications.js"></script>
-<script src="js/firebase-structure.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/main.js"></script>
+<!-- ЕДИНЫЙ СКРИПТ АВТОРИЗАЦИИ -->
+<script type="module">
+// ============================================
+// FIREBASE КОНФИГУРАЦИЯ
+// ============================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword,
+    updateProfile,
+    sendEmailVerification,
+    signInWithPopup,
+    GoogleAuthProvider,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+    authDomain: "metro-new-85226.firebaseapp.com",
+    databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+    projectId: "metro-new-85226",
+    storageBucket: "metro-new-85226.firebasestorage.app",
+    messagingSenderId: "905640751733",
+    appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Система запущена');
+    fillDateSelectors();
+    initEventHandlers();
+});
+
+// ========== ЗАПОЛНЕНИЕ ДАТ ==========
+function fillDateSelectors() {
+    const daySelect = document.getElementById('birthDay');
+    const yearSelect = document.getElementById('birthYear');
+    const currentYear = new Date().getFullYear();
+    
+    if (!daySelect || !yearSelect) return;
+    
+    // Очищаем
+    daySelect.innerHTML = '<option value="">День</option>';
+    yearSelect.innerHTML = '<option value="">Год</option>';
+    
+    // Дни (1-31)
+    for (let i = 1; i <= 31; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        daySelect.appendChild(option);
+    }
+    
+    // Годы (текущий - 100 лет)
+    for (let i = currentYear; i >= currentYear - 100; i--) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+    
+    console.log('✅ Даты загружены: с ' + (currentYear - 100) + ' по ' + currentYear);
+}
+
+// ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
+function initEventHandlers() {
+    // Кнопки навигации
+    document.getElementById('nextStep1')?.addEventListener('click', function() {
+        alert('Переход на шаг 2 (временная проверка)');
+    });
+    
+    // Проверка даты рождения
+    document.getElementById('birthDay')?.addEventListener('change', function() {
+        console.log('День выбран:', this.value);
+    });
+    
+    document.getElementById('birthMonth')?.addEventListener('change', function() {
+        console.log('Месяц выбран:', this.value);
+    });
+    
+    document.getElementById('birthYear')?.addEventListener('change', function() {
+        console.log('Год выбран:', this.value);
+    });
+}
+</script>
     
 </body>
 </html>
