@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Метро New - Регистрация и вход</title>
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Наш CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- ОСНОВНАЯ КАРТОЧКА -->
+        <div class="auth-card" id="registerCard">
+            <!-- ХЕДЕР -->
+            <div class="auth-header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h2 class="auth-title" id="formTitle">Создать аккаунт</h2>
+                <p class="auth-subtitle" id="formSubtitle">Для входа в Метро New</p>
+            </div>
+            
+            <!-- ТЕЛО КАРТОЧКИ -->
+            <div class="auth-body">
+                <!-- ФОРМА РЕГИСТРАЦИИ -->
+                <div class="form-container active" id="registerForm">
+                    <!-- ПРОГРЕСС БАР -->
+                    <div class="registration-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 33%"></div>
+                        </div>
+                        <div class="progress-steps">
+                            <div class="step active" data-step="1">
+                                <div class="step-number">1</div>
+                                <span class="step-label">Основное</span>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="step-number">2</div>
+                                <span class="step-label">Дополнительно</span>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="step-number">3</div>
+                                <span class="step-label">Подтверждение</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ШАГ 1: ОСНОВНАЯ ИНФОРМАЦИЯ -->
+                    <div class="registration-step active" id="step1">
+                        <form id="step1Form">
+                            <!-- ИМЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Имя</label>
+                                <input type="text" class="form-input" id="firstName" 
+                                       placeholder="Ваше имя" maxlength="30" required>
+                                <div class="form-hint" id="firstNameHint">
+                                    Как к вам обращаться
+                                </div>
+                            </div>
+                            
+                            <!-- ФАМИЛИЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Фамилия <span class="optional">(опционально)</span></label>
+                                <input type="text" class="form-input" id="lastName" 
+                                       placeholder="Ваша фамилия" maxlength="30">
+                                <div class="form-hint" id="lastNameHint"></div>
+                            </div>
+                            
+                            <!-- НИКНЕЙМ -->
+                            <div class="form-group">
+                                <label class="form-label">Никнейм</label>
+                                <input type="text" class="form-input" id="username" 
+                                       placeholder="Уникальное имя пользователя" maxlength="20" required>
+                                <div class="form-hint" id="usernameHint">
+                                    Будет отображаться другим пользователям
+                                </div>
+                                <div class="username-suggestions" id="usernameSuggestions" style="display: none;">
+                                    <div style="font-size: 0.75rem; color: var(--gray); margin-bottom: 4px;">
+                                        Предложения:
+                                    </div>
+                                    <div class="suggestions-list" id="suggestionsList"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- ДАТА РОЖДЕНИЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Дата рождения</label>
+                                <div class="birthday-group">
+                                    <select class="birthday-select" id="birthDay" required>
+                                        <option value="">День</option>
+                                    </select>
+                                    <select class="birthday-select" id="birthMonth" required>
+                                        <option value="">Месяц</option>
+                                        <option value="1">Январь</option>
+                                        <option value="2">Февраль</option>
+                                        <option value="3">Март</option>
+                                        <option value="4">Апрель</option>
+                                        <option value="5">Май</option>
+                                        <option value="6">Июнь</option>
+                                        <option value="7">Июль</option>
+                                        <option value="8">Август</option>
+                                        <option value="9">Сентябрь</option>
+                                        <option value="10">Октябрь</option>
+                                        <option value="11">Ноябрь</option>
+                                        <option value="12">Декабрь</option>
+                                    </select>
+                                    <select class="birthday-select" id="birthYear" required>
+                                        <option value="">Год</option>
+                                    </select>
+                                </div>
+                                <div class="form-hint" id="birthDayHint">
+                                    Для подтверждения возраста
+                                </div>
+                            </div>
+                            
+                            <!-- КНОПКИ НАВИГАЦИИ -->
+                            <div class="step-navigation">
+                                <button type="button" class="btn btn-secondary" id="cancelRegistration">
+                                    Отмена
+                                </button>
+                                <button type="button" class="btn btn-primary" id="nextStep1">
+                                    Далее
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- ШАГ 2: ПАРОЛЬ И EMAIL -->
+                    <div class="registration-step" id="step2">
+                        <form id="step2Form">
+                            <!-- EMAIL -->
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" id="email" 
+                                       placeholder="your@email.com" required>
+                                <div class="form-hint" id="emailHint">
+                                    Ваш email для входа
+                                </div>
+                            </div>
+                            
+                            <!-- ПАРОЛЬ -->
+                            <div class="form-group">
+                                <label class="form-label">Пароль</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-input" id="password" 
+                                           placeholder="Создайте пароль" required>
+                                    <button type="button" class="toggle-password" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <div class="strength-text" id="strengthText">Введите пароль</div>
+                                </div>
+                                <div class="strength-requirements" id="passwordRequirements">
+                                    <div class="requirement" id="reqLength">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Минимум 8 символов</span>
+                                    </div>
+                                    <div class="requirement" id="reqUppercase">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Заглавная буква</span>
+                                    </div>
+                                    <div class="requirement" id="reqLowercase">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Строчная буква</span>
+                                    </div>
+                                    <div class="requirement" id="reqNumber">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Цифра</span>
+                                    </div>
+                                    <div class="requirement" id="reqSpecial">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Специальный символ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ПОДТВЕРЖДЕНИЕ ПАРОЛЯ -->
+                            <div class="form-group">
+                                <label class="form-label">Подтвердите пароль</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-input" id="confirmPassword" 
+                                           placeholder="Повторите пароль" required>
+                                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-hint" id="confirmPasswordHint">
+                                    Пароли должны совпадать
+                                </div>
+                            </div>
+                            
+                            <!-- КНОПКИ НАВИГАЦИИ -->
+                            <div class="step-navigation">
+                                <button type="button" class="btn btn-secondary" id="prevStep2">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Назад
+                                </button>
+                                <button type="button" class="btn btn-primary" id="nextStep2">
+                                    Далее
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- ШАГ 3: ПОДТВЕРЖДЕНИЕ -->
+                    <div class="registration-step" id="step3">
+                        <form id="step3Form">
+                            <!-- СОГЛАШЕНИЯ -->
+                            <div class="form-group">
+                                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                    <input type="checkbox" id="agreeTerms" required style="margin-top: 3px;">
+                                    <label for="agreeTerms" style="font-size: 0.875rem; color: var(--gray);">
+                                        Я принимаю 
+                                        <a href="#" class="terms-link" style="color: var(--primary); text-decoration: none;">
+                                            Пользовательское соглашение
+                                        </a> 
+                                        и 
+                                        <a href="#" class="privacy-link" style="color: var(--primary); text-decoration: none;">
+                                            Политику конфиденциальности
+                                        </a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- ПРОВЕРКА ДАННЫХ -->
+                            <div class="alert alert-info" id="dataSummary">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <strong>Проверьте ваши данные:</strong>
+                                    <div id="userDataSummary" style="margin-top: 4px; font-size: 0.8125rem;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- СООБЩЕНИЯ -->
+                            <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
+                            
+                            <!-- КНОПКИ -->
+                            <div class="step-navigation">
+                                <button type="button" class="btn btn-secondary" id="prevStep3">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Назад
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitRegistration">
+                                    <i class="fas fa-user-plus"></i>
+                                    Создать аккаунт
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- РАЗДЕЛИТЕЛЬ -->
+                    <div class="divider" id="registerDivider" style="display: none;">
+                        <span>или</span>
+                    </div>
+                    
+                    <!-- GOOGLE -->
+                    <button class="btn btn-google btn-block" id="googleRegisterBtn" style="display: none;">
+                        <i class="fab fa-google"></i>
+                        Продолжить с Google
+                    </button>
+                    
+                    <!-- ССЫЛКА НА ВХОД -->
+                    <div class="auth-links" id="registerLinks" style="display: none;">
+                        <span style="color: var(--gray); font-size: 0.875rem;">
+                            Уже есть аккаунт?
+                        </span>
+                        <a href="#" class="auth-link" id="showLoginLink">Войти</a>
+                    </div>
+                </div>
+                
+                <!-- ФОРМА ВХОДА -->
+                <div class="form-container" id="loginForm">
+                    <form id="loginFormElement">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="loginEmail" 
+                                   placeholder="your@email.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-input" id="loginPassword" 
+                                       placeholder="Ваш пароль" required>
+                                <button type="button" class="toggle-password" id="toggleLoginPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: right; margin-bottom: 16px;">
+                            <a href="#" class="auth-link" id="forgotPasswordLink">Забыли пароль?</a>
+                        </div>
+                        
+                        <div class="alert" id="loginErrorAlert" style="display: none;"></div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Войти
+                        </button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>или</span>
+                    </div>
+                    
+                    <button class="btn btn-google btn-block" id="googleLoginBtn">
+                        <i class="fab fa-google"></i>
+                        Войти с Google
+                    </button>
+                    
+                    <div class="auth-links">
+                        <span style="color: var(--gray); font-size: 0.875rem;">
+                            Нет аккаунта?
+                        </span>
+                        <a href="#" class="auth-link" id="showRegisterLink">Создать аккаунт</a>
+                    </div>
+                </div>
+                
+                <!-- СБРОС ПАРОЛЯ -->
+                <div class="form-container" id="resetPasswordForm">
+                    <form id="resetPasswordFormElement">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="resetEmail" 
+                                   placeholder="your@email.com" required>
+                            <div class="form-hint">Введите email вашего аккаунта</div>
+                        </div>
+                        
+                        <div class="alert" id="resetErrorAlert" style="display: none;"></div>
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-secondary" id="cancelResetBtn">Отмена</button>
+                            <button type="submit" class="btn btn-primary" id="resetPasswordBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                Отправить ссылку
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- ЗАГРУЗКА -->
+                <div class="form-container" id="loadingScreen">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <span id="loadingText">Загрузка...</span>
+                    </div>
+                </div>
+                
+                <!-- БЛОКИРОВКА -13 ЛЕТ -->
+                <div class="form-container" id="ageRestrictionScreen">
+                    <div class="age-restriction">
+                        <div class="age-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="age-title">Регистрация недоступна</h3>
+                        <p class="age-text" id="ageRestrictionMessage">
+                            Для регистрации необходимо быть старше 13 лет.
+                        </p>
+                        <div class="alert alert-warning" style="margin: 20px 0;">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <strong>Важно:</strong><br>
+                                Вернитесь, когда вам исполнится 13 лет
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="goToParentPageBtn">
+                            <i class="fas fa-external-link-alt"></i>
+                            Информация для родителей
+                        </button>
+                        <div class="auth-links" style="margin-top: 16px;">
+                            <a href="#" class="auth-link" id="backFromAgeRestriction">
+                                <i class="fas fa-arrow-left"></i>
+                                Вернуться назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- УСПЕХ -->
+                <div class="form-container" id="successScreen">
+                    <div class="success-screen">
+                        <div class="success-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h3 class="success-title">Аккаунт создан!</h3>
+                        <p class="success-text" id="successMessage">
+                            Проверьте ваш email для подтверждения
+                        </p>
+                        <div class="email-timer" style="margin-bottom: 20px; padding: 10px; background: rgba(0,102,204,0.1); border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                                <i class="fas fa-envelope" style="color: var(--primary);"></i>
+                                <span style="font-size: 0.875rem;">Не получили письмо?</span>
+                            </div>
+                            <button class="btn btn-secondary btn-block" id="resendEmailBtn" style="margin-top: 8px;">
+                                <i class="fas fa-redo"></i>
+                                <span id="resendTimerText">Отправить повторно (60)</span>
+                            </button>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="goToLoginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Перейти к входу
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- СБРОС УСПЕХ -->
+                <div class="form-container" id="resetSuccessScreen">
+                    <div class="success-screen">
+                        <div class="success-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3 class="success-title">Письмо отправлено</h3>
+                        <p class="success-text" id="resetSuccessMessage">
+                            Ссылка для сброса пароля отправлена на ваш email
+                        </p>
+                        <button class="btn btn-primary btn-block" id="backToLoginFromResetBtn">
+                            <i class="fas fa-arrow-left"></i>
+                            Вернуться к входу
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ФУТЕР -->
+            <div class="auth-footer">
+                <div id="copyrightYear">© 2026 Метро New</div>
+                <div class="footer-links">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" 
+                       target="_blank" class="footer-link">Помощь</a>
+                    <a href="https://kirill12633.github.io/support.metro.new/" 
+                       target="_blank" class="footer-link">Поддержка</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- МОДАЛКА ПОЛИТИКИ -->
+    <div class="policy-modal" id="policyModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Политика конфиденциальности</h3>
+                <button class="modal-close" id="closePolicyModal">×</button>
+            </div>
+            <div class="modal-body">
+                <iframe class="modal-iframe" id="policyIframe"></iframe>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="closePolicyModalBtn">Закрыть</button>
+                    <button class="btn btn-primary" id="acceptPolicyBtn">Принять</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОДКЛЮЧАЕМ JAVASCRIPT -->
+    <script src="js/profanity-filter.js"></script>
+    <script src="js/email-blacklist.js"></script>
+    <script src="js/age-validator.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/firebase-structure.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
