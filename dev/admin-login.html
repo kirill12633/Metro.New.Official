@@ -119,8 +119,36 @@
     </div>
 
     <script type="module">
-        import { AdminAuth, ParentalAdmins } from './firebase-config.js';
-        
+        // ===== ВЕСЬ КОД В ОДНОМ ФАЙЛЕ =====
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            query,
+            where,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Функция входа (доступна глобально)
         window.login = async function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -138,11 +166,35 @@
             
             try {
                 console.log('🔐 Пытаемся войти как:', email);
-                await AdminAuth.login(email, password);
-                console.log('✅ Вход успешен!');
                 
-                await ParentalAdmins.updateLastLogin(email);
+                // 1. Вход в Firebase Authentication
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log('✅ Успешный вход в Authentication');
+                
+                // 2. Проверка прав в users_parental
+                const q = query(collection(db, 'users_parental'), where('email', '==', email));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    console.warn('⚠️ Пользователь не найден в users_parental');
+                    await signOut(auth);
+                    error.textContent = 'У вас нет прав доступа';
+                    btn.disabled = false;
+                    btn.innerHTML = 'Войти';
+                    return;
+                }
+                
+                console.log('✅ Права подтверждены');
+                
+                // 3. Обновляем время последнего входа
+                const adminDoc = querySnapshot.docs[0];
+                await updateDoc(doc(db, 'users_parental', adminDoc.id), {
+                    lastLogin: serverTimestamp()
+                });
+                
+                // 4. Перенаправление
                 window.location.href = 'admin-dashboard.html';
+                
             } catch (error) {
                 console.error('❌ Ошибка:', error);
                 
@@ -150,8 +202,6 @@
                     error.textContent = 'Неверный email или пароль';
                 } else if (error.code === 'auth/too-many-requests') {
                     error.textContent = 'Слишком много попыток. Попробуйте позже';
-                } else if (error.code === 'auth/firebase-app-check-token-is-invalid') {
-                    error.textContent = 'Ошибка App Check. Используй debug token (смотри консоль F12)';
                 } else {
                     error.textContent = 'Ошибка: ' + error.message;
                 }
@@ -160,10 +210,10 @@
                 btn.innerHTML = 'Войти';
             }
         };
-        
+
         // Enter для входа
         document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') login();
+            if (e.key === 'Enter') window.login();
         });
     </script>
 </body>
