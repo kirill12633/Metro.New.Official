@@ -1,302 +1,221 @@
-// firebase-config.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    getDoc,
-    doc,
-    updateDoc,
-    deleteDoc,
-    query,
-    where,
-    orderBy,
-    limit,
-    serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { 
-    getAuth, 
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { 
-    initializeAppCheck, 
-    ReCaptchaV3Provider,
-    getToken
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
-    authDomain: "metro-new-admin.firebaseapp.com",
-    projectId: "metro-new-admin",
-    storageBucket: "metro-new-admin.firebasestorage.app",
-    messagingSenderId: "769002010414",
-    appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-};
-
-const app = initializeApp(firebaseConfig);
-
-// ===== APP CHECK с твоим ключом =====
-const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
-    isTokenAutoRefreshEnabled: true
-});
-
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// ===== АВТОРИЗАЦИЯ ДЛЯ СПЕЦ АДМИНОВ =====
-const AdminAuth = {
-    // Вход
-    async login(email, password) {
-        try {
-            // Получаем токен App Check
-            const appCheckToken = await getToken(appCheck);
-            
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            
-            // Проверяем, есть ли пользователь в коллекции users_parental
-            const q = query(collection(db, 'users_parental'), where('email', '==', email));
-            const querySnapshot = await getDocs(q);
-            
-            if (querySnapshot.empty) {
-                await signOut(auth);
-                throw new Error('У вас нет прав доступа');
-            }
-            
-            return userCredential.user;
-        } catch (error) {
-            throw error;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New — Вход для администраторов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    },
-    
-    // Выход
-    async logout() {
-        return await signOut(auth);
-    },
-    
-    // Проверка авторизации
-    onAuth(callback) {
-        return onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Проверяем права
-                const q = query(collection(db, 'users_parental'), where('email', '==', user.email));
-                const querySnapshot = await getDocs(q);
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .login-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .login-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error-message {
+            color: #d93025;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Метро New</h1>
+                <p>Вход для администраторов</p>
+            </div>
+            
+            <div class="login-body">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="admin@metro.new" value="admin@metro.new">
+                </div>
                 
-                if (!querySnapshot.empty) {
-                    const userData = querySnapshot.docs[0].data();
-                    callback({ ...user, role: userData.role, name: userData.name });
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="password" placeholder="••••••••">
+                </div>
+                
+                <button class="btn" id="loginBtn" onclick="login()">
+                    <span>Войти</span>
+                </button>
+                
+                <div class="error-message" id="error"></div>
+                <div class="info-text">Только для сотрудников Метро New</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { AdminAuth, ParentalAdmins } from './firebase-config.js';
+        
+        window.login = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const error = document.getElementById('error');
+            const btn = document.getElementById('loginBtn');
+            
+            if (!email || !password) {
+                error.textContent = 'Введите email и пароль';
+                return;
+            }
+            
+            // Показываем загрузку
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Вход...';
+            error.textContent = '';
+            
+            try {
+                // Пробуем войти
+                await AdminAuth.login(email, password);
+                
+                // Обновляем время входа
+                await ParentalAdmins.updateLastLogin(email);
+                
+                // Перенаправляем в админку
+                window.location.href = 'admin-dashboard.html';
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                // Показываем ошибку
+                if (error.code === 'auth/invalid-credential') {
+                    error.textContent = 'Неверный email или пароль';
+                } else if (error.code === 'auth/too-many-requests') {
+                    error.textContent = 'Слишком много попыток. Попробуйте позже';
                 } else {
-                    callback(null);
+                    error.textContent = 'Ошибка входа. Проверьте данные';
                 }
-            } else {
-                callback(null);
+                
+                // Возвращаем кнопку
+                btn.disabled = false;
+                btn.innerHTML = '<span>Войти</span>';
+            }
+        };
+        
+        // Добавляем обработчик Enter
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
             }
         });
-    }
-};
-
-// ===== ФУНКЦИИ ДЛЯ СТАТЕЙ =====
-const Articles = {
-    // Добавить статью
-    async add(article, author) {
-        return await addDoc(collection(db, 'articles'), {
-            ...article,
-            author: author,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            views: 0,
-            status: article.status || 'published'
-        });
-    },
-    
-    // Получить все статьи
-    async getAll() {
-        const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    },
-    
-    // Получить опубликованные статьи
-    async getPublished() {
-        const q = query(
-            collection(db, 'articles'), 
-            where('status', '==', 'published'),
-            orderBy('createdAt', 'desc')
-        );
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    },
-    
-    // Получить одну статью
-    async get(id) {
-        const docRef = doc(db, 'articles', id);
-        const docSnap = await getDoc(docRef);
-        return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
-    },
-    
-    // Обновить статью
-    async update(id, data) {
-        const docRef = doc(db, 'articles', id);
-        return await updateDoc(docRef, {
-            ...data,
-            updatedAt: serverTimestamp()
-        });
-    },
-    
-    // Удалить статью
-    async delete(id) {
-        return await deleteDoc(doc(db, 'articles', id));
-    }
-};
-
-// ===== ФУНКЦИИ ДЛЯ НОВОСТЕЙ =====
-const News = {
-    async add(news, author) {
-        return await addDoc(collection(db, 'news'), {
-            ...news,
-            author: author,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            views: 0
-        });
-    },
-    
-    async getAll() {
-        const q = query(collection(db, 'news'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    },
-    
-    async get(id) {
-        const docRef = doc(db, 'news', id);
-        const docSnap = await getDoc(docRef);
-        return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
-    },
-    
-    async update(id, data) {
-        const docRef = doc(db, 'news', id);
-        return await updateDoc(docRef, {
-            ...data,
-            updatedAt: serverTimestamp()
-        });
-    },
-    
-    async delete(id) {
-        return await deleteDoc(doc(db, 'news', id));
-    }
-};
-
-// ===== ФУНКЦИИ ДЛЯ ВИДЕО =====
-const Videos = {
-    async add(video, author) {
-        return await addDoc(collection(db, 'videos'), {
-            ...video,
-            author: author,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            views: 0
-        });
-    },
-    
-    async getAll() {
-        const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-};
-
-// ===== ФУНКЦИИ ДЛЯ ЮРИДИЧЕСКИХ ДОКУМЕНТОВ =====
-const Legal = {
-    async add(doc, author) {
-        return await addDoc(collection(db, 'legal'), {
-            ...doc,
-            author: author,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            downloads: 0
-        });
-    },
-    
-    async getAll() {
-        const q = query(collection(db, 'legal'), orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-};
-
-// ===== КАТЕГОРИИ =====
-const Categories = {
-    async getAll() {
-        const snapshot = await getDocs(collection(db, 'categories'));
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-};
-
-// ===== ТЕГИ =====
-const Tags = {
-    async getAll() {
-        const snapshot = await getDocs(collection(db, 'tags'));
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-};
-
-// ===== СПЕЦ АДМИНЫ (users_parental) =====
-const ParentalAdmins = {
-    // Добавить админа
-    async add(admin) {
-        return await addDoc(collection(db, 'users_parental'), {
-            ...admin,
-            createdAt: serverTimestamp(),
-            lastLogin: null
-        });
-    },
-    
-    // Получить всех админов
-    async getAll() {
-        const snapshot = await getDocs(collection(db, 'users_parental'));
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    },
-    
-    // Получить админа по email
-    async getByEmail(email) {
-        const q = query(collection(db, 'users_parental'), where('email', '==', email));
-        const snapshot = await getDocs(q);
-        return snapshot.empty ? null : { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-    },
-    
-    // Обновить данные админа
-    async update(id, data) {
-        const docRef = doc(db, 'users_parental', id);
-        return await updateDoc(docRef, data);
-    },
-    
-    // Удалить админа
-    async delete(id) {
-        return await deleteDoc(doc(db, 'users_parental', id));
-    },
-    
-    // Обновить время последнего входа
-    async updateLastLogin(email) {
-        const admin = await this.getByEmail(email);
-        if (admin) {
-            await this.update(admin.id, { lastLogin: serverTimestamp() });
-        }
-    }
-};
-
-export { 
-    db, 
-    auth,
-    appCheck,
-    AdminAuth,
-    Articles, 
-    News, 
-    Videos, 
-    Legal, 
-    Categories, 
-    Tags,
-    ParentalAdmins 
-};
+    </script>
+</body>
+</html>
