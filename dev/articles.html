@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Метро New — Статьи для родителей</title>
+    <title>Метро New — Юридическая информация</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* СТАРЫЙ ДИЗАЙН */
+        /* Те же стили, что в articles.html */
         :root {
             --primary: #0066CC;
             --primary-dark: #0052a3;
@@ -111,14 +111,14 @@
             border-radius: var(--radius-sm);
         }
         
-        .articles-list {
+        .items-list {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin: 20px 0;
         }
         
-        .article-card {
+        .item-card {
             padding: 20px;
             background: var(--light);
             border: 1px solid var(--gray-border);
@@ -128,30 +128,30 @@
             transition: all 0.2s;
         }
         
-        .article-card:hover {
+        .item-card:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
         
-        .article-card h3 {
+        .item-card h3 {
             font-size: 1.2rem;
             margin-bottom: 8px;
         }
         
-        .article-card p {
+        .item-card p {
             color: var(--gray);
             margin-bottom: 10px;
         }
         
-        .article-meta {
+        .item-meta {
             display: flex;
             gap: 15px;
             color: var(--gray);
             font-size: 0.8rem;
         }
         
-        .article-content {
+        .item-content {
             line-height: 1.8;
             color: var(--dark);
             padding: 20px 0;
@@ -166,22 +166,6 @@
             margin-bottom: 20px;
             color: var(--gray);
             font-size: 0.85rem;
-        }
-        
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 20px 0;
-        }
-        
-        .tag {
-            padding: 4px 12px;
-            background: var(--gray-light);
-            border: 1px solid var(--gray-border);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: var(--gray);
         }
         
         .btn {
@@ -221,6 +205,13 @@
             gap: 16px;
             margin-top: 8px;
         }
+        
+        .pdf-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -242,8 +233,8 @@
                     <div class="logo-icon">M</div>
                     <div class="logo-text">Метро New</div>
                 </div>
-                <h1 id="pageTitle">Статьи для родителей</h1>
-                <p id="pageSubtitle">Полезные текстовые материалы</p>
+                <h1 id="pageTitle">Юридическая информация</h1>
+                <p id="pageSubtitle">Документы и правовая информация</p>
             </div>
             
             <div class="card-body" id="contentContainer">
@@ -271,7 +262,6 @@
             doc, 
             getDoc,
             query,
-            where,
             orderBy
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         
@@ -291,15 +281,15 @@
         
         // Получаем ID из URL
         const urlParams = new URLSearchParams(window.location.search);
-        const articleId = urlParams.get('id');
+        const legalId = urlParams.get('id');
         
         async function loadContent() {
             const container = document.getElementById('contentContainer');
             
-            // Если есть ID - показываем одну статью
-            if (articleId) {
+            // Если есть ID - показываем один документ
+            if (legalId) {
                 try {
-                    const docRef = doc(db, 'articles', articleId);
+                    const docRef = doc(db, 'legal', legalId);
                     const docSnap = await getDoc(docRef);
                     
                     if (docSnap.exists()) {
@@ -311,57 +301,51 @@
                             data.createdAt.toDate().toLocaleDateString() : 
                             new Date().toLocaleDateString();
                         
-                        let tagsHtml = '';
-                        if (data.tags && data.tags.length > 0) {
-                            tagsHtml = `
-                                <div class="tags">
-                                    ${data.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
-                                </div>
-                            `;
-                        }
+                        // Если есть PDF
+                        const pdfHtml = data.file ? `
+                            <div style="margin: 20px 0; padding: 20px; background: var(--gray-light); border-radius: var(--radius-sm); text-align: center;">
+                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--danger); margin-bottom: 10px;"></i>
+                                <p>${data.title}.pdf</p>
+                                <a href="${data.file}" download class="btn btn-outline" style="margin-top: 10px;">
+                                    <i class="fas fa-download"></i> Скачать PDF
+                                </a>
+                            </div>
+                        ` : '';
                         
                         container.innerHTML = `
                             <div class="meta-info">
                                 <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                                <span><i class="far fa-eye"></i> ${data.views || 0} просмотров</span>
+                                <span><i class="fas fa-download"></i> ${data.downloads || 0} скачиваний</span>
                             </div>
-                            <div class="article-content">
+                            ${pdfHtml}
+                            <div class="item-content">
                                 ${data.content || ''}
                             </div>
-                            ${tagsHtml}
                             <div style="text-align: center; margin-top: 30px;">
-                                <a href="?cat=articles" class="btn btn-outline">
+                                <a href="legal.html" class="btn btn-outline">
                                     <i class="fas fa-arrow-left"></i> Назад к списку
                                 </a>
                             </div>
                         `;
-                        
-                        // Увеличиваем счетчик просмотров (опционально)
-                        // await updateDoc(docRef, { views: (data.views || 0) + 1 });
                     } else {
-                        container.innerHTML = '<p>Статья не найдена</p>';
+                        container.innerHTML = '<p>Документ не найден</p>';
                     }
                 } catch (error) {
                     container.innerHTML = '<p>Ошибка загрузки</p>';
                 }
             } 
-            // Иначе показываем список статей
+            // Иначе показываем список документов
             else {
                 try {
-                    const q = query(
-                        collection(db, 'articles'), 
-                        where('status', '==', 'published'),
-                        orderBy('createdAt', 'desc')
-                    );
-                    
+                    const q = query(collection(db, 'legal'), orderBy('createdAt', 'desc'));
                     const querySnapshot = await getDocs(q);
                     
                     if (querySnapshot.empty) {
-                        container.innerHTML = '<p style="text-align: center; padding: 40px;">Пока нет статей</p>';
+                        container.innerHTML = '<p style="text-align: center; padding: 40px;">Пока нет документов</p>';
                         return;
                     }
                     
-                    let html = '<div class="articles-list">';
+                    let html = '<div class="items-list">';
                     querySnapshot.forEach(doc => {
                         const data = doc.data();
                         const date = data.createdAt?.toDate ? 
@@ -369,12 +353,13 @@
                             new Date().toLocaleDateString();
                         
                         html += `
-                            <a href="?id=${doc.id}" class="article-card">
+                            <a href="?id=${doc.id}" class="item-card">
                                 <h3>${data.title}</h3>
                                 <p>${data.description || ''}</p>
-                                <div class="article-meta">
+                                <div class="item-meta">
                                     <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                                    <span><i class="far fa-eye"></i> ${data.views || 0}</span>
+                                    <span class="pdf-icon"><i class="fas fa-file-pdf"></i> PDF</span>
+                                    <span><i class="fas fa-download"></i> ${data.downloads || 0}</span>
                                 </div>
                             </a>
                         `;
