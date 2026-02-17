@@ -1,4 +1,7 @@
 // firebase-config.js
+// ===== DEBUG РЕЖИМ ДЛЯ APP CHECK =====
+window.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { 
     getFirestore, 
@@ -12,7 +15,6 @@ import {
     query,
     where,
     orderBy,
-    limit,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { 
@@ -21,6 +23,11 @@ import {
     signOut,
     onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { 
+    initializeAppCheck, 
+    ReCaptchaV3Provider,
+    getToken
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
@@ -32,41 +39,62 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// ===== APP CHECK С DEBUG РЕЖИМОМ =====
+let appCheck;
+try {
+    appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
+        isTokenAutoRefreshEnabled: true
+    });
+    
+    // Проверяем токен
+    getToken(appCheck, true).then(token => {
+        console.log('✅ App Check token:', token);
+    }).catch(error => {
+        console.warn('⚠️ App Check error:', error);
+    });
+} catch (error) {
+    console.warn('⚠️ App Check init error:', error);
+}
+
 const db = getFirestore(app);
 const auth = getAuth(app);
 
 // ===== АВТОРИЗАЦИЯ ДЛЯ СПЕЦ АДМИНОВ =====
 const AdminAuth = {
-    // Вход
     async login(email, password) {
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log('🔐 Пытаемся войти:', email);
             
-            // Проверяем, есть ли пользователь в коллекции users_parental
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log('✅ Успешный вход в Authentication');
+            
+            // Проверяем права в базе
             const q = query(collection(db, 'users_parental'), where('email', '==', email));
             const querySnapshot = await getDocs(q);
             
             if (querySnapshot.empty) {
+                console.warn('⚠️ Пользователь не найден в users_parental');
                 await signOut(auth);
                 throw new Error('У вас нет прав доступа');
             }
             
+            console.log('✅ Права подтверждены');
             return userCredential.user;
         } catch (error) {
+            console.error('❌ Ошибка входа:', error);
             throw error;
         }
     },
     
-    // Выход
     async logout() {
         return await signOut(auth);
     },
     
-    // Проверка авторизации
     onAuth(callback) {
         return onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Проверяем права
                 const q = query(collection(db, 'users_parental'), where('email', '==', user.email));
                 const querySnapshot = await getDocs(q);
                 
@@ -85,7 +113,6 @@ const AdminAuth = {
 
 // ===== ФУНКЦИИ ДЛЯ СТАТЕЙ =====
 const Articles = {
-    // Добавить статью
     async add(article, author) {
         return await addDoc(collection(db, 'articles'), {
             ...article,
@@ -97,14 +124,12 @@ const Articles = {
         });
     },
     
-    // Получить все статьи
     async getAll() {
         const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
     
-    // Получить опубликованные статьи
     async getPublished() {
         const q = query(
             collection(db, 'articles'), 
@@ -115,14 +140,12 @@ const Articles = {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
     
-    // Получить одну статью
     async get(id) {
         const docRef = doc(db, 'articles', id);
         const docSnap = await getDoc(docRef);
         return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
     },
     
-    // Обновить статью
     async update(id, data) {
         const docRef = doc(db, 'articles', id);
         return await updateDoc(docRef, {
@@ -131,20 +154,8 @@ const Articles = {
         });
     },
     
-    // Удалить статью
     async delete(id) {
         return await deleteDoc(doc(db, 'articles', id));
-    },
-    
-    // Поиск по тегам
-    async getByTag(tag) {
-        const q = query(
-            collection(db, 'articles'),
-            where('tags', 'array-contains', tag),
-            orderBy('createdAt', 'desc')
-        );
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
 };
 
@@ -206,9 +217,9 @@ const Videos = {
 
 // ===== ФУНКЦИИ ДЛЯ ЮРИДИЧЕСКИХ ДОКУМЕНТОВ =====
 const Legal = {
-    async add(doc, author) {
+    async add(legalDoc, author) {
         return await addDoc(collection(db, 'legal'), {
-            ...doc,
+            ...legalDoc,
             author: author,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
@@ -223,54 +234,8 @@ const Legal = {
     }
 };
 
-// ===== КАТЕГОРИИ (ФИКСИРОВАННЫЕ) =====
-const Categories = {
-    async init() {
-        const categories = [
-            { id: 'articles', name: 'Статьи', icon: 'fa-newspaper', color: '#0066CC', order: 1 },
-            { id: 'news', name: 'Новости', icon: 'fa-bullhorn', color: '#ffc107', order: 2 },
-            { id: 'videos', name: 'Видео', icon: 'fa-youtube', color: '#ff0000', order: 3 },
-            { id: 'legal', name: 'Юридическое', icon: 'fa-gavel', color: '#6c757d', order: 4 }
-        ];
-        
-        for (const cat of categories) {
-            const docRef = doc(db, 'categories', cat.id);
-            await setDoc(docRef, cat);
-        }
-    },
-    
-    async getAll() {
-        const snapshot = await getDocs(collection(db, 'categories'));
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-};
-
-// ===== ТЕГИ =====
-const Tags = {
-    async add(tag) {
-        const docRef = doc(db, 'tags', tag.id);
-        return await setDoc(docRef, tag);
-    },
-    
-    async getAll() {
-        const snapshot = await getDocs(collection(db, 'tags'));
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    },
-    
-    async increment(tagId) {
-        const docRef = doc(db, 'tags', tagId);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            const count = docSnap.data().count || 0;
-            await updateDoc(docRef, { count: count + 1 });
-        }
-    }
-};
-
 // ===== СПЕЦ АДМИНЫ (users_parental) =====
 const ParentalAdmins = {
-    // Добавить админа
     async add(admin) {
         return await addDoc(collection(db, 'users_parental'), {
             ...admin,
@@ -279,31 +244,26 @@ const ParentalAdmins = {
         });
     },
     
-    // Получить всех админов
     async getAll() {
         const snapshot = await getDocs(collection(db, 'users_parental'));
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
     
-    // Получить админа по email
     async getByEmail(email) {
         const q = query(collection(db, 'users_parental'), where('email', '==', email));
         const snapshot = await getDocs(q);
         return snapshot.empty ? null : { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
     },
     
-    // Обновить данные админа
     async update(id, data) {
         const docRef = doc(db, 'users_parental', id);
         return await updateDoc(docRef, data);
     },
     
-    // Удалить админа
     async delete(id) {
         return await deleteDoc(doc(db, 'users_parental', id));
     },
     
-    // Обновить время последнего входа
     async updateLastLogin(email) {
         const admin = await this.getByEmail(email);
         if (admin) {
@@ -315,12 +275,11 @@ const ParentalAdmins = {
 export { 
     db, 
     auth,
+    appCheck,
     AdminAuth,
     Articles, 
     News, 
     Videos, 
     Legal, 
-    Categories, 
-    Tags,
     ParentalAdmins 
 };
