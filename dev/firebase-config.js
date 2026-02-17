@@ -1,5 +1,5 @@
 // firebase-config.js
-// ===== DEBUG РЕЖИМ ДЛЯ APP CHECK =====
+// ===== ВКЛЮЧАЕМ DEBUG РЕЖИМ (ВАЖНО!) =====
 window.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
@@ -48,9 +48,15 @@ try {
         isTokenAutoRefreshEnabled: true
     });
     
-    // Проверяем токен
-    getToken(appCheck, true).then(token => {
-        console.log('✅ App Check token:', token);
+    // Получаем debug токен
+    getToken(appCheck).then((token) => {
+        console.log('=================================');
+        console.log('🔑 DEBUG TOKEN (скопируй это):');
+        console.log('%c' + token, 'font-size: 16px; color: green; font-weight: bold;');
+        console.log('=================================');
+        console.log('📝 Добавь этот токен в Firebase Console:');
+        console.log('App Check → Manage debug tokens → Add debug token');
+        console.log('=================================');
     }).catch(error => {
         console.warn('⚠️ App Check error:', error);
     });
