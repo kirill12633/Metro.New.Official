@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -20,6 +21,7 @@
         }
         .container { max-width: 1200px; margin: 0 auto; }
         
+        /* Шапка */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
@@ -44,6 +46,7 @@
         }
         .logout-btn:hover { background: rgba(255,255,255,0.3); }
         
+        /* Статистика */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -51,15 +54,16 @@
             margin-bottom: 30px;
         }
         .stat-card {
-            background: white;
-            border: 1px solid #ddd;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .stat-card h3 { color: #666; font-size: 0.9rem; margin-bottom: 10px; }
-        .stat-card .number { font-size: 2rem; font-weight: 600; color: #667eea; }
+        .stat-card h3 { color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 10px; }
+        .stat-card .number { font-size: 2rem; font-weight: 600; }
         
+        /* Вкладки */
         .tabs {
             display: flex;
             gap: 10px;
@@ -67,27 +71,31 @@
             flex-wrap: wrap;
         }
         .tab {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: white;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: all 0.2s;
         }
+        .tab:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .tab.active {
             background: #667eea;
             color: white;
             border-color: #667eea;
         }
         
+        /* Контент */
         .content-panel {
             background: white;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .panel-header {
             display: flex;
@@ -97,18 +105,34 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #ddd;
         }
-        .add-btn {
-            background: #28a745;
-            color: white;
+        
+        /* Кнопки */
+        .btn {
+            padding: 10px 20px;
             border: none;
-            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #d93025;
+            color: white;
         }
         
+        /* Список элементов */
         .items-list { display: flex; flex-direction: column; gap: 10px; }
         .item-row {
             display: flex;
@@ -117,26 +141,59 @@
             padding: 15px;
             background: #f8f9fa;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            animation: slideIn 0.3s ease;
+        }
+        .item-row:hover {
+            transform: translateX(5px);
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.2);
         }
         .item-actions { display: flex; gap: 8px; }
-        .edit-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
+        
+        /* Шаблоны */
+        .templates-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
         }
-        .delete-btn {
-            background: #d93025;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .template-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .template-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .template-desc {
+            font-size: 0.8rem;
+            color: #666;
         }
         
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -154,43 +211,130 @@
             background: white;
             border-radius: 8px;
             padding: 30px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
         }
         .close-btn {
             background: none;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
+            color: #666;
         }
+        .close-btn:hover { color: #333; }
         
-        .form-group { margin-bottom: 15px; }
+        /* Формы */
+        .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
+            color: #333;
         }
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
         .form-group textarea { min-height: 150px; resize: vertical; }
         
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        /* Подсказки */
+        .hint {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .hint i { color: #667eea; }
+        
+        /* Предпросмотр */
+        .preview-panel {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .preview-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .live-preview {
+            min-height: 100px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+        
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Анимации */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         @media (max-width: 700px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -243,11 +387,20 @@
             </button>
         </div>
         
+        <!-- ШАБЛОНЫ -->
+        <div class="templates-section" id="templatesSection">
+            <h3 style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-magic" style="color: #667eea;"></i>
+                Быстрые шаблоны для текущей категории
+            </h3>
+            <div class="templates-grid" id="templatesGrid"></div>
+        </div>
+        
         <!-- КОНТЕНТ -->
-        <div class="content-panel" id="contentPanel">
+        <div class="content-panel">
             <div class="panel-header">
                 <h2 id="panelTitle">Статьи</h2>
-                <button class="add-btn" onclick="showAddModal()">
+                <button class="btn btn-success" onclick="showAddModal()">
                     <i class="fas fa-plus"></i> Добавить
                 </button>
             </div>
@@ -265,40 +418,89 @@
             
             <div class="form-group">
                 <label>Заголовок</label>
-                <input type="text" id="editTitle">
+                <input type="text" id="editTitle" placeholder="Введите заголовок">
             </div>
             
             <div class="form-group">
                 <label>Краткое описание</label>
-                <input type="text" id="editDesc">
+                <input type="text" id="editDesc" placeholder="Кратко о чём материал">
+            </div>
+            
+            <!-- Дополнительные поля для видео -->
+            <div id="videoFields" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>YouTube ID</label>
+                        <input type="text" id="youtubeId" placeholder="dQw4w9WgXcQ">
+                        <div class="hint">
+                            <i class="fas fa-info-circle"></i>
+                            ID из ссылки: https://youtu.be/<b>dQw4w9WgXcQ</b>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Длительность</label>
+                        <input type="text" id="duration" placeholder="5:30">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Дополнительные поля для PDF -->
+            <div id="pdfFields" style="display: none;">
+                <div class="form-group">
+                    <label>Ссылка на PDF</label>
+                    <input type="url" id="pdfLink" placeholder="https://.../document.pdf">
+                    <div class="hint">
+                        <i class="fas fa-info-circle"></i>
+                        Загрузи PDF на сайт и укажи ссылку
+                    </div>
+                </div>
             </div>
             
             <div class="form-group">
                 <label>Содержание</label>
-                <textarea id="editContent"></textarea>
+                <textarea id="editContent" placeholder="Полный текст материала..."></textarea>
             </div>
             
-            <div class="form-group">
-                <label>Теги (через запятую)</label>
-                <input type="text" id="editTags" placeholder="безопасность, настройки">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Теги (через запятую)</label>
+                    <input type="text" id="editTags" placeholder="безопасность, настройки">
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="editStatus">
+                        <option value="published">Опубликовано</option>
+                        <option value="draft">Черновик</option>
+                    </select>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label>Статус</label>
-                <select id="editStatus">
-                    <option value="published">Опубликовано</option>
-                    <option value="draft">Черновик</option>
-                </select>
+            <!-- Предпросмотр -->
+            <div class="preview-panel">
+                <div class="preview-title">
+                    <i class="fas fa-eye"></i>
+                    Предпросмотр
+                </div>
+                <div class="live-preview" id="livePreview">
+                    <h3 id="previewTitle"></h3>
+                    <p id="previewDesc"></p>
+                    <div id="previewContent"></div>
+                </div>
             </div>
             
-            <button class="add-btn" onclick="saveItem()" style="width: 100%;">
-                <i class="fas fa-save"></i> Сохранить
-            </button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveItem()" style="flex: 2;">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+                <button class="btn btn-danger" onclick="closeModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Отмена
+                </button>
+            </div>
         </div>
     </div>
 
     <script type="module">
-        // ===== ИМПОРТЫ FIREBASE =====
+        // Импорты Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { 
             getFirestore, 
@@ -310,7 +512,6 @@
             updateDoc,
             deleteDoc,
             query,
-            where,
             orderBy,
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -320,7 +521,6 @@
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-        // ===== КОНФИГУРАЦИЯ =====
         const firebaseConfig = {
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
@@ -334,45 +534,199 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // ===== ПЕРЕМЕННЫЕ СОСТОЯНИЯ =====
+        // Переменные состояния
         let currentUser = null;
         let currentTab = 'articles';
         let currentEditId = null;
 
-        // ===== ПРОВЕРКА АВТОРИЗАЦИИ =====
+        // Шаблоны для каждой категории
+        const templates = {
+            articles: [
+                {
+                    icon: 'fa-file-alt',
+                    title: 'Информационная статья',
+                    desc: 'Обычная статья с заголовком и текстом',
+                    fields: {
+                        title: 'Как защитить ребёнка в интернете',
+                        desc: 'Простые правила для родителей',
+                        content: '<h2>Основные правила безопасности</h2><p>1. Никогда не сообщай пароль</p><p>2. Не общайся с незнакомцами</p>'
+                    }
+                },
+                {
+                    icon: 'fa-list',
+                    title: 'Список правил',
+                    desc: 'Статья в виде нумерованного списка',
+                    fields: {
+                        title: '10 правил безопасности',
+                        desc: 'Памятка для детей',
+                        content: '<ol><li>Правило 1</li><li>Правило 2</li><li>Правило 3</li></ol>'
+                    }
+                },
+                {
+                    icon: 'fa-question-circle',
+                    title: 'FAQ',
+                    desc: 'Часто задаваемые вопросы',
+                    fields: {
+                        title: 'Частые вопросы родителей',
+                        desc: 'Ответы на популярные вопросы',
+                        content: '<h3>Вопрос 1?</h3><p>Ответ...</p><h3>Вопрос 2?</h3><p>Ответ...</p>'
+                    }
+                }
+            ],
+            news: [
+                {
+                    icon: 'fa-bullhorn',
+                    title: 'Обычная новость',
+                    desc: 'Простое объявление',
+                    fields: {
+                        title: 'Обновление платформы',
+                        desc: 'Что нового в Метро New',
+                        content: 'Мы добавили новые функции...'
+                    }
+                },
+                {
+                    icon: 'fa-exclamation-triangle',
+                    title: 'Важное объявление',
+                    desc: 'Срочная информация',
+                    fields: {
+                        title: '⚠️ ВАЖНО: Изменения в правилах',
+                        desc: 'Обратите внимание',
+                        content: 'С 1 марта вступают в силу новые правила...'
+                    }
+                }
+            ],
+            videos: [
+                {
+                    icon: 'fa-youtube',
+                    title: 'Обучающее видео',
+                    desc: 'YouTube инструкция',
+                    fields: {
+                        title: 'Как настроить родительский контроль',
+                        desc: 'Видеоинструкция',
+                        content: 'В этом видео мы покажем...',
+                        youtubeId: 'dQw4w9WgXcQ',
+                        duration: '5:30'
+                    }
+                },
+                {
+                    icon: 'fa-video',
+                    title: 'Короткий ролик',
+                    desc: 'Краткий совет',
+                    fields: {
+                        title: 'Совет за минуту',
+                        desc: 'Коротко о главном',
+                        content: 'Как быстро защитить ребёнка...',
+                        youtubeId: 'dQw4w9WgXcQ',
+                        duration: '1:00'
+                    }
+                }
+            ],
+            legal: [
+                {
+                    icon: 'fa-file-contract',
+                    title: 'Пользовательское соглашение',
+                    desc: 'Основной документ',
+                    fields: {
+                        title: 'Пользовательское соглашение',
+                        desc: 'Версия 2.1',
+                        content: '1. Общие положения...'
+                    }
+                },
+                {
+                    icon: 'fa-lock',
+                    title: 'Политика конфиденциальности',
+                    desc: 'Как мы защищаем данные',
+                    fields: {
+                        title: 'Политика конфиденциальности',
+                        desc: 'Версия 1.5',
+                        content: 'Мы собираем только необходимые данные...'
+                    }
+                },
+                {
+                    icon: 'fa-child',
+                    title: 'Согласие родителей',
+                    desc: 'Для детей до 13 лет',
+                    fields: {
+                        title: 'Согласие на обработку данных',
+                        desc: 'Для родителей',
+                        content: 'Я, родитель, даю согласие...'
+                    }
+                }
+            ]
+        };
+
+        // Уведомления
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.background = type === 'success' ? '#28a745' : '#d93025';
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Проверка авторизации
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'admin-login.html';
                 return;
             }
-            
-            // Проверяем права в users_parental
-            const q = query(collection(db, 'users_parental'), where('email', '==', user.email));
-            const querySnapshot = await getDocs(q);
-            
-            if (querySnapshot.empty) {
-                await signOut(auth);
-                window.location.href = 'admin-login.html';
-                return;
-            }
-            
-            const userData = querySnapshot.docs[0].data();
-            currentUser = { ...user, role: userData.role, name: userData.name };
-            
+            currentUser = user;
             document.getElementById('welcomeMessage').textContent = 
-                `Здравствуйте, ${userData.name || 'Администратор'}`;
+                `Здравствуйте, ${user.email || 'Администратор'}`;
             
             await loadStats();
             await loadItems(currentTab);
+            loadTemplates();
         });
 
-        // ===== ВЫХОД =====
+        // Выход
         window.logout = async function() {
             await signOut(auth);
             window.location.href = 'admin-login.html';
         };
 
-        // ===== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК =====
+        // Загрузка шаблонов
+        function loadTemplates() {
+            const grid = document.getElementById('templatesGrid');
+            const categoryTemplates = templates[currentTab] || [];
+            
+            grid.innerHTML = categoryTemplates.map(t => `
+                <div class="template-card" onclick="applyTemplate('${currentTab}', ${categoryTemplates.indexOf(t)})">
+                    <div class="template-icon">
+                        <i class="fas ${t.icon}"></i>
+                    </div>
+                    <div class="template-title">${t.title}</div>
+                    <div class="template-desc">${t.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // Применить шаблон
+        window.applyTemplate = function(category, index) {
+            const template = templates[category][index];
+            document.getElementById('editTitle').value = template.fields.title || '';
+            document.getElementById('editDesc').value = template.fields.desc || '';
+            document.getElementById('editContent').value = template.fields.content || '';
+            
+            if (category === 'videos') {
+                document.getElementById('youtubeId').value = template.fields.youtubeId || '';
+                document.getElementById('duration').value = template.fields.duration || '';
+            }
+            
+            if (category === 'legal') {
+                document.getElementById('pdfLink').value = template.fields.file || '';
+            }
+            
+            updatePreview();
+            showToast('Шаблон применён');
+        };
+
+        // Переключение вкладок
         window.switchTab = function(tab) {
             currentTab = tab;
             
@@ -386,10 +740,14 @@
                 tab === 'news' ? 'Новости' :
                 tab === 'videos' ? 'Видео' : 'Юридическое';
             
+            document.getElementById('videoFields').style.display = tab === 'videos' ? 'block' : 'none';
+            document.getElementById('pdfFields').style.display = tab === 'legal' ? 'block' : 'none';
+            
+            loadTemplates();
             loadItems(tab);
         };
 
-        // ===== ЗАГРУЗКА СТАТИСТИКИ =====
+        // Загрузка статистики
         async function loadStats() {
             const articles = await getDocs(collection(db, 'articles'));
             const news = await getDocs(collection(db, 'news'));
@@ -402,9 +760,8 @@
             document.getElementById('legalCount').textContent = legal.size;
         }
 
-        // ===== ЗАГРУЗКА ЭЛЕМЕНТОВ =====
+        // Загрузка элементов
         async function loadItems(tab) {
-            let items = [];
             const q = query(collection(db, tab), orderBy('createdAt', 'desc'));
             const snapshot = await getDocs(q);
             
@@ -419,15 +776,23 @@
                 
                 list.innerHTML += `
                     <div class="item-row">
-                        <div class="item-info">
+                        <div style="flex: 1;">
                             <h4>${data.title || 'Без названия'}</h4>
-                            <p>${data.description || ''} • ${date}</p>
+                            <p style="color: #666; font-size: 0.9rem;">${data.description || ''}</p>
+                            <div style="display: flex; gap: 15px; color: #999; font-size: 0.8rem; margin-top: 5px;">
+                                <span><i class="far fa-calendar-alt"></i> ${date}</span>
+                                <span><i class="far fa-eye"></i> ${data.views || 0}</span>
+                                ${tab === 'videos' && data.duration ? 
+                                    `<span><i class="far fa-clock"></i> ${data.duration}</span>` : ''}
+                                ${tab === 'legal' && data.downloads ? 
+                                    `<span><i class="fas fa-download"></i> ${data.downloads}</span>` : ''}
+                            </div>
                         </div>
                         <div class="item-actions">
-                            <button class="edit-btn" onclick="editItem('${doc.id}')">
+                            <button class="btn btn-primary" onclick="editItem('${doc.id}')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="delete-btn" onclick="deleteItem('${doc.id}')">
+                            <button class="btn btn-danger" onclick="deleteItem('${doc.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -436,7 +801,21 @@
             });
         }
 
-        // ===== МОДАЛЬНОЕ ОКНО =====
+        // Предпросмотр
+        function updatePreview() {
+            document.getElementById('previewTitle').textContent = 
+                document.getElementById('editTitle').value || 'Заголовок';
+            document.getElementById('previewDesc').textContent = 
+                document.getElementById('editDesc').value || 'Описание';
+            document.getElementById('previewContent').innerHTML = 
+                document.getElementById('editContent').value || 'Содержание';
+        }
+
+        document.getElementById('editTitle').addEventListener('input', updatePreview);
+        document.getElementById('editDesc').addEventListener('input', updatePreview);
+        document.getElementById('editContent').addEventListener('input', updatePreview);
+
+        // Показать модальное окно
         window.showAddModal = function() {
             currentEditId = null;
             document.getElementById('modalTitle').textContent = `Добавить ${
@@ -444,14 +823,27 @@
                 currentTab === 'news' ? 'новость' : 
                 currentTab === 'videos' ? 'видео' : 'документ'
             }`;
+            
             document.getElementById('editTitle').value = '';
             document.getElementById('editDesc').value = '';
             document.getElementById('editContent').value = '';
             document.getElementById('editTags').value = '';
             document.getElementById('editStatus').value = 'published';
+            
+            if (currentTab === 'videos') {
+                document.getElementById('youtubeId').value = '';
+                document.getElementById('duration').value = '';
+            }
+            
+            if (currentTab === 'legal') {
+                document.getElementById('pdfLink').value = '';
+            }
+            
+            updatePreview();
             document.getElementById('editModal').classList.add('active');
         };
 
+        // Редактирование
         window.editItem = async function(id) {
             currentEditId = id;
             const docRef = doc(db, currentTab, id);
@@ -465,10 +857,22 @@
                 document.getElementById('editContent').value = data.content || '';
                 document.getElementById('editTags').value = (data.tags || []).join(', ');
                 document.getElementById('editStatus').value = data.status || 'published';
+                
+                if (currentTab === 'videos') {
+                    document.getElementById('youtubeId').value = data.youtubeId || '';
+                    document.getElementById('duration').value = data.duration || '';
+                }
+                
+                if (currentTab === 'legal') {
+                    document.getElementById('pdfLink').value = data.file || '';
+                }
+                
+                updatePreview();
                 document.getElementById('editModal').classList.add('active');
             }
         };
 
+        // Сохранение
         window.saveItem = async function() {
             const data = {
                 title: document.getElementById('editTitle').value,
@@ -479,12 +883,23 @@
                 category: currentTab
             };
             
+            if (currentTab === 'videos') {
+                data.youtubeId = document.getElementById('youtubeId').value;
+                data.duration = document.getElementById('duration').value;
+            }
+            
+            if (currentTab === 'legal') {
+                data.file = document.getElementById('pdfLink').value;
+                data.downloads = 0;
+            }
+            
             try {
                 if (currentEditId) {
                     await updateDoc(doc(db, currentTab, currentEditId), {
                         ...data,
                         updatedAt: serverTimestamp()
                     });
+                    showToast('Обновлено успешно!');
                 } else {
                     await addDoc(collection(db, currentTab), {
                         ...data,
@@ -493,16 +908,18 @@
                         updatedAt: serverTimestamp(),
                         views: 0
                     });
+                    showToast('Добавлено успешно!');
                 }
                 
                 closeModal();
                 await loadItems(currentTab);
                 await loadStats();
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                showToast('Ошибка: ' + error.message, 'error');
             }
         };
 
+        // Удаление
         window.deleteItem = async function(id) {
             if (!confirm('Удалить этот элемент?')) return;
             
@@ -510,8 +927,9 @@
                 await deleteDoc(doc(db, currentTab, id));
                 await loadItems(currentTab);
                 await loadStats();
+                showToast('Удалено успешно!');
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                showToast('Ошибка: ' + error.message, 'error');
             }
         };
 
