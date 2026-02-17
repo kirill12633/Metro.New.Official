@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метро New — Юридическая информация</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -141,6 +146,7 @@
             gap: 15px;
             color: var(--gray);
             font-size: 0.8rem;
+            flex-wrap: wrap;
         }
         
         .pdf-icon {
@@ -163,6 +169,7 @@
             margin-bottom: 20px;
             color: var(--gray);
             font-size: 0.85rem;
+            flex-wrap: wrap;
         }
         
         .pdf-block {
@@ -178,6 +185,111 @@
             font-size: 4rem;
             color: #d93025;
             margin-bottom: 15px;
+        }
+        
+        .rating-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        
+        .rating-title {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .rating-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .rating-btn {
+            padding: 12px 30px;
+            border: 1px solid var(--gray-border);
+            border-radius: 30px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .rating-btn:hover { transform: translateY(-2px); }
+        .rating-btn.like:hover { background: #1e8e3e; color: white; border-color: #1e8e3e; }
+        .rating-btn.dislike:hover { background: #d93025; color: white; border-color: #d93025; }
+        
+        .rating-stats {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .rating-stats i { color: #ffc107; }
+        
+        .share-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+        }
+        
+        .share-title {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .share-btn:hover { transform: translateY(-5px) scale(1.1); }
+        .share-btn.telegram { background: #0088cc; }
+        .share-btn.whatsapp { background: #25D366; }
+        .share-btn.vk { background: #4a76a8; }
+        .share-btn.twitter { background: #1DA1F2; }
+        .share-btn.copy { background: var(--gray); }
+        
+        .copy-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
         }
         
         .btn {
@@ -231,6 +343,7 @@
             justify-content: center;
             gap: 16px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
         
         .footer-links a {
@@ -242,6 +355,10 @@
         
         @media (max-width: 600px) {
             .meta-info { flex-direction: column; gap: 8px; }
+            .rating-buttons { flex-direction: column; }
+            .rating-btn { justify-content: center; }
+            .share-buttons { gap: 5px; }
+            .share-btn { width: 45px; height: 45px; }
         }
         
         @media (prefers-color-scheme: dark) {
@@ -253,6 +370,10 @@
                 --gray-border: #5f6368;
             }
             body { background: #1a1a1a; }
+            .rating-btn {
+                background: #292a2d;
+                color: var(--dark);
+            }
         }
     </style>
 </head>
@@ -289,7 +410,18 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            doc, 
+            getDoc,
+            updateDoc,
+            increment,
+            query,
+            orderBy,
+            arrayUnion
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
@@ -308,6 +440,55 @@
         const urlParams = new URLSearchParams(window.location.search);
         const legalId = urlParams.get('id');
         
+        async function incrementDownloads() {
+            if (!legalId) return;
+            try {
+                const docRef = doc(db, 'legal', legalId);
+                await updateDoc(docRef, { downloads: increment(1) });
+            } catch (error) {}
+        }
+        
+        window.rate = async function(value) {
+            if (!legalId) return;
+            if (localStorage.getItem(`rated_${legalId}`)) {
+                alert('Вы уже оценили этот документ');
+                return;
+            }
+            try {
+                const docRef = doc(db, 'legal', legalId);
+                await updateDoc(docRef, {
+                    ratings: arrayUnion({ value, date: new Date().toISOString() })
+                });
+                localStorage.setItem(`rated_${legalId}`, 'true');
+                alert('Спасибо за оценку!');
+                loadContent();
+            } catch (error) {
+                alert('Ошибка при сохранении оценки');
+            }
+        };
+        
+        window.share = function(platform) {
+            const url = window.location.href;
+            const title = document.getElementById('pageTitle').textContent;
+            let shareUrl = '';
+            switch(platform) {
+                case 'telegram': shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`; break;
+                case 'whatsapp': shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`; break;
+                case 'vk': shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`; break;
+                case 'twitter': shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`; break;
+                case 'copy':
+                    navigator.clipboard.writeText(url).then(() => {
+                        const msg = document.createElement('div');
+                        msg.className = 'copy-message';
+                        msg.textContent = 'Ссылка скопирована!';
+                        document.body.appendChild(msg);
+                        setTimeout(() => msg.remove(), 2000);
+                    });
+                    return;
+            }
+            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
+        };
+        
         async function loadContent() {
             const container = document.getElementById('contentContainer');
             
@@ -318,17 +499,30 @@
                     
                     if (docSnap.exists()) {
                         const data = docSnap.data();
+                        
                         document.getElementById('pageTitle').textContent = data.title;
                         document.getElementById('pageSubtitle').textContent = data.description || '';
                         
-                        const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString();
+                        const date = data.createdAt?.toDate ? 
+                            data.createdAt.toDate().toLocaleDateString() : 
+                            new Date().toLocaleDateString();
+                        
+                        let ratingText = 'Нет оценок';
+                        if (data.ratings && data.ratings.length > 0) {
+                            const likes = data.ratings.filter(r => r.value === 1).length;
+                            const total = data.ratings.length;
+                            const percent = Math.round((likes / total) * 100);
+                            ratingText = `👍 ${likes} (${percent}%) из ${total}`;
+                        }
+                        
+                        const voted = localStorage.getItem(`rated_${legalId}`);
                         
                         const pdfHtml = data.file ? `
                             <div class="pdf-block">
                                 <i class="fas fa-file-pdf"></i>
                                 <h3>${data.title}</h3>
                                 <p style="margin: 10px 0;">PDF документ</p>
-                                <a href="${data.file}" download class="btn btn-danger">
+                                <a href="${data.file}" download class="btn btn-danger" onclick="incrementDownloads()">
                                     <i class="fas fa-download"></i> Скачать PDF
                                 </a>
                             </div>
@@ -339,8 +533,35 @@
                                 <span><i class="far fa-calendar-alt"></i> ${date}</span>
                                 <span><i class="fas fa-download"></i> ${data.downloads || 0} скачиваний</span>
                             </div>
+                            
                             ${pdfHtml}
+                            
                             <div class="item-content">${data.content || ''}</div>
+                            
+                            <div class="rating-section">
+                                <div class="rating-title">Был ли документ полезным?</div>
+                                <div class="rating-buttons">
+                                    <button class="rating-btn like" onclick="rate(1)" ${voted ? 'disabled' : ''}>
+                                        <i class="fas fa-thumbs-up"></i> Да
+                                    </button>
+                                    <button class="rating-btn dislike" onclick="rate(0)" ${voted ? 'disabled' : ''}>
+                                        <i class="fas fa-thumbs-down"></i> Нет
+                                    </button>
+                                </div>
+                                <div class="rating-stats"><i class="fas fa-star"></i> ${ratingText}</div>
+                            </div>
+                            
+                            <div class="share-section">
+                                <div class="share-title">Поделиться документом</div>
+                                <div class="share-buttons">
+                                    <button class="share-btn telegram" onclick="share('telegram')"><i class="fab fa-telegram-plane"></i></button>
+                                    <button class="share-btn whatsapp" onclick="share('whatsapp')"><i class="fab fa-whatsapp"></i></button>
+                                    <button class="share-btn vk" onclick="share('vk')"><i class="fab fa-vk"></i></button>
+                                    <button class="share-btn twitter" onclick="share('twitter')"><i class="fab fa-twitter"></i></button>
+                                    <button class="share-btn copy" onclick="share('copy')"><i class="fas fa-link"></i></button>
+                                </div>
+                            </div>
+                            
                             <div style="text-align: center; margin-top: 30px;">
                                 <a href="legal.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Назад к списку</a>
                             </div>
@@ -364,7 +585,9 @@
                     let html = '<div class="items-list">';
                     querySnapshot.forEach(doc => {
                         const data = doc.data();
-                        const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString();
+                        const date = data.createdAt?.toDate ? 
+                            data.createdAt.toDate().toLocaleDateString() : 
+                            new Date().toLocaleDateString();
                         
                         html += `
                             <a href="?id=${doc.id}" class="item-card">
@@ -374,6 +597,7 @@
                                     <span><i class="far fa-calendar-alt"></i> ${date}</span>
                                     <span><i class="fas fa-file-pdf pdf-icon"></i> PDF</span>
                                     <span><i class="fas fa-download"></i> ${data.downloads || 0}</span>
+                                    ${data.ratings ? `<span><i class="fas fa-star" style="color: #ffc107;"></i> ${data.ratings.length}</span>` : ''}
                                 </div>
                             </a>
                         `;
