@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Метро New — Вход для администраторов</title>
+    <title>Метро New — Вход</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Montserrat', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -22,66 +16,34 @@
             justify-content: center;
             padding: 20px;
         }
-        
-        .login-container {
-            max-width: 400px;
-            width: 100%;
-        }
-        
+        .login-container { max-width: 400px; width: 100%; }
         .login-card {
             background: white;
             border-radius: 8px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             overflow: hidden;
         }
-        
         .login-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 30px;
             text-align: center;
             color: white;
         }
-        
-        .login-header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-        
-        .login-header p {
-            opacity: 0.9;
-            font-size: 0.9rem;
-        }
-        
-        .login-body {
-            padding: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
+        .login-body { padding: 30px; }
+        .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block;
             margin-bottom: 8px;
             color: #333;
             font-weight: 500;
         }
-        
         .form-group input {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
-            transition: border-color 0.2s;
         }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
         .btn {
             width: 100%;
             padding: 14px;
@@ -90,35 +52,16 @@
             border: none;
             border-radius: 4px;
             font-size: 1rem;
-            font-weight: 500;
             cursor: pointer;
-            transition: transform 0.2s;
         }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.7; }
         .error-message {
             color: #d93025;
             font-size: 0.85rem;
             margin-top: 10px;
             text-align: center;
         }
-        
-        .info-text {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 0.8rem;
-        }
-        
         .loading {
             display: inline-block;
             width: 16px;
@@ -126,13 +69,10 @@
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1s linear infinite;
             margin-right: 8px;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -146,20 +86,16 @@
             <div class="login-body">
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="email" placeholder="admin@metro.new" value="admin@metro.new">
+                    <input type="email" id="email" value="admin@metro.new">
                 </div>
                 
                 <div class="form-group">
                     <label>Пароль</label>
-                    <input type="password" id="password" placeholder="••••••••">
+                    <input type="password" id="password">
                 </div>
                 
-                <button class="btn" id="loginBtn" onclick="login()">
-                    <span>Войти</span>
-                </button>
-                
+                <button class="btn" id="loginBtn" onclick="login()">Войти</button>
                 <div class="error-message" id="error"></div>
-                <div class="info-text">Только для сотрудников Метро New</div>
             </div>
         </div>
     </div>
@@ -173,49 +109,21 @@
             const error = document.getElementById('error');
             const btn = document.getElementById('loginBtn');
             
-            if (!email || !password) {
-                error.textContent = 'Введите email и пароль';
-                return;
-            }
-            
-            // Показываем загрузку
             btn.disabled = true;
             btn.innerHTML = '<span class="loading"></span> Вход...';
             error.textContent = '';
             
             try {
-                // Пробуем войти
                 await AdminAuth.login(email, password);
-                
-                // Обновляем время входа
                 await ParentalAdmins.updateLastLogin(email);
-                
-                // Перенаправляем в админку
                 window.location.href = 'admin-dashboard.html';
             } catch (error) {
-                console.error('Ошибка входа:', error);
-                
-                // Показываем ошибку
-                if (error.code === 'auth/invalid-credential') {
-                    error.textContent = 'Неверный email или пароль';
-                } else if (error.code === 'auth/too-many-requests') {
-                    error.textContent = 'Слишком много попыток. Попробуйте позже';
-                } else {
-                    error.textContent = 'Ошибка входа. Проверьте данные';
-                }
-                
-                // Возвращаем кнопку
+                console.error('Ошибка:', error);
+                error.textContent = 'Неверный email или пароль';
                 btn.disabled = false;
-                btn.innerHTML = '<span>Войти</span>';
+                btn.innerHTML = 'Войти';
             }
         };
-        
-        // Добавляем обработчик Enter
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
     </script>
 </body>
 </html>
