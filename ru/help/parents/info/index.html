@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New — Вся информация для родителей</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== СТАРЫЙ ДИЗАЙН ========== */
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            background: #f8f9fa;
+            color: var(--dark);
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* ===== ОСНОВНАЯ КАРТОЧКА ===== */
+        .card {
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 24px 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .card-header h1 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .card-header p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* ===== НАВИГАЦИЯ ===== */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+        }
+        
+        .nav-link:hover {
+            background: var(--gray-light);
+        }
+        
+        /* ===== РАЗДЕЛИТЕЛЬ ===== */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0 20px;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-border);
+        }
+        
+        .divider span {
+            padding: 0 16px;
+            font-weight: 500;
+        }
+        
+        /* ===== СЕТКА КАТЕГОРИЙ ===== */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .category-card {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            padding: 25px 15px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            background: white;
+        }
+        
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        /* Цвета категорий */
+        .articles .category-icon { background: rgba(0,102,204,0.1); color: var(--primary); }
+        .news .category-icon { background: rgba(255,193,7,0.1); color: #ffc107; }
+        .videos .category-icon { background: rgba(255,0,0,0.1); color: #ff0000; }
+        .legal .category-icon { background: rgba(108,117,125,0.1); color: #6c757d; }
+        
+        .category-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .category-card p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        /* ===== КНОПКИ ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 25px 0 10px;
+        }
+        
+        /* ===== ФУТЕР ===== */
+        .card-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        @media (max-width: 500px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-header h1 {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #e8eaed;
+                --light: #202124;
+                --gray: #9aa0a6;
+                --gray-light: #292a2d;
+                --gray-border: #5f6368;
+            }
+            body {
+                background: #1a1a1a;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- НАВИГАЦИЯ -->
+        <div class="navigation">
+            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/" class="nav-link">
+                <i class="fas fa-arrow-left"></i> Назад к родителям
+            </a>
+            <a href="https://kirill12633.github.io/support.metro.new/" class="nav-link">
+                <i class="fas fa-headset"></i> Поддержка
+            </a>
+        </div>
+        
+        <!-- ОСНОВНАЯ КАРТОЧКА -->
+        <div class="card">
+            <div class="card-header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1>Вся информация для родителей и законных представителей</h1>
+                <p>Выберите категорию материалов</p>
+            </div>
+            
+            <div class="card-body">
+                
+                <!-- ===== ТОЛЬКО 4 КАТЕГОРИИ ===== -->
+                <div class="categories-grid">
+                    <!-- Статьи -->
+                    <a href="articles/" class="category-card articles">
+                        <div class="category-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h3>Статьи</h3>
+                        <p>Полезные текстовые материалы</p>
+                    </a>
+                    
+                    <!-- Новости -->
+                    <a href="news/" class="category-card news">
+                        <div class="category-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h3>Новости</h3>
+                        <p>Актуальные обновления</p>
+                    </a>
+                    
+                    <!-- Видео -->
+                    <a href="videos/" class="category-card videos">
+                        <div class="category-icon">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                        <h3>Видео</h3>
+                        <p>YouTube-инструкции</p>
+                    </a>
+                    
+                    <!-- Юридическое -->
+                    <a href="legal/" class="category-card legal">
+                        <div class="category-icon">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3>Юридическое</h3>
+                        <p>Правовая информация</p>
+                    </a>
+                </div>
+                
+                <!-- Кнопка на главную родителей -->
+                <div class="button-group">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Назад к родителям
+                    </a>
+                </div>
+                
+            </div> <!-- конец card-body -->
+            
+            <!-- Футер -->
+            <div class="card-footer">
+                <div id="copyrightYear"></div>
+                <div class="footer-links">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Конфиденциальность</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Условия</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+    </script>
+</body>
+</html>
