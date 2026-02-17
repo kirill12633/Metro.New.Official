@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Метро New — Вход</title>
+    <title>Метро New — Вход для администраторов</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,6 +34,8 @@
             text-align: center;
             color: white;
         }
+        .login-header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+        .login-header p { opacity: 0.9; font-size: 0.9rem; }
         .login-body { padding: 30px; }
         .form-group { margin-bottom: 20px; }
         .form-group label {
@@ -42,7 +49,12 @@
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
         }
         .btn {
             width: 100%;
@@ -52,10 +64,16 @@
             border: none;
             border-radius: 4px;
             font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
+            transition: transform 0.2s;
         }
         .btn:hover { transform: translateY(-2px); }
-        .btn:disabled { opacity: 0.7; }
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
         .error-message {
             color: #d93025;
             font-size: 0.85rem;
@@ -86,12 +104,12 @@
             <div class="login-body">
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="email" value="admin@metro.new">
+                    <input type="email" id="email" value="admin@metro.new" placeholder="admin@metro.new">
                 </div>
                 
                 <div class="form-group">
                     <label>Пароль</label>
-                    <input type="password" id="password">
+                    <input type="password" id="password" placeholder="••••••••">
                 </div>
                 
                 <button class="btn" id="loginBtn" onclick="login()">Войти</button>
@@ -109,21 +127,44 @@
             const error = document.getElementById('error');
             const btn = document.getElementById('loginBtn');
             
+            if (!email || !password) {
+                error.textContent = 'Введите email и пароль';
+                return;
+            }
+            
             btn.disabled = true;
             btn.innerHTML = '<span class="loading"></span> Вход...';
             error.textContent = '';
             
             try {
+                console.log('🔐 Пытаемся войти как:', email);
                 await AdminAuth.login(email, password);
+                console.log('✅ Вход успешен!');
+                
                 await ParentalAdmins.updateLastLogin(email);
                 window.location.href = 'admin-dashboard.html';
             } catch (error) {
-                console.error('Ошибка:', error);
-                error.textContent = 'Неверный email или пароль';
+                console.error('❌ Ошибка:', error);
+                
+                if (error.code === 'auth/invalid-credential') {
+                    error.textContent = 'Неверный email или пароль';
+                } else if (error.code === 'auth/too-many-requests') {
+                    error.textContent = 'Слишком много попыток. Попробуйте позже';
+                } else if (error.code === 'auth/firebase-app-check-token-is-invalid') {
+                    error.textContent = 'Ошибка App Check. Используй debug token (смотри консоль F12)';
+                } else {
+                    error.textContent = 'Ошибка: ' + error.message;
+                }
+                
                 btn.disabled = false;
                 btn.innerHTML = 'Войти';
             }
         };
+        
+        // Enter для входа
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
     </script>
 </body>
 </html>
