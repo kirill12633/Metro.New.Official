@@ -1,1 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New — Политика возврата</title>
+    
+    <!-- Шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <style>
+        /* ========== СТИЛИ ИЗ ПРИМЕРА ========== */
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            background: #f8f9fa;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+        
+        .card {
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        /* ===== ХЕДЕР ===== */
+        .card-header {
+            padding: 24px 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .page-title {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        /* ===== ТЕЛО КАРТОЧКИ ===== */
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Кнопка назад */
+        .back-button {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            text-decoration: none;
+            color: var(--dark);
+        }
+        
+        .back-button:hover {
+            background: #e9ecef;
+            border-color: var(--primary);
+        }
+        
+        .back-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-left i {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+        
+        .back-text h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .back-text p {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .back-arrow {
+            color: var(--gray);
+        }
+        
+        /* Блок с информацией */
+        .info-notice {
+            background: rgba(0, 102, 204, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 30px;
+        }
+        
+        .info-notice h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-notice h2 i {
+            color: var(--primary);
+        }
+        
+        .info-notice p {
+            color: var(--gray);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        /* Контейнер для iframe */
+        .document-container {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            padding: 0;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .document-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-border);
+            background: white;
+        }
+        
+        .document-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .document-header h3 i {
+            color: var(--primary);
+        }
+        
+        .document-header p {
+            color: var(--gray);
+            line-height: 1.5;
+            font-size: 0.9rem;
+            margin-left: 28px;
+        }
+        
+        /* iframe */
+        .document-iframe {
+            width: 100%;
+            height: 550px;
+            border: none;
+            display: block;
+            background: white;
+        }
+        
+        /* Информация о документе */
+        .document-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-item {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            padding: 15px;
+        }
+        
+        .info-item h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .info-item h4 i {
+            color: var(--primary);
+        }
+        
+        .info-item p {
+            color: var(--gray);
+            line-height: 1.5;
+            font-size: 0.85rem;
+        }
+        
+        /* Разделитель */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-border);
+        }
+        
+        .divider span {
+            padding: 0 16px;
+        }
+        
+        /* Ссылка открыть в новой вкладке */
+        .external-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 10px;
+            transition: all 0.2s;
+        }
+        
+        .external-link:hover {
+            text-decoration: underline;
+            gap: 12px;
+        }
+        
+        /* Ссылки на связанные документы */
+        .related-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0 10px;
+            flex-wrap: wrap;
+        }
+        
+        .related-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .related-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Футер */
+        .footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            .document-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .related-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .document-iframe {
+                height: 450px;
+            }
+        }
+        
+        /* Темная тема */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #e8eaed;
+                --light: #202124;
+                --gray: #9aa0a6;
+                --gray-light: #292a2d;
+                --gray-border: #5f6368;
+            }
+            body {
+                background: #1a1a1a;
+            }
+            .document-header {
+                background: #292a2d;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Хедер -->
+            <div class="card-header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1 class="page-title">Политика возврата</h1>
+                <p class="page-subtitle">Условия и порядок возврата средств</p>
+            </div>
+            
+            <!-- Тело карточки -->
+            <div class="card-body">
+                
+                <!-- Кнопка назад -->
+                <a href="javascript:history.back()" class="back-button">
+                    <div class="back-left">
+                        <i class="fas fa-arrow-left"></i>
+                        <div class="back-text">
+                            <h3>Вернуться назад</h3>
+                            <p>На предыдущую страницу</p>
+                        </div>
+                    </div>
+                    <div class="back-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+                
+                <!-- Информационный блок -->
+                <div class="info-notice">
+                    <h2>
+                        <i class="fas fa-undo-alt"></i>
+                        Важно о возвратах
+                    </h2>
+                    <p>Ознакомьтесь с условиями возврата средств за покупки внутри проекта. Политика разработана в соответствии с законодательством о защите прав потребителей.</p>
+                </div>
+                
+                <!-- Контейнер с документом -->
+                <div class="document-container">
+                    <div class="document-header">
+                        <h3>
+                            <i class="fas fa-undo-alt" style="color: var(--primary);"></i>
+                            Политика возврата средств
+                        </h3>
+                        <p>Условия, сроки и порядок оформления возврата</p>
+                    </div>
+                    
+                    <!-- Google Docs iframe с политикой возврата -->
+                    <iframe 
+                        src="https://docs.google.com/document/d/e/2PACX-1vShvcz_6GRRZDVAn9SQHgTv0Cw1fZuymvoj-k6rGjBdXFZjhlrDleXXHBajEBKI6WOEchrt7kCYX4tD/pub?embedded=true"
+                        class="document-iframe"
+                        title="Политика возврата Метро New"
+                        loading="lazy">
+                    </iframe>
+                </div>
+                
+                <!-- Информация о документе -->
+                <div class="document-info">
+                    <div class="info-item">
+                        <h4><i class="fas fa-calendar-alt"></i> Срок возврата</h4>
+                        <p>14 дней с момента покупки</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <h4><i class="fas fa-envelope"></i> Куда писать</h4>
+                        <p>metro.new.help@gmail.com</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <h4><i class="fas fa-clock"></i> Рассмотрение</h4>
+                        <p>до 10 рабочих дней</p>
+                    </div>
+                </div>
+                
+                <!-- Разделитель -->
+                <div class="divider">
+                    <span>ССЫЛКИ</span>
+                </div>
+                
+                <!-- Ссылка открыть в новой вкладке -->
+                <a href="https://docs.google.com/document/d/e/2PACX-1vShvcz_6GRRZDVAn9SQHgTv0Cw1fZuymvoj-k6rGjBdXFZjhlrDleXXHBajEBKI6WOEchrt7kCYX4tD/pub" 
+                   target="_blank" 
+                   class="external-link">
+                    <i class="fas fa-external-link-alt"></i>
+                    Открыть документ в новой вкладке
+                </a>
+                
+                <!-- Связанные документы -->
+                <div class="related-links">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank" class="related-link">
+                        <i class="fas fa-lock"></i> Политика конфиденциальности
+                    </a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank" class="related-link">
+                        <i class="fas fa-file-contract"></i> Пользовательское соглашение
+                    </a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/community-guidelines/" target="_blank" class="related-link">
+                        <i class="fab fa-discord"></i> Правила Discord
+                    </a>
+                </div>
+                
+            </div> <!-- конец card-body -->
+            
+            <!-- Футер с годом -->
+            <div class="footer" id="copyright"></div>
+        </div> <!-- конец card -->
+    </div> <!-- конец container -->
 
+    <script>
+        // Автоматическое обновление года в футере
+        document.getElementById('copyright').textContent = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+    </script>
+</body>
+</html>
