@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метро New — Статьи для родителей</title>
-
-     <!-- Иконки -->
+    
+    <!-- Иконки -->
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase + App Check -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    
     <style>
+        /* ========== СТАРЫЙ ДИЗАЙН ========== */
         :root {
             --primary: #0066CC;
             --primary-dark: #0052a3;
@@ -20,6 +27,9 @@
             --gray: #5f6368;
             --gray-light: #f8f9fa;
             --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
             --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
             --radius-sm: 4px;
             --radius-md: 8px;
@@ -34,7 +44,10 @@
             padding: 20px;
         }
         
-        .container { max-width: 800px; margin: 0 auto; }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
         
         .card {
             background: var(--light);
@@ -71,7 +84,11 @@
             font-size: 1.2rem;
         }
         
-        .logo-text { font-size: 1.5rem; font-weight: 700; color: var(--dark); }
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
         
         .card-header h1 {
             font-size: 1.4rem;
@@ -85,12 +102,16 @@
             color: var(--gray);
         }
         
-        .card-body { padding: 24px; }
+        .card-body {
+            padding: 24px;
+        }
         
         .navigation {
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .nav-link {
@@ -106,7 +127,9 @@
             border-radius: var(--radius-sm);
         }
         
-        .nav-link:hover { background: var(--gray-light); }
+        .nav-link:hover {
+            background: var(--gray-light);
+        }
         
         .items-list {
             display: flex;
@@ -168,7 +191,6 @@
             font-weight: 600;
         }
         
-        /* ===== КОНТЕНТ СТАТЬИ ===== */
         .article-content {
             line-height: 1.8;
             color: var(--dark);
@@ -203,7 +225,6 @@
             color: var(--gray);
         }
         
-        /* ===== РЕЙТИНГ ===== */
         .rating-section {
             margin: 30px 0;
             padding: 20px;
@@ -264,7 +285,6 @@
             margin: 0 2px;
         }
         
-        /* ===== ПОДЕЛИТЬСЯ ===== */
         .share-section {
             margin: 30px 0;
             padding: 20px;
@@ -373,6 +393,7 @@
             justify-content: center;
             gap: 16px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
         
         .footer-links a {
@@ -388,6 +409,8 @@
             .rating-btn { justify-content: center; }
             .share-buttons { gap: 5px; }
             .share-btn { width: 45px; height: 45px; }
+            .navigation { flex-direction: column; }
+            .nav-link { width: 100%; justify-content: center; }
         }
         
         @media (prefers-color-scheme: dark) {
@@ -413,7 +436,7 @@
 <body>
     <div class="container">
         <div class="navigation">
-            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/info/" class="nav-link"><i class="fas fa-arrow-left"></i> Все категории</a>
+            <a href="index.html" class="nav-link"><i class="fas fa-arrow-left"></i> Все категории</a>
             <a href="https://kirill12633.github.io/support.metro.new/" class="nav-link"><i class="fas fa-headset"></i> Поддержка</a>
         </div>
         
@@ -441,57 +464,62 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            getDocs, 
-            doc, 
-            getDoc,
-            updateDoc,
-            increment,
-            query,
-            orderBy,
-            arrayUnion
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
+    <script>
+        // ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
+        firebase.initializeApp({
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
             projectId: "metro-new-admin",
             storageBucket: "metro-new-admin.firebasestorage.app",
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-        };
+        });
+
+        // ===== APP CHECK =====
+        try {
+            firebase.appCheck().activate(
+                '6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-',
+                true // позволяет использовать в режиме разработки
+            );
+            console.log('✅ App Check активирован');
+        } catch (e) {
+            console.warn('⚠️ App Check не активирован:', e);
+        }
+
+        const db = firebase.firestore();
         
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
+        // Текущий год
         document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
         
+        // Получаем ID из URL (без .html)
         const urlParams = new URLSearchParams(window.location.search);
         const articleId = urlParams.get('id');
         
-        // ===== УВЕЛИЧЕНИЕ ПРОСМОТРОВ =====
-        async function incrementViews() {
-            if (!articleId) return;
-            
+        // ===== ФУНКЦИЯ БЕЗОПАСНОГО УВЕЛИЧЕНИЯ ПРОСМОТРОВ =====
+        async function incrementViews(docRef) {
             try {
-                const docRef = doc(db, 'articles', articleId);
-                await updateDoc(docRef, {
-                    views: increment(1)
+                // Получаем текущие данные
+                const doc = await docRef.get();
+                if (!doc.exists) return;
+                
+                const currentViews = doc.data().views || 0;
+                
+                // Увеличиваем ровно на 1 (как в правилах)
+                await docRef.update({
+                    views: currentViews + 1
                 });
+                console.log('✅ Просмотр засчитан');
             } catch (error) {
-                console.warn('Не удалось обновить просмотры');
+                console.warn('⚠️ Не удалось обновить просмотры:', error);
+                // Не показываем ошибку пользователю - это не критично
             }
         }
         
-        // ===== РЕЙТИНГ =====
+        // ===== ФУНКЦИЯ ДЛЯ РЕЙТИНГА =====
         window.rate = async function(value) {
             if (!articleId) return;
             
-            // Проверяем, голосовал ли уже
+            // Проверяем, голосовал ли уже (защита от накрутки)
             const voted = localStorage.getItem(`rated_${articleId}`);
             if (voted) {
                 alert('Вы уже оценили эту статью');
@@ -499,25 +527,33 @@
             }
             
             try {
-                const docRef = doc(db, 'articles', articleId);
-                await updateDoc(docRef, {
-                    ratings: arrayUnion({
+                const docRef = db.collection('articles').doc(articleId);
+                const doc = await docRef.get();
+                
+                if (!doc.exists) return;
+                
+                const currentRatings = doc.data().ratings || [];
+                
+                // Добавляем новую оценку (не удаляем старые)
+                await docRef.update({
+                    ratings: [...currentRatings, {
                         value: value,
                         date: new Date().toISOString()
-                    })
+                    }]
                 });
                 
                 localStorage.setItem(`rated_${articleId}`, 'true');
                 alert('Спасибо за оценку!');
                 
-                // Обновляем отображение
+                // Перезагружаем контент
                 loadContent();
             } catch (error) {
+                console.error('Ошибка:', error);
                 alert('Ошибка при сохранении оценки');
             }
         };
         
-        // ===== ПОДЕЛИТЬСЯ =====
+        // ===== ФУНКЦИЯ ПОДЕЛИТЬСЯ =====
         window.share = function(platform) {
             const url = window.location.href;
             const title = document.getElementById('pageTitle').textContent;
@@ -554,43 +590,59 @@
             }
         };
         
-        // ===== ЗАГРУЗКА КОНТЕНТА =====
+        // ===== ОСНОВНАЯ ЗАГРУЗКА КОНТЕНТА =====
         async function loadContent() {
             const container = document.getElementById('contentContainer');
             
+            // Если есть ID - показываем одну статью
             if (articleId) {
                 try {
-                    const docRef = doc(db, 'articles', articleId);
-                    const docSnap = await getDoc(docRef);
+                    const docRef = db.collection('articles').doc(articleId);
+                    const docSnap = await docRef.get();
                     
-                    if (docSnap.exists()) {
+                    if (docSnap.exists) {
                         const data = docSnap.data();
                         
-                        // Увеличиваем просмотры
-                        await incrementViews();
-                        
-                        document.getElementById('pageTitle').textContent = data.title;
-                        document.getElementById('pageSubtitle').textContent = data.description || '';
+                        // Защита от XSS: экранируем заголовки
+                        document.getElementById('pageTitle').textContent = 
+                            data.title ? String(data.title).replace(/[<>]/g, '') : 'Статья';
+                        document.getElementById('pageSubtitle').textContent = 
+                            data.description ? String(data.description).replace(/[<>]/g, '') : '';
                         
                         const date = data.createdAt?.toDate ? 
                             data.createdAt.toDate().toLocaleDateString() : 
                             new Date().toLocaleDateString();
                         
+                        // Увеличиваем просмотры (безопасно)
+                        await incrementViews(docRef);
+                        
                         // Подсчёт рейтинга
                         let ratingText = 'Нет оценок';
+                        let likeCount = 0;
+                        let totalRatings = 0;
+                        
                         if (data.ratings && data.ratings.length > 0) {
-                            const likes = data.ratings.filter(r => r.value === 1).length;
-                            const total = data.ratings.length;
-                            const percent = Math.round((likes / total) * 100);
-                            ratingText = `👍 ${likes} (${percent}%) из ${total}`;
+                            totalRatings = data.ratings.length;
+                            likeCount = data.ratings.filter(r => r.value === 1).length;
+                            const percent = Math.round((likeCount / totalRatings) * 100);
+                            ratingText = `👍 ${likeCount} (${percent}%) из ${totalRatings}`;
                         }
                         
                         // Проверка голосовал ли
                         const voted = localStorage.getItem(`rated_${articleId}`);
                         
-                        let tagsHtml = data.tags?.length ? `
-                            <div class="tags">${data.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-                        ` : '';
+                        // Безопасное отображение тегов
+                        let tagsHtml = '';
+                        if (data.tags && data.tags.length > 0) {
+                            const safeTags = data.tags.map(t => 
+                                String(t).replace(/[<>]/g, '')
+                            );
+                            tagsHtml = `
+                                <div class="tags">
+                                    ${safeTags.map(t => `<span class="tag">#${t}</span>`).join('')}
+                                </div>
+                            `;
+                        }
                         
                         container.innerHTML = `
                             <div class="meta-info">
@@ -644,8 +696,8 @@
                             </div>
                             
                             <div style="text-align: center; margin-top: 30px;">
-                                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/info/articles/" class="btn btn-outline">
-                                    <i class="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/info/articles/"></i> Назад к списку
+                                <a href="articles" class="btn btn-outline">
+                                    <i class="fas fa-arrow-left"></i> Назад к списку
                                 </a>
                             </div>
                         `;
@@ -653,32 +705,42 @@
                         container.innerHTML = '<p>Статья не найдена</p>';
                     }
                 } catch (error) {
+                    console.error('Ошибка:', error);
                     container.innerHTML = '<p>Ошибка загрузки</p>';
                 }
-            } else {
+            } 
+            // Иначе показываем список статей
+            else {
                 try {
-                    const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'));
-                    const querySnapshot = await getDocs(q);
+                    const snapshot = await db.collection('articles')
+                        .where('status', '==', 'published')
+                        .orderBy('createdAt', 'desc')
+                        .get();
                     
-                    if (querySnapshot.empty) {
+                    if (snapshot.empty) {
                         container.innerHTML = '<p style="text-align: center; padding: 40px;">Пока нет статей</p>';
                         return;
                     }
                     
                     let html = '<div class="items-list">';
-                    querySnapshot.forEach(doc => {
+                    snapshot.forEach(doc => {
                         const data = doc.data();
                         const date = data.createdAt?.toDate ? 
                             data.createdAt.toDate().toLocaleDateString() : 
                             new Date().toLocaleDateString();
+                        
                         const importantClass = data.important ? 'important' : '';
                         const importantBadge = data.important ? '<span class="important-badge">Важно</span>' : '';
                         
+                        // Безопасное экранирование заголовка
+                        const safeTitle = data.title ? String(data.title).replace(/[<>]/g, '') : 'Без названия';
+                        const safeDesc = data.description ? String(data.description).replace(/[<>]/g, '') : '';
+                        
                         html += `
                             <a href="?id=${doc.id}" class="item-card ${importantClass}">
-                                <h3>${data.title}</h3>
+                                <h3>${safeTitle}</h3>
                                 ${importantBadge}
-                                <p>${data.description || ''}</p>
+                                <p>${safeDesc}</p>
                                 <div class="item-meta">
                                     <span><i class="far fa-calendar-alt"></i> ${date}</span>
                                     <span><i class="far fa-eye"></i> ${data.views || 0}</span>
@@ -690,11 +752,13 @@
                     html += '</div>';
                     container.innerHTML = html;
                 } catch (error) {
+                    console.error('Ошибка:', error);
                     container.innerHTML = '<p>Ошибка загрузки</p>';
                 }
             }
         }
         
+        // Запускаем загрузку
         loadContent();
     </script>
 </body>
