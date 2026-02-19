@@ -12,56 +12,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Запасные Firebase скрипты -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-firestore.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-auth.min.js"></script>
+    <!-- Firebase SDK (правильный способ) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
     <style>
-        :root {
-            --primary: #0066CC;
-            --primary-dark: #0052a3;
-            --dark: #202124;
-            --light: #ffffff;
-            --gray: #5f6368;
-            --gray-light: #f8f9fa;
-            --gray-border: #dadce0;
-            --success: #1e8e3e;
-            --warning: #fbbc04;
-            --danger: #d93025;
-            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
-            --radius-sm: 4px;
-            --radius-md: 8px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Montserrat', sans-serif;
             background: #f8f9fa;
-            color: var(--dark);
+            color: #333;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .card {
-            background: var(--light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-md);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-        
+
         .card-header {
             padding: 24px 24px 16px;
             text-align: center;
-            border-bottom: 1px solid var(--gray-border);
+            border-bottom: 1px solid #ddd;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
@@ -69,145 +57,141 @@
             gap: 10px;
             margin-bottom: 16px;
         }
-        
+
         .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
+            width: 40px;
+            height: 40px;
+            background: #0066CC;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
         }
-        
+
         .logo-text {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-        
-        .card-header h1 {
             font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .card-header h1 {
+            font-size: 1.3rem;
             font-weight: 500;
-            color: var(--dark);
+            margin-bottom: 5px;
         }
-        
+
         .card-header p {
-            font-size: 0.95rem;
-            color: var(--gray);
-            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #666;
         }
-        
+
         .card-body {
             padding: 24px;
         }
-        
+
         .card-footer {
             padding: 16px 24px;
-            border-top: 1px solid var(--gray-border);
+            border-top: 1px solid #ddd;
             text-align: center;
             font-size: 0.75rem;
-            color: var(--gray);
+            color: #666;
         }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
-        
+
         .stat-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: var(--radius-sm);
+            background: #0066CC;
+            border-radius: 8px;
             padding: 20px;
             text-align: center;
             color: white;
             cursor: pointer;
             transition: transform 0.2s;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0,102,204,0.3);
         }
-        
+
         .stat-card h3 {
             font-size: 0.9rem;
             margin-bottom: 8px;
             opacity: 0.9;
         }
-        
+
         .stat-number {
             font-size: 2.2rem;
             font-weight: 700;
         }
-        
+
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
+
         .tab {
             padding: 12px 20px;
-            background: var(--light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
         }
-        
+
         .tab:hover {
-            background: var(--gray-light);
-            border-color: var(--primary);
+            background: #f5f5f5;
+            border-color: #0066CC;
         }
-        
+
         .tab.active {
-            background: var(--primary);
+            background: #0066CC;
             color: white;
-            border-color: var(--primary);
+            border-color: #0066CC;
         }
-        
+
         .tab.active i {
             color: white;
         }
-        
+
         .content-panel {
-            background: var(--light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-md);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             padding: 20px;
             margin-top: 20px;
         }
-        
+
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid var(--gray-border);
+            border-bottom: 2px solid #ddd;
         }
-        
+
         .panel-header h2 {
             font-size: 1.2rem;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        
+
         .btn {
             padding: 10px 18px;
-            border-radius: var(--radius-sm);
+            border-radius: 4px;
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
@@ -217,261 +201,124 @@
             gap: 8px;
             transition: all 0.2s;
         }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-        
+
         .btn-success {
-            background: var(--success);
+            background: #28a745;
             color: white;
         }
-        
+
         .btn-success:hover {
-            background: #0b5e2e;
+            background: #218838;
         }
-        
+
         .btn-outline {
             background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
+            border: 1px solid #0066CC;
+            color: #0066CC;
         }
-        
+
         .btn-outline:hover {
-            background: var(--primary);
+            background: #0066CC;
             color: white;
         }
-        
+
         .items-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        
+
         .item-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background: var(--gray-light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             transition: all 0.2s;
         }
-        
+
         .item-row:hover {
-            border-color: var(--primary);
+            border-color: #0066CC;
             background: white;
         }
-        
+
         .item-info {
             flex: 1;
         }
-        
+
         .item-info h4 {
             font-size: 1rem;
             margin-bottom: 5px;
         }
-        
+
         .item-info p {
-            color: var(--gray);
+            color: #666;
             font-size: 0.85rem;
         }
-        
+
         .item-meta {
             display: flex;
             gap: 15px;
             margin-top: 5px;
-            color: var(--gray);
+            color: #666;
             font-size: 0.75rem;
         }
-        
-        .badge {
+
+        .badge.important {
+            background: #ffc107;
+            color: #000;
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 0.7rem;
-            font-weight: 500;
         }
-        
-        .badge.important {
-            background: var(--warning);
-            color: #000;
-        }
-        
+
         .item-actions {
             display: flex;
             gap: 8px;
         }
-        
+
         .icon-btn {
             width: 36px;
             height: 36px;
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: 4px;
             cursor: pointer;
             color: white;
             transition: all 0.2s;
         }
-        
-        .icon-btn:hover {
-            transform: scale(1.1);
+
+        .icon-btn.view {
+            background: #28a745;
         }
-        
-        .icon-btn.edit { background: var(--primary); }
-        .icon-btn.view { background: var(--success); }
-        
-        .logs-list {
-            max-height: 500px;
-            overflow-y: auto;
+
+        .icon-btn.view:hover {
+            background: #218838;
         }
-        
-        .log-item {
-            padding: 12px;
-            border-bottom: 1px solid var(--gray-border);
-            font-size: 0.9rem;
-        }
-        
-        .log-item:hover {
-            background: var(--gray-light);
-        }
-        
-        .log-user {
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        .log-action {
-            color: var(--dark);
-            margin: 3px 0;
-        }
-        
-        .log-details {
-            color: var(--gray);
-            font-size: 0.8rem;
-        }
-        
-        .log-date {
-            color: var(--gray);
-            font-size: 0.7rem;
-            margin-top: 3px;
-        }
-        
-        .tags-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 15px;
-        }
-        
-        .tag-item {
-            padding: 8px 15px;
-            background: var(--gray-light);
-            border: 1px solid var(--gray-border);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .tag-item:hover {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--light);
-            border-radius: var(--radius-md);
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--gray-border);
-        }
-        
-        .modal-header h3 {
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
-            font-family: 'Montserrat', sans-serif;
-        }
-        
+
         .toast {
             position: fixed;
             top: 20px;
             right: 20px;
             padding: 12px 20px;
-            background: var(--success);
+            background: #28a745;
             color: white;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-md);
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
             z-index: 9999;
             animation: slideIn 0.3s ease;
         }
-        
+
         .toast.error {
-            background: var(--danger);
+            background: #dc3545;
         }
-        
+
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        
+
         @media (max-width: 700px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -502,25 +349,27 @@
             </div>
             
             <div class="card-body">
+                <!-- Статистика -->
                 <div class="stats-grid">
                     <div class="stat-card" onclick="switchTab('articles')">
-                        <h3>📄 Статьи</h3>
+                        <h3>Статьи</h3>
                         <div class="stat-number" id="articlesCount">0</div>
                     </div>
                     <div class="stat-card" onclick="switchTab('news')">
-                        <h3>📰 Новости</h3>
+                        <h3>Новости</h3>
                         <div class="stat-number" id="newsCount">0</div>
                     </div>
                     <div class="stat-card" onclick="switchTab('videos')">
-                        <h3>🎥 Видео</h3>
+                        <h3>Видео</h3>
                         <div class="stat-number" id="videosCount">0</div>
                     </div>
                     <div class="stat-card" onclick="switchTab('legal')">
-                        <h3>⚖️ Юридическое</h3>
+                        <h3>Документы</h3>
                         <div class="stat-number" id="legalCount">0</div>
                     </div>
                 </div>
                 
+                <!-- Вкладки -->
                 <div class="tabs">
                     <button class="tab active" data-tab="articles" onclick="switchTab('articles')">
                         <i class="fas fa-newspaper"></i> Статьи
@@ -536,6 +385,7 @@
                     </button>
                 </div>
                 
+                <!-- Контент -->
                 <div id="contentArea" class="content-panel">
                     <div class="panel-header">
                         <h2>Добро пожаловать</h2>
@@ -555,12 +405,8 @@
         </div>
     </div>
 
-    <script type="module">
-        // Используем глобальные объекты Firebase из CDN
-        const { initializeApp } = firebase;
-        const { getFirestore, collection, getDocs, doc, getDoc, query, orderBy, where, serverTimestamp, addDoc, updateDoc, deleteDoc } = firebase.firestore;
-        const { getAuth, signOut, onAuthStateChanged } = firebase.auth;
-
+    <script>
+        // Инициализация Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
@@ -570,90 +416,55 @@
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
 
         let currentUser = null;
-        let currentUserRole = null;
-        let currentUserPermissions = {};
-        let sessionTimeout;
-
-        async function logAction(action, details) {
-            if (!currentUser) return;
-            console.log(`[LOG] ${action}: ${details}`);
-        }
-
-        function resetSessionTimeout() {
-            if (sessionTimeout) clearTimeout(sessionTimeout);
-            sessionTimeout = setTimeout(() => {
-                alert('⚠️ Сессия истекла. Войдите снова.');
-                logout();
-            }, 30 * 60 * 1000);
-        }
-
-        document.addEventListener('click', resetSessionTimeout);
-        document.addEventListener('keypress', resetSessionTimeout);
-
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
+        let currentTab = 'articles';
 
         // Проверка авторизации
-        onAuthStateChanged(auth, async (user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 window.location.href = 'admin-login.html';
                 return;
             }
             
             try {
-                const userDoc = await getDoc(doc(db, 'users_parental', user.uid));
+                const userDoc = await db.collection('users_parental').doc(user.uid).get();
                 
-                if (!userDoc.exists()) {
-                    await signOut(auth);
-                    showToast('У вас нет прав доступа', 'error');
-                    setTimeout(() => window.location.href = 'admin-login.html', 2000);
+                if (!userDoc.exists) {
+                    auth.signOut();
+                    alert('У вас нет прав доступа');
+                    window.location.href = 'admin-login.html';
                     return;
                 }
                 
-                const userData = userDoc.data();
                 currentUser = user;
-                currentUserRole = userData.role;
-                currentUserPermissions = userData.permissions || {};
+                document.getElementById('welcomeMessage').innerHTML = 
+                    `Здравствуйте, ${user.email}`;
                 
-                document.getElementById('welcomeMessage').innerHTML = `
-                    <i class="fas fa-user-circle"></i> 
-                    ${userData.name || user.email} 
-                    (${userData.role === 'superadmin' ? '👑' : '🔧'})
-                `;
-                
-                await logAction('login', 'Успешный вход');
-                await loadStats();
+                loadStats();
                 switchTab('articles');
-                
-                resetSessionTimeout();
             } catch (error) {
                 console.error('Ошибка:', error);
-                showToast('Ошибка подключения', 'error');
+                alert('Ошибка подключения к базе данных');
             }
         });
 
-        window.logout = async function() {
-            await logAction('logout', 'Выход из системы');
-            await signOut(auth);
+        // Выход
+        window.logout = function() {
+            auth.signOut();
             window.location.href = 'admin-login.html';
         };
 
+        // Загрузка статистики
         async function loadStats() {
             try {
-                const articles = await getDocs(collection(db, 'articles'));
-                const news = await getDocs(collection(db, 'news'));
-                const videos = await getDocs(collection(db, 'videos'));
-                const legal = await getDocs(collection(db, 'legal'));
+                const articles = await db.collection('articles').get();
+                const news = await db.collection('news').get();
+                const videos = await db.collection('videos').get();
+                const legal = await db.collection('legal').get();
                 
                 document.getElementById('articlesCount').textContent = articles.size;
                 document.getElementById('newsCount').textContent = news.size;
@@ -664,32 +475,35 @@
             }
         }
 
+        // Переключение вкладок
         window.switchTab = async function(tab) {
+            currentTab = tab;
+            
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
             
-            const area = document.getElementById('contentArea');
-            
-            if (tab === 'articles' || tab === 'news' || tab === 'videos' || tab === 'legal') {
-                await loadContent(area, tab);
-            }
+            await loadContent(tab);
         };
 
-        async function loadContent(area, tab) {
+        // Загрузка контента
+        async function loadContent(tab) {
+            const area = document.getElementById('contentArea');
+            
             const titles = {
-                articles: '📄 Статьи',
-                news: '📰 Новости',
-                videos: '🎥 Видео',
-                legal: '⚖️ Юридическое'
+                articles: 'Статьи',
+                news: 'Новости',
+                videos: 'Видео',
+                legal: 'Юридическое'
             };
             
             try {
-                const q = query(collection(db, tab), orderBy('createdAt', 'desc'));
-                const snapshot = await getDocs(q);
+                const snapshot = await db.collection(tab)
+                    .orderBy('createdAt', 'desc')
+                    .get();
                 
                 let html = `
                     <div class="panel-header">
-                        <h2><i class="fas ${tab === 'articles' ? 'fa-newspaper' : tab === 'news' ? 'fa-bullhorn' : tab === 'videos' ? 'fa-video' : 'fa-gavel'}"></i> ${titles[tab]}</h2>
+                        <h2>${titles[tab]}</h2>
                         <button class="btn btn-success" onclick="alert('Добавление будет позже')">
                             <i class="fas fa-plus"></i> Добавить
                         </button>
@@ -702,7 +516,9 @@
                 } else {
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'без даты';
+                        const date = data.createdAt?.toDate ? 
+                            data.createdAt.toDate().toLocaleDateString() : 
+                            'без даты';
                         
                         html += `
                             <div class="item-row">
@@ -729,13 +545,26 @@
                 area.innerHTML = html;
             } catch (error) {
                 console.error('Ошибка:', error);
-                area.innerHTML = '<div class="panel-header"><h2>Ошибка загрузки</h2></div>';
+                area.innerHTML = `
+                    <div class="panel-header">
+                        <h2>Ошибка загрузки</h2>
+                    </div>
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             }
         }
 
+        // Просмотр материала
         window.previewItem = function(tab, id) {
             window.open(`https://kirill12633.github.io/Metro.New.Official/ru/help/parents/info/${tab}.html?id=${id}`, '_blank');
         };
+
+        // Текущий год в футере
+        document.querySelector('.card-footer').innerHTML += 
+            `<div style="margin-top: 10px;">© ${new Date().getFullYear()} Метро New</div>`;
     </script>
 </body>
 </html>
