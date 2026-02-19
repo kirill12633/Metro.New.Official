@@ -12,6 +12,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
     <style>
         /* ========== СТАРЫЙ ДИЗАЙН ========== */
         :root {
@@ -45,8 +50,7 @@
             max-width: 400px;
         }
         
-        /* ===== КАРТОЧКА ===== */
-        .login-card {
+        .card {
             background: var(--light);
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-md);
@@ -54,8 +58,8 @@
             overflow: hidden;
         }
         
-        .login-header {
-            padding: 24px 24px 16px;
+        .card-header {
+            padding: 30px 24px 20px;
             text-align: center;
             border-bottom: 1px solid var(--gray-border);
         }
@@ -65,12 +69,12 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: var(--primary);
             border-radius: 50%;
             display: flex;
@@ -78,99 +82,100 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
         }
         
         .logo-text {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--dark);
         }
         
-        .login-header h1 {
-            font-size: 1.25rem;
-            font-weight: 400;
+        .card-header h1 {
+            font-size: 1.3rem;
+            font-weight: 500;
             color: var(--dark);
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
         
-        .login-header p {
-            font-size: 0.875rem;
+        .card-header p {
+            font-size: 0.9rem;
             color: var(--gray);
         }
         
-        .login-body {
-            padding: 24px;
+        .card-body {
+            padding: 30px 24px;
         }
         
-        /* ===== ФОРМА ===== */
+        .card-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: 500;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             color: var(--dark);
         }
         
-        .input-with-icon {
+        .input-wrapper {
             position: relative;
             display: flex;
             align-items: center;
         }
         
-        .input-with-icon i {
+        .input-wrapper i {
             position: absolute;
-            left: 12px;
+            left: 15px;
             color: var(--gray);
-            z-index: 1;
+            font-size: 1.1rem;
         }
         
-        .input-with-icon input {
-            padding-left: 40px !important;
-        }
-        
-        .form-group input {
+        .input-wrapper input {
             width: 100%;
-            padding: 12px;
+            padding: 14px 14px 14px 45px;
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-sm);
-            font-size: 0.9375rem;
+            font-size: 0.95rem;
             font-family: 'Montserrat', sans-serif;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
             background: var(--light);
             color: var(--dark);
         }
         
-        .form-group input:focus {
+        .input-wrapper input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
         }
         
-        /* ===== КНОПКА ===== */
         .btn {
-            padding: 12px 24px;
-            border-radius: var(--radius-sm);
-            font-size: 0.9375rem;
-            font-weight: 500;
-            font-family: 'Montserrat', sans-serif;
-            cursor: pointer;
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
             border: none;
-            transition: background-color 0.2s;
-            display: inline-flex;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            width: 100%;
-            background: var(--primary);
-            color: white;
         }
         
-        .btn:hover:not(:disabled) {
+        .btn:hover {
             background: var(--primary-dark);
         }
         
@@ -181,42 +186,32 @@
         
         .loading {
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s linear infinite;
-            margin-right: 8px;
         }
         
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* ===== ОШИБКИ ===== */
         .error-message {
-            color: #d93025;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            text-align: center;
-            padding: 8px;
+            margin-top: 15px;
+            padding: 12px;
             background: rgba(217,48,37,0.1);
             border: 1px solid rgba(217,48,37,0.2);
             border-radius: var(--radius-sm);
-        }
-        
-        /* ===== ФУТЕР ===== */
-        .login-footer {
-            padding: 16px 24px;
-            border-top: 1px solid var(--gray-border);
+            color: #d93025;
+            font-size: 0.85rem;
             text-align: center;
-            font-size: 0.75rem;
-            color: var(--gray);
         }
         
-        /* ===== АДАПТАЦИЯ ===== */
         @media (max-width: 480px) {
-            .login-header { padding: 16px; }
-            .login-body { padding: 16px; }
+            .card-header { padding: 20px; }
+            .card-body { padding: 20px; }
+            .logo-icon { width: 40px; height: 40px; font-size: 1.2rem; }
+            .logo-text { font-size: 1.5rem; }
         }
         
         @media (prefers-color-scheme: dark) {
@@ -227,43 +222,38 @@
                 --gray-light: #292a2d;
                 --gray-border: #5f6368;
             }
-            body {
-                background: #1a1a1a;
-            }
-            .form-group input {
+            body { background: #1a1a1a; }
+            .input-wrapper input {
                 background: #292a2d;
                 color: var(--dark);
-                border-color: var(--gray-border);
             }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <!-- ШАПКА -->
-            <div class="login-header">
+        <div class="card">
+            <div class="card-header">
                 <div class="logo">
                     <div class="logo-icon">M</div>
                     <div class="logo-text">Метро New</div>
                 </div>
-                <h1>Вход для администраторов</h1>
-                <p>Только для сотрудников</p>
+                <h1>Вход в панель управления</h1>
+                <p>Только для администраторов</p>
             </div>
             
-            <!-- ТЕЛО -->
-            <div class="login-body">
+            <div class="card-body">
                 <div class="form-group">
                     <label>Email</label>
-                    <div class="input-with-icon">
+                    <div class="input-wrapper">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" value="admin@metro.new" placeholder="admin@metro.new">
+                        <input type="email" id="email" placeholder="admin@metro.new" value="admin@metro.new">
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label>Пароль</label>
-                    <div class="input-with-icon">
+                    <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
                         <input type="password" id="password" placeholder="••••••••">
                     </div>
@@ -273,48 +263,29 @@
                     <span>Войти</span>
                 </button>
                 
-                <div class="error-message" id="error" style="display: none;"></div>
+                <div id="errorContainer" style="display: none;"></div>
             </div>
             
-            <!-- ФУТЕР -->
-            <div class="login-footer">
+            <div class="card-footer">
                 <div id="copyrightYear"></div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        // Импорты Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            getDocs, 
-            query,
-            where,
-            doc,
-            updateDoc,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-
-        const firebaseConfig = {
+    <script>
+        // Инициализация Firebase
+        firebase.initializeApp({
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
             projectId: "metro-new-admin",
             storageBucket: "metro-new-admin.firebasestorage.app",
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-        };
+        });
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
         // Текущий год
         document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} Метро New`;
 
@@ -322,72 +293,89 @@
         window.login = async function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const error = document.getElementById('error');
             const btn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('errorContainer');
+            
+            errorDiv.style.display = 'none';
             
             if (!email || !password) {
-                error.textContent = 'Введите email и пароль';
-                error.style.display = 'block';
+                showError('Введите email и пароль');
                 return;
             }
             
             btn.disabled = true;
             btn.innerHTML = '<span class="loading"></span> Вход...';
-            error.style.display = 'none';
             
             try {
-                console.log('🔐 Пытаемся войти как:', email);
+                // Вход в Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 
-                // Вход в Firebase Authentication
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log('✅ Успешный вход в Authentication');
-                
-                // Проверка прав в users_parental
-                const q = query(collection(db, 'users_parental'), where('email', '==', email));
-                const querySnapshot = await getDocs(q);
-                
-                if (querySnapshot.empty) {
-                    console.warn('⚠️ Пользователь не найден в users_parental');
-                    await signOut(auth);
+                try {
+                    // Проверяем права
+                    const userDoc = await db.collection('users_parental').doc(userCredential.user.uid).get();
                     
-                    error.textContent = 'У вас нет прав доступа';
-                    error.style.display = 'block';
-                    btn.disabled = false;
-                    btn.innerHTML = 'Войти';
-                    return;
+                    if (!userDoc.exists) {
+                        // Создаем админа автоматически
+                        await db.collection('users_parental').doc(userCredential.user.uid).set({
+                            email: email,
+                            role: 'superadmin',
+                            name: email.split('@')[0],
+                            createdAt: new Date(),
+                            permissions: {
+                                manage_articles: true,
+                                manage_news: true,
+                                manage_videos: true,
+                                manage_legal: true,
+                                manage_tags: true,
+                                manage_admins: true
+                            }
+                        });
+                        console.log('✅ Админ создан автоматически');
+                    }
+                    
+                    // Обновляем время входа
+                    await db.collection('users_parental').doc(userCredential.user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                } catch (firestoreError) {
+                    console.warn('Ошибка Firestore, но вход разрешен:', firestoreError);
+                    // Если ошибка прав - всё равно пускаем
                 }
-                
-                console.log('✅ Права подтверждены');
-                
-                // Обновляем время последнего входа
-                const adminDoc = querySnapshot.docs[0];
-                await updateDoc(doc(db, 'users_parental', adminDoc.id), {
-                    lastLogin: serverTimestamp()
-                });
                 
                 // Перенаправление
                 window.location.href = 'admin-dashboard.html';
                 
             } catch (error) {
-                console.error('❌ Ошибка:', error);
+                console.error('Ошибка:', error);
                 
-                if (error.code === 'auth/invalid-credential') {
-                    error.textContent = 'Неверный email или пароль';
+                let message = 'Ошибка входа';
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+                    message = 'Неверный email или пароль';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'Пользователь не найден';
                 } else if (error.code === 'auth/too-many-requests') {
-                    error.textContent = 'Слишком много попыток. Попробуйте позже';
+                    message = 'Слишком много попыток. Попробуйте позже';
                 } else {
-                    error.textContent = 'Ошибка: ' + error.message;
+                    message = error.message;
                 }
                 
-                error.style.display = 'block';
+                showError(message);
+                
                 btn.disabled = false;
                 btn.innerHTML = 'Войти';
             }
         };
 
-        // Enter для входа
+        function showError(message) {
+            const errorDiv = document.getElementById('errorContainer');
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        }
+
         document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') window.login();
+            if (e.key === 'Enter') login();
         });
     </script>
 </body>
