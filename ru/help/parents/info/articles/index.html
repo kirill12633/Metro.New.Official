@@ -479,7 +479,7 @@
         try {
             firebase.appCheck().activate(
                 '6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-',
-                true // позволяет использовать в режиме разработки
+                true // режим разработки
             );
             console.log('✅ App Check активирован');
         } catch (e) {
@@ -498,20 +498,19 @@
         // ===== ФУНКЦИЯ БЕЗОПАСНОГО УВЕЛИЧЕНИЯ ПРОСМОТРОВ =====
         async function incrementViews(docRef) {
             try {
-                // Получаем текущие данные
                 const doc = await docRef.get();
                 if (!doc.exists) return;
                 
                 const currentViews = doc.data().views || 0;
                 
-                // Увеличиваем ровно на 1 (как в правилах)
+                // Увеличиваем ровно на 1
                 await docRef.update({
                     views: currentViews + 1
                 });
                 console.log('✅ Просмотр засчитан');
             } catch (error) {
                 console.warn('⚠️ Не удалось обновить просмотры:', error);
-                // Не показываем ошибку пользователю - это не критично
+                // Не показываем ошибку пользователю
             }
         }
         
@@ -519,7 +518,7 @@
         window.rate = async function(value) {
             if (!articleId) return;
             
-            // Проверяем, голосовал ли уже (защита от накрутки)
+            // Проверяем, голосовал ли уже
             const voted = localStorage.getItem(`rated_${articleId}`);
             if (voted) {
                 alert('Вы уже оценили эту статью');
@@ -534,7 +533,7 @@
                 
                 const currentRatings = doc.data().ratings || [];
                 
-                // Добавляем новую оценку (не удаляем старые)
+                // Добавляем новую оценку
                 await docRef.update({
                     ratings: [...currentRatings, {
                         value: value,
@@ -549,7 +548,11 @@
                 loadContent();
             } catch (error) {
                 console.error('Ошибка:', error);
-                alert('Ошибка при сохранении оценки');
+                if (error.code === 'permission-denied') {
+                    alert('Ошибка доступа. Пожалуйста, войдите в систему');
+                } else {
+                    alert('Ошибка при сохранении оценки');
+                }
             }
         };
         
@@ -603,7 +606,7 @@
                     if (docSnap.exists) {
                         const data = docSnap.data();
                         
-                        // Защита от XSS: экранируем заголовки
+                        // Экранируем заголовки
                         document.getElementById('pageTitle').textContent = 
                             data.title ? String(data.title).replace(/[<>]/g, '') : 'Статья';
                         document.getElementById('pageSubtitle').textContent = 
@@ -613,7 +616,7 @@
                             data.createdAt.toDate().toLocaleDateString() : 
                             new Date().toLocaleDateString();
                         
-                        // Увеличиваем просмотры (безопасно)
+                        // Увеличиваем просмотры
                         await incrementViews(docRef);
                         
                         // Подсчёт рейтинга
@@ -631,7 +634,7 @@
                         // Проверка голосовал ли
                         const voted = localStorage.getItem(`rated_${articleId}`);
                         
-                        // Безопасное отображение тегов
+                        // Безопасные теги
                         let tagsHtml = '';
                         if (data.tags && data.tags.length > 0) {
                             const safeTags = data.tags.map(t => 
@@ -732,7 +735,7 @@
                         const importantClass = data.important ? 'important' : '';
                         const importantBadge = data.important ? '<span class="important-badge">Важно</span>' : '';
                         
-                        // Безопасное экранирование заголовка
+                        // Безопасное экранирование
                         const safeTitle = data.title ? String(data.title).replace(/[<>]/g, '') : 'Без названия';
                         const safeDesc = data.description ? String(data.description).replace(/[<>]/g, '') : '';
                         
