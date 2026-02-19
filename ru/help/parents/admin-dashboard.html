@@ -12,44 +12,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (правильный способ) -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
+            --archived: #6c757d;
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
         }
-
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Montserrat', sans-serif;
             background: #f8f9fa;
-            color: #333;
+            color: var(--dark);
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
         .card {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
             overflow: hidden;
         }
-
+        
         .card-header {
             padding: 24px 24px 16px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--gray-border);
         }
-
+        
         .logo {
             display: flex;
             align-items: center;
@@ -57,141 +67,141 @@
             gap: 10px;
             margin-bottom: 16px;
         }
-
+        
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: #0066CC;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .logo-text {
             font-size: 1.5rem;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #333;
+            color: var(--dark);
         }
-
+        
         .card-header h1 {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 500;
-            margin-bottom: 5px;
+            color: var(--dark);
         }
-
+        
         .card-header p {
-            font-size: 0.9rem;
-            color: #666;
+            font-size: 0.95rem;
+            color: var(--gray);
+            margin-top: 5px;
         }
-
-        .card-body {
-            padding: 24px;
-        }
-
+        
+        .card-body { padding: 24px; }
+        
         .card-footer {
             padding: 16px 24px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid var(--gray-border);
             text-align: center;
             font-size: 0.75rem;
-            color: #666;
+            color: var(--gray);
         }
-
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
-
+        
         .stat-card {
-            background: #0066CC;
-            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
             padding: 20px;
             text-align: center;
             color: white;
             cursor: pointer;
             transition: transform 0.2s;
         }
-
+        
         .stat-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0,102,204,0.3);
         }
-
+        
         .stat-card h3 {
             font-size: 0.9rem;
             margin-bottom: 8px;
             opacity: 0.9;
         }
-
+        
         .stat-number {
             font-size: 2.2rem;
             font-weight: 700;
         }
-
+        
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-
+        
         .tab {
             padding: 12px 20px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
         }
-
+        
         .tab:hover {
-            background: #f5f5f5;
-            border-color: #0066CC;
+            background: var(--gray-light);
+            border-color: var(--primary);
         }
-
+        
         .tab.active {
-            background: #0066CC;
+            background: var(--primary);
             color: white;
-            border-color: #0066CC;
+            border-color: var(--primary);
         }
-
-        .tab.active i {
-            color: white;
-        }
-
+        
+        .tab.active i { color: white; }
+        
         .content-panel {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
             padding: 20px;
             margin-top: 20px;
         }
-
+        
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #ddd;
+            border-bottom: 2px solid var(--gray-border);
         }
-
+        
         .panel-header h2 {
             font-size: 1.2rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
+        
         .btn {
             padding: 10px 18px;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
@@ -201,138 +211,228 @@
             gap: 8px;
             transition: all 0.2s;
         }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
+        
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #0b5e2e; }
+        
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-warning:hover { background: #e6b800; }
+        
         .btn-outline {
             background: transparent;
-            border: 1px solid #0066CC;
-            color: #0066CC;
+            border: 1px solid var(--primary);
+            color: var(--primary);
         }
-
-        .btn-outline:hover {
-            background: #0066CC;
-            color: white;
-        }
-
+        .btn-outline:hover { background: var(--primary); color: white; }
+        
         .items-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-
+        
         .item-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
             transition: all 0.2s;
         }
-
+        
         .item-row:hover {
-            border-color: #0066CC;
+            border-color: var(--primary);
             background: white;
         }
-
-        .item-info {
-            flex: 1;
+        
+        .item-row.archived {
+            opacity: 0.7;
+            background: #f0f0f0;
+            border-color: var(--archived);
         }
-
+        
+        .item-info { flex: 1; }
+        
         .item-info h4 {
             font-size: 1rem;
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-
+        
         .item-info p {
-            color: #666;
+            color: var(--gray);
             font-size: 0.85rem;
         }
-
+        
         .item-meta {
             display: flex;
             gap: 15px;
             margin-top: 5px;
-            color: #666;
+            color: var(--gray);
             font-size: 0.75rem;
+            flex-wrap: wrap;
         }
-
-        .badge.important {
-            background: #ffc107;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 12px;
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
             font-size: 0.7rem;
+            font-weight: 500;
         }
-
+        
+        .badge.important { background: var(--warning); color: #000; }
+        .badge.archived { background: var(--archived); color: white; }
+        .badge.pdf { background: var(--danger); color: white; }
+        
         .item-actions {
             display: flex;
             gap: 8px;
         }
-
+        
         .icon-btn {
             width: 36px;
             height: 36px;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             color: white;
             transition: all 0.2s;
         }
-
-        .icon-btn.view {
-            background: #28a745;
+        
+        .icon-btn:hover { transform: scale(1.1); }
+        .icon-btn.view { background: var(--success); }
+        .icon-btn.edit { background: var(--primary); }
+        .icon-btn.archive { background: var(--archived); }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
-
-        .icon-btn.view:hover {
-            background: #218838;
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
         .toast {
             position: fixed;
             top: 20px;
             right: 20px;
             padding: 12px 20px;
-            background: #28a745;
+            background: var(--success);
             color: white;
-            border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
             z-index: 9999;
             animation: slideIn 0.3s ease;
         }
-
-        .toast.error {
-            background: #dc3545;
-        }
-
+        
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); color: #000; }
+        
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-
+        
         @media (max-width: 700px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .item-row { flex-direction: column; gap: 10px; text-align: center; }
+            .item-meta { justify-content: center; }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #e8eaed;
+                --light: #202124;
+                --gray: #9aa0a6;
+                --gray-light: #292a2d;
+                --gray-border: #5f6368;
             }
-            
-            .item-row {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            
-            .item-meta {
-                justify-content: center;
-            }
+            body { background: #1a1a1a; }
+            .item-row.archived { background: #1a1a1a; }
         }
     </style>
 </head>
@@ -349,27 +449,25 @@
             </div>
             
             <div class="card-body">
-                <!-- Статистика -->
                 <div class="stats-grid">
                     <div class="stat-card" onclick="switchTab('articles')">
-                        <h3>Статьи</h3>
+                        <h3>📄 Статьи</h3>
                         <div class="stat-number" id="articlesCount">0</div>
                     </div>
                     <div class="stat-card" onclick="switchTab('news')">
-                        <h3>Новости</h3>
+                        <h3>📰 Новости</h3>
                         <div class="stat-number" id="newsCount">0</div>
                     </div>
                     <div class="stat-card" onclick="switchTab('videos')">
-                        <h3>Видео</h3>
+                        <h3>🎥 Видео</h3>
                         <div class="stat-number" id="videosCount">0</div>
                     </div>
                     <div class="stat-card" onclick="switchTab('legal')">
-                        <h3>Документы</h3>
+                        <h3>⚖️ Юридическое</h3>
                         <div class="stat-number" id="legalCount">0</div>
                     </div>
                 </div>
                 
-                <!-- Вкладки -->
                 <div class="tabs">
                     <button class="tab active" data-tab="articles" onclick="switchTab('articles')">
                         <i class="fas fa-newspaper"></i> Статьи
@@ -385,14 +483,9 @@
                     </button>
                 </div>
                 
-                <!-- Контент -->
                 <div id="contentArea" class="content-panel">
                     <div class="panel-header">
-                        <h2>Добро пожаловать</h2>
-                    </div>
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin fa-2x"></i>
-                        <p style="margin-top: 15px;">Загрузка данных...</p>
+                        <h2>Загрузка...</h2>
                     </div>
                 </div>
             </div>
@@ -404,24 +497,95 @@
             </div>
         </div>
     </div>
+    
+    <!-- Модальное окно добавления/редактирования -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">➕ Добавить</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Заголовок</label>
+                <input type="text" id="editTitle" placeholder="Введите заголовок">
+            </div>
+            
+            <div class="form-group">
+                <label>Описание</label>
+                <input type="text" id="editDesc" placeholder="Краткое описание">
+            </div>
+            
+            <div class="form-group">
+                <label>Содержание</label>
+                <textarea id="editContent" placeholder="Полный текст..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Теги</label>
+                    <input type="text" id="editTags" placeholder="тег1, тег2, тег3">
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="editStatus">
+                        <option value="published">✅ Опубликовано</option>
+                        <option value="draft">📝 Черновик</option>
+                        <option value="archived">🗄️ Архив</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Поля для видео -->
+            <div id="videoFields" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>YouTube ID</label>
+                        <input type="text" id="youtubeId" placeholder="dQw4w9WgXcQ">
+                    </div>
+                    <div class="form-group">
+                        <label>Длительность</label>
+                        <input type="text" id="duration" placeholder="5:30">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Поля для PDF -->
+            <div id="pdfFields" style="display: none;">
+                <div class="form-group">
+                    <label>Ссылка на PDF</label>
+                    <input type="url" id="pdfLink" placeholder="https://.../file.pdf">
+                </div>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="editImportant">
+                <label for="editImportant">⭐ Важное</label>
+            </div>
+            
+            <button class="btn btn-primary" onclick="saveItem()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-save"></i> Сохранить
+            </button>
+        </div>
+    </div>
 
     <script>
         // Инициализация Firebase
-        const firebaseConfig = {
+        firebase.initializeApp({
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
             projectId: "metro-new-admin",
             storageBucket: "metro-new-admin.firebasestorage.app",
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-        };
+        });
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
         const auth = firebase.auth();
-
+        const db = firebase.firestore();
+        
         let currentUser = null;
         let currentTab = 'articles';
+        let currentEditId = null;
 
         // Проверка авторизации
         auth.onAuthStateChanged(async (user) => {
@@ -430,26 +594,12 @@
                 return;
             }
             
-            try {
-                const userDoc = await db.collection('users_parental').doc(user.uid).get();
-                
-                if (!userDoc.exists) {
-                    auth.signOut();
-                    alert('У вас нет прав доступа');
-                    window.location.href = 'admin-login.html';
-                    return;
-                }
-                
-                currentUser = user;
-                document.getElementById('welcomeMessage').innerHTML = 
-                    `Здравствуйте, ${user.email}`;
-                
-                loadStats();
-                switchTab('articles');
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Ошибка подключения к базе данных');
-            }
+            currentUser = user;
+            document.getElementById('welcomeMessage').innerHTML = 
+                `Здравствуйте, ${user.email}`;
+            
+            await loadStats();
+            switchTab('articles');
         });
 
         // Выход
@@ -490,10 +640,10 @@
             const area = document.getElementById('contentArea');
             
             const titles = {
-                articles: 'Статьи',
-                news: 'Новости',
-                videos: 'Видео',
-                legal: 'Юридическое'
+                articles: '📄 Статьи',
+                news: '📰 Новости',
+                videos: '🎥 Видео',
+                legal: '⚖️ Юридическое'
             };
             
             try {
@@ -504,7 +654,7 @@
                 let html = `
                     <div class="panel-header">
                         <h2>${titles[tab]}</h2>
-                        <button class="btn btn-success" onclick="alert('Добавление будет позже')">
+                        <button class="btn btn-success" onclick="showAddModal()">
                             <i class="fas fa-plus"></i> Добавить
                         </button>
                     </div>
@@ -520,21 +670,38 @@
                             data.createdAt.toDate().toLocaleDateString() : 
                             'без даты';
                         
+                        const archivedClass = data.status === 'archived' ? 'archived' : '';
+                        
+                        let badges = '';
+                        if (data.important) badges += '<span class="badge important">⭐ Важно</span>';
+                        if (data.status === 'archived') badges += '<span class="badge archived">🗄️ Архив</span>';
+                        if (data.file) badges += '<span class="badge pdf">📎 PDF</span>';
+                        
                         html += `
-                            <div class="item-row">
+                            <div class="item-row ${archivedClass}">
                                 <div class="item-info">
-                                    <h4>${data.title || 'Без названия'}</h4>
+                                    <h4>
+                                        ${data.title || 'Без названия'}
+                                        ${badges}
+                                    </h4>
                                     <p>${data.description || ''}</p>
                                     <div class="item-meta">
                                         <span><i class="far fa-calendar-alt"></i> ${date}</span>
                                         <span><i class="far fa-eye"></i> ${data.views || 0}</span>
-                                        ${data.important ? '<span class="badge important">⭐ Важно</span>' : ''}
                                     </div>
                                 </div>
                                 <div class="item-actions">
-                                    <button class="icon-btn view" onclick="previewItem('${tab}', '${doc.id}')">
+                                    <button class="icon-btn view" onclick="previewItem('${tab}', '${doc.id}')" title="Просмотр">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                    <button class="icon-btn edit" onclick="editItem('${doc.id}')" title="Редактировать">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    ${data.status !== 'archived' ? `
+                                        <button class="icon-btn archive" onclick="archiveItem('${doc.id}')" title="В архив">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    ` : ''}
                                 </div>
                             </div>
                         `;
@@ -549,7 +716,7 @@
                     <div class="panel-header">
                         <h2>Ошибка загрузки</h2>
                     </div>
-                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                    <div style="text-align: center; padding: 40px; color: var(--danger);">
                         <i class="fas fa-exclamation-triangle fa-2x"></i>
                         <p>${error.message}</p>
                     </div>
@@ -557,14 +724,128 @@
             }
         }
 
-        // Просмотр материала
+        // Просмотр материала (ИСПРАВЛЕНО: без .html)
         window.previewItem = function(tab, id) {
-            window.open(`https://kirill12633.github.io/Metro.New.Official/ru/help/parents/info/${tab}.html?id=${id}`, '_blank');
+            window.open(`https://kirill12633.github.io/Metro.New.Official/ru/help/parents/info/${tab}?id=${id}`, '_blank');
         };
 
-        // Текущий год в футере
-        document.querySelector('.card-footer').innerHTML += 
-            `<div style="margin-top: 10px;">© ${new Date().getFullYear()} Метро New</div>`;
+        // Показать модальное окно добавления
+        window.showAddModal = function() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = `➕ Добавить ${currentTab === 'articles' ? 'статью' : currentTab === 'news' ? 'новость' : currentTab === 'videos' ? 'видео' : 'документ'}`;
+            
+            document.getElementById('editTitle').value = '';
+            document.getElementById('editDesc').value = '';
+            document.getElementById('editContent').value = '';
+            document.getElementById('editTags').value = '';
+            document.getElementById('editStatus').value = 'published';
+            document.getElementById('editImportant').checked = false;
+            
+            document.getElementById('videoFields').style.display = currentTab === 'videos' ? 'block' : 'none';
+            document.getElementById('pdfFields').style.display = currentTab === 'legal' ? 'block' : 'none';
+            
+            document.getElementById('editModal').classList.add('active');
+        };
+
+        // Редактирование
+        window.editItem = async function(id) {
+            currentEditId = id;
+            const docRef = db.collection(currentTab).doc(id);
+            const docSnap = await docRef.get();
+            
+            if (docSnap.exists) {
+                const data = docSnap.data();
+                document.getElementById('modalTitle').textContent = `✏️ Редактировать`;
+                document.getElementById('editTitle').value = data.title || '';
+                document.getElementById('editDesc').value = data.description || '';
+                document.getElementById('editContent').value = data.content || '';
+                document.getElementById('editTags').value = (data.tags || []).join(', ');
+                document.getElementById('editStatus').value = data.status || 'published';
+                document.getElementById('editImportant').checked = data.important || false;
+                
+                document.getElementById('videoFields').style.display = currentTab === 'videos' ? 'block' : 'none';
+                document.getElementById('pdfFields').style.display = currentTab === 'legal' ? 'block' : 'none';
+                
+                if (currentTab === 'videos') {
+                    document.getElementById('youtubeId').value = data.youtubeId || '';
+                    document.getElementById('duration').value = data.duration || '';
+                }
+                
+                if (currentTab === 'legal') {
+                    document.getElementById('pdfLink').value = data.file || '';
+                }
+                
+                document.getElementById('editModal').classList.add('active');
+            }
+        };
+
+        // Сохранение
+        window.saveItem = async function() {
+            const data = {
+                title: document.getElementById('editTitle').value,
+                description: document.getElementById('editDesc').value,
+                content: document.getElementById('editContent').value,
+                tags: document.getElementById('editTags').value.split(',').map(t => t.trim()),
+                status: document.getElementById('editStatus').value,
+                important: document.getElementById('editImportant').checked,
+                updatedAt: new Date()
+            };
+            
+            if (currentTab === 'videos') {
+                data.youtubeId = document.getElementById('youtubeId').value;
+                data.duration = document.getElementById('duration').value;
+            }
+            
+            if (currentTab === 'legal') {
+                data.file = document.getElementById('pdfLink').value;
+            }
+            
+            try {
+                if (currentEditId) {
+                    await db.collection(currentTab).doc(currentEditId).update(data);
+                    showToast('✅ Обновлено');
+                } else {
+                    data.createdAt = new Date();
+                    data.views = 0;
+                    data.author = currentUser.email;
+                    await db.collection(currentTab).add(data);
+                    showToast('✅ Добавлено');
+                }
+                
+                closeModal();
+                await loadContent(currentTab);
+                await loadStats();
+            } catch (error) {
+                showToast('❌ ' + error.message, 'error');
+            }
+        };
+
+        // Архивация
+        window.archiveItem = async function(id) {
+            if (!confirm('Отправить в архив?')) return;
+            
+            try {
+                await db.collection(currentTab).doc(id).update({
+                    status: 'archived'
+                });
+                showToast('🗄️ В архиве');
+                await loadContent(currentTab);
+            } catch (error) {
+                showToast('❌ ' + error.message, 'error');
+            }
+        };
+
+        window.closeModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+        };
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
     </script>
 </body>
 </html>
