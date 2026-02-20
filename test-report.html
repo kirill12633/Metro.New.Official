@@ -1,0 +1,234 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Error Reporter</title>
+
+<!-- libs -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+#errorBtn{
+  position:fixed;bottom:20px;right:20px;padding:10px 14px;
+  border-radius:8px;border:none;background:#ff4d4f;color:#fff;
+  cursor:pointer;z-index:9999
+}
+#errorModal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  align-items:center;justify-content:center;z-index:10000
+}
+#errorBox{
+  background:#fff;padding:20px;border-radius:12px;width:320px;
+  font-family:sans-serif
+}
+</style>
+</head>
+<body>
+
+<!-- ================== 🔴 ИЗМЕНИ ТУТ ================== -->
+<script>
+const SUPABASE_URL = "https://ackrvfonntcpccrnkcvh.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFja3J2Zm9ubnRjcGNjcm5rY3ZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MTg5NTMsImV4cCI6MjA4NzE5NDk1M30.Smi844fLUN3rGLRGp-yHeNIT6tn8M-TtjBeh__Lz6aw";
+const BUCKET_NAME = "error-screenshots";
+</script>
+<!-- ==================================================== -->
+
+<script>
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+/* ======================================================
+   🛡️ АНТИ-СПАМ НАСТРОЙКИ
+====================================================== */
+
+// минимальный интервал между отправками (сек)
+const RATE_LIMIT_SECONDS = 60;
+
+// ключи localStorage
+const LS_LAST_SENT = "err_last_sent";
+const LS_LAST_HASH = "err_last_hash";
+
+/* ======================================================
+   🧠 УТИЛИТЫ
+====================================================== */
+
+function hashString(str){
+  let h=0,i,chr;
+  if(str.length===0) return h;
+  for(i=0;i<str.length;i++){
+    chr=str.charCodeAt(i);
+    h=((h<<5)-h)+chr;
+    h|=0;
+  }
+  return h.toString();
+}
+
+function canSendNow(){
+  const last = Number(localStorage.getItem(LS_LAST_SENT)||0);
+  return Date.now()-last > RATE_LIMIT_SECONDS*1000;
+}
+
+function markSent(){
+  localStorage.setItem(LS_LAST_SENT, Date.now().toString());
+}
+
+/* ======================================================
+   📸 SCREENSHOT
+====================================================== */
+
+async function takeScreenshot(){
+  const canvas = await html2canvas(document.body,{
+    useCORS:true,
+    logging:false,
+    scale:1
+  });
+  return new Promise(res=>canvas.toBlob(res,"image/png",0.9));
+}
+
+/* ======================================================
+   ☁️ UPLOAD
+====================================================== */
+
+async function uploadScreenshot(blob){
+  if(!blob) return null;
+  if(blob.size > 2*1024*1024) return null;
+
+  const path=`errors/${crypto.randomUUID()}.png`;
+
+  const {error}=await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(path,blob,{contentType:"image/png"});
+
+  if(error){console.error(error);return null;}
+  return path;
+}
+
+/* ======================================================
+   🗄️ SAVE (МИНИМАЛЬНЫЕ ДАННЫЕ)
+====================================================== */
+
+async function saveErrorReport({message,screenshotPath}){
+  const payload={
+    url:location.pathname,          // ← только путь (privacy)
+    message,
+    error_code:"USER_REPORT",
+    error_type:"client",
+    screenshot_path:screenshotPath,
+    user_agent:navigator.userAgent.slice(0,120) // укорочено
+  };
+
+  const {error}=await supabase
+    .from("error_reports")
+    .insert([payload]);
+
+  if(error) throw error;
+}
+
+/* ======================================================
+   🚀 MAIN FLOW
+====================================================== */
+
+async function reportErrorFlow(text){
+
+  // 🛡️ honeypot
+  if(document.getElementById("hp_field").value){
+    console.warn("bot detected");
+    return;
+  }
+
+  // 🛡️ rate limit
+  if(!canSendNow()){
+    setStatus("⏳ Подожди немного перед повторной отправкой");
+    return;
+  }
+
+  // 🛡️ дедупликация
+  const hash = hashString(text);
+  const lastHash = localStorage.getItem(LS_LAST_HASH);
+  if(hash === lastHash){
+    setStatus("⚠️ Похоже уже отправляли");
+    return;
+  }
+
+  try{
+    setStatus("Делаем скрин…");
+
+    const blob = await takeScreenshot();
+
+    setStatus("Загружаем…");
+
+    const path = await uploadScreenshot(blob);
+
+    setStatus("Сохраняем…");
+
+    await saveErrorReport({
+      message:text,
+      screenshotPath:path
+    });
+
+    markSent();
+    localStorage.setItem(LS_LAST_HASH, hash);
+
+    setStatus("✅ Отправлено");
+    setTimeout(closeErrorDialog,1200);
+
+  }catch(e){
+    console.error(e);
+    setStatus("❌ Ошибка отправки");
+  }
+}
+
+/* ======================================================
+   🎨 UI
+====================================================== */
+
+function openErrorDialog(){
+  document.getElementById("errorModal").style.display="flex";
+}
+function closeErrorDialog(){
+  document.getElementById("errorModal").style.display="none";
+}
+function setStatus(t){
+  document.getElementById("errorStatus").innerText=t;
+}
+async function submitError(){
+  const t=document.getElementById("errorText").value.trim();
+  if(!t){alert("Опишите проблему");return;}
+  await reportErrorFlow(t);
+}
+</script>
+
+<!-- ================== КНОПКА ================== -->
+<button id="errorBtn" onclick="openErrorDialog()">
+Сообщить об ошибке
+</button>
+
+<!-- ================== МОДАЛКА ================== -->
+<div id="errorModal">
+  <div id="errorBox">
+    <h3 style="margin-top:0">Сообщить об ошибке</h3>
+
+    <!-- 🛡️ honeypot -->
+    <input id="hp_field" style="display:none" autocomplete="off">
+
+    <textarea id="errorText"
+      placeholder="Что пошло не так?"
+      style="width:100%;height:90px;margin-bottom:10px;"></textarea>
+
+    <div id="errorStatus"
+      style="font-size:12px;color:#666;margin-bottom:10px;"></div>
+
+    <div style="display:flex;gap:8px;">
+      <button onclick="submitError()" style="flex:1;">Отправить</button>
+      <button onclick="closeErrorDialog()" style="flex:1;">Отмена</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+```
