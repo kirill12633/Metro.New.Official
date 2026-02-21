@@ -794,6 +794,77 @@
             font-size: 0.85rem;
             animation: slideUp 0.5s ease;
         }
+
+        /* Стили для уведомления об удалении */
+        .delete-notice {
+            background: linear-gradient(135deg, rgba(251,188,4,0.1), rgba(255,215,0,0.1));
+            border: 1px solid rgba(251,188,4,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .delete-notice::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,215,0,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .delete-notice i {
+            color: var(--warning);
+            font-size: 1.2rem;
+        }
+
+        .delete-notice strong {
+            color: var(--warning);
+        }
+
+        .delete-notice small {
+            display: block;
+            margin-top: 8px;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        /* Кнопка удаления аккаунта */
+        .delete-account-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .delete-account-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+            background: linear-gradient(135deg, #ff4757, #ff6b6b);
+        }
     </style>
 </head>
 <body>
@@ -811,6 +882,18 @@
             <div class="auth-body">
                 <!-- ========== РЕГИСТРАЦИЯ ========== -->
                 <div class="form-container active" id="registerForm">
+                    <!-- Уведомление об удалении данных (ДОБАВЛЕНО) -->
+                    <div class="delete-notice">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-trash-alt" style="font-size: 24px;"></i>
+                            <div>
+                                <strong>🗑️ Данные можно удалить в любой момент!</strong>
+                                <p style="margin: 4px 0 0; font-size: 0.85rem;">Вы полностью контролируете свои данные</p>
+                            </div>
+                        </div>
+                        <small>⚡ Аккаунт можно удалить в настройках после регистрации</small>
+                    </div>
+
                     <!-- Прогресс-бар -->
                     <div class="registration-progress">
                         <div class="progress-bar">
@@ -993,6 +1076,11 @@
                             
                             <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
                             
+                            <!-- Кнопка удаления аккаунта (для демонстрации) -->
+                            <button type="button" class="delete-account-btn" id="demoDeleteBtn" style="margin-bottom: 16px;">
+                                <i class="fas fa-trash-alt"></i> Демо: удалить аккаунт
+                            </button>
+                            
                             <div class="step-navigation">
                                 <button type="button" class="btn btn-secondary" id="prevStep3">
                                     <i class="fas fa-arrow-left"></i> Назад
@@ -1130,6 +1218,18 @@
                         <p class="success-text" id="successMessage">
                             Проверьте ваш email для подтверждения
                         </p>
+                        
+                        <!-- Уведомление об удалении (ДОБАВЛЕНО) -->
+                        <div class="delete-notice" style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-trash-alt" style="font-size: 24px;"></i>
+                                <div>
+                                    <strong>🗑️ Данные можно удалить в любой момент!</strong>
+                                    <p style="margin: 4px 0 0; font-size: 0.85rem;">Перейдите в настройки аккаунта</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div style="margin-bottom: 20px; padding: 10px; background: rgba(0,102,204,0.1); border-radius: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
                                 <i class="fas fa-envelope" style="color: var(--primary);"></i>
@@ -1139,6 +1239,11 @@
                                 <i class="fas fa-redo"></i> <span id="resendTimerText">Отправить повторно</span>
                             </button>
                         </div>
+                        
+                        <button class="delete-account-btn" id="deleteAccountBtn" style="margin-bottom: 16px;">
+                            <i class="fas fa-trash-alt"></i> Удалить аккаунт
+                        </button>
+                        
                         <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" target="_blank" style="text-decoration: none;">
                             <i class="fas fa-sign-in-alt"></i> Перейти к входу
                         </a>
@@ -1184,14 +1289,16 @@
             signInWithPopup,
             GoogleAuthProvider,
             signInWithEmailAndPassword,
-            sendPasswordResetEmail
+            sendPasswordResetEmail,
+            deleteUser
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { 
             getFirestore, 
             doc, 
             setDoc, 
             serverTimestamp,
-            collection
+            collection,
+            deleteDoc
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         import { 
             initializeAppCheck, 
@@ -1257,6 +1364,9 @@
             updateCopyrightYear();
             initEventHandlers();
             addPrivacyInfoToForm();
+            
+            // Добавляем обработчики для кнопок удаления
+            initDeleteButtons();
         });
 
         // ============================================
@@ -1596,7 +1706,7 @@
         }
 
         // ============================================
-        // РАСЧЕТ ВОЗРАСТА (ИСПРАВЛЕНО)
+        // РАСЧЕТ ВОЗРАСТА
         // ============================================
         function calculateAge(day, month, year) {
             // Преобразуем в числа, если пришли строки
@@ -1620,43 +1730,12 @@
         }
 
         // ============================================
-        // ИНФОРМАЦИЯ О ПРИВАТНОСТИ
+        // ИНФОРМАЦИЯ О ПРИВАТНОСТИ (УБРАНО)
         // ============================================
         function addPrivacyInfoToForm() {
-            const registerForm = document.getElementById('registerForm');
-            if (!registerForm) return;
-            
-            // Удаляем старый баннер если есть
-            const oldBanner = document.getElementById('privacyInfoBanner');
-            if (oldBanner) oldBanner.remove();
-            
-            const privacyInfo = document.createElement('div');
-            privacyInfo.id = 'privacyInfoBanner';
-            privacyInfo.className = 'privacy-banner';
-            
-            privacyInfo.innerHTML = `
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <div style="background: var(--primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fas fa-shield-alt" style="color: white; font-size: 16px;"></i>
-                    </div>
-                    <div>
-                        <strong style="display: block; margin-bottom: 8px; color: var(--primary); font-size: 0.95rem;">
-                            🔐 Мы защищаем ваши данные
-                        </strong>
-                        <ul style="margin: 0; padding-left: 20px; color: var(--gray); line-height: 1.6;">
-                            <li>✓ Имя, email и дата рождения нужны только для создания аккаунта</li>
-                            <li>✓ Мы не передаем данные третьим лицам</li>
-                            <li>✓ IP-адрес сохраняется для защиты от мошенничества</li>
-                            <li>✓ Вы можете удалить аккаунт в любой момент</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-            
-            const progress = registerForm.querySelector('.registration-progress');
-            if (progress) {
-                progress.parentNode.insertBefore(privacyInfo, progress.nextSibling);
-            }
+            // Функция больше не добавляет баннер с данными
+            // Можно оставить пустой или удалить вызовы
+            console.log('Privacy banner removed');
         }
 
         // ============================================
@@ -1694,6 +1773,57 @@
                     showError('Ошибка отправки письма');
                 }
             };
+        }
+
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ КНОПОК УДАЛЕНИЯ
+        // ============================================
+        function initDeleteButtons() {
+            // Демо-кнопка на шаге 3
+            document.getElementById('demoDeleteBtn')?.addEventListener('click', function() {
+                showNotification('🧪 Демо: аккаунт был бы удален, но это тестовая версия', 'warning');
+            });
+            
+            // Кнопка удаления на экране успеха
+            document.getElementById('deleteAccountBtn')?.addEventListener('click', async function() {
+                if (!auth?.currentUser) {
+                    showNotification('Сначала нужно создать аккаунт', 'warning');
+                    return;
+                }
+                
+                const confirmDelete = confirm('❌ Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить!');
+                
+                if (!confirmDelete) return;
+                
+                showLoading('Удаление аккаунта...');
+                
+                try {
+                    const user = auth.currentUser;
+                    
+                    // Удаляем данные из Firestore
+                    try {
+                        await deleteDoc(doc(db, 'users_public', user.uid));
+                    } catch (dbError) {
+                        console.warn('Firestore deletion error:', dbError);
+                    }
+                    
+                    // Удаляем сам аккаунт
+                    await deleteUser(user);
+                    
+                    hideLoading();
+                    showNotification('✅ Аккаунт успешно удален', 'success');
+                    
+                    // Возвращаемся на главную
+                    setTimeout(() => {
+                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                    }, 1500);
+                    
+                } catch (error) {
+                    hideLoading();
+                    console.error('Delete account error:', error);
+                    showError('Ошибка при удалении аккаунта: ' + error.message);
+                }
+            });
         }
 
         // ============================================
@@ -2120,7 +2250,7 @@
                 `;
                 
                 startResendTimer();
-                showNotification('Аккаунт создан! Подтвердите email', 'success');
+                showNotification('🎉 Аккаунт создан! Не забудьте подтвердить email', 'success');
                 
             } catch (error) {
                 hideLoading();
