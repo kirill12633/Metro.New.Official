@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метро New - Регистрация и вход</title>
-
-     <!-- Иконки -->
-    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -250,7 +245,6 @@
         .form-hint.error { color: var(--danger); }
         .form-hint.success { color: var(--success); }
         
-        /* ===== ИСПРАВЛЕННЫЙ СЧЕТЧИК ===== */
         .input-wrapper {
             position: relative;
             width: 100%;
@@ -287,7 +281,6 @@
         .username-status.taken { color: var(--danger); }
         .username-status.checking { color: var(--warning); }
         
-        /* ===== ИНДИКАТОР СИЛЫ ПАРОЛЯ ===== */
         .password-strength-meter {
             margin-top: 8px;
         }
@@ -316,7 +309,6 @@
             color: var(--gray);
         }
         
-        /* ===== ПОДСКАЗКИ EMAIL ===== */
         .email-suggestions {
             position: absolute;
             top: 100%;
@@ -532,7 +524,6 @@
             color: var(--primary-dark);
         }
         
-        /* ===== УВЕДОМЛЕНИЯ ===== */
         .notification {
             position: fixed;
             top: 20px;
@@ -717,7 +708,6 @@
             text-decoration: underline;
         }
         
-        /* ===== АДАПТАЦИЯ ===== */
         @media (max-width: 480px) {
             .auth-card { border: none; box-shadow: none; background: transparent; }
             .auth-header { padding: 16px; }
@@ -793,6 +783,17 @@
             font-size: 0.875rem;
             color: var(--dark);
         }
+
+        /* Стили для баннера приватности */
+        .privacy-banner {
+            background: linear-gradient(135deg, rgba(0,102,204,0.05), rgba(77,148,255,0.1));
+            border: 1px solid rgba(0,102,204,0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            animation: slideUp 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -843,14 +844,7 @@
                                 <div class="form-hint" id="firstNameHint">Как к вам обращаться</div>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label">Фамилия <span class="optional">(опционально)</span></label>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-user"></i>
-                                    <input type="text" class="form-input" id="lastName" placeholder="Ваша фамилия" maxlength="30">
-                                </div>
-                                <div class="form-hint" id="lastNameHint"></div>
-                            </div>
+                            <!-- Убрано поле "Фамилия (опционально)" -->
                             
                             <div class="form-group">
                                 <label class="form-label">Никнейм</label>
@@ -1018,7 +1012,7 @@
                     
                     <div class="auth-links" id="registerLinks">
                         <span style="color: var(--gray);">Уже есть аккаунт?</span>
-                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="auth-link">Войти</a>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="auth-link" target="_blank">Войти</a>
                     </div>
                 </div>
                 
@@ -1070,7 +1064,7 @@
                     
                     <div class="auth-links">
                         <span style="color: var(--gray);">Нет аккаунта?</span>
-                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="auth-link">Создать аккаунт</a>
+                        <a href="#" class="auth-link" id="showRegisterLink">Создать аккаунт</a>
                     </div>
                 </div>
                 
@@ -1117,7 +1111,7 @@
                             <i class="fas fa-shield-alt"></i>
                             <div>Вернитесь, когда вам исполнится 13 лет</div>
                         </div>
-                        <button class="btn btn-primary btn-block" id="goToParentPageBtn">
+                        <button class="btn btn-primary btn-block" id="goToParentPageBtn" onclick="window.open('https://kirill12633.github.io/Metro.New.Official/ru/help/parents/', '_blank')">
                             <i class="fas fa-external-link-alt"></i> Информация для родителей
                         </button>
                         <div class="auth-links" style="margin-top: 16px;">
@@ -1145,7 +1139,7 @@
                                 <i class="fas fa-redo"></i> <span id="resendTimerText">Отправить повторно</span>
                             </button>
                         </div>
-                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" style="text-decoration: none;">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" target="_blank" style="text-decoration: none;">
                             <i class="fas fa-sign-in-alt"></i> Перейти к входу
                         </a>
                     </div>
@@ -1159,7 +1153,7 @@
                         <p class="success-text" id="resetSuccessMessage">
                             Ссылка для сброса пароля отправлена на ваш email
                         </p>
-                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" style="text-decoration: none;">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" target="_blank">
                             <i class="fas fa-arrow-left"></i> Вернуться к входу
                         </a>
                     </div>
@@ -1170,8 +1164,8 @@
             <div class="auth-footer">
                 <div id="copyrightYear"></div>
                 <div class="footer-links">
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help" target="_blank" class="footer-link">Помощь</a>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/support" target="_blank" class="footer-link">Поддержка</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/" class="footer-link" target="_blank">Помощь</a>
+                    <a href="https://kirill12633.github.io/support.metro.new/" class="footer-link" target="_blank">Поддержка</a>
                 </div>
             </div>
         </div>
@@ -1196,7 +1190,8 @@
             getFirestore, 
             doc, 
             setDoc, 
-            serverTimestamp 
+            serverTimestamp,
+            collection
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         import { 
             initializeAppCheck, 
@@ -1215,18 +1210,30 @@
             appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        // Инициализация Firebase
-        const app = initializeApp(firebaseConfig);
+        // Инициализация Firebase с обработкой ошибок
+        let app, auth, db, googleProvider;
         
-        // App Check с reCAPTCHA
-        const appCheck = initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
-            isTokenAutoRefreshEnabled: true
-        });
-        
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
+        try {
+            app = initializeApp(firebaseConfig);
+            
+            // App Check с reCAPTCHA (с обработкой ошибок)
+            try {
+                const appCheck = initializeAppCheck(app, {
+                    provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
+                    isTokenAutoRefreshEnabled: true
+                });
+            } catch (appCheckError) {
+                console.warn('App Check initialization failed:', appCheckError);
+            }
+            
+            auth = getAuth(app);
+            db = getFirestore(app);
+            googleProvider = new GoogleAuthProvider();
+            
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+        }
 
         // ============================================
         // ОСНОВНЫЕ ПЕРЕМЕННЫЕ
@@ -1234,21 +1241,22 @@
         let currentStep = 1;
         let resendTimer = 60;
         let resendInterval = null;
-        let failedLoginAttempts = 0;
-        const MAX_LOGIN_ATTEMPTS = 3;
 
         // ============================================
-        // ИНИЦИАЛИЗАЦИЯ
+        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Система запущена');
+            
+            // Инициализация всех функций
             fillDateSelectors();
-            initEventHandlers();
-            updateCopyrightYear();
-            initPasswordStrengthChecker();
             initUsernameChecker();
+            initPasswordStrengthChecker();
             initCharCounters();
             initEmailSuggestions();
+            updateCopyrightYear();
+            initEventHandlers();
+            addPrivacyInfoToForm();
         });
 
         // ============================================
@@ -1270,9 +1278,8 @@
             
             if (!daySelect || !yearSelect) return;
             
+            // Очищаем и заполняем дни
             daySelect.innerHTML = '<option value="">День</option>';
-            yearSelect.innerHTML = '<option value="">Год</option>';
-            
             for (let i = 1; i <= 31; i++) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -1280,6 +1287,8 @@
                 daySelect.appendChild(option);
             }
             
+            // Очищаем и заполняем годы
+            yearSelect.innerHTML = '<option value="">Год</option>';
             for (let i = currentYear; i >= currentYear - 100; i--) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -1310,13 +1319,14 @@
             if (usernameInput) {
                 usernameInput.addEventListener('input', function() {
                     const count = this.value.length;
-                    document.getElementById('usernameCounter').textContent = `${count}/20`;
+                    const counter = document.getElementById('usernameCounter');
+                    if (counter) counter.textContent = `${count}/20`;
                 });
             }
         }
 
         // ============================================
-        // ПОДСКАЗКИ EMAIL (КАК В GOOGLE)
+        // ПОДСКАЗКИ EMAIL
         // ============================================
         function initEmailSuggestions() {
             const emailInput = document.getElementById('email');
@@ -1331,16 +1341,13 @@
                 const atIndex = value.indexOf('@');
                 
                 if (atIndex === -1 && value.length > 0) {
-                    // Показываем домены
-                    const localPart = value;
                     suggestionsDiv.innerHTML = domains.map(domain => 
-                        `<div class="suggestion-item" data-email="${localPart}@${domain}">
-                            <i class="fas fa-envelope"></i> ${localPart}@${domain}
+                        `<div class="suggestion-item" data-email="${value}@${domain}">
+                            <i class="fas fa-envelope"></i> ${value}@${domain}
                         </div>`
                     ).join('');
                     suggestionsDiv.classList.add('show');
                 } else if (atIndex > 0) {
-                    // Показываем только подходящие домены
                     const localPart = value.substring(0, atIndex);
                     const typedDomain = value.substring(atIndex + 1);
                     
@@ -1361,7 +1368,6 @@
                 }
             });
             
-            // Клик по подсказке
             suggestionsDiv.addEventListener('click', function(e) {
                 const item = e.target.closest('.suggestion-item');
                 if (item) {
@@ -1370,7 +1376,6 @@
                 }
             });
             
-            // Скрываем при клике вне
             document.addEventListener('click', function(e) {
                 if (!emailInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
                     suggestionsDiv.classList.remove('show');
@@ -1379,13 +1384,14 @@
         }
 
         // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ПРОВЕРКИ НИКНЕЙМА
+        // ПРОВЕРКА НИКНЕЙМА
         // ============================================
         function initUsernameChecker() {
             const usernameInput = document.getElementById('username');
             const statusEl = document.getElementById('usernameStatus');
+            const hintEl = document.getElementById('usernameHint');
             
-            if (!usernameInput || !statusEl) return;
+            if (!usernameInput || !statusEl || !hintEl) return;
             
             let timeout;
             
@@ -1394,6 +1400,8 @@
                 
                 if (username.length < 3) {
                     statusEl.innerHTML = '';
+                    hintEl.textContent = 'Минимум 3 символа';
+                    hintEl.className = 'form-hint';
                     return;
                 }
                 
@@ -1406,34 +1414,29 @@
                     const isAvailable = await checkUsernameAvailability(username);
                     
                     if (isAvailable) {
-                        statusEl.innerHTML = '<i class="fas fa-check"></i>';
+                        statusEl.innerHTML = '<i class="fas fa-check-circle"></i>';
                         statusEl.className = 'username-status available';
-                        document.getElementById('usernameHint').textContent = 'Никнейм свободен!';
-                        document.getElementById('usernameHint').className = 'form-hint success';
+                        hintEl.textContent = 'Никнейм свободен!';
+                        hintEl.className = 'form-hint success';
                     } else {
-                        statusEl.innerHTML = '<i class="fas fa-times"></i>';
+                        statusEl.innerHTML = '<i class="fas fa-times-circle"></i>';
                         statusEl.className = 'username-status taken';
-                        document.getElementById('usernameHint').textContent = 'Никнейм занят';
-                        document.getElementById('usernameHint').className = 'form-hint error';
+                        hintEl.textContent = 'Никнейм занят';
+                        hintEl.className = 'form-hint error';
                     }
                 }, 500);
             });
         }
 
-        // ============================================
-        // ПРОВЕРКА ДОСТУПНОСТИ НИКНЕЙМА
-        // ============================================
         async function checkUsernameAvailability(username) {
-            // Здесь должен быть запрос к Firebase
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            // Заглушка
-            const takenUsernames = ['admin', 'user', 'test', 'metro'];
+            const takenUsernames = ['admin', 'user', 'test', 'metro', 'support', 'moderator', 'root'];
             return !takenUsernames.includes(username.toLowerCase());
         }
 
         // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ИНДИКАТОРА СИЛЫ ПАРОЛЯ
+        // ИНДИКАТОР СИЛЫ ПАРОЛЯ
         // ============================================
         function initPasswordStrengthChecker() {
             const passwordInput = document.getElementById('password');
@@ -1448,36 +1451,80 @@
         }
 
         function checkPasswordStrength(password) {
-            if (!password) return { score: 0, text: 'Введите пароль' };
+            if (!password) return { score: 0, text: 'Введите пароль', requirements: [] };
             
             let score = 0;
+            const requirements = [];
             
-            if (password.length >= 6) score++;
-            if (password.length >= 8) score++;
-            if (/[A-Z]/.test(password)) score++;
-            if (/[0-9]/.test(password)) score++;
-            if (/[^A-Za-z0-9]/.test(password)) score++;
+            if (password.length >= 8) {
+                score++;
+            } else {
+                requirements.push('минимум 8 символов');
+            }
             
-            score = Math.min(4, Math.ceil(score / 2));
+            if (/[A-Z]/.test(password)) {
+                score++;
+            } else {
+                requirements.push('заглавные буквы');
+            }
+            
+            if (/[0-9]/.test(password)) {
+                score++;
+            } else {
+                requirements.push('цифры');
+            }
+            
+            if (/[^A-Za-z0-9]/.test(password)) {
+                score++;
+            } else {
+                requirements.push('спецсимволы');
+            }
             
             const texts = ['', 'Слабый', 'Средний', 'Хороший', 'Сильный'];
-            return { score, text: texts[score] };
+            return { 
+                score: Math.min(4, score), 
+                text: texts[Math.min(4, score)],
+                requirements: requirements
+            };
         }
 
         function updateStrengthIndicator(strength) {
             const bars = ['bar1', 'bar2', 'bar3', 'bar4'].map(id => document.getElementById(id));
             const label = document.getElementById('strengthLabel');
             
-            bars.forEach(bar => bar.className = 'bar');
+            bars.forEach(bar => {
+                if (bar) bar.className = 'bar';
+            });
             
             for (let i = 0; i < strength.score; i++) {
-                if (bars[i]) bars[i].classList.add(`active-${strength.score}`);
+                if (bars[i]) bars[i].classList.add(`active-${Math.min(4, strength.score)}`);
             }
             
             if (label) {
                 label.textContent = strength.text;
                 label.style.color = strength.score >= 3 ? 'var(--success)' : 
                                    strength.score >= 2 ? 'var(--warning)' : 'var(--danger)';
+            }
+            
+            // Добавляем требования
+            const meterContainer = document.getElementById('passwordStrengthMeter');
+            let reqEl = document.getElementById('passwordRequirements');
+            
+            if (!reqEl && meterContainer) {
+                reqEl = document.createElement('div');
+                reqEl.id = 'passwordRequirements';
+                reqEl.style.cssText = 'margin-top: 8px; font-size: 0.75rem; color: var(--gray);';
+                meterContainer.appendChild(reqEl);
+            }
+            
+            if (reqEl) {
+                if (strength.requirements.length > 0) {
+                    reqEl.innerHTML = '✗ ' + strength.requirements.join(', ');
+                    reqEl.style.color = 'var(--danger)';
+                } else {
+                    reqEl.innerHTML = '✓ Отличный пароль';
+                    reqEl.style.color = 'var(--success)';
+                }
             }
         }
 
@@ -1502,21 +1549,6 @@
                 notification.style.animation = 'slideIn 0.3s reverse';
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
-        }
-
-        // ============================================
-        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        // ============================================
-        function calculateAge(day, month, year) {
-            const today = new Date();
-            const birthDate = new Date(year, month - 1, day);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
         }
 
         function showLoading(message) {
@@ -1561,6 +1593,107 @@
 
         function showSuccess(message) {
             showNotification(message, 'success');
+        }
+
+        // ============================================
+        // РАСЧЕТ ВОЗРАСТА (ИСПРАВЛЕНО)
+        // ============================================
+        function calculateAge(day, month, year) {
+            // Преобразуем в числа, если пришли строки
+            const birthDay = parseInt(day);
+            const birthMonth = parseInt(month);
+            const birthYear = parseInt(year);
+            
+            if (isNaN(birthDay) || isNaN(birthMonth) || isNaN(birthYear)) {
+                return 0;
+            }
+            
+            const today = new Date();
+            const birthDate = new Date(birthYear, birthMonth - 1, birthDay);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        // ============================================
+        // ИНФОРМАЦИЯ О ПРИВАТНОСТИ
+        // ============================================
+        function addPrivacyInfoToForm() {
+            const registerForm = document.getElementById('registerForm');
+            if (!registerForm) return;
+            
+            // Удаляем старый баннер если есть
+            const oldBanner = document.getElementById('privacyInfoBanner');
+            if (oldBanner) oldBanner.remove();
+            
+            const privacyInfo = document.createElement('div');
+            privacyInfo.id = 'privacyInfoBanner';
+            privacyInfo.className = 'privacy-banner';
+            
+            privacyInfo.innerHTML = `
+                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                    <div style="background: var(--primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-shield-alt" style="color: white; font-size: 16px;"></i>
+                    </div>
+                    <div>
+                        <strong style="display: block; margin-bottom: 8px; color: var(--primary); font-size: 0.95rem;">
+                            🔐 Мы защищаем ваши данные
+                        </strong>
+                        <ul style="margin: 0; padding-left: 20px; color: var(--gray); line-height: 1.6;">
+                            <li>✓ Имя, email и дата рождения нужны только для создания аккаунта</li>
+                            <li>✓ Мы не передаем данные третьим лицам</li>
+                            <li>✓ IP-адрес сохраняется для защиты от мошенничества</li>
+                            <li>✓ Вы можете удалить аккаунт в любой момент</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            const progress = registerForm.querySelector('.registration-progress');
+            if (progress) {
+                progress.parentNode.insertBefore(privacyInfo, progress.nextSibling);
+            }
+        }
+
+        // ============================================
+        // ТАЙМЕР ПОВТОРНОЙ ОТПРАВКИ
+        // ============================================
+        function startResendTimer() {
+            const btn = document.getElementById('resendEmailBtn');
+            const timerText = document.getElementById('resendTimerText');
+            if (!btn || !timerText) return;
+            
+            let timeLeft = 60;
+            btn.disabled = true;
+            
+            if (resendInterval) clearInterval(resendInterval);
+            
+            resendInterval = setInterval(() => {
+                timeLeft--;
+                timerText.textContent = `Отправить повторно (${timeLeft}с)`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(resendInterval);
+                    btn.disabled = false;
+                    timerText.textContent = 'Отправить повторно';
+                }
+            }, 1000);
+            
+            btn.onclick = async () => {
+                if (!auth?.currentUser) return;
+                
+                try {
+                    await sendEmailVerification(auth.currentUser);
+                    showSuccess('Письмо отправлено повторно!');
+                    startResendTimer();
+                } catch (error) {
+                    showError('Ошибка отправки письма');
+                }
+            };
         }
 
         // ============================================
@@ -1610,7 +1743,7 @@
                 }
             });
 
-            // ========== ШАГ 1 -> ШАГ 2 ==========
+            // ШАГ 1 -> ШАГ 2
             document.getElementById('nextStep1')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 
@@ -1676,7 +1809,7 @@
                 currentStep = 2;
             });
 
-            // ========== ШАГ 2 -> ШАГ 3 ==========
+            // ШАГ 2 -> ШАГ 3
             document.getElementById('nextStep2')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 
@@ -1701,8 +1834,11 @@
                     document.getElementById('passwordHint').textContent = 'Введите пароль';
                     document.getElementById('passwordHint').className = 'form-hint error';
                     return;
-                } else if (password.length < 6) {
-                    document.getElementById('passwordHint').textContent = 'Минимум 6 символов';
+                }
+                
+                const strength = checkPasswordStrength(password);
+                if (strength.score < 3) {
+                    document.getElementById('passwordHint').textContent = 'Слишком слабый пароль';
                     document.getElementById('passwordHint').className = 'form-hint error';
                     return;
                 } else {
@@ -1730,22 +1866,23 @@
                 currentStep = 3;
                 
                 const firstName = document.getElementById('firstName').value;
-                const lastName = document.getElementById('lastName').value;
+                const username = document.getElementById('username').value;
                 const birthDay = document.getElementById('birthDay').value;
                 const birthMonth = document.getElementById('birthMonth').value;
                 const birthYear = document.getElementById('birthYear').value;
+                const age = calculateAge(birthDay, birthMonth, birthYear);
                 
                 const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
                                'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
                 
                 document.getElementById('userDataSummary').innerHTML = `
-                    <div>👤 <strong>${firstName} ${lastName}</strong> (@${document.getElementById('username').value})</div>
+                    <div>👤 <strong>${firstName}</strong> (@${username})</div>
                     <div>📧 ${email}</div>
-                    <div>📅 ${birthDay} ${months[parseInt(birthMonth)-1]} ${birthYear} (${calculateAge(birthDay, birthMonth, birthYear)} лет)</div>
+                    <div>📅 ${birthDay} ${months[parseInt(birthMonth)-1]} ${birthYear} (${age} лет)</div>
                 `;
             });
 
-            // ========== КНОПКИ НАЗАД ==========
+            // Кнопки назад
             document.getElementById('prevStep2')?.addEventListener('click', function() {
                 document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
                 document.getElementById('step1').classList.add('active');
@@ -1770,14 +1907,14 @@
                 currentStep = 2;
             });
 
-            // ========== ОТМЕНА РЕГИСТРАЦИИ ==========
+            // Отмена регистрации
             document.getElementById('cancelRegistration')?.addEventListener('click', function() {
                 if (confirm('Отменить регистрацию?')) {
                     window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
                 }
             });
 
-            // ========== ВОЗРАСТНОЕ ОГРАНИЧЕНИЕ ==========
+            // Возрастное ограничение
             document.getElementById('backFromAgeRestriction')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -1786,11 +1923,7 @@
                 document.getElementById('step1').classList.add('active');
             });
 
-            document.getElementById('goToParentPageBtn')?.addEventListener('click', function() {
-                window.open('https://kirill12633.github.io/Metro.New.Official/ru/help/parents', '_blank');
-            });
-
-            // ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ФОРМАМИ ==========
+            // Переключение между формами
             document.getElementById('showLoginLink')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -1820,8 +1953,23 @@
                 document.getElementById('loginForm').classList.add('active');
             });
 
-            // ========== GOOGLE АВТОРИЗАЦИЯ ==========
+            document.getElementById('goToLoginBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/auth/login/';
+            });
+
+            document.getElementById('backToLoginBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/auth/login/';
+            });
+
+            // Google авторизация
             document.getElementById('googleRegisterBtn')?.addEventListener('click', async function() {
+                if (!auth || !googleProvider) {
+                    showError('Сервис временно недоступен');
+                    return;
+                }
+                
                 try {
                     showLoading('Авторизация через Google...');
                     await signInWithPopup(auth, googleProvider);
@@ -1838,6 +1986,11 @@
             });
 
             document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
+                if (!auth || !googleProvider) {
+                    showError('Сервис временно недоступен');
+                    return;
+                }
+                
                 try {
                     showLoading('Авторизация через Google...');
                     await signInWithPopup(auth, googleProvider);
@@ -1853,235 +2006,257 @@
                 }
             });
 
-            // ========== РЕГИСТРАЦИЯ ==========
-            document.getElementById('submitRegistration')?.addEventListener('click', async function(e) {
-                e.preventDefault();
+            // Регистрация
+            document.getElementById('submitRegistration')?.addEventListener('click', handleRegistration);
+
+            // Вход
+            document.getElementById('loginFormElement')?.addEventListener('submit', handleLogin);
+
+            // Сброс пароля
+            document.getElementById('resetPasswordFormElement')?.addEventListener('submit', handlePasswordReset);
+        }
+
+        // ============================================
+        // ОБРАБОТЧИК РЕГИСТРАЦИИ
+        // ============================================
+        async function handleRegistration(e) {
+            e.preventDefault();
+            
+            if (!document.getElementById('agreeTerms').checked) {
+                showError('Необходимо принять пользовательское соглашение');
+                return;
+            }
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const firstName = document.getElementById('firstName').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const birthDay = document.getElementById('birthDay').value;
+            const birthMonth = document.getElementById('birthMonth').value;
+            const birthYear = document.getElementById('birthYear').value;
+            
+            if (!email || !email.includes('@')) {
+                showError('Введите корректный email');
+                return;
+            }
+            
+            const strength = checkPasswordStrength(password);
+            if (strength.score < 3) {
+                showError('Пароль слишком слабый. ' + strength.requirements.join(', '));
+                return;
+            }
+            
+            if (password !== document.getElementById('confirmPassword').value) {
+                showError('Пароли не совпадают');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showError('Никнейм должен быть минимум 3 символа');
+                return;
+            }
+            
+            if (!auth || !db) {
+                showError('Сервис временно недоступен');
+                return;
+            }
+            
+            showLoading('Создание аккаунта...');
+            
+            try {
+                const userIP = await getUserIP();
+                const userAgent = navigator.userAgent;
                 
-                if (!document.getElementById('agreeTerms').checked) {
-                    showError('Необходимо принять пользовательское соглашение');
-                    return;
-                }
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
                 
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                const firstName = document.getElementById('firstName').value.trim();
-                const lastName = document.getElementById('lastName').value.trim() || '';
-                const username = document.getElementById('username').value.trim();
-                const birthDay = document.getElementById('birthDay').value;
-                const birthMonth = document.getElementById('birthMonth').value;
-                const birthYear = document.getElementById('birthYear').value;
+                await updateProfile(user, {
+                    displayName: firstName
+                });
                 
-                showLoading('Создание аккаунта...');
+                await sendEmailVerification(user);
+                
+                await setDoc(doc(db, 'users_public', user.uid), {
+                    uid: user.uid,
+                    firstName: firstName,
+                    username: username.toLowerCase(),
+                    displayName: firstName,
+                    email: email,
+                    emailVerified: false,
+                    birthDate: {
+                        day: parseInt(birthDay),
+                        month: parseInt(birthMonth),
+                        year: parseInt(birthYear)
+                    },
+                    age: calculateAge(birthDay, birthMonth, birthYear),
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    status: 'pending_verification'
+                });
                 
                 try {
-                    // Получаем IP пользователя
-                    const userIP = await getUserIP();
-                    
-                    // Создание пользователя
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    
-                    // Обновление профиля
-                    await updateProfile(userCredential.user, {
-                        displayName: firstName + (lastName ? ' ' + lastName : '')
-                    });
-                    
-                    // Отправка подтверждения email
-                    await sendEmailVerification(userCredential.user);
-                    
-                    // ===== ЮРИДИЧЕСКИ БЕЗОПАСНОЕ СОХРАНЕНИЕ =====
-                    // Только одна коллекция users_public со всеми необходимыми полями
-                    await setDoc(doc(db, 'users_public', userCredential.user.uid), {
-                        // Основные данные
-                        uid: userCredential.user.uid,
-                        firstName: firstName,
-                        lastName: lastName,
-                        username: username,
-                        displayName: firstName + (lastName ? ' ' + lastName : ''),
+                    await setDoc(doc(collection(db, 'consent_logs')), {
+                        uid: user.uid,
                         email: email,
-                        emailVerified: false,
-                        
-                        // Возраст
-                        birthDate: {
-                            day: parseInt(birthDay),
-                            month: parseInt(birthMonth),
-                            year: parseInt(birthYear)
-                        },
-                        age: calculateAge(birthDay, birthMonth, birthYear),
-                        
-                        // Юридически важные поля
-                        agreedToTerms: {
-                            accepted: true,
-                            version: '1.2', // Версия пользовательского соглашения
-                            acceptedAt: new Date().toISOString(),
-                            ip: userIP,
-                            userAgent: navigator.userAgent
-                        },
-                        
-                        agreedToPrivacy: {
-                            accepted: true,
-                            version: '1.1', // Версия политики конфиденциальности
-                            acceptedAt: new Date().toISOString(),
-                            ip: userIP,
-                            userAgent: navigator.userAgent
-                        },
-                        
-                        // Метаданные
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp(),
-                        lastLoginAt: serverTimestamp(),
-                        registrationIp: userIP,
-                        
-                        // Статус
-                        status: 'active',
-                        accountType: 'standard'
+                        type: 'registration_terms',
+                        acceptedAt: serverTimestamp(),
+                        ip: userIP,
+                        userAgent: userAgent,
+                        termsVersion: '1.2',
+                        privacyVersion: '1.1'
                     });
+                } catch (logError) {
+                    console.warn('Consent logging failed:', logError);
+                }
+                
+                hideLoading();
+                
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('successScreen').classList.add('active');
+                document.getElementById('successMessage').innerHTML = `
+                    Аккаунт создан!<br>
+                    <small style="font-size: 0.875rem;">На адрес <strong>${email}</strong> отправлено письмо для подтверждения.
+                    <br>Пожалуйста, подтвердите email, чтобы войти.</small>
+                `;
+                
+                startResendTimer();
+                showNotification('Аккаунт создан! Подтвердите email', 'success');
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Registration error:', error);
+                
+                let message = 'Ошибка регистрации';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Этот email уже зарегистрирован';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Слишком слабый пароль';
+                } else {
+                    message = 'Произошла ошибка. Пожалуйста, попробуйте позже.';
+                }
+                
+                showError(message);
+            }
+        }
+
+        // ============================================
+        // ОБРАБОТЧИК ВХОДА
+        // ============================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showLoginError('Заполните все поля');
+                return;
+            }
+            
+            if (!auth || !db) {
+                showLoginError('Сервис временно недоступен');
+                return;
+            }
+            
+            showLoading('Вход...');
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                if (!user.emailVerified) {
+                    await auth.signOut();
                     
-                    hideLoading();
+                    const shouldResend = confirm(
+                        'Email не подтвержден. Отправить письмо повторно?'
+                    );
                     
-                    // Показываем успех
-                    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-                    document.getElementById('successScreen').classList.add('active');
-                    document.getElementById('successMessage').textContent = 
-                        `На адрес ${email} отправлено письмо для подтверждения.`;
-                    
-                    showNotification('Аккаунт успешно создан! Проверьте почту', 'success');
-                    
-                } catch (error) {
-                    hideLoading();
-                    console.error('Registration error:', error);
-                    
-                    let message = 'Ошибка регистрации';
-                    if (error.code === 'auth/email-already-in-use') {
-                        message = 'Этот email уже используется';
-                    } else if (error.code === 'auth/invalid-email') {
-                        message = 'Неверный формат email';
-                    } else if (error.code === 'auth/weak-password') {
-                        message = 'Слишком слабый пароль (минимум 6 символов)';
-                    } else {
-                        message = error.message;
+                    if (shouldResend) {
+                        await sendEmailVerification(user);
+                        showNotification('Письмо отправлено повторно!', 'info');
                     }
                     
-                    showError(message);
-                    
-                    document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
-                    document.getElementById('step3').classList.add('active');
-                }
-            });
-
-            // ========== ВХОД ==========
-            document.getElementById('loginFormElement')?.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('loginEmail').value.trim();
-                const password = document.getElementById('loginPassword').value;
-                
-                if (!email || !password) {
-                    showLoginError('Заполните все поля');
+                    hideLoading();
+                    showLoginError('Пожалуйста, подтвердите email перед входом');
                     return;
                 }
                 
-                if (failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
-                    showLoginError('Слишком много попыток. Попробуйте позже');
-                    return;
-                }
-                
-                showLoading('Вход...');
-                
                 try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    failedLoginAttempts = 0;
-                    hideLoading();
-                    showSuccess('Вход выполнен! Перенаправление...');
-                    setTimeout(() => {
-                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
-                    }, 1500);
-                } catch (error) {
-                    hideLoading();
-                    failedLoginAttempts++;
-                    console.error('Login error:', error);
-                    
-                    let message = 'Ошибка входа';
-                    if (error.code === 'auth/invalid-credential') {
-                        message = 'Неверный email или пароль';
-                    } else if (error.code === 'auth/user-not-found') {
-                        message = 'Пользователь не найден';
-                    } else if (error.code === 'auth/too-many-requests') {
-                        message = 'Слишком много попыток. Попробуйте позже';
-                    } else {
-                        message = error.message;
-                    }
-                    
-                    showLoginError(message);
+                    const userRef = doc(db, 'users_public', user.uid);
+                    await setDoc(userRef, {
+                        lastLoginAt: serverTimestamp()
+                    }, { merge: true });
+                } catch (dbError) {
+                    console.warn('Failed to update last login:', dbError);
                 }
-            });
+                
+                hideLoading();
+                showSuccess('Вход выполнен! Перенаправление...');
+                
+                setTimeout(() => {
+                    window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Login error:', error);
+                
+                let message = 'Ошибка входа';
+                if (error.code === 'auth/invalid-credential') {
+                    message = 'Неверный email или пароль';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'Пользователь не найден';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Слишком много попыток. Попробуйте позже';
+                } else {
+                    message = error.message;
+                }
+                
+                showLoginError(message);
+            }
+        }
 
-            // ========== СБРОС ПАРОЛЯ ==========
-            document.getElementById('resetPasswordFormElement')?.addEventListener('submit', async function(e) {
-                e.preventDefault();
+        // ============================================
+        // ОБРАБОТЧИК СБРОСА ПАРОЛЯ
+        // ============================================
+        async function handlePasswordReset(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                showResetError('Введите корректный email');
+                return;
+            }
+            
+            if (!auth) {
+                showResetError('Сервис временно недоступен');
+                return;
+            }
+            
+            showLoading('Отправка письма...');
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                hideLoading();
                 
-                const email = document.getElementById('resetEmail').value.trim();
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById('resetSuccessScreen').classList.add('active');
+                document.getElementById('resetSuccessMessage').textContent = 
+                    `Ссылка для сброса пароля отправлена на ${email}`;
+            } catch (error) {
+                hideLoading();
+                console.error('Password reset error:', error);
                 
-                if (!email || !email.includes('@')) {
-                    showResetError('Введите корректный email');
-                    return;
+                let message = 'Ошибка отправки';
+                if (error.code === 'auth/user-not-found') {
+                    message = 'Пользователь с таким email не найден';
+                } else {
+                    message = error.message;
                 }
                 
-                showLoading('Отправка письма...');
-                
-                try {
-                    await sendPasswordResetEmail(auth, email);
-                    hideLoading();
-                    
-                    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-                    document.getElementById('resetSuccessScreen').classList.add('active');
-                    document.getElementById('resetSuccessMessage').textContent = 
-                        `Ссылка для сброса пароля отправлена на ${email}`;
-                } catch (error) {
-                    hideLoading();
-                    console.error('Password reset error:', error);
-                    
-                    let message = 'Ошибка отправки';
-                    if (error.code === 'auth/user-not-found') {
-                        message = 'Пользователь с таким email не найден';
-                    } else {
-                        message = error.message;
-                    }
-                    
-                    showResetError(message);
-                }
-            });
-
-            // ========== ПОВТОРНАЯ ОТПРАВКА EMAIL ==========
-            document.getElementById('resendEmailBtn')?.addEventListener('click', async function() {
-                if (!auth.currentUser) return;
-                
-                try {
-                    await sendEmailVerification(auth.currentUser);
-                    showSuccess('Письмо отправлено повторно!');
-                    
-                    const btn = document.getElementById('resendEmailBtn');
-                    const timerText = document.getElementById('resendTimerText');
-                    
-                    btn.disabled = true;
-                    resendTimer = 60;
-                    
-                    if (resendInterval) clearInterval(resendInterval);
-                    
-                    resendInterval = setInterval(() => {
-                        resendTimer--;
-                        timerText.textContent = `Отправить повторно (${resendTimer})`;
-                        
-                        if (resendTimer <= 0) {
-                            clearInterval(resendInterval);
-                            btn.disabled = false;
-                            timerText.textContent = 'Отправить повторно';
-                        }
-                    }, 1000);
-                    
-                } catch (error) {
-                    showError('Не удалось отправить письмо');
-                }
-            });
+                showResetError(message);
+            }
         }
     </script>
 </body>
