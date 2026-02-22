@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метро New - Вход в аккаунт</title>
+    <meta name="description" content="Вход в аккаунт Метро New">
+    <meta name="theme-color" content="#0066CC">
     
-     <!-- Иконки -->
+    <!-- Иконки -->
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
+    <!-- Шрифты и иконки -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         /* ========== ОСНОВНЫЕ СТИЛИ ========== */
         :root {
@@ -237,6 +241,8 @@
         .btn-primary:disabled { 
             opacity: 0.6; 
             cursor: not-allowed; 
+            transform: none !important;
+            box-shadow: none !important;
         }
         
         .btn-secondary { 
@@ -245,9 +251,14 @@
             border: 1px solid var(--gray-border); 
         }
         
-        .btn-secondary:hover { 
+        .btn-secondary:hover:not(:disabled) { 
             background: #e9ecef; 
             transform: translateY(-2px);
+        }
+        
+        .btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .btn-google { 
@@ -256,9 +267,14 @@
             border: 1px solid var(--gray-border); 
         }
         
-        .btn-google:hover { 
+        .btn-google:hover:not(:disabled) { 
             background: var(--gray-light); 
             transform: translateY(-2px);
+        }
+        
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .divider {
@@ -383,15 +399,36 @@
             justify-content: center;
             gap: 16px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
         
         .footer-link {
             color: var(--gray);
             text-decoration: none;
             transition: color 0.3s ease;
+            font-size: 0.75rem;
         }
         
         .footer-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .legal-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 0.7rem;
+        }
+        
+        .legal-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .legal-link:hover {
             color: var(--primary);
             text-decoration: underline;
         }
@@ -400,6 +437,8 @@
             .login-card { border: none; box-shadow: none; background: transparent; }
             .login-header { padding: 16px; }
             .login-body { padding: 16px; }
+            .footer-links { flex-direction: column; gap: 8px; }
+            .legal-links { flex-direction: column; gap: 8px; }
         }
         
         @media (min-width: 1440px) {
@@ -431,66 +470,36 @@
             color: var(--dark);
         }
         
-        /* Стили для сброса пароля */
-        .reset-step {
-            transition: all 0.3s ease;
-        }
-        
-        .code-input-group {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        
-        .code-input {
-            width: 50px;
-            height: 60px;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            border: 2px solid var(--gray-border);
-            border-radius: var(--radius-sm);
-            transition: all 0.3s ease;
-        }
-        
-        .code-input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0,102,204,0.1);
-        }
-        
-        .code-input.error {
-            border-color: var(--danger);
-            animation: shake 0.3s ease;
-        }
-        
-        .timer {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin: 10px 0;
-            text-align: center;
-        }
-        
-        .resend-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-decoration: underline;
-            margin-top: 10px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .resend-btn:disabled {
+        /* Стили для согласия при входе (как у Google/Microsoft) */
+        .login-consent {
+            font-size: 0.7rem;
             color: var(--gray);
-            cursor: not-allowed;
-            text-decoration: none;
+            text-align: center;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            padding: 0 8px;
         }
-
+        
+        .login-consent a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .login-consent a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        .login-consent i {
+            font-size: 0.6rem;
+            margin: 0 2px;
+            color: var(--gray);
+            opacity: 0.5;
+        }
+        
         /* Индикатор сложности пароля */
         .password-strength {
             margin-top: 8px;
@@ -515,6 +524,28 @@
             font-size: 0.75rem;
             margin-top: 4px;
             color: var(--gray);
+        }
+        
+        /* Стили для блокировки кнопок */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .btn-loading::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
     </style>
 </head>
@@ -569,6 +600,14 @@
                         <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
                             <i class="fas fa-sign-in-alt"></i> Войти
                         </button>
+                        
+                        <!-- ========== ЮРИДИЧЕСКОЕ СОГЛАСИЕ (как у Google) ========== -->
+                        <div class="login-consent">
+                            Продолжая, вы соглашаетесь с 
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
+                            <i class="fas fa-circle"></i>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
+                        </div>
                     </form>
                     
                     <div class="divider"><span>или</span></div>
@@ -605,6 +644,14 @@
                                 <span>Отправить ссылку</span>
                             </button>
                         </div>
+                        
+                        <!-- ========== ЮРИДИЧЕСКОЕ СОГЛАСИЕ ДЛЯ СБРОСА ========== -->
+                        <div class="login-consent" style="margin-top: 20px;">
+                            Продолжая, вы соглашаетесь с 
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
+                            <i class="fas fa-circle"></i>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
+                        </div>
                     </form>
                 </div>
                 
@@ -626,6 +673,14 @@
                         Не пришло? Проверьте папку "Спам"
                     </p>
                     <button class="btn btn-primary" id="backToLoginBtn3" style="width: 100%;">Вернуться к входу</button>
+                    
+                    <!-- ========== ЮРИДИЧЕСКОЕ СОГЛАСИЕ (и здесь тоже) ========== -->
+                    <div class="login-consent" style="margin-top: 20px;">
+                        Продолжая, вы соглашаетесь с 
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
+                        <i class="fas fa-circle"></i>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
+                    </div>
                 </div>
             </div>
             
@@ -634,6 +689,10 @@
                 <div class="footer-links">
                     <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/" class="footer-link" target="_blank">Помощь</a>
                     <a href="https://kirill12633.github.io/support.metro.new/" class="footer-link" target="_blank">Поддержка</a>
+                </div>
+                <div class="legal-links">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" class="legal-link" target="_blank">Политика конфиденциальности</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" class="legal-link" target="_blank">Пользовательское соглашение</a>
                 </div>
             </div>
         </div>
@@ -662,6 +721,10 @@
             browserLocalPersistence,
             browserSessionPersistence
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { 
+            initializeAppCheck, 
+            ReCaptchaV3Provider 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check.js";
 
         // ============================================
         // КОНФИГУРАЦИЯ FIREBASE
@@ -677,6 +740,20 @@
 
         // Инициализация Firebase
         const app = initializeApp(firebaseConfig);
+        
+        // ============================================
+        // FIREBASE APP CHECK (ЗАЩИТА ОТ БОТОВ)
+        // ============================================
+        try {
+            initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
+                isTokenAutoRefreshEnabled: true
+            });
+            console.log('✅ App Check включен');
+        } catch (error) {
+            console.warn('⚠️ App Check error:', error);
+        }
+        
         const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
 
@@ -687,8 +764,13 @@
         const MAX_ATTEMPTS_UX = 3;
 
         // ============================================
-        // ФУНКЦИИ
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         // ============================================
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
@@ -734,6 +816,26 @@
             const year = new Date().getFullYear();
             const el = document.getElementById('copyrightYear');
             if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
+        }
+
+        // ============================================
+        // БЛОКИРОВКА/РАЗБЛОКИРОВКА КНОПОК
+        // ============================================
+        function setButtonsLoading(loading = true) {
+            const buttons = [
+                'loginBtn',
+                'googleLoginBtn',
+                'sendResetLinkBtn',
+                'backToLoginBtn1',
+                'backToLoginBtn3'
+            ];
+            
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.disabled = loading;
+                }
+            });
         }
 
         // ============================================
@@ -787,22 +889,22 @@
                 
                 const email = document.getElementById('resetEmail').value.trim();
                 
-                if (!email || !email.includes('@')) {
+                // Валидация email
+                if (!validateEmail(email)) {
                     showError('resetEmailAlert', 'Введите корректный email');
                     return;
                 }
+                
+                // Блокируем кнопки
+                setButtonsLoading(true);
                 
                 // Показываем промежуточный шаг
                 document.getElementById('resetStep1').style.display = 'none';
                 document.getElementById('resetStep2').style.display = 'block';
                 
-                showLoading('Отправка письма...');
-                
                 try {
                     // Отправляем письмо через Firebase
                     await sendPasswordResetEmail(auth, email);
-                    
-                    hideLoading();
                     
                     // Показываем шаг успеха
                     document.getElementById('resetStep2').style.display = 'none';
@@ -811,15 +913,16 @@
                         `Ссылка для сброса пароля отправлена на <strong>${email}</strong>`;
                     
                 } catch (error) {
-                    hideLoading();
-                    
                     // Возвращаемся к шагу 1
                     document.getElementById('resetStep2').style.display = 'none';
                     document.getElementById('resetStep1').style.display = 'block';
                     
-                    // Firebase сам обрабатывает ошибки и не раскрывает информацию о существовании email
-                    // Поэтому показываем общее сообщение
+                    // Firebase сам обрабатывает ошибки
                     showError('resetEmailAlert', 'Ошибка при отправке. Попробуйте позже.');
+                    
+                } finally {
+                    // Разблокируем кнопки
+                    setButtonsLoading(false);
                 }
             });
 
@@ -831,10 +934,19 @@
                 const password = document.getElementById('loginPassword').value;
                 const rememberMe = document.getElementById('rememberMe').checked;
                 
-                if (!email || !password) {
-                    showError('loginErrorAlert', 'Заполните все поля');
+                // Валидация email
+                if (!validateEmail(email)) {
+                    showError('loginErrorAlert', 'Введите корректный email');
                     return;
                 }
+                
+                if (!password) {
+                    showError('loginErrorAlert', 'Введите пароль');
+                    return;
+                }
+                
+                // Блокируем кнопки
+                setButtonsLoading(true);
                 
                 try {
                     if (rememberMe) {
@@ -855,28 +967,52 @@
                     setTimeout(() => {
                         window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
                     }, 1500);
+                    
                 } catch (error) {
                     hideLoading();
                     loginAttempts++;
                     
                     // Единое сообщение для безопасности
                     showError('loginErrorAlert', 'Неверный email или пароль');
+                    
+                } finally {
+                    // Разблокируем кнопки
+                    setButtonsLoading(false);
                 }
             });
 
             // Google вход
             document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
+                // Блокируем кнопки
+                setButtonsLoading(true);
+                
                 try {
                     showLoading('Авторизация через Google...');
-                    await signInWithPopup(auth, googleProvider);
+                    
+                    const result = await signInWithPopup(auth, googleProvider);
+                    
                     hideLoading();
                     showSuccess('Вход выполнен! Перенаправление...');
+                    
                     setTimeout(() => {
                         window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
                     }, 1500);
+                    
                 } catch (error) {
                     hideLoading();
-                    showError('loginErrorAlert', 'Ошибка авторизации');
+                    
+                    // Обрабатываем специфические ошибки Google popup
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        showError('loginErrorAlert', 'Вход отменен. Попробуйте снова.');
+                    } else if (error.code === 'auth/popup-blocked') {
+                        showError('loginErrorAlert', 'Всплывающее окно заблокировано. Разрешите всплывающие окна.');
+                    } else {
+                        showError('loginErrorAlert', 'Ошибка авторизации');
+                    }
+                    
+                } finally {
+                    // Разблокируем кнопки
+                    setButtonsLoading(false);
                 }
             });
         }
