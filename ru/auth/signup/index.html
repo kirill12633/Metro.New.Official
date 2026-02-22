@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метро New - Регистрация и вход</title>
+
+     <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -333,19 +338,16 @@
             transition: all 0.2s;
             font-size: 0.9rem;
             color: var(--dark);
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
         }
         
         .suggestion-item:hover {
             background: var(--gray-light);
             color: var(--primary);
-        }
-        
-        .suggestion-item:first-child {
-            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-        }
-        
-        .suggestion-item:last-child {
-            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
         }
         
         .suggestion-item i {
@@ -693,7 +695,7 @@
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 24px;
             margin-top: 8px;
         }
         
@@ -701,6 +703,10 @@
             color: var(--gray);
             text-decoration: none;
             transition: color 0.3s ease;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .footer-link:hover {
@@ -708,23 +714,53 @@
             text-decoration: underline;
         }
         
-        @media (max-width: 480px) {
-            .auth-card { border: none; box-shadow: none; background: transparent; }
-            .auth-header { padding: 16px; }
-            .auth-body { padding: 16px; }
-            .birthday-group { grid-template-columns: 1fr; }
-            .step-navigation { flex-direction: column; }
+        .footer-link i {
+            font-size: 0.7rem;
         }
         
-        @media (min-width: 768px) and (max-width: 1024px) {
+        @media (max-width: 480px) {
+            .auth-card { 
+                border: none; 
+                box-shadow: none; 
+                background: transparent; 
+            }
+            .auth-header { padding: 16px; }
+            .auth-body { padding: 16px; }
+            .birthday-group { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+            }
+            .step-navigation { 
+                flex-direction: column; 
+                gap: 8px;
+            }
+            .step-navigation .btn {
+                width: 100%;
+                margin: 0;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 768px) {
+            .auth-container { max-width: 100%; }
+            .birthday-group { 
+                grid-template-columns: repeat(3, 1fr); 
+                gap: 6px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
             .auth-container { max-width: 600px; }
             .birthday-group { grid-template-columns: repeat(3, 1fr); }
         }
-        
+
         @media (min-width: 1440px) {
             .auth-container { max-width: 520px; }
         }
-        
+
         @media (prefers-color-scheme: dark) {
             :root {
                 --dark: #e8eaed;
@@ -784,86 +820,98 @@
             color: var(--dark);
         }
 
-        /* Стили для баннера приватности */
-        .privacy-banner {
-            background: linear-gradient(135deg, rgba(0,102,204,0.05), rgba(77,148,255,0.1));
-            border: 1px solid rgba(0,102,204,0.2);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 24px;
-            font-size: 0.85rem;
-            animation: slideUp 0.5s ease;
-        }
-
-        /* Стили для уведомления об удалении */
-        .delete-notice {
-            background: linear-gradient(135deg, rgba(251,188,4,0.1), rgba(255,215,0,0.1));
-            border: 1px solid rgba(251,188,4,0.3);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            animation: pulse 2s infinite;
-            position: relative;
+        /* Индикатор rate limiting */
+        .rate-limit-indicator {
+            height: 4px;
+            background: var(--gray-border);
+            border-radius: 2px;
+            margin: 10px 0;
             overflow: hidden;
         }
 
-        .delete-notice::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,215,0,0.1) 50%, transparent 70%);
-            animation: shine 3s infinite;
+        .rate-limit-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+            transition: width 0.3s ease;
         }
 
-        @keyframes shine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        /* Блокировка IP */
+        .ip-block-warning {
+            background: rgba(217,48,37,0.1);
+            border: 1px solid rgba(217,48,37,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .delete-notice i {
-            color: var(--warning);
-            font-size: 1.2rem;
+        .ip-block-warning i {
+            font-size: 2rem;
+            color: var(--danger);
+            margin-bottom: 10px;
         }
 
-        .delete-notice strong {
-            color: var(--warning);
+        .timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--danger);
+            margin: 10px 0;
         }
 
-        .delete-notice small {
-            display: block;
-            margin-top: 8px;
-            color: var(--gray);
-            font-size: 0.8rem;
-        }
-
-        /* Кнопка удаления аккаунта */
-        .delete-account-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ff4757);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 24px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
+        /* Согласие на рекламу */
+        .consent-item {
+            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 16px;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+            gap: 12px;
+            padding: 12px;
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
         }
 
-        .delete-account-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
-            background: linear-gradient(135deg, #ff4757, #ff6b6b);
+        .consent-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .consent-item label {
+            flex: 1;
+            font-size: 0.9rem;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        .consent-item small {
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+
+        /* Капча */
+        .captcha-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        /* Статус email */
+        .email-status {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            z-index: 2;
+        }
+
+        .email-status.valid {
+            color: var(--success);
+        }
+
+        .email-status.invalid {
+            color: var(--danger);
         }
     </style>
 </head>
@@ -882,16 +930,13 @@
             <div class="auth-body">
                 <!-- ========== РЕГИСТРАЦИЯ ========== -->
                 <div class="form-container active" id="registerForm">
-                    <!-- Уведомление об удалении данных (ДОБАВЛЕНО) -->
-                    <div class="delete-notice">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <i class="fas fa-trash-alt" style="font-size: 24px;"></i>
-                            <div>
-                                <strong>🗑️ Данные можно удалить в любой момент!</strong>
-                                <p style="margin: 4px 0 0; font-size: 0.85rem;">Вы полностью контролируете свои данные</p>
-                            </div>
-                        </div>
-                        <small>⚡ Аккаунт можно удалить в настройках после регистрации</small>
+                    <!-- Индикатор блокировки IP -->
+                    <div class="ip-block-warning" id="ipBlockWarning" style="display: none;">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Доступ ограничен</h3>
+                        <p>Слишком много попыток с вашего IP-адреса</p>
+                        <div class="timer" id="blockTimer">30:00</div>
+                        <p class="small">Попробуйте позже</p>
                     </div>
 
                     <!-- Прогресс-бар -->
@@ -914,6 +959,11 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Индикатор rate limiting -->
+                    <div class="rate-limit-indicator">
+                        <div class="rate-limit-fill" id="rateLimitFill" style="width: 0%"></div>
+                    </div>
                     
                     <!-- ШАГ 1: Основная информация -->
                     <div class="registration-step active" id="step1">
@@ -926,8 +976,6 @@
                                 </div>
                                 <div class="form-hint" id="firstNameHint">Как к вам обращаться</div>
                             </div>
-                            
-                            <!-- Убрано поле "Фамилия (опционально)" -->
                             
                             <div class="form-group">
                                 <label class="form-label">Никнейм</label>
@@ -989,6 +1037,7 @@
                                 <div class="input-with-icon">
                                     <i class="fas fa-envelope"></i>
                                     <input type="email" class="form-input" id="email" placeholder="your@email.com" required autocomplete="off">
+                                    <span class="email-status" id="emailStatus"></span>
                                 </div>
                                 <div class="form-hint" id="emailHint">Ваш email для входа</div>
                                 <!-- Подсказки email -->
@@ -1006,7 +1055,7 @@
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="form-hint" id="passwordHint">Минимум 6 символов</div>
+                                <div class="form-hint" id="passwordHint">Минимум 8 символов</div>
                                 
                                 <!-- Индикатор силы пароля -->
                                 <div class="password-strength-meter" id="passwordStrengthMeter">
@@ -1017,12 +1066,6 @@
                                         <div class="bar" id="bar4"></div>
                                     </div>
                                     <div class="strength-label" id="strengthLabel">Введите пароль</div>
-                                </div>
-                                
-                                <!-- Подсказка -->
-                                <div class="tooltip">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span class="tooltip-text">Минимум 6 символов, используйте заглавные буквы и цифры для надежности</span>
                                 </div>
                             </div>
                             
@@ -1065,6 +1108,16 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <!-- Согласие на рекламные материалы -->
+                            <div class="consent-item">
+                                <input type="checkbox" id="marketingConsent">
+                                <label for="marketingConsent">
+                                    <strong>Получать рекламные материалы</strong>
+                                    <br>
+                                    <small>Специальные предложения, новости и обновления (не обязательно)</small>
+                                </label>
+                            </div>
                             
                             <div class="alert alert-info" id="dataSummary">
                                 <i class="fas fa-info-circle"></i>
@@ -1076,10 +1129,10 @@
                             
                             <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
                             
-                            <!-- Кнопка удаления аккаунта (для демонстрации) -->
-                            <button type="button" class="delete-account-btn" id="demoDeleteBtn" style="margin-bottom: 16px;">
-                                <i class="fas fa-trash-alt"></i> Демо: удалить аккаунт
-                            </button>
+                            <!-- Капча -->
+                            <div id="captchaContainer" class="captcha-container" style="display: none;">
+                                <div class="g-recaptcha" data-sitekey="6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-"></div>
+                            </div>
                             
                             <div class="step-navigation">
                                 <button type="button" class="btn btn-secondary" id="prevStep3">
@@ -1135,6 +1188,10 @@
                         
                         <div style="text-align: right; margin-bottom: 16px;">
                             <a href="#" class="auth-link" id="forgotPasswordLink">Забыли пароль?</a>
+                        </div>
+                        
+                        <div id="loginCaptchaContainer" class="captcha-container" style="display: none;">
+                            <div class="g-recaptcha" data-sitekey="6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-"></div>
                         </div>
                         
                         <div class="alert" id="loginErrorAlert" style="display: none;"></div>
@@ -1219,17 +1276,6 @@
                             Проверьте ваш email для подтверждения
                         </p>
                         
-                        <!-- Уведомление об удалении (ДОБАВЛЕНО) -->
-                        <div class="delete-notice" style="margin-bottom: 20px;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <i class="fas fa-trash-alt" style="font-size: 24px;"></i>
-                                <div>
-                                    <strong>🗑️ Данные можно удалить в любой момент!</strong>
-                                    <p style="margin: 4px 0 0; font-size: 0.85rem;">Перейдите в настройки аккаунта</p>
-                                </div>
-                            </div>
-                        </div>
-                        
                         <div style="margin-bottom: 20px; padding: 10px; background: rgba(0,102,204,0.1); border-radius: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
                                 <i class="fas fa-envelope" style="color: var(--primary);"></i>
@@ -1239,10 +1285,6 @@
                                 <i class="fas fa-redo"></i> <span id="resendTimerText">Отправить повторно</span>
                             </button>
                         </div>
-                        
-                        <button class="delete-account-btn" id="deleteAccountBtn" style="margin-bottom: 16px;">
-                            <i class="fas fa-trash-alt"></i> Удалить аккаунт
-                        </button>
                         
                         <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/login/" class="btn btn-primary btn-block" target="_blank" style="text-decoration: none;">
                             <i class="fas fa-sign-in-alt"></i> Перейти к входу
@@ -1269,8 +1311,15 @@
             <div class="auth-footer">
                 <div id="copyrightYear"></div>
                 <div class="footer-links">
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/" class="footer-link" target="_blank">Помощь</a>
-                    <a href="https://kirill12633.github.io/support.metro.new/" class="footer-link" target="_blank">Поддержка</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/" class="footer-link" target="_blank">
+                        <i class="fas fa-question-circle"></i> Помощь
+                    </a>
+                    <a href="https://kirill12633.github.io/support.metro.new/" class="footer-link" target="_blank">
+                        <i class="fas fa-headset"></i> Поддержка
+                    </a>
+                    <a href="#" class="footer-link" id="reportErrorFooter">
+                        <i class="fas fa-bug"></i> Сообщить об ошибке
+                    </a>
                 </div>
             </div>
         </div>
@@ -1289,16 +1338,14 @@
             signInWithPopup,
             GoogleAuthProvider,
             signInWithEmailAndPassword,
-            sendPasswordResetEmail,
-            deleteUser
+            sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { 
             getFirestore, 
             doc, 
             setDoc, 
             serverTimestamp,
-            collection,
-            deleteDoc
+            collection
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         import { 
             initializeAppCheck, 
@@ -1317,13 +1364,12 @@
             appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        // Инициализация Firebase с обработкой ошибок
+        // Инициализация Firebase
         let app, auth, db, googleProvider;
         
         try {
             app = initializeApp(firebaseConfig);
             
-            // App Check с reCAPTCHA (с обработкой ошибок)
             try {
                 const appCheck = initializeAppCheck(app, {
                     provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
@@ -1337,9 +1383,9 @@
             db = getFirestore(app);
             googleProvider = new GoogleAuthProvider();
             
-            console.log('✅ Firebase initialized successfully');
+            console.log('Firebase initialized');
         } catch (error) {
-            console.error('❌ Firebase initialization error:', error);
+            console.error('Firebase initialization error:', error);
         }
 
         // ============================================
@@ -1348,39 +1394,309 @@
         let currentStep = 1;
         let resendTimer = 60;
         let resendInterval = null;
+        let loginFailedAttempts = 0;
+        const MAX_LOGIN_ATTEMPTS = 3;
+        let ipBlocked = false;
+        let ipBlockTimeLeft = 0;
+        let ipBlockTimer = null;
+        let lastLoginAttempt = 0;
+        const RATE_LIMIT_WINDOW = 60000;
+        const MAX_ATTEMPTS_PER_WINDOW = 5;
+        let attemptsInWindow = 0;
+
+        // Email для сообщений об ошибках
+        const SUPPORT_EMAIL = 'metro.new.help@gmail.com';
 
         // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+        // ЧЕРНЫЙ СПИСОК ДОМЕНОВ
+        // ============================================
+        const BLACKLIST_DOMAINS = [
+            'temp-mail.org',
+            '10minutemail.com',
+            'throwaway.com',
+            'guerrillamail.com',
+            'mailinator.com',
+            'yopmail.com'
+        ];
+
+        const GOVERNMENT_DOMAINS = [
+            '.gov',
+            '.mil',
+            '.fbi.gov',
+            '.cia.gov'
+        ];
+
+        // ============================================
+        // ПРОВЕРКА ДОМЕНА EMAIL
+        // ============================================
+        function checkEmailDomain(email) {
+            if (!email || !email.includes('@')) {
+                return { valid: false, status: 'invalid', message: 'Неверный формат email' };
+            }
+            
+            const domain = email.split('@')[1].toLowerCase();
+            
+            // Проверка правительственных доменов
+            for (const govDomain of GOVERNMENT_DOMAINS) {
+                if (domain.includes(govDomain)) {
+                    return { 
+                        valid: false, 
+                        status: 'government', 
+                        message: 'Регистрация с этим доменом запрещена' 
+                    };
+                }
+            }
+            
+            // Проверка черного списка
+            if (BLACKLIST_DOMAINS.includes(domain)) {
+                return { 
+                    valid: false, 
+                    status: 'blacklisted', 
+                    message: 'Этот домен заблокирован' 
+                };
+            }
+            
+            return { 
+                valid: true, 
+                status: 'allowed', 
+                message: '' 
+            };
+        }
+
+        // ============================================
+        // ЗАЩИТА ОТ ОДНОВРЕМЕННОЙ РЕГИСТРАЦИИ
+        // ============================================
+        const registrationLocks = new Map();
+
+        async function acquireLock(resource) {
+            if (registrationLocks.has(resource)) {
+                return false;
+            }
+            registrationLocks.set(resource, Date.now());
+            return true;
+        }
+
+        function releaseLock(resource) {
+            registrationLocks.delete(resource);
+        }
+
+        setInterval(() => {
+            const now = Date.now();
+            for (const [resource, time] of registrationLocks.entries()) {
+                if (now - time > 10000) {
+                    registrationLocks.delete(resource);
+                }
+            }
+        }, 10000);
+
+        // ============================================
+        // БЛОКИРОВКА ПО IP
+        // ============================================
+        const ipAttempts = new Map();
+        const ipBlocks = new Map();
+
+        async function checkIPBlock(ip) {
+            if (ipBlocks.has(ip)) {
+                const blockTime = ipBlocks.get(ip);
+                const timeLeft = Math.ceil((blockTime - Date.now()) / 1000 / 60);
+                
+                if (timeLeft > 0) {
+                    return { blocked: true, timeLeft: timeLeft * 60 };
+                } else {
+                    ipBlocks.delete(ip);
+                    ipAttempts.delete(ip);
+                }
+            }
+            
+            const attempts = ipAttempts.get(ip) || 0;
+            if (attempts >= 10) {
+                const blockUntil = Date.now() + 30 * 60 * 1000;
+                ipBlocks.set(ip, blockUntil);
+                ipAttempts.delete(ip);
+                return { blocked: true, timeLeft: 30 * 60 };
+            }
+            
+            return { blocked: false };
+        }
+
+        function incrementIPAttempt(ip) {
+            const attempts = (ipAttempts.get(ip) || 0) + 1;
+            ipAttempts.set(ip, attempts);
+        }
+
+        // ============================================
+        // RATE LIMITING
+        // ============================================
+        function checkRateLimit() {
+            const now = Date.now();
+            
+            if (now - lastLoginAttempt > RATE_LIMIT_WINDOW) {
+                attemptsInWindow = 0;
+                lastLoginAttempt = now;
+            }
+            
+            if (attemptsInWindow >= MAX_ATTEMPTS_PER_WINDOW) {
+                return { limited: true, timeLeft: Math.ceil((RATE_LIMIT_WINDOW - (now - lastLoginAttempt)) / 1000) };
+            }
+            
+            return { limited: false };
+        }
+
+        function updateRateLimitIndicator() {
+            const fill = document.getElementById('rateLimitFill');
+            if (fill) {
+                const percent = (attemptsInWindow / MAX_ATTEMPTS_PER_WINDOW) * 100;
+                fill.style.width = `${Math.min(percent, 100)}%`;
+            }
+        }
+
+        // ============================================
+        // ВАЛИДАЦИЯ НА СТОРОНЕ СЕРВЕРА
+        // ============================================
+        async function serverSideValidation(field, value) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            switch(field) {
+                case 'username':
+                    const takenUsernames = ['admin', 'user', 'test', 'metro', 'support', 'moderator', 'root'];
+                    if (takenUsernames.includes(value.toLowerCase())) {
+                        return { valid: false, message: 'Это имя пользователя занято' };
+                    }
+                    const badWords = ['fuck', 'shit', 'ass'];
+                    for (const word of badWords) {
+                        if (value.toLowerCase().includes(word)) {
+                            return { valid: false, message: 'Имя содержит недопустимые слова' };
+                        }
+                    }
+                    return { valid: true, message: 'Имя доступно' };
+                    
+                case 'email':
+                    const domainCheck = checkEmailDomain(value);
+                    if (!domainCheck.valid) {
+                        return { valid: false, message: domainCheck.message };
+                    }
+                    return { valid: true, message: '' };
+                    
+                case 'firstName':
+                    if (value.length < 2) {
+                        return { valid: false, message: 'Имя слишком короткое' };
+                    }
+                    return { valid: true, message: '' };
+                    
+                default:
+                    return { valid: true };
+            }
+        }
+
+        // ============================================
+        // ОТСЛЕЖИВАНИЕ ПРОБЛЕМ
+        // ============================================
+        function logError(error, context = {}) {
+            const errorLog = {
+                message: error.message || String(error),
+                stack: error.stack,
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                context: context
+            };
+            
+            console.error('Error logged:', errorLog);
+            
+            const errors = JSON.parse(localStorage.getItem('errorLog') || '[]');
+            errors.push(errorLog);
+            if (errors.length > 50) errors.shift();
+            localStorage.setItem('errorLog', JSON.stringify(errors));
+        }
+
+        // Глобальный обработчик ошибок
+        window.addEventListener('error', (event) => {
+            logError(event.error || event, { type: 'uncaught' });
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            logError(event.reason, { type: 'unhandledRejection' });
+        });
+
+        // Функция для сообщения об ошибке
+        function reportError() {
+            const lastErrors = JSON.parse(localStorage.getItem('errorLog') || '[]');
+            const report = lastErrors.slice(-3).map(e => 
+                `${e.timestamp}: ${e.message}`
+            ).join('\n');
+            
+            const subject = 'Ошибка на сайте Метро New';
+            const body = `Опишите проблему:
+------------------------
+Техническая информация:
+${report}
+User Agent: ${navigator.userAgent}
+URL: ${window.location.href}
+Время: ${new Date().toLocaleString()}`;
+            
+            window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        // ============================================
+        // КАПЧА ПОСЛЕ 3 НЕУДАЧНЫХ ПОПЫТОК
+        // ============================================
+        function showCaptcha() {
+            const captchaContainer = document.getElementById('loginCaptchaContainer');
+            if (captchaContainer) {
+                captchaContainer.style.display = 'block';
+                if (typeof grecaptcha === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = 'https://www.google.com/recaptcha/api.js';
+                    document.head.appendChild(script);
+                }
+            }
+        }
+
+        async function verifyCaptcha() {
+            return new Promise((resolve) => {
+                if (typeof grecaptcha === 'undefined') {
+                    resolve(true);
+                    return;
+                }
+                
+                const response = grecaptcha.getResponse();
+                if (response) {
+                    resolve(true);
+                } else {
+                    showError('Пожалуйста, подтвердите что вы не робот');
+                    resolve(false);
+                }
+            });
+        }
+
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Система запущена');
+            console.log('Система запущена');
             
-            // Инициализация всех функций
             fillDateSelectors();
             initUsernameChecker();
             initPasswordStrengthChecker();
             initCharCounters();
             initEmailSuggestions();
+            initEmailDomainChecker();
             updateCopyrightYear();
             initEventHandlers();
-            addPrivacyInfoToForm();
             
-            // Добавляем обработчики для кнопок удаления
-            initDeleteButtons();
+            // Обработчик для кнопки сообщения об ошибке
+            document.getElementById('reportErrorFooter').addEventListener('click', (e) => {
+                e.preventDefault();
+                reportError();
+            });
         });
 
-        // ============================================
-        // ОБНОВЛЕНИЕ КОПИРАЙТА
-        // ============================================
         function updateCopyrightYear() {
             const year = new Date().getFullYear();
             const el = document.getElementById('copyrightYear');
             if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
         }
 
-        // ============================================
-        // ЗАПОЛНЕНИЕ ДАТ
-        // ============================================
         function fillDateSelectors() {
             const daySelect = document.getElementById('birthDay');
             const yearSelect = document.getElementById('birthYear');
@@ -1388,7 +1704,6 @@
             
             if (!daySelect || !yearSelect) return;
             
-            // Очищаем и заполняем дни
             daySelect.innerHTML = '<option value="">День</option>';
             for (let i = 1; i <= 31; i++) {
                 const option = document.createElement('option');
@@ -1397,7 +1712,6 @@
                 daySelect.appendChild(option);
             }
             
-            // Очищаем и заполняем годы
             yearSelect.innerHTML = '<option value="">Год</option>';
             for (let i = currentYear; i >= currentYear - 100; i--) {
                 const option = document.createElement('option');
@@ -1407,9 +1721,6 @@
             }
         }
 
-        // ============================================
-        // ПОЛУЧЕНИЕ IP ПОЛЬЗОВАТЕЛЯ
-        // ============================================
         async function getUserIP() {
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
@@ -1421,9 +1732,6 @@
             }
         }
 
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ СЧЕТЧИКОВ СИМВОЛОВ
-        // ============================================
         function initCharCounters() {
             const usernameInput = document.getElementById('username');
             if (usernameInput) {
@@ -1435,16 +1743,13 @@
             }
         }
 
-        // ============================================
-        // ПОДСКАЗКИ EMAIL
-        // ============================================
         function initEmailSuggestions() {
             const emailInput = document.getElementById('email');
             const suggestionsDiv = document.getElementById('emailSuggestions');
             
             if (!emailInput || !suggestionsDiv) return;
             
-            const domains = ['gmail.com', 'mail.ru', 'yandex.ru', 'yahoo.com', 'outlook.com'];
+            const domains = ['gmail.com', 'mail.ru', 'yandex.ru', 'outlook.com', 'yahoo.com'];
             
             emailInput.addEventListener('input', function() {
                 const value = this.value.trim();
@@ -1493,9 +1798,45 @@
             });
         }
 
-        // ============================================
-        // ПРОВЕРКА НИКНЕЙМА
-        // ============================================
+        function initEmailDomainChecker() {
+            const emailInput = document.getElementById('email');
+            const emailStatus = document.getElementById('emailStatus');
+            const emailHint = document.getElementById('emailHint');
+            
+            if (!emailInput || !emailStatus || !emailHint) return;
+            
+            let timeout;
+            
+            emailInput.addEventListener('input', function() {
+                const email = this.value.trim();
+                
+                clearTimeout(timeout);
+                
+                timeout = setTimeout(() => {
+                    if (email.length < 5 || !email.includes('@')) {
+                        emailStatus.innerHTML = '';
+                        emailHint.textContent = 'Ваш email для входа';
+                        emailHint.className = 'form-hint';
+                        return;
+                    }
+                    
+                    const result = checkEmailDomain(email);
+                    
+                    if (result.valid) {
+                        emailStatus.innerHTML = '<i class="fas fa-check"></i>';
+                        emailStatus.className = 'email-status valid';
+                        emailHint.textContent = '';
+                        emailHint.className = 'form-hint';
+                    } else {
+                        emailStatus.innerHTML = '<i class="fas fa-times"></i>';
+                        emailStatus.className = 'email-status invalid';
+                        emailHint.textContent = result.message;
+                        emailHint.className = 'form-hint error';
+                    }
+                }, 500);
+            });
+        }
+
         function initUsernameChecker() {
             const usernameInput = document.getElementById('username');
             const statusEl = document.getElementById('usernameStatus');
@@ -1521,33 +1862,23 @@
                 clearTimeout(timeout);
                 
                 timeout = setTimeout(async () => {
-                    const isAvailable = await checkUsernameAvailability(username);
+                    const serverCheck = await serverSideValidation('username', username);
                     
-                    if (isAvailable) {
-                        statusEl.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    if (serverCheck.valid) {
+                        statusEl.innerHTML = '<i class="fas fa-check"></i>';
                         statusEl.className = 'username-status available';
-                        hintEl.textContent = 'Никнейм свободен!';
+                        hintEl.textContent = serverCheck.message;
                         hintEl.className = 'form-hint success';
                     } else {
-                        statusEl.innerHTML = '<i class="fas fa-times-circle"></i>';
+                        statusEl.innerHTML = '<i class="fas fa-times"></i>';
                         statusEl.className = 'username-status taken';
-                        hintEl.textContent = 'Никнейм занят';
+                        hintEl.textContent = serverCheck.message;
                         hintEl.className = 'form-hint error';
                     }
                 }, 500);
             });
         }
 
-        async function checkUsernameAvailability(username) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            const takenUsernames = ['admin', 'user', 'test', 'metro', 'support', 'moderator', 'root'];
-            return !takenUsernames.includes(username.toLowerCase());
-        }
-
-        // ============================================
-        // ИНДИКАТОР СИЛЫ ПАРОЛЯ
-        // ============================================
         function initPasswordStrengthChecker() {
             const passwordInput = document.getElementById('password');
             
@@ -1616,7 +1947,6 @@
                                    strength.score >= 2 ? 'var(--warning)' : 'var(--danger)';
             }
             
-            // Добавляем требования
             const meterContainer = document.getElementById('passwordStrengthMeter');
             let reqEl = document.getElementById('passwordRequirements');
             
@@ -1638,9 +1968,6 @@
             }
         }
 
-        // ============================================
-        // УВЕДОМЛЕНИЯ
-        // ============================================
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
@@ -1705,11 +2032,7 @@
             showNotification(message, 'success');
         }
 
-        // ============================================
-        // РАСЧЕТ ВОЗРАСТА
-        // ============================================
         function calculateAge(day, month, year) {
-            // Преобразуем в числа, если пришли строки
             const birthDay = parseInt(day);
             const birthMonth = parseInt(month);
             const birthYear = parseInt(year);
@@ -1729,18 +2052,6 @@
             return age;
         }
 
-        // ============================================
-        // ИНФОРМАЦИЯ О ПРИВАТНОСТИ (УБРАНО)
-        // ============================================
-        function addPrivacyInfoToForm() {
-            // Функция больше не добавляет баннер с данными
-            // Можно оставить пустой или удалить вызовы
-            console.log('Privacy banner removed');
-        }
-
-        // ============================================
-        // ТАЙМЕР ПОВТОРНОЙ ОТПРАВКИ
-        // ============================================
         function startResendTimer() {
             const btn = document.getElementById('resendEmailBtn');
             const timerText = document.getElementById('resendTimerText');
@@ -1770,67 +2081,13 @@
                     showSuccess('Письмо отправлено повторно!');
                     startResendTimer();
                 } catch (error) {
+                    logError(error, { action: 'resendEmail' });
                     showError('Ошибка отправки письма');
                 }
             };
         }
 
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ КНОПОК УДАЛЕНИЯ
-        // ============================================
-        function initDeleteButtons() {
-            // Демо-кнопка на шаге 3
-            document.getElementById('demoDeleteBtn')?.addEventListener('click', function() {
-                showNotification('🧪 Демо: аккаунт был бы удален, но это тестовая версия', 'warning');
-            });
-            
-            // Кнопка удаления на экране успеха
-            document.getElementById('deleteAccountBtn')?.addEventListener('click', async function() {
-                if (!auth?.currentUser) {
-                    showNotification('Сначала нужно создать аккаунт', 'warning');
-                    return;
-                }
-                
-                const confirmDelete = confirm('❌ Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить!');
-                
-                if (!confirmDelete) return;
-                
-                showLoading('Удаление аккаунта...');
-                
-                try {
-                    const user = auth.currentUser;
-                    
-                    // Удаляем данные из Firestore
-                    try {
-                        await deleteDoc(doc(db, 'users_public', user.uid));
-                    } catch (dbError) {
-                        console.warn('Firestore deletion error:', dbError);
-                    }
-                    
-                    // Удаляем сам аккаунт
-                    await deleteUser(user);
-                    
-                    hideLoading();
-                    showNotification('✅ Аккаунт успешно удален', 'success');
-                    
-                    // Возвращаемся на главную
-                    setTimeout(() => {
-                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
-                    }, 1500);
-                    
-                } catch (error) {
-                    hideLoading();
-                    console.error('Delete account error:', error);
-                    showError('Ошибка при удалении аккаунта: ' + error.message);
-                }
-            });
-        }
-
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
-        // ============================================
         function initEventHandlers() {
-            // Показать/скрыть пароль
             document.getElementById('togglePassword')?.addEventListener('click', function() {
                 const input = document.getElementById('password');
                 const icon = this.querySelector('i');
@@ -1873,8 +2130,7 @@
                 }
             });
 
-            // ШАГ 1 -> ШАГ 2
-            document.getElementById('nextStep1')?.addEventListener('click', function(e) {
+            document.getElementById('nextStep1')?.addEventListener('click', async function(e) {
                 e.preventDefault();
                 
                 const firstName = document.getElementById('firstName')?.value.trim();
@@ -1887,9 +2143,13 @@
                     document.getElementById('firstNameHint').textContent = 'Введите имя';
                     document.getElementById('firstNameHint').className = 'form-hint error';
                     return;
-                } else {
-                    document.getElementById('firstNameHint').textContent = 'Как к вам обращаться';
-                    document.getElementById('firstNameHint').className = 'form-hint';
+                }
+                
+                const nameCheck = await serverSideValidation('firstName', firstName);
+                if (!nameCheck.valid) {
+                    document.getElementById('firstNameHint').textContent = nameCheck.message;
+                    document.getElementById('firstNameHint').className = 'form-hint error';
+                    return;
                 }
                 
                 if (!username) {
@@ -1900,9 +2160,13 @@
                     document.getElementById('usernameHint').textContent = 'Минимум 3 символа';
                     document.getElementById('usernameHint').className = 'form-hint error';
                     return;
-                } else {
-                    document.getElementById('usernameHint').textContent = 'Будет отображаться другим пользователям';
-                    document.getElementById('usernameHint').className = 'form-hint';
+                }
+                
+                const usernameCheck = await serverSideValidation('username', username);
+                if (!usernameCheck.valid) {
+                    document.getElementById('usernameHint').textContent = usernameCheck.message;
+                    document.getElementById('usernameHint').className = 'form-hint error';
+                    return;
                 }
                 
                 if (!birthDay || !birthMonth || !birthYear) {
@@ -1924,7 +2188,7 @@
                     
                     document.getElementById('ageRestrictionMessage').innerHTML = 
                         `Тебе ${age} лет. Регистрация доступна с 13 лет.<br><br>
-                         <strong>Вернись через ${yearsLeft} ${yearWord}</strong> 😊`;
+                         <strong>Вернись через ${yearsLeft} ${yearWord}</strong>`;
                     return;
                 }
                 
@@ -1939,8 +2203,7 @@
                 currentStep = 2;
             });
 
-            // ШАГ 2 -> ШАГ 3
-            document.getElementById('nextStep2')?.addEventListener('click', function(e) {
+            document.getElementById('nextStep2')?.addEventListener('click', async function(e) {
                 e.preventDefault();
                 
                 const email = document.getElementById('email')?.value.trim();
@@ -1955,9 +2218,13 @@
                     document.getElementById('emailHint').textContent = 'Введите корректный email';
                     document.getElementById('emailHint').className = 'form-hint error';
                     return;
-                } else {
-                    document.getElementById('emailHint').textContent = 'Ваш email для входа';
-                    document.getElementById('emailHint').className = 'form-hint';
+                }
+                
+                const domainCheck = checkEmailDomain(email);
+                if (!domainCheck.valid) {
+                    document.getElementById('emailHint').textContent = domainCheck.message;
+                    document.getElementById('emailHint').className = 'form-hint error';
+                    return;
                 }
                 
                 if (!password) {
@@ -1972,7 +2239,7 @@
                     document.getElementById('passwordHint').className = 'form-hint error';
                     return;
                 } else {
-                    document.getElementById('passwordHint').textContent = 'Минимум 6 символов';
+                    document.getElementById('passwordHint').textContent = 'Минимум 8 символов';
                     document.getElementById('passwordHint').className = 'form-hint';
                 }
                 
@@ -2012,7 +2279,6 @@
                 `;
             });
 
-            // Кнопки назад
             document.getElementById('prevStep2')?.addEventListener('click', function() {
                 document.querySelectorAll('.registration-step').forEach(s => s.classList.remove('active'));
                 document.getElementById('step1').classList.add('active');
@@ -2037,14 +2303,12 @@
                 currentStep = 2;
             });
 
-            // Отмена регистрации
             document.getElementById('cancelRegistration')?.addEventListener('click', function() {
                 if (confirm('Отменить регистрацию?')) {
                     window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
                 }
             });
 
-            // Возрастное ограничение
             document.getElementById('backFromAgeRestriction')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -2053,7 +2317,6 @@
                 document.getElementById('step1').classList.add('active');
             });
 
-            // Переключение между формами
             document.getElementById('showLoginLink')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -2093,7 +2356,6 @@
                 window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/auth/login/';
             });
 
-            // Google авторизация
             document.getElementById('googleRegisterBtn')?.addEventListener('click', async function() {
                 if (!auth || !googleProvider) {
                     showError('Сервис временно недоступен');
@@ -2110,7 +2372,7 @@
                     }, 1500);
                 } catch (error) {
                     hideLoading();
-                    console.error('Google auth error:', error);
+                    logError(error, { action: 'googleAuth' });
                     showError('Ошибка авторизации: ' + (error.message || 'Попробуйте позже'));
                 }
             });
@@ -2131,24 +2393,16 @@
                     }, 1500);
                 } catch (error) {
                     hideLoading();
-                    console.error('Google auth error:', error);
+                    logError(error, { action: 'googleAuth' });
                     showError('Ошибка авторизации: ' + (error.message || 'Попробуйте позже'));
                 }
             });
 
-            // Регистрация
             document.getElementById('submitRegistration')?.addEventListener('click', handleRegistration);
-
-            // Вход
             document.getElementById('loginFormElement')?.addEventListener('submit', handleLogin);
-
-            // Сброс пароля
             document.getElementById('resetPasswordFormElement')?.addEventListener('submit', handlePasswordReset);
         }
 
-        // ============================================
-        // ОБРАБОТЧИК РЕГИСТРАЦИИ
-        // ============================================
         async function handleRegistration(e) {
             e.preventDefault();
             
@@ -2164,37 +2418,79 @@
             const birthDay = document.getElementById('birthDay').value;
             const birthMonth = document.getElementById('birthMonth').value;
             const birthYear = document.getElementById('birthYear').value;
+            const marketingConsent = document.getElementById('marketingConsent')?.checked || false;
             
-            if (!email || !email.includes('@')) {
-                showError('Введите корректный email');
+            const userIP = await getUserIP();
+            
+            const ipCheck = await checkIPBlock(userIP);
+            if (ipCheck.blocked) {
+                document.getElementById('ipBlockWarning').style.display = 'block';
+                document.getElementById('ipBlockWarning').querySelector('.timer').textContent = 
+                    `${Math.floor(ipCheck.timeLeft / 60)}:${(ipCheck.timeLeft % 60).toString().padStart(2, '0')}`;
+                showError(`Слишком много попыток. Подождите ${Math.floor(ipCheck.timeLeft / 60)} минут.`);
                 return;
             }
             
-            const strength = checkPasswordStrength(password);
-            if (strength.score < 3) {
-                showError('Пароль слишком слабый. ' + strength.requirements.join(', '));
+            const rateCheck = checkRateLimit();
+            if (rateCheck.limited) {
+                showError(`Слишком много попыток. Подождите ${rateCheck.timeLeft} секунд.`);
                 return;
             }
+            attemptsInWindow++;
+            updateRateLimitIndicator();
             
-            if (password !== document.getElementById('confirmPassword').value) {
-                showError('Пароли не совпадают');
+            if (!await acquireLock(email)) {
+                showError('Регистрация с этим email уже выполняется');
                 return;
             }
-            
-            if (username.length < 3) {
-                showError('Никнейм должен быть минимум 3 символа');
-                return;
-            }
-            
-            if (!auth || !db) {
-                showError('Сервис временно недоступен');
-                return;
-            }
-            
-            showLoading('Создание аккаунта...');
             
             try {
-                const userIP = await getUserIP();
+                if (!email || !email.includes('@')) {
+                    showError('Введите корректный email');
+                    return;
+                }
+                
+                const domainCheck = checkEmailDomain(email);
+                if (!domainCheck.valid) {
+                    showError(domainCheck.message);
+                    return;
+                }
+                
+                const nameCheck = await serverSideValidation('firstName', firstName);
+                if (!nameCheck.valid) {
+                    showError(nameCheck.message);
+                    return;
+                }
+                
+                const usernameCheck = await serverSideValidation('username', username);
+                if (!usernameCheck.valid) {
+                    showError(usernameCheck.message);
+                    return;
+                }
+                
+                const strength = checkPasswordStrength(password);
+                if (strength.score < 3) {
+                    showError('Пароль слишком слабый. ' + strength.requirements.join(', '));
+                    return;
+                }
+                
+                if (password !== document.getElementById('confirmPassword').value) {
+                    showError('Пароли не совпадают');
+                    return;
+                }
+                
+                if (username.length < 3) {
+                    showError('Никнейм должен быть минимум 3 символа');
+                    return;
+                }
+                
+                if (!auth || !db) {
+                    showError('Сервис временно недоступен');
+                    return;
+                }
+                
+                showLoading('Создание аккаунта...');
+                
                 const userAgent = navigator.userAgent;
                 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -2213,6 +2509,7 @@
                     displayName: firstName,
                     email: email,
                     emailVerified: false,
+                    marketingConsent: marketingConsent,
                     birthDate: {
                         day: parseInt(birthDay),
                         month: parseInt(birthMonth),
@@ -2221,7 +2518,8 @@
                     age: calculateAge(birthDay, birthMonth, birthYear),
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
-                    status: 'pending_verification'
+                    status: 'pending_verification',
+                    ipAddress: userIP
                 });
                 
                 try {
@@ -2229,6 +2527,7 @@
                         uid: user.uid,
                         email: email,
                         type: 'registration_terms',
+                        marketingConsent: marketingConsent,
                         acceptedAt: serverTimestamp(),
                         ip: userIP,
                         userAgent: userAgent,
@@ -2250,11 +2549,14 @@
                 `;
                 
                 startResendTimer();
-                showNotification('🎉 Аккаунт создан! Не забудьте подтвердить email', 'success');
+                showNotification('Аккаунт создан!', 'success');
+                
+                incrementIPAttempt(userIP);
+                ipAttempts.set(userIP, 0);
                 
             } catch (error) {
                 hideLoading();
-                console.error('Registration error:', error);
+                logError(error, { action: 'registration', email });
                 
                 let message = 'Ошибка регистрации';
                 if (error.code === 'auth/email-already-in-use') {
@@ -2266,12 +2568,11 @@
                 }
                 
                 showError(message);
+            } finally {
+                releaseLock(email);
             }
         }
 
-        // ============================================
-        // ОБРАБОТЧИК ВХОДА
-        // ============================================
         async function handleLogin(e) {
             e.preventDefault();
             
@@ -2281,6 +2582,31 @@
             if (!email || !password) {
                 showLoginError('Заполните все поля');
                 return;
+            }
+            
+            const userIP = await getUserIP();
+            
+            const ipCheck = await checkIPBlock(userIP);
+            if (ipCheck.blocked) {
+                document.getElementById('ipBlockWarning').style.display = 'block';
+                document.getElementById('ipBlockWarning').querySelector('.timer').textContent = 
+                    `${Math.floor(ipCheck.timeLeft / 60)}:${(ipCheck.timeLeft % 60).toString().padStart(2, '0')}`;
+                showLoginError(`Слишком много попыток. Подождите ${Math.floor(ipCheck.timeLeft / 60)} минут.`);
+                return;
+            }
+            
+            const rateCheck = checkRateLimit();
+            if (rateCheck.limited) {
+                showLoginError(`Слишком много попыток. Подождите ${rateCheck.timeLeft} секунд.`);
+                return;
+            }
+            attemptsInWindow++;
+            updateRateLimitIndicator();
+            
+            if (loginFailedAttempts >= MAX_LOGIN_ATTEMPTS) {
+                showCaptcha();
+                const captchaValid = await verifyCaptcha();
+                if (!captchaValid) return;
             }
             
             if (!auth || !db) {
@@ -2314,11 +2640,15 @@
                 try {
                     const userRef = doc(db, 'users_public', user.uid);
                     await setDoc(userRef, {
-                        lastLoginAt: serverTimestamp()
+                        lastLoginAt: serverTimestamp(),
+                        lastIP: userIP
                     }, { merge: true });
                 } catch (dbError) {
                     console.warn('Failed to update last login:', dbError);
                 }
+                
+                loginFailedAttempts = 0;
+                ipAttempts.set(userIP, 0);
                 
                 hideLoading();
                 showSuccess('Вход выполнен! Перенаправление...');
@@ -2329,7 +2659,10 @@
                 
             } catch (error) {
                 hideLoading();
-                console.error('Login error:', error);
+                loginFailedAttempts++;
+                incrementIPAttempt(userIP);
+                
+                logError(error, { action: 'login', email });
                 
                 let message = 'Ошибка входа';
                 if (error.code === 'auth/invalid-credential') {
@@ -2342,13 +2675,14 @@
                     message = error.message;
                 }
                 
+                if (loginFailedAttempts < MAX_LOGIN_ATTEMPTS) {
+                    message += ` Осталось попыток: ${MAX_LOGIN_ATTEMPTS - loginFailedAttempts}`;
+                }
+                
                 showLoginError(message);
             }
         }
 
-        // ============================================
-        // ОБРАБОТЧИК СБРОСА ПАРОЛЯ
-        // ============================================
         async function handlePasswordReset(e) {
             e.preventDefault();
             
@@ -2358,6 +2692,14 @@
                 showResetError('Введите корректный email');
                 return;
             }
+            
+            const rateCheck = checkRateLimit();
+            if (rateCheck.limited) {
+                showResetError(`Слишком много попыток. Подождите ${rateCheck.timeLeft} секунд.`);
+                return;
+            }
+            attemptsInWindow++;
+            updateRateLimitIndicator();
             
             if (!auth) {
                 showResetError('Сервис временно недоступен');
@@ -2376,7 +2718,7 @@
                     `Ссылка для сброса пароля отправлена на ${email}`;
             } catch (error) {
                 hideLoading();
-                console.error('Password reset error:', error);
+                logError(error, { action: 'passwordReset', email });
                 
                 let message = 'Ошибка отправки';
                 if (error.code === 'auth/user-not-found') {
