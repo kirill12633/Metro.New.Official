@@ -39,7 +39,7 @@
         .admin-panel { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
         .panel-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .panel-header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; font-size: 1rem; }
         .btn-white { background: white; color: var(--primary); }
         .btn-white:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .btn-primary { background: var(--primary); color: white; }
@@ -62,24 +62,34 @@
         .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .status-published { background: #e6f4ea; color: var(--success); }
         .status-draft { background: #fef7e0; color: var(--warning); }
-        .action-btn { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gray-border); background: white; color: var(--gray); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+        .action-btn { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gray-border); background: white; color: var(--gray); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; margin: 0 2px; }
         .action-btn:hover { transform: translateY(-2px); }
         .action-btn.edit:hover { background: var(--primary); color: white; }
         .action-btn.delete:hover { background: var(--danger); color: white; }
+        .action-btn.view:hover { background: var(--success); color: white; }
 
         /* Форма (изначально скрыта) */
         #formContainer { display: none; margin-top: 30px; padding-top: 30px; border-top: 2px solid var(--gray-border); }
         .form-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
         .form-main, .form-sidebar { background: var(--gray-light); border-radius: var(--radius-md); padding: 25px; }
+        .form-section { margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-        .form-control { width: 100%; padding: 12px 15px; border: 2px solid var(--gray-border); border-radius: var(--radius-md); font-family: 'Montserrat', sans-serif; }
+        .form-control { width: 100%; padding: 12px 15px; border: 2px solid var(--gray-border); border-radius: var(--radius-md); font-family: 'Montserrat', sans-serif; font-size: 1rem; }
         .toggle-group { display: flex; flex-wrap: wrap; gap: 10px; }
         .toggle-btn { flex: 1; min-width: 100px; padding: 12px; background: white; border: 2px solid var(--gray-border); border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; }
         .toggle-btn i { display: block; font-size: 1.2rem; margin-bottom: 5px; }
+        .toggle-btn:hover { border-color: var(--primary); color: var(--primary); }
         .toggle-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
         .checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; }
-        .action-buttons { display: flex; gap: 15px; margin-top: 20px; justify-content: flex-end; }
+        .action-buttons { display: flex; gap: 15px; margin-top: 30px; justify-content: flex-end; flex-wrap: wrap; }
+
+        /* Пагинация */
+        .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 30px; flex-wrap: wrap; }
+        .page-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gray-border); background: white; cursor: pointer; transition: all 0.2s; }
+        .page-btn:hover:not(:disabled) { background: var(--primary); color: white; }
+        .page-btn.active { background: var(--primary); color: white; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Модальное окно */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -88,25 +98,51 @@
         .modal-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
 
         /* Уведомления */
-        .notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: none; align-items: center; gap: 10px; z-index: 2000; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: none; align-items: center; gap: 10px; z-index: 2000; animation: slideIn 0.3s ease; }
         .notification.show { display: flex; }
         .notification.success { border-left: 4px solid var(--success); }
         .notification.error { border-left: 4px solid var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
         .loading { text-align: center; padding: 40px; color: var(--gray); }
-        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        hr { border: none; border-top: 1px solid var(--gray-border); margin: 20px 0; }
+        
+        @media (max-width: 768px) { 
+            .form-grid { grid-template-columns: 1fr; } 
+            .filters { flex-direction: column; align-items: stretch; }
+            .filter-select { width: 100%; }
+            .action-buttons { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
     <!-- Уведомления -->
     <div class="notification" id="notification"><i class="fas" id="notificationIcon"></i><span id="notificationMessage"></span></div>
     <!-- Модальное окно удаления -->
-    <div class="modal" id="deleteModal"><div class="modal-content"><i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 15px;"></i><h3>Удалить новость?</h3><p id="deleteNewsTitle"></p><div class="modal-buttons"><button class="btn btn-sm" onclick="closeDeleteModal()">Отмена</button><button class="btn btn-sm btn-danger" id="confirmDelete">Удалить</button></div></div></div>
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 15px;"></i>
+            <h3>Удалить новость?</h3>
+            <p id="deleteNewsTitle"></p>
+            <div class="modal-buttons">
+                <button class="btn btn-sm" onclick="closeDeleteModal()">Отмена</button>
+                <button class="btn btn-sm btn-danger" id="confirmDelete">Удалить</button>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <!-- Навигация -->
         <div class="top-nav">
-            <div class="logo"><div class="logo-icon">M</div><div class="logo-text">Метро New</div></div>
-            <div class="user-info"><span id="userName">Загрузка...</span><div class="user-avatar" id="userAvatar">A</div></div>
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">Метро New</div>
+            </div>
+            <div class="user-info">
+                <span id="userName">Загрузка...</span>
+                <div class="user-avatar" id="userAvatar">A</div>
+            </div>
         </div>
 
         <!-- Панель управления -->
@@ -115,9 +151,10 @@
                 <h1><i class="fas fa-newspaper"></i> Управление новостями</h1>
                 <button class="btn btn-white" onclick="showCreateForm()"><i class="fas fa-plus"></i> Создать новость</button>
             </div>
+            
+            <!-- Контейнер для списка новостей -->
             <div class="panel-body" id="newsListContainer">
-                <!-- Сюда загружается список новостей -->
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка новостей...</div>
             </div>
 
             <!-- Контейнер для формы создания/редактирования (изначально скрыт) -->
@@ -126,7 +163,7 @@
     </div>
 
     <script>
-        // --- Firebase и глобальные переменные ---
+        // ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
         firebase.initializeApp({
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
@@ -135,41 +172,53 @@
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
         });
-        try { firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true); } catch (e) {}
+
+        // ===== APP CHECK =====
+        try {
+            firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
+            console.log('✅ App Check активирован');
+        } catch (e) {
+            console.warn('⚠️ App Check не активирован:', e);
+        }
+
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // Переменные состояния
+        // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
         let currentUser = null;
         let allNews = [];
         let currentPage = 1;
         const pageSize = 8;
         let deleteId = null;
-        let currentEditId = null; // ID новости, которую редактируем (null для создания)
-        let simplemde = null; // Экземпляр редактора
+        let currentEditId = null;
+        let simplemde = null;
 
-        // --- Вспомогательные функции (уведомления) ---
+        // ===== УВЕДОМЛЕНИЯ =====
         function showNotification(message, type = 'success') {
-            const n = document.getElementById('notification');
-            document.getElementById('notificationIcon').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-            n.className = `notification show ${type}`;
-            document.getElementById('notificationMessage').textContent = message;
-            setTimeout(() => n.classList.remove('show'), 3000);
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const msg = document.getElementById('notificationMessage');
+            
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            notification.className = `notification show ${type}`;
+            msg.textContent = message;
+            
+            setTimeout(() => notification.classList.remove('show'), 3000);
         }
 
-        // --- Проверка авторизации ---
+        // ===== ПРОВЕРКА АВТОРИЗАЦИИ =====
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
                 document.getElementById('userName').textContent = user.email || 'Администратор';
                 document.getElementById('userAvatar').textContent = (user.email || 'A')[0].toUpperCase();
-                loadNews(); // Загружаем список новостей
+                loadNews();
             } else {
                 window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login';
             }
         });
 
-        // --- ФУНКЦИИ ДЛЯ СПИСКА НОВОСТЕЙ ---
+        // ===== ЗАГРУЗКА ВСЕХ НОВОСТЕЙ =====
         async function loadNews() {
             try {
                 const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
@@ -178,14 +227,19 @@
                 displayNewsList();
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
-                document.getElementById('newsListContainer').innerHTML = '<div class="loading" style="color: var(--danger);">Ошибка загрузки</div>';
+                document.getElementById('newsListContainer').innerHTML = '<div class="loading" style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Ошибка загрузки новостей</div>';
             }
         }
 
+        // ===== ОТОБРАЖЕНИЕ СПИСКА НОВОСТЕЙ =====
         function displayNewsList() {
-            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-            const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
+            const searchInput = document.getElementById('searchInput');
+            const statusFilterEl = document.getElementById('statusFilter');
+            const categoryFilterEl = document.getElementById('categoryFilter');
+            
+            const searchTerm = searchInput?.value.toLowerCase() || '';
+            const statusFilter = statusFilterEl?.value || 'all';
+            const categoryFilter = categoryFilterEl?.value || 'all';
 
             let filtered = allNews.filter(news => {
                 if (searchTerm && !news.title?.toLowerCase().includes(searchTerm)) return false;
@@ -199,33 +253,66 @@
             const start = (currentPage - 1) * pageSize;
             const paginatedNews = filtered.slice(start, start + pageSize);
 
-            // Генерация HTML таблицы
+            // Категории
+            const categoryNames = { 'announcement': 'Анонс', 'update': 'Обновление', 'important': 'Важное', 'event': 'Событие' };
+            const statusNames = { 'published': 'Опубликовано', 'draft': 'Черновик' };
+
+            // Генерация HTML
             let html = `
                 <div class="filters">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Поиск..." value="${searchTerm}"></div>
-                    <select class="filter-select" id="statusFilter"><option value="all">Все статусы</option><option value="published" ${statusFilter=='published'?'selected':''}>Опубликовано</option><option value="draft" ${statusFilter=='draft'?'selected':''}>Черновик</option></select>
-                    <select class="filter-select" id="categoryFilter"><option value="all">Все категории</option><option value="announcement" ${categoryFilter=='announcement'?'selected':''}>Анонс</option><option value="update" ${categoryFilter=='update'?'selected':''}>Обновление</option><option value="important" ${categoryFilter=='important'?'selected':''}>Важное</option><option value="event" ${categoryFilter=='event'?'selected':''}>Событие</option></select>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Поиск по заголовку..." value="${searchTerm}">
+                    </div>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">Все статусы</option>
+                        <option value="published" ${statusFilter === 'published' ? 'selected' : ''}>Опубликовано</option>
+                        <option value="draft" ${statusFilter === 'draft' ? 'selected' : ''}>Черновик</option>
+                    </select>
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="all">Все категории</option>
+                        <option value="announcement" ${categoryFilter === 'announcement' ? 'selected' : ''}>Анонс</option>
+                        <option value="update" ${categoryFilter === 'update' ? 'selected' : ''}>Обновление</option>
+                        <option value="important" ${categoryFilter === 'important' ? 'selected' : ''}>Важное</option>
+                        <option value="event" ${categoryFilter === 'event' ? 'selected' : ''}>Событие</option>
+                    </select>
                 </div>
-                <div style="overflow-x: auto;"><table class="news-table"><thead><tr><th>Заголовок</th><th>Категория</th><th>Статус</th><th>Дата</th><th>Просмотры</th><th>Действия</th></tr></thead><tbody>
+                <div style="overflow-x: auto;">
+                    <table class="news-table">
+                        <thead>
+                            <tr>
+                                <th>Заголовок</th>
+                                <th>Категория</th>
+                                <th>Статус</th>
+                                <th>Дата</th>
+                                <th>Просмотры</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
             `;
 
             if (paginatedNews.length === 0) {
-                html += '<tr><td colspan="6" style="text-align: center; padding: 40px;">Новости не найдены</td></tr>';
+                html += '<tr><td colspan="6" style="text-align: center; padding: 40px;"><i class="fas fa-newspaper" style="font-size: 3rem; color: var(--gray); margin-bottom: 10px;"></i><p>Новости не найдены</p></td></tr>';
             } else {
                 paginatedNews.forEach(item => {
                     const date = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString('ru-RU') : 'н/д';
-                    const categoryNames = { 'announcement': 'Анонс', 'update': 'Обновление', 'important': 'Важное', 'event': 'Событие' };
-                    const statusNames = { 'published': 'Опубликовано', 'draft': 'Черновик' };
                     html += `<tr>
-                        <td>${item.title || 'Без названия'} ${item.badge ? `<br><small style="color:var(--primary);">🏷️ ${item.badge}</small>` : ''}</td>
-                        <td><span class="status-badge" style="background:var(--gray-light);">${categoryNames[item.category] || item.category}</span></td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--primary);">${item.title || 'Без названия'}</div>
+                            ${item.badge ? `<small style="color: var(--primary);"><i class="fas fa-tag"></i> ${item.badge}</small>` : ''}
+                        </td>
+                        <td><span class="status-badge" style="background: var(--gray-light);">${categoryNames[item.category] || item.category}</span></td>
                         <td><span class="status-badge ${item.status === 'published' ? 'status-published' : 'status-draft'}">${statusNames[item.status] || item.status}</span></td>
                         <td>${date}</td>
                         <td>${item.views || 0}</td>
-                        <td><div class="action-buttons">
-                            <button class="action-btn edit" onclick="showEditForm('${item.id}')" title="Редактировать"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete" onclick="showDeleteModal('${item.id}', '${item.title?.replace(/'/g, "\\'") || 'Без названия'}')" title="Удалить"><i class="fas fa-trash"></i></button>
-                        </div></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="https://kirill12633.github.io/Metro.New.Official/ru/news?id=${item.id}" target="_blank" class="action-btn view" title="Просмотр на сайте"><i class="fas fa-eye"></i></a>
+                                <button class="action-btn edit" onclick="showEditForm('${item.id}')" title="Редактировать"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete" onclick="showDeleteModal('${item.id}', '${item.title?.replace(/'/g, "\\'") || 'Без названия'}')" title="Удалить"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
                     </tr>`;
                 });
             }
@@ -233,73 +320,189 @@
 
             // Пагинация
             if (totalPages > 1) {
-                html += '<div class="pagination" style="display:flex; justify-content:center; gap:5px; margin-top:20px;">';
+                html += '<div class="pagination">';
                 html += `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+                
                 for (let i = 1; i <= totalPages; i++) {
                     if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                        html += `<button class="page-btn" onclick="changePage(${i})" style="width:40px;height:40px;border-radius:50%;border:1px solid var(--gray-border);background:${currentPage===i?'var(--primary)':'white'};color:${currentPage===i?'white':'var(--dark)'};">${i}</button>`;
+                        html += `<button class="page-btn ${currentPage === i ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
                     } else if (i === currentPage - 3 || i === currentPage + 3) {
-                        html += `<button class="page-btn" disabled>...</button>`;
+                        html += `<span class="page-btn" style="border: none; background: transparent;" disabled>...</span>`;
                     }
                 }
+                
                 html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
                 html += '</div>';
             }
 
             document.getElementById('newsListContainer').innerHTML = html;
 
-            // Навешиваем обработчики фильтров
+            // Навешиваем обработчики
             document.getElementById('searchInput')?.addEventListener('input', () => { currentPage = 1; displayNewsList(); });
             document.getElementById('statusFilter')?.addEventListener('change', () => { currentPage = 1; displayNewsList(); });
             document.getElementById('categoryFilter')?.addEventListener('change', () => { currentPage = 1; displayNewsList(); });
         }
 
+        // ===== СМЕНА СТРАНИЦЫ =====
         window.changePage = (page) => { currentPage = page; displayNewsList(); };
 
-        // --- ФУНКЦИИ ДЛЯ ФОРМЫ (СОЗДАНИЕ/РЕДАКТИРОВАНИЕ) ---
-        function showCreateForm() { loadForm(null); } // null означает режим создания
+        // ===== ПОКАЗ ФОРМЫ СОЗДАНИЯ =====
+        window.showCreateForm = () => loadForm(null);
 
-        async function showEditForm(id) { loadForm(id); }
+        // ===== ПОКАЗ ФОРМЫ РЕДАКТИРОВАНИЯ =====
+        window.showEditForm = (id) => loadForm(id);
 
+        // ===== ЗАГРУЗКА ДАННЫХ В ФОРМУ =====
         async function loadForm(id = null) {
             currentEditId = id;
             document.getElementById('newsListContainer').style.display = 'none';
             document.getElementById('formContainer').style.display = 'block';
             document.getElementById('formContainer').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка формы...</div>';
 
-            let newsData = { title: '', excerpt: '', content: '', category: 'announcement', badge: '', important: false, status: 'draft', tags: '', createdAt: new Date() };
+            let newsData = { 
+                title: '', 
+                excerpt: '', 
+                content: '', 
+                category: 'announcement', 
+                badge: '', 
+                important: false, 
+                status: 'draft', 
+                tags: [], 
+                createdAt: new Date() 
+            };
 
             if (id) {
                 try {
                     const doc = await db.collection('news').doc(id).get();
-                    if (doc.exists) newsData = { ...doc.data(), id: doc.id };
-                } catch (e) { showNotification('Ошибка загрузки данных', 'error'); }
+                    if (doc.exists) {
+                        newsData = { ...doc.data(), id: doc.id };
+                        // Преобразуем tags в массив, если это не массив
+                        if (newsData.tags && !Array.isArray(newsData.tags)) {
+                            if (typeof newsData.tags === 'string') {
+                                newsData.tags = newsData.tags.split(',').map(t => t.trim());
+                            } else {
+                                newsData.tags = [];
+                            }
+                        }
+                    }
+                } catch (e) { 
+                    showNotification('Ошибка загрузки данных', 'error');
+                    console.error(e);
+                }
             }
 
-            // Рендерим форму
+            // Безопасное преобразование тегов для отображения
+            let tagsValue = '';
+            if (Array.isArray(newsData.tags)) {
+                tagsValue = newsData.tags.join(', ');
+            } else if (typeof newsData.tags === 'string') {
+                tagsValue = newsData.tags;
+            }
+
+            // Форматирование даты
+            let dateValue = '';
+            if (newsData.createdAt?.toDate) {
+                const d = newsData.createdAt.toDate();
+                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                dateValue = d.toISOString().slice(0, 16);
+            }
+
+            // HTML формы
             const formHtml = `
-                <h2 style="margin-bottom:20px;">${id ? 'Редактирование новости' : 'Создание новой новости'}</h2>
+                <h2 style="margin-bottom: 20px; color: var(--primary);">
+                    <i class="fas ${id ? 'fa-edit' : 'fa-plus-circle'}"></i> 
+                    ${id ? 'Редактирование новости' : 'Создание новой новости'}
+                </h2>
                 <form id="dynamicNewsForm">
                     <div class="form-grid">
+                        <!-- Левая колонка -->
                         <div class="form-main">
-                            <div class="form-group"><label>Заголовок *</label><input type="text" id="formTitle" class="form-control" value="${newsData.title?.replace(/"/g, '&quot;') || ''}" required></div>
-                            <div class="form-group"><label>Краткое описание *</label><textarea id="formExcerpt" class="form-control" required rows="3">${newsData.excerpt?.replace(/</g, '&lt;') || ''}</textarea></div>
-                            <div class="form-group"><label>Полный текст *</label><textarea id="formContent" style="display:none;">${newsData.content?.replace(/</g, '&lt;') || ''}</textarea><div id="markdownEditor"></div></div>
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label><i class="fas fa-heading"></i> Заголовок *</label>
+                                    <input type="text" id="formTitle" class="form-control" value="${(newsData.title || '').replace(/"/g, '&quot;')}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-align-left"></i> Краткое описание *</label>
+                                    <textarea id="formExcerpt" class="form-control" required rows="3">${(newsData.excerpt || '').replace(/</g, '&lt;')}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-align-right"></i> Полный текст *</label>
+                                    <textarea id="formContent" style="display: none;">${(newsData.content || '').replace(/</g, '&lt;')}</textarea>
+                                    <div id="markdownEditor"></div>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <!-- Правая колонка -->
                         <div class="form-sidebar">
-                            <div class="form-section"><label>Категория</label><div class="toggle-group" id="formCategoryGroup">${['announcement','update','important','event'].map(cat => 
-                                `<div class="toggle-btn ${newsData.category === cat ? 'active' : ''}" data-category="${cat}" onclick="selectCategory('${cat}')"><i class="fas ${cat==='announcement'?'fa-bullhorn':cat==='update'?'fa-sync-alt':cat==='important'?'fa-exclamation-circle':'fa-calendar-alt'}"></i>${cat==='announcement'?'Анонс':cat==='update'?'Обновление':cat==='important'?'Важное':'Событие'}</div>`
-                            ).join('')}</div><input type="hidden" id="formCategory" value="${newsData.category}"></div>
-                            <div class="form-group"><label>Метка</label><input type="text" id="formBadge" class="form-control" value="${newsData.badge?.replace(/"/g, '&quot;') || ''}"></div>
-                            <div class="checkbox-group"><label class="checkbox-label"><input type="checkbox" id="formImportant" ${newsData.important ? 'checked' : ''}> <span>Важная новость</span></label></div>
-                            <div class="form-group"><label>Дата публикации</label><input type="datetime-local" id="formDate" class="form-control" value="${newsData.createdAt?.toDate ? new Date(newsData.createdAt.toDate().getTime() - (new Date().getTimezoneOffset()*60000)).toISOString().slice(0,16) : ''}"></div>
-                            <div class="form-group"><label>Теги (через запятую)</label><input type="text" id="formTags" class="form-control" value="${newsData.tags?.join(', ') || ''}"></div>
-                            <div class="checkbox-group"><label class="checkbox-label"><input type="checkbox" id="formPublish" ${newsData.status === 'published' ? 'checked' : ''}> <span>Опубликовать сразу</span></label></div>
+                            <div class="form-section">
+                                <label><i class="fas fa-tag"></i> Категория</label>
+                                <div class="toggle-group" id="formCategoryGroup">
+                                    <div class="toggle-btn ${newsData.category === 'announcement' ? 'active' : ''}" data-category="announcement" onclick="selectCategory('announcement')">
+                                        <i class="fas fa-bullhorn"></i> Анонс
+                                    </div>
+                                    <div class="toggle-btn ${newsData.category === 'update' ? 'active' : ''}" data-category="update" onclick="selectCategory('update')">
+                                        <i class="fas fa-sync-alt"></i> Обновление
+                                    </div>
+                                    <div class="toggle-btn ${newsData.category === 'important' ? 'active' : ''}" data-category="important" onclick="selectCategory('important')">
+                                        <i class="fas fa-exclamation-circle"></i> Важное
+                                    </div>
+                                    <div class="toggle-btn ${newsData.category === 'event' ? 'active' : ''}" data-category="event" onclick="selectCategory('event')">
+                                        <i class="fas fa-calendar-alt"></i> Событие
+                                    </div>
+                                </div>
+                                <input type="hidden" id="formCategory" value="${newsData.category || 'announcement'}">
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label><i class="fas fa-certificate"></i> Метка (badge)</label>
+                                    <input type="text" id="formBadge" class="form-control" value="${(newsData.badge || '').replace(/"/g, '&quot;')}" placeholder="Например: 🔥 Горячее">
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="formImportant" ${newsData.important ? 'checked' : ''}>
+                                        <span><i class="fas fa-star" style="color: #ffc107;"></i> Важная новость</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label><i class="fas fa-clock"></i> Дата публикации</label>
+                                    <input type="datetime-local" id="formDate" class="form-control" value="${dateValue}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label><i class="fas fa-hashtag"></i> Теги (через запятую)</label>
+                                    <input type="text" id="formTags" class="form-control" value="${tagsValue.replace(/"/g, '&quot;')}" placeholder="метро, обновление, события">
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="formPublish" ${newsData.status === 'published' ? 'checked' : ''}>
+                                        <span><i class="fas fa-globe"></i> Опубликовать сразу</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    
+                    <hr>
+                    
                     <div class="action-buttons">
-                        <button type="button" class="btn btn-primary" onclick="cancelForm()"><i class="fas fa-times"></i> Отмена</button>
-                        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Сохранить</button>
+                        <button type="button" class="btn btn-primary" onclick="cancelForm()">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Сохранить
+                        </button>
                     </div>
                 </form>
             `;
@@ -307,79 +510,152 @@
             document.getElementById('formContainer').innerHTML = formHtml;
 
             // Инициализация Markdown редактора
-            if (simplemde) simplemde.toTextArea(); // Уничтожаем старый экземпляр
-            simplemde = new SimpleMDE({ element: document.getElementById('formContent'), spellChecker: false, autofocus: true });
-            simplemde.value(newsData.content || ''); // Устанавливаем значение
+            if (simplemde) simplemde.toTextArea();
+            simplemde = new SimpleMDE({
+                element: document.getElementById('formContent'),
+                spellChecker: false,
+                autofocus: true,
+                placeholder: 'Напишите текст новости здесь... Поддерживается Markdown',
+                toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', '|', 'unordered-list', 'ordered-list', '|', 'link', 'preview']
+            });
+            
+            // Устанавливаем значение в редактор
+            if (newsData.content) {
+                simplemde.value(newsData.content);
+            }
 
-            // Навешиваем обработчик на форму
+            // Обработчик формы
             document.getElementById('dynamicNewsForm').addEventListener('submit', saveNews);
         }
 
-        // Выбор категории (для формы)
+        // ===== ВЫБОР КАТЕГОРИИ =====
         window.selectCategory = (cat) => {
             document.querySelectorAll('#formCategoryGroup .toggle-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`#formCategoryGroup .toggle-btn[data-category="${cat}"]`).classList.add('active');
             document.getElementById('formCategory').value = cat;
         };
 
-        // Сохранение новости
+        // ===== СОХРАНЕНИЕ НОВОСТИ =====
         async function saveNews(e) {
             e.preventDefault();
+            
+            const title = document.getElementById('formTitle').value.trim();
+            const excerpt = document.getElementById('formExcerpt').value.trim();
+            const content = simplemde.value().trim();
+            
+            if (!title || !excerpt || !content) {
+                showNotification('Заполните все обязательные поля', 'error');
+                return;
+            }
+
+            // Обработка тегов
+            let tags = [];
+            const tagsInput = document.getElementById('formTags').value.trim();
+            if (tagsInput) {
+                tags = tagsInput.split(',').map(t => t.trim()).filter(t => t);
+            }
+
             const newsData = {
-                title: document.getElementById('formTitle').value,
-                excerpt: document.getElementById('formExcerpt').value,
-                content: simplemde.value(),
+                title: title,
+                excerpt: excerpt,
+                content: content,
                 category: document.getElementById('formCategory').value,
-                badge: document.getElementById('formBadge').value || null,
+                badge: document.getElementById('formBadge').value.trim() || null,
                 important: document.getElementById('formImportant').checked,
-                tags: document.getElementById('formTags').value.split(',').map(t => t.trim()).filter(t => t),
+                tags: tags,
                 status: document.getElementById('formPublish').checked ? 'published' : 'draft',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            if (!newsData.title || !newsData.excerpt || !newsData.content) return showNotification('Заполните все поля', 'error');
+
+            // Добавляем автора при создании
+            if (!currentEditId && currentUser) {
+                newsData.authorId = currentUser.uid;
+                newsData.authorName = currentUser.email;
+            }
+
+            // Дата публикации
+            const dateInput = document.getElementById('formDate').value;
+            if (dateInput) {
+                newsData.createdAt = firebase.firestore.Timestamp.fromDate(new Date(dateInput));
+            } else if (!currentEditId) {
+                newsData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
 
             try {
-                if (currentEditId) { // Обновление
+                if (currentEditId) {
+                    // Обновление
                     await db.collection('news').doc(currentEditId).update(newsData);
-                    showNotification('Новость обновлена!');
-                } else { // Создание
-                    newsData.views = 0; newsData.ratings = [];
-                    newsData.createdAt = document.getElementById('formDate').value ? firebase.firestore.Timestamp.fromDate(new Date(document.getElementById('formDate').value)) : firebase.firestore.FieldValue.serverTimestamp();
+                    showNotification('Новость успешно обновлена!');
+                } else {
+                    // Создание
+                    newsData.views = 0;
+                    newsData.ratings = [];
                     await db.collection('news').add(newsData);
-                    showNotification('Новость создана!');
+                    showNotification('Новость успешно создана!');
                 }
-                cancelForm(); // Вернуться к списку
-                loadNews(); // Перезагрузить список
-            } catch (error) { showNotification('Ошибка: ' + error.message, 'error'); }
+                
+                cancelForm();
+                loadNews();
+                
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showNotification('Ошибка: ' + error.message, 'error');
+            }
         }
 
-        function cancelForm() {
+        // ===== ОТМЕНА И ВОЗВРАТ К СПИСКУ =====
+        window.cancelForm = () => {
             document.getElementById('newsListContainer').style.display = 'block';
             document.getElementById('formContainer').style.display = 'none';
-            if (simplemde) { simplemde.toTextArea(); simplemde = null; }
+            if (simplemde) {
+                simplemde.toTextArea();
+                simplemde = null;
+            }
             currentEditId = null;
-        }
+        };
 
-        // --- ФУНКЦИИ ДЛЯ УДАЛЕНИЯ ---
+        // ===== УДАЛЕНИЕ НОВОСТИ =====
         window.showDeleteModal = (id, title) => {
             deleteId = id;
             document.getElementById('deleteNewsTitle').textContent = `Удалить "${title}"?`;
             document.getElementById('deleteModal').classList.add('active');
         };
-        window.closeDeleteModal = () => { deleteId = null; document.getElementById('deleteModal').classList.remove('active'); };
+
+        window.closeDeleteModal = () => {
+            deleteId = null;
+            document.getElementById('deleteModal').classList.remove('active');
+        };
+
         document.getElementById('confirmDelete').addEventListener('click', async () => {
             if (!deleteId) return;
+            
             try {
                 await db.collection('news').doc(deleteId).delete();
-                await db.collection('logs_news').add({ action: 'delete', newsId: deleteId, userId: currentUser.uid, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                
+                // Логируем удаление
+                await db.collection('logs_news').add({
+                    action: 'delete',
+                    newsId: deleteId,
+                    userId: currentUser?.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 showNotification('Новость удалена');
                 closeDeleteModal();
                 loadNews();
-            } catch (error) { showNotification('Ошибка удаления', 'error'); }
+                
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                showNotification('Ошибка при удалении', 'error');
+                closeDeleteModal();
+            }
         });
 
         // Закрытие модалки по клику вне
-        window.addEventListener('click', (e) => { if (e.target === document.getElementById('deleteModal')) closeDeleteModal(); });
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('deleteModal');
+            if (e.target === modal) closeDeleteModal();
+        });
     </script>
 </body>
 </html>
