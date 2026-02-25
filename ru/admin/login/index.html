@@ -1,15 +1,717 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Login</title>
-  <script type="module" src="login.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в админ-панель — Метро New</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1A1A1A;
+            font-weight: bold;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .login-header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        
+        .login-body {
+            padding: 40px 30px;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert.show {
+            display: flex;
+        }
+        
+        .alert-error {
+            background: #fee;
+            color: #d32f2f;
+            border: 1px solid #d32f2f;
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #2e7d32;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #1565c0;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .form-group label i {
+            color: #0066CC;
+            margin-right: 5px;
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            color: #999;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #0066CC;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .password-toggle:hover {
+            color: #0066CC;
+        }
+        
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: #0066CC;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,102,204,0.3);
+        }
+        
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-google:hover:not(:disabled) {
+            background: #f5f5f5;
+            border-color: #0066CC;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            margin: 20px 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .divider span {
+            padding: 0 10px;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .login-footer a {
+            color: #0066CC;
+            text-decoration: none;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .captcha-badge {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-header {
+                padding: 30px 20px;
+            }
+            
+            .login-body {
+                padding: 30px 20px;
+            }
+            
+            .logo-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .logo-text {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Вход для админа</h1>
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Пароль">
-  <button onclick="login()">Войти</button>
-  <div id="error"></div>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1>Вход в админ-панель</h1>
+            </div>
+            
+            <div class="login-body">
+                <!-- Уведомления -->
+                <div id="errorMessage" class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+                
+                <div id="successMessage" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
+                </div>
+                
+                <div id="infoMessage" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="infoText"></span>
+                </div>
+                
+                <!-- Форма входа по email -->
+                <form id="loginForm" class="login-form" onsubmit="handleEmailLogin(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="email" id="email" class="form-control" placeholder="admin@metro-new.ru" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Пароль</label>
+                        <div class="input-group">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span>Войти</span>
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>или</span>
+                </div>
+                
+                <!-- Вход через Google -->
+                <button class="btn btn-google" onclick="handleGoogleLogin()" id="googleBtn">
+                    <i class="fab fa-google"></i>
+                    Войти через Google
+                </button>
+                
+                <div class="login-footer">
+                    <p>Только для администраторов</p>
+                    <p><a href="#" onclick="resetPassword()">Забыли пароль?</a></p>
+                </div>
+                
+                <div class="captcha-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    Защищено reCAPTCHA и Firebase App Check
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ===== APP CHECK =====
+        try {
+            firebase.appCheck().activate(
+                '6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-',
+                true
+            );
+            console.log('✅ App Check активирован');
+        } catch (e) {
+            console.warn('⚠️ App Check не активирован:', e);
+        }
+
+        // ===== НАСТРОЙКА AUTH =====
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        // ===== СПИСОК РАЗРЕШЕННЫХ АДМИНОВ =====
+        const ALLOWED_ADMINS = [
+            'admin@metro-new.ru',
+            'kirill@metro-new.ru',
+            'moderator@metro-new.ru'
+        ];
+
+        // ===== ПОКАЗАТЬ ОШИБКУ =====
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('errorMessage').classList.remove('show');
+            }, 5000);
+        }
+
+        // ===== ПОКАЗАТЬ УСПЕХ =====
+        function showSuccess(message) {
+            document.getElementById('successText').textContent = message;
+            document.getElementById('successMessage').classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('successMessage').classList.remove('show');
+            }, 3000);
+        }
+
+        // ===== ПОКАЗАТЬ ИНФО =====
+        function showInfo(message) {
+            document.getElementById('infoText').textContent = message;
+            document.getElementById('infoMessage').classList.add('show');
+        }
+
+        // ===== СКРЫТЬ ВСЕ УВЕДОМЛЕНИЯ =====
+        function hideAllMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('infoMessage').classList.remove('show');
+        }
+
+        // ===== ПЕРЕКЛЮЧЕНИЕ ВИДИМОСТИ ПАРОЛЯ =====
+        window.togglePassword = function() {
+            const password = document.getElementById('password');
+            const icon = document.getElementById('toggleIcon');
+            
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                password.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        };
+
+        // ===== ПРОВЕРКА ПРАВ АДМИНА =====
+        async function checkAdminAccess(user) {
+            if (!user) return false;
+            
+            // Проверка по email
+            if (ALLOWED_ADMINS.includes(user.email)) {
+                return true;
+            }
+            
+            // Проверка в Firestore (дополнительно)
+            try {
+                const adminDoc = await db.collection('admins').doc(user.uid).get();
+                if (adminDoc.exists && adminDoc.data().role === 'admin') {
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Ошибка проверки прав:', e);
+            }
+            
+            return false;
+        }
+
+        // ===== ВХОД ПО EMAIL/ПАРОЛЮ =====
+        window.handleEmailLogin = async function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            hideAllMessages();
+            
+            // Валидация
+            if (!email || !password) {
+                showError('Введите email и пароль');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Пароль должен содержать минимум 6 символов');
+                return;
+            }
+            
+            // Блокируем кнопку
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span> Вход...';
+            
+            try {
+                // Вход в Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Проверяем права администратора
+                const isAdmin = await checkAdminAccess(user);
+                
+                if (!isAdmin) {
+                    // Если не админ - выходим и показываем ошибку
+                    await auth.signOut();
+                    showError('У вас нет прав доступа к админ-панели');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>Войти</span>';
+                    return;
+                }
+                
+                // Логируем вход
+                await db.collection('logs').add({
+                    type: 'login',
+                    userId: user.uid,
+                    email: user.email,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    ip: 'unknown' // В реальном проекте можно получить IP
+                });
+                
+                showSuccess('Вход выполнен успешно! Перенаправление...');
+                
+                // Перенаправляем в админку
+                setTimeout(() => {
+                    window.location.href = 'news-create.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                // Обработка конкретных ошибок
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        showError('Пользователь не найден');
+                        break;
+                    case 'auth/wrong-password':
+                        showError('Неверный пароль');
+                        break;
+                    case 'auth/invalid-email':
+                        showError('Неверный формат email');
+                        break;
+                    case 'auth/user-disabled':
+                        showError('Аккаунт заблокирован');
+                        break;
+                    case 'auth/too-many-requests':
+                        showError('Слишком много попыток. Попробуйте позже');
+                        break;
+                    default:
+                        showError('Ошибка входа: ' + error.message);
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Войти</span>';
+            }
+        };
+
+        // ===== ВХОД ЧЕРЕЗ GOOGLE =====
+        window.handleGoogleLogin = async function() {
+            const googleBtn = document.getElementById('googleBtn');
+            
+            hideAllMessages();
+            
+            googleBtn.disabled = true;
+            googleBtn.innerHTML = '<span class="loading"></span> Вход через Google...';
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+                
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Проверяем права администратора
+                const isAdmin = await checkAdminAccess(user);
+                
+                if (!isAdmin) {
+                    await auth.signOut();
+                    showError('У вас нет прав доступа к админ-панели');
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<i class="fab fa-google"></i> Войти через Google';
+                    return;
+                }
+                
+                // Логируем вход
+                await db.collection('logs').add({
+                    type: 'google_login',
+                    userId: user.uid,
+                    email: user.email,
+                    timestamp: firebase.auth.FieldValue.serverTimestamp()
+                });
+                
+                showSuccess('Вход выполнен успешно! Перенаправление...');
+                
+                setTimeout(() => {
+                    window.location.href = 'news-create.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Ошибка Google входа:', error);
+                
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showError('Ошибка входа через Google: ' + error.message);
+                }
+                
+                googleBtn.disabled = false;
+                googleBtn.innerHTML = '<i class="fab fa-google"></i> Войти через Google';
+            }
+        };
+
+        // ===== СБРОС ПАРОЛЯ =====
+        window.resetPassword = async function() {
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                showError('Введите email для сброса пароля');
+                return;
+            }
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showSuccess('Инструкция по сбросу пароля отправлена на ' + email);
+            } catch (error) {
+                console.error('Ошибка сброса пароля:', error);
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        showError('Пользователь с таким email не найден');
+                        break;
+                    default:
+                        showError('Ошибка сброса пароля: ' + error.message);
+                }
+            }
+        };
+
+        // ===== ПРОВЕРКА ТЕКУЩЕЙ СЕССИИ =====
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Если пользователь уже вошел, проверяем права
+                const isAdmin = await checkAdminAccess(user);
+                
+                if (isAdmin && window.location.pathname.includes('admin-login.html')) {
+                    // Если уже админ и на странице входа - перенаправляем
+                    window.location.href = 'news-create.html';
+                } else if (!isAdmin) {
+                    // Если не админ - выходим
+                    await auth.signOut();
+                }
+            }
+        });
+
+        // ===== ЗАЩИТА ОТ БРУТФОРСА =====
+        let loginAttempts = 0;
+        let lastAttemptTime = 0;
+        
+        function checkBruteForce() {
+            const now = Date.now();
+            
+            if (now - lastAttemptTime < 1000) { // Не чаще 1 раза в секунду
+                showError('Слишком частые попытки входа');
+                return false;
+            }
+            
+            if (loginAttempts >= 5) { // Максимум 5 попыток
+                showError('Слишком много попыток входа. Подождите 5 минут');
+                return false;
+            }
+            
+            loginAttempts++;
+            lastAttemptTime = now;
+            
+            // Сбрасываем счетчик через 5 минут
+            setTimeout(() => {
+                loginAttempts = 0;
+            }, 300000);
+            
+            return true;
+        }
+    </script>
 </body>
 </html>
