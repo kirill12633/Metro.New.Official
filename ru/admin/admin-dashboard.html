@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание новости — Админ-панель Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase + App Check -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    
+    <!-- SimpleMDE Markdown Editor -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
+            --info: #1a73e8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.2);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f2f5;
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Навигация */
+        .top-nav {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Основной контент */
+        .admin-panel {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        .panel-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .panel-body {
+            padding: 30px;
+        }
+        
+        /* Форма создания */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+        
+        .form-main {
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+        
+        .form-sidebar {
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-group label i {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        /* Переключатели */
+        .toggle-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px;
+            background: white;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .toggle-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .toggle-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .toggle-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        /* Чекбоксы */
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        /* Превью */
+        .preview-card {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .preview-header {
+            background: var(--gray-light);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--gray-border);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .preview-body {
+            padding: 20px;
+        }
+        
+        .preview-news {
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        
+        .preview-image {
+            height: 150px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            position: relative;
+        }
+        
+        .preview-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .preview-category {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .preview-content {
+            padding: 20px;
+        }
+        
+        .preview-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .preview-excerpt {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 30px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #0f7b2e;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Уведомления */
+        .alert {
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background: #e6f4ea;
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .alert-danger {
+            background: #fce8e6;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .alert-warning {
+            background: #fef7e0;
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .alert-info {
+            background: #e8f0fe;
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--gray-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--gray-border);
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        /* Загрузка */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--gray-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-nav {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Загрузка -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Сохранение...</p>
+    </div>
+    
+    <!-- Модальное окно предпросмотра -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-eye"></i> Предпросмотр новости</h3>
+                <button class="modal-close" onclick="closePreview()">&times;</button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Сюда будет загружаться предпросмотр -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePreview()">Закрыть</button>
+                <button class="btn btn-primary" onclick="publishNews()">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно успеха -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: var(--success);"><i class="fas fa-check-circle"></i> Успешно!</h3>
+                <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="successMessage">
+                Новость успешно создана!
+            </div>
+            <div class="modal-footer">
+                <a href="news.html" class="btn btn-outline">
+                    <i class="fas fa-list"></i> Все новости
+                </a>
+                <button class="btn btn-primary" onclick="createAnother()">
+                    <i class="fas fa-plus"></i> Создать ещё
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Верхняя навигация -->
+        <div class="top-nav">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">Метро New</div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="admin-dashboard.html" class="nav-btn">
+                    <i class="fas fa-chart-line"></i> Дашборд
+                </a>
+                <a href="news-create.html" class="nav-btn active">
+                    <i class="fas fa-plus-circle"></i> Создать
+                </a>
+                <a href="news-list.html" class="nav-btn">
+                    <i class="fas fa-list"></i> Все новости
+                </a>
+                <a href="news.html" class="nav-btn" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Просмотр сайта
+                </a>
+            </div>
+            
+            <div class="user-info">
+                <span id="userName">Администратор</span>
+                <div class="user-avatar" id="userAvatar">A</div>
+            </div>
+        </div>
+        
+        <!-- Основная панель -->
+        <div class="admin-panel">
+            <div class="panel-header">
+                <h1>
+                    <i class="fas fa-newspaper"></i>
+                    Создание новой новости
+                </h1>
+                <p>Заполните форму ниже для публикации новости на сайте</p>
+            </div>
+            
+            <div class="panel-body">
+                <!-- Статистика (будет обновляться через JS) -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalNews">-</div>
+                        <div class="stat-label">Всего новостей</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayNews">-</div>
+                        <div class="stat-label">За сегодня</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalViews">-</div>
+                        <div class="stat-label">Всего просмотров</div>
+                    </div>
+                </div>
+                
+                <!-- Форма создания -->
+                <form id="newsForm">
+                    <div class="form-grid">
+                        <!-- Левая колонка - основная информация -->
+                        <div class="form-main">
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    Основная информация
+                                </h3>
+                                
+                                <div class="form-group">
+                                    <label><i class="fas fa-heading"></i> Заголовок новости *</label>
+                                    <input type="text" class="form-control" id="newsTitle" required placeholder="Например: Открытие новой станции">
+                                    <div class="form-text">Максимум 100 символов</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label><i class="fas fa-align-left"></i> Краткое описание *</label>
+                                    <textarea class="form-control" id="newsExcerpt" required placeholder="Краткое описание новости (будет отображаться в списке)" rows="3"></textarea>
+                                    <div class="form-text">Максимум 200 символов</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label><i class="fas fa-image"></i> URL изображения (опционально)</label>
+                                    <input type="url" class="form-control" id="newsImage" placeholder="https://example.com/image.jpg">
+                                    <div class="form-text">Если не указано, будет использован градиент</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-align-right"></i>
+                                    Полный текст новости *
+                                </h3>
+                                <div class="form-group">
+                                    <textarea id="newsContent" class="form-control" style="display: none;"></textarea>
+                                    <div id="markdownEditor"></div>
+                                    <div class="form-text">Поддерживает Markdown разметку</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Правая колонка - настройки -->
+                        <div class="form-sidebar">
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-tag"></i>
+                                    Категория *
+                                </h3>
+                                <div class="toggle-group" id="categoryGroup">
+                                    <div class="toggle-btn active" data-category="announcement" onclick="selectCategory('announcement')">
+                                        <i class="fas fa-bullhorn"></i>
+                                        Анонс
+                                    </div>
+                                    <div class="toggle-btn" data-category="update" onclick="selectCategory('update')">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Обновление
+                                    </div>
+                                    <div class="toggle-btn" data-category="important" onclick="selectCategory('important')">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Важное
+                                    </div>
+                                    <div class="toggle-btn" data-category="event" onclick="selectCategory('event')">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Событие
+                                    </div>
+                                </div>
+                                <input type="hidden" id="newsCategory" value="announcement">
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-tags"></i>
+                                    Дополнительно
+                                </h3>
+                                
+                                <div class="form-group">
+                                    <label><i class="fas fa-certificate"></i> Метка (badge)</label>
+                                    <input type="text" class="form-control" id="newsBadge" placeholder="Например: 🔥 Горячее, Новое">
+                                    <div class="form-text">Отображается на карточке</div>
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="newsImportant">
+                                        <span><i class="fas fa-star" style="color: #ffc107;"></i> Важная новость</span>
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="newsPublish" checked>
+                                        <span><i class="fas fa-globe"></i> Опубликовать сразу</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-clock"></i>
+                                    Дата публикации
+                                </h3>
+                                <div class="form-group">
+                                    <input type="datetime-local" class="form-control" id="newsDate">
+                                    <div class="form-text">Если не указано, будет использовано текущее время</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-hashtag"></i>
+                                    Теги (через запятую)
+                                </h3>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="newsTags" placeholder="метро, обновление, события">
+                                </div>
+                            </div>
+                            
+                            <!-- Быстрое превью -->
+                            <div class="form-section">
+                                <h3 class="form-section-title">
+                                    <i class="fas fa-eye"></i>
+                                    Быстрый просмотр
+                                </h3>
+                                <div class="preview-card">
+                                    <div class="preview-header">
+                                        <i class="fas fa-newspaper"></i>
+                                        Как будет выглядеть
+                                    </div>
+                                    <div class="preview-body">
+                                        <div class="preview-news">
+                                            <div class="preview-image">
+                                                <span class="preview-badge" id="previewBadge">Новое</span>
+                                                <span class="preview-category" id="previewCategory">
+                                                    <i class="fas fa-bullhorn"></i> Анонс
+                                                </span>
+                                            </div>
+                                            <div class="preview-content">
+                                                <div class="preview-title" id="previewTitle">Заголовок новости</div>
+                                                <div class="preview-excerpt" id="previewExcerpt">Краткое описание новости...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Кнопки действий -->
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-outline" onclick="previewNews()">
+                            <i class="fas fa-eye"></i>
+                            Предпросмотр
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="saveAsDraft()">
+                            <i class="fas fa-save"></i>
+                            Сохранить черновик
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i>
+                            Опубликовать
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
+        firebase.initializeApp({
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        });
+
+        // ===== APP CHECK =====
+        try {
+            firebase.appCheck().activate(
+                '6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-',
+                true
+            );
+            console.log('✅ App Check активирован');
+        } catch (e) {
+            console.warn('⚠️ App Check не активирован:', e);
+        }
+
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // ===== ИНИЦИАЛИЗАЦИЯ EDITOR =====
+        let simplemde;
+        
+        // ===== ПРОВЕРКА АВТОРИЗАЦИИ =====
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Пользователь авторизован
+                document.getElementById('userName').textContent = user.email || 'Администратор';
+                document.getElementById('userAvatar').textContent = (user.email || 'A')[0].toUpperCase();
+                loadStats();
+            } else {
+                // Не авторизован - перенаправляем на вход
+                window.location.href = 'admin-login.html';
+            }
+        });
+
+        // ===== ЗАГРУЗКА СТАТИСТИКИ =====
+        async function loadStats() {
+            try {
+                const snapshot = await db.collection('news').get();
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                let totalViews = 0;
+                let todayCount = 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalViews += data.views || 0;
+                    
+                    if (data.createdAt?.toDate) {
+                        const newsDate = data.createdAt.toDate();
+                        if (newsDate >= today) {
+                            todayCount++;
+                        }
+                    }
+                });
+                
+                document.getElementById('totalNews').textContent = snapshot.size;
+                document.getElementById('todayNews').textContent = todayCount;
+                document.getElementById('totalViews').textContent = totalViews;
+                
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+            }
+        }
+
+        // ===== ИНИЦИАЛИЗАЦИЯ EDITOR =====
+        document.addEventListener('DOMContentLoaded', function() {
+            simplemde = new SimpleMDE({
+                element: document.getElementById('newsContent'),
+                spellChecker: false,
+                autofocus: true,
+                placeholder: 'Напишите текст новости здесь... Используйте Markdown для форматирования',
+                toolbar: [
+                    'bold', 'italic', 'heading', '|',
+                    'quote', 'code', '|',
+                    'unordered-list', 'ordered-list', '|',
+                    'link', 'image', '|',
+                    'preview', 'side-by-side', 'fullscreen', '|',
+                    'guide'
+                ],
+                status: ['lines', 'words', 'cursor'],
+                renderingConfig: {
+                    codeSyntaxHighlighting: true
+                }
+            });
+            
+            // Обновление превью при вводе
+            document.getElementById('newsTitle').addEventListener('input', updatePreview);
+            document.getElementById('newsExcerpt').addEventListener('input', updatePreview);
+            document.getElementById('newsBadge').addEventListener('input', updatePreview);
+            
+            // Установка текущей даты по умолчанию
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('newsDate').value = now.toISOString().slice(0, 16);
+            
+            updatePreview();
+        });
+
+        // ===== ВЫБОР КАТЕГОРИИ =====
+        window.selectCategory = function(category) {
+            // Убираем активный класс у всех
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Добавляем активный класс выбранной категории
+            document.querySelector(`[data-category="${category}"]`).classList.add('active');
+            document.getElementById('newsCategory').value = category;
+            
+            updatePreview();
+        };
+
+        // ===== ОБНОВЛЕНИЕ ПРЕВЬЮ =====
+        function updatePreview() {
+            const title = document.getElementById('newsTitle').value || 'Заголовок новости';
+            const excerpt = document.getElementById('newsExcerpt').value || 'Краткое описание новости...';
+            const badge = document.getElementById('newsBadge').value || 'Новое';
+            const category = document.getElementById('newsCategory').value;
+            
+            const categoryNames = {
+                'announcement': 'Анонс',
+                'update': 'Обновление',
+                'important': 'Важное',
+                'event': 'Событие'
+            };
+            
+            const categoryIcons = {
+                'announcement': 'fa-bullhorn',
+                'update': 'fa-sync-alt',
+                'important': 'fa-exclamation-circle',
+                'event': 'fa-calendar-alt'
+            };
+            
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewExcerpt').textContent = excerpt;
+            document.getElementById('previewBadge').textContent = badge;
+            document.getElementById('previewCategory').innerHTML = `
+                <i class="fas ${categoryIcons[category]}"></i> ${categoryNames[category]}
+            `;
+        }
+
+        // ===== ПРЕДПРОСМОТР =====
+        window.previewNews = function() {
+            const title = document.getElementById('newsTitle').value;
+            const excerpt = document.getElementById('newsExcerpt').value;
+            const content = simplemde.value();
+            const category = document.getElementById('newsCategory').value;
+            const badge = document.getElementById('newsBadge').value;
+            const important = document.getElementById('newsImportant').checked;
+            const tags = document.getElementById('newsTags').value;
+            
+            if (!title || !excerpt || !content) {
+                alert('Пожалуйста, заполните заголовок, описание и текст новости');
+                return;
+            }
+            
+            const categoryNames = {
+                'announcement': 'Анонс',
+                'update': 'Обновление',
+                'important': 'Важное',
+                'event': 'Событие'
+            };
+            
+            const categoryIcons = {
+                'announcement': 'fa-bullhorn',
+                'update': 'fa-sync-alt',
+                'important': 'fa-exclamation-circle',
+                'event': 'fa-calendar-alt'
+            };
+            
+            const previewHTML = `
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div class="news-detail-image" style="height: 200px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); position: relative; border-radius: var(--radius-md); margin-bottom: 20px;">
+                        ${badge ? `<span style="position: absolute; top: 15px; left: 15px; background: var(--secondary); color: var(--dark); padding: 8px 20px; border-radius: 30px; font-weight: 700;">${badge}</span>` : ''}
+                        <span style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 8px 20px; border-radius: 30px;">
+                            <i class="fas ${categoryIcons[category]}"></i> ${categoryNames[category]}
+                        </span>
+                    </div>
+                    
+                    <h1 style="color: var(--primary); margin-bottom: 15px;">${title}</h1>
+                    
+                    ${important ? '<p style="background: #fef7e0; color: #b45f06; padding: 10px; border-radius: var(--radius-sm); margin-bottom: 15px;"><i class="fas fa-star" style="color: #ffc107;"></i> Важная новость</p>' : ''}
+                    
+                    <div style="background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); margin-bottom: 20px;">
+                        <p style="font-size: 1.1rem; color: var(--gray);">${excerpt}</p>
+                    </div>
+                    
+                    <div style="line-height: 1.8;">
+                        ${simplemde.options.previewRender(content)}
+                    </div>
+                    
+                    ${tags ? `
+                        <div style="margin-top: 30px;">
+                            ${tags.split(',').map(tag => `<span style="display: inline-block; padding: 5px 15px; background: var(--gray-light); border-radius: 20px; margin-right: 8px; font-size: 0.85rem;">#${tag.trim()}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('previewContent').innerHTML = previewHTML;
+            document.getElementById('previewModal').classList.add('active');
+        };
+
+        // ===== ЗАКРЫТЬ ПРЕДПРОСМОТР =====
+        window.closePreview = function() {
+            document.getElementById('previewModal').classList.remove('active');
+        };
+
+        // ===== ПОКАЗАТЬ ЗАГРУЗКУ =====
+        function showLoading(text = 'Сохранение...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        // ===== СКРЫТЬ ЗАГРУЗКУ =====
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // ===== СОХРАНИТЬ КАК ЧЕРНОВИК =====
+        window.saveAsDraft = async function() {
+            await saveNews('draft');
+        };
+
+        // ===== ОПУБЛИКОВАТЬ =====
+        window.publishNews = async function() {
+            closePreview();
+            await saveNews('published');
+        };
+
+        // ===== СОХРАНЕНИЕ НОВОСТИ =====
+        async function saveNews(status) {
+            const title = document.getElementById('newsTitle').value;
+            const excerpt = document.getElementById('newsExcerpt').value;
+            const content = simplemde.value();
+            const category = document.getElementById('newsCategory').value;
+            const image = document.getElementById('newsImage').value;
+            const badge = document.getElementById('newsBadge').value;
+            const important = document.getElementById('newsImportant').checked;
+            const tags = document.getElementById('newsTags').value;
+            const publishDate = document.getElementById('newsDate').value;
+            
+            // Валидация
+            if (!title || !excerpt || !content) {
+                alert('Пожалуйста, заполните заголовок, описание и текст новости');
+                return;
+            }
+            
+            if (title.length > 100) {
+                alert('Заголовок не должен превышать 100 символов');
+                return;
+            }
+            
+            if (excerpt.length > 200) {
+                alert('Описание не должно превышать 200 символов');
+                return;
+            }
+            
+            showLoading(status === 'published' ? 'Публикация...' : 'Сохранение черновика...');
+            
+            try {
+                // Подготовка данных
+                const newsData = {
+                    title: title,
+                    excerpt: excerpt,
+                    content: content,
+                    category: category,
+                    badge: badge || null,
+                    important: important,
+                    status: status,
+                    views: 0,
+                    ratings: [],
+                    tags: tags ? tags.split(',').map(t => t.trim()) : [],
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Добавляем изображение если есть
+                if (image) {
+                    newsData.image = image;
+                }
+                
+                // Устанавливаем дату публикации
+                if (publishDate) {
+                    newsData.createdAt = firebase.firestore.Timestamp.fromDate(new Date(publishDate));
+                } else {
+                    newsData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                }
+                
+                // Сохраняем в Firebase
+                const docRef = await db.collection('news').add(newsData);
+                console.log('✅ Новость сохранена с ID:', docRef.id);
+                
+                hideLoading();
+                
+                // Показываем сообщение об успехе
+                document.getElementById('successMessage').innerHTML = `
+                    <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success); display: block; text-align: center; margin-bottom: 20px;"></i>
+                    <p style="text-align: center; margin-bottom: 10px;">Новость успешно ${status === 'published' ? 'опубликована' : 'сохранена как черновик'}!</p>
+                    <p style="text-align: center; color: var(--gray);">ID: ${docRef.id}</p>
+                `;
+                document.getElementById('successModal').classList.add('active');
+                
+            } catch (error) {
+                hideLoading();
+                console.error('❌ Ошибка сохранения:', error);
+                alert('Ошибка при сохранении новости: ' + error.message);
+            }
+        }
+
+        // ===== ОБРАБОТКА ФОРМЫ =====
+        document.getElementById('newsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await saveNews('published');
+        });
+
+        // ===== ЗАКРЫТЬ МОДАЛЬНОЕ ОКНО УСПЕХА =====
+        window.closeSuccessModal = function() {
+            document.getElementById('successModal').classList.remove('active');
+        };
+
+        // ===== СОЗДАТЬ ЕЩЁ =====
+        window.createAnother = function() {
+            closeSuccessModal();
+            // Очищаем форму
+            document.getElementById('newsForm').reset();
+            simplemde.value('');
+            document.getElementById('newsCategory').value = 'announcement';
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === 'announcement') {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Устанавливаем текущую дату
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('newsDate').value = now.toISOString().slice(0, 16);
+            
+            document.getElementById('newsPublish').checked = true;
+            updatePreview();
+        };
+
+        // ===== ВЫХОД =====
+        window.logout = function() {
+            auth.signOut().then(() => {
+                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login/';
+            });
+        };
+    </script>
+</body>
+</html>
