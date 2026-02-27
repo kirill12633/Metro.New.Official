@@ -80,7 +80,7 @@
         
         /* Боковая панель с документами */
         .documents-sidebar {
-            width: 300px;
+            width: 350px;
             background: #f8f9fa;
             border-right: 1px solid #dee2e6;
             display: flex;
@@ -131,6 +131,7 @@
         .doc-name {
             font-weight: bold;
             margin-bottom: 5px;
+            word-break: break-word;
         }
         
         .doc-meta {
@@ -142,6 +143,19 @@
         
         .document-item.active .doc-meta {
             color: rgba(255,255,255,0.8);
+        }
+        
+        .doc-url-preview {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .document-item.active .doc-url-preview {
+            color: rgba(255,255,255,0.7);
         }
         
         /* Область просмотра документа */
@@ -179,31 +193,51 @@
             border-color: #3498db;
         }
         
+        .tool-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         .viewer-content {
             flex: 1;
             background: white;
-            padding: 30px;
             border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .document-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+        
+        .iframe-placeholder {
+            width: 100%;
+            height: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: auto;
+            background: #f5f5f5;
+            color: #666;
         }
         
-        .document-content {
-            max-width: 800px;
-            width: 100%;
+        .iframe-placeholder .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
         }
         
-        .document-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #2c3e50;
+        .iframe-placeholder h3 {
+            margin-bottom: 10px;
+            color: #333;
         }
         
-        .document-text {
-            line-height: 1.6;
-            font-size: 16px;
+        .iframe-error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
         }
         
         /* Информация о документе */
@@ -237,6 +271,15 @@
         
         .info-value {
             color: #2c3e50;
+        }
+        
+        .document-url {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 5px;
         }
         
         /* Предупреждение безопасности */
@@ -273,6 +316,20 @@
         
         .hidden {
             display: none !important;
+        }
+        
+        /* Индикатор загрузки iframe */
+        .iframe-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .iframe-loader.hidden {
+            display: none;
         }
     </style>
 </head>
@@ -318,48 +375,36 @@
             <main class="document-viewer">
                 <!-- Панель инструментов -->
                 <div class="viewer-toolbar">
-                    <button class="tool-btn" onclick="zoomIn()" title="Увеличить">+</button>
-                    <button class="tool-btn" onclick="zoomOut()" title="Уменьшить">-</button>
+                    <button class="tool-btn" onclick="refreshIframe()" title="Обновить" id="refreshBtn">🔄</button>
+                    <button class="tool-btn" onclick="openInNewTab()" title="Открыть в новой вкладке" id="newTabBtn">↗️</button>
                     <button class="tool-btn" onclick="printDocument()" title="Печать" id="printBtn">🖨️</button>
-                    <button class="tool-btn" onclick="downloadDocument()" title="Скачать" id="downloadBtn">⬇️</button>
-                    <span style="margin-left: auto; color: #666;">
-                        Масштаб: <span id="zoomLevel">100%</span>
+                    <span style="margin-left: auto; color: #666;" id="docTypeIndicator">
+                        Google Docs документ
                     </span>
                 </div>
 
-                <!-- Содержимое документа -->
-                <div class="viewer-content">
-                    <div class="document-content" id="documentContent">
-                        <h1 class="document-title">Добро пожаловать в Metro Security Docs</h1>
-                        
-                        <div class="document-text">
-                            <p>Вы успешно авторизовались в системе защиты конфиденциальных документов метрополитена.</p>
-                            
-                            <h3>📋 Основные функции:</h3>
-                            <ul>
-                                <li>Просмотр документов с водяными знаками</li>
-                                <li>Многоуровневая система доступа</li>
-                                <li>Полный аудит всех действий</li>
-                                <li>Контроль печати и скачивания</li>
-                                <li>Геолокация и отслеживание сессий</li>
-                            </ul>
-                            
-                            <h3>🔒 Уровни доступа к документам:</h3>
-                            <ol>
-                                <li><strong>Публичный</strong> - общая информация</li>
-                                <li><strong>Внутренний</strong> - для сотрудников</li>
-                                <li><strong>Конфиденциальный</strong> - служебная информация</li>
-                                <li><strong>Секретно</strong> - ограниченный доступ</li>
-                                <li><strong>Совершенно секретно</strong> - высший уровень</li>
-                            </ol>
-                            
-                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
-                                <h4>ℹ️ Информация о системе</h4>
-                                <p><strong>Версия:</strong> 1.0.0</p>
-                                <p><strong>Соответствие:</strong> ГОСТ Р 57580.1-2017</p>
-                                <p><strong>Последнее обновление:</strong> 2024</p>
-                            </div>
-                        </div>
+                <!-- Содержимое документа (iframe) -->
+                <div class="viewer-content" id="viewerContent">
+                    <!-- Индикатор загрузки -->
+                    <div class="iframe-loader hidden" id="iframeLoader">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 10px;">Загрузка документа...</p>
+                    </div>
+                    
+                    <!-- Iframe для отображения документа -->
+                    <iframe 
+                        id="documentFrame"
+                        class="document-frame"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads"
+                        allow="fullscreen"
+                        src="about:blank"
+                    ></iframe>
+                    
+                    <!-- Заглушка когда документ не выбран -->
+                    <div id="iframePlaceholder" class="iframe-placeholder">
+                        <div class="icon">📄</div>
+                        <h3>Выберите документ из списка</h3>
+                        <p>Для просмотра выберите документ в боковой панели</p>
                     </div>
                 </div>
 
@@ -392,6 +437,7 @@
                             <span class="info-value" id="infoLastLogin">Сегодня</span>
                         </div>
                     </div>
+                    <div class="document-url hidden" id="documentUrl"></div>
                 </div>
             </main>
         </div>
@@ -426,7 +472,7 @@
         // ============================================
         let auth, db;
         let currentUser = null;
-        let zoomLevel = 1.0;
+        let currentDocument = null;
         let sessionTimer = 30 * 60; // 30 минут в секундах
         let timerInterval;
 
@@ -481,7 +527,8 @@
             try {
                 console.log("🔄 Загружаем документы...");
                 
-                // Тестовые документы (в реальной системе будут из Firestore)
+                // ТЕСТОВЫЕ ДОКУМЕНТЫ С GOOGLE DOCS ССЫЛКАМИ
+                // В реальной системе они будут загружаться из Firestore
                 const testDocuments = [
                     {
                         id: '1',
@@ -489,7 +536,9 @@
                         type: 'pdf',
                         size: '2.4 MB',
                         date: '15.01.2024',
-                        access: 'Конфиденциально'
+                        access: 'Конфиденциально',
+                        // Пример ссылки на опубликованный Google Docs
+                        url: 'https://docs.google.com/document/d/e/2PACX-1vRvligepysBxTXy4KcWzNquDcvaKLr9E4rO6_KuKUr0ELwDlq8qafWuiGY7aM4wDmZ24XNmBahgoh8t/pub?embedded=true'
                     },
                     {
                         id: '2',
@@ -497,7 +546,8 @@
                         type: 'docx',
                         size: '1.8 MB',
                         date: '10.01.2024',
-                        access: 'Внутренний'
+                        access: 'Внутренний',
+                        url: 'https://docs.google.com/document/d/e/2PACX-1vT7zH5QhXyDf3KjL8mN9oP2rS4tU6vW8xY0zA1bC3dE5fG7hI9jK1lM3n/pub?embedded=true'
                     },
                     {
                         id: '3',
@@ -505,7 +555,8 @@
                         type: 'jpg',
                         size: '4.2 MB',
                         date: '05.01.2024',
-                        access: 'Публичный'
+                        access: 'Публичный',
+                        url: 'https://docs.google.com/document/d/e/2PACX-1vR2aB4cD6eF8gH0iJ2kL4mN6oP8qR0sT2uV4wX6yZ8/pub?embedded=true'
                     },
                     {
                         id: '4',
@@ -513,7 +564,8 @@
                         type: 'xlsx',
                         size: '3.1 MB',
                         date: '20.12.2023',
-                        access: 'Секретно'
+                        access: 'Секретно',
+                        url: 'https://docs.google.com/document/d/e/2PACX-1vW1xY3zA5bC7dE9fG1hI3jK5lM7nO9pQ1rS3tU5vW7xY9/pub?embedded=true'
                     }
                 ];
                 
@@ -529,6 +581,9 @@
                 // Обновляем счетчик
                 documentsCount.textContent = `${testDocuments.length} документов`;
                 noDocuments.style.display = 'none';
+                
+                // Обновляем общее количество документов в информации
+                document.getElementById('infoTotalDocs').textContent = testDocuments.length;
                 
                 console.log(`✅ Загружено ${testDocuments.length} документов`);
                 
@@ -562,10 +617,12 @@
             if (doc.access === 'Внутренний') accessColor = '#3498db';
             else if (doc.access === 'Конфиденциально') accessColor = '#f39c12';
             else if (doc.access === 'Секретно') accessColor = '#e74c3c';
-            else if (doc.access === 'Совершенно секретно') accessColor = '#c0392b';
+            
+            // Извлекаем короткую ссылку для предпросмотра
+            const shortUrl = doc.url ? doc.url.substring(0, 40) + '...' : 'нет ссылки';
             
             div.innerHTML = `
-                <div style="display: flex; align-items: center;">
+                <div style="display: flex; align-items: flex-start;">
                     <span class="doc-icon">${icon}</span>
                     <div style="flex: 1;">
                         <div class="doc-name">${doc.name}</div>
@@ -573,6 +630,7 @@
                             <span>${doc.type.toUpperCase()} • ${doc.size}</span>
                             <span>${doc.date}</span>
                         </div>
+                        ${doc.url ? `<div class="doc-url-preview">🔗 ${shortUrl}</div>` : ''}
                     </div>
                 </div>
                 <div style="margin-top: 8px; font-size: 11px; padding: 3px 8px; 
@@ -594,6 +652,8 @@
         function selectDocument(doc) {
             console.log("📄 Выбран документ:", doc.name);
             
+            currentDocument = doc;
+            
             // Убираем выделение у всех документов
             document.querySelectorAll('.document-item').forEach(item => {
                 item.classList.remove('active');
@@ -608,175 +668,199 @@
             // Обновляем заголовок
             document.getElementById('documentTitle').textContent = doc.name;
             
-            // Обновляем содержимое документа
-            updateDocumentContent(doc);
+            // Обновляем информацию о документе
+            document.getElementById('docTypeIndicator').textContent = 
+                doc.url ? '📄 Google Docs документ' : '⚠️ Ссылка отсутствует';
+            
+            // Показываем/скрываем URL документа
+            const urlDiv = document.getElementById('documentUrl');
+            if (doc.url) {
+                urlDiv.textContent = `🔗 ${doc.url}`;
+                urlDiv.classList.remove('hidden');
+            } else {
+                urlDiv.classList.add('hidden');
+            }
+            
+            // Загружаем документ в iframe
+            loadDocumentInIframe(doc);
             
             // Записываем в аудит
             logAudit('document_view', `Просмотр документа: ${doc.name}`);
         }
 
         // ============================================
-        // ОБНОВЛЕНИЕ СОДЕРЖИМОГО ДОКУМЕНТА
+        // ЗАГРУЗКА ДОКУМЕНТА В IFRAME
         // ============================================
-        function updateDocumentContent(doc) {
-            const contentDiv = document.getElementById('documentContent');
+        function loadDocumentInIframe(doc) {
+            const iframe = document.getElementById('documentFrame');
+            const placeholder = document.getElementById('iframePlaceholder');
+            const loader = document.getElementById('iframeLoader');
             
-            let content = '';
-            
-            // Разный контент для разных типов документов
-            switch(doc.type) {
-                case 'pdf':
-                    content = `
-                        <h1 class="document-title">${doc.name}</h1>
-                        <div style="text-align: center; margin: 40px 0;">
-                            <div style="font-size: 72px; color: #e74c3c;">📕</div>
-                            <h3>PDF документ</h3>
-                            <p>Это защищенный PDF документ с водяными знаками</p>
-                            <p><strong>Для просмотра требуется специальный просмотрщик</strong></p>
-                        </div>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                            <h4>📋 Содержание документа:</h4>
-                            <ul>
-                                <li>Технические характеристики оборудования</li>
-                                <li>Процедуры технического обслуживания</li>
-                                <li>Графики плановых работ</li>
-                                <li>Требования безопасности</li>
-                            </ul>
-                        </div>
-                    `;
-                    break;
-                    
-                case 'docx':
-                    content = `
-                        <h1 class="document-title">${doc.name}</h1>
-                        <div class="document-text">
-                            <h2>Инструкция по безопасности движения</h2>
-                            
-                            <h3>1. Общие положения</h3>
-                            <p>Настоящая инструкция устанавливает требования безопасности при организации движения на линиях метрополитена.</p>
-                            
-                            <h3>2. Обязанности персонала</h3>
-                            <ul>
-                                <li>Соблюдение правил технической эксплуатации</li>
-                                <li>Контроль за соблюдением мер безопасности</li>
-                                <li>Оперативное реагирование на нештатные ситуации</li>
-                            </ul>
-                            
-                            <h3>3. Аварийные процедуры</h3>
-                            <p>При возникновении аварийной ситуации персонал обязан...</p>
-                        </div>
-                    `;
-                    break;
-                    
-                case 'jpg':
-                    content = `
-                        <h1 class="document-title">${doc.name}</h1>
-                        <div style="text-align: center;">
-                            <div style="background: #f0f0f0; padding: 40px; border-radius: 8px; display: inline-block;">
-                                <div style="font-size: 72px; color: #3498db;">🖼️</div>
-                            </div>
-                            <p style="margin-top: 20px;"><em>Изображение защищено водяными знаками</em></p>
-                        </div>
-                        <div style="margin-top: 30px;">
-                            <h4>Описание схемы:</h4>
-                            <p>Схема эвакуации пассажиров и персонала при возникновении чрезвычайных ситуаций.</p>
-                        </div>
-                    `;
-                    break;
-                    
-                default:
-                    content = `
-                        <h1 class="document-title">${doc.name}</h1>
-                        <div style="text-align: center; padding: 50px 0;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
-                            <h3>Защищенный документ</h3>
-                            <p>Этот документ защищен системой безопасности Metro Security Docs</p>
-                            <p><strong>Тип:</strong> ${doc.type.toUpperCase()}</p>
-                            <p><strong>Размер:</strong> ${doc.size}</p>
-                            <p><strong>Уровень доступа:</strong> ${doc.access}</p>
-                        </div>
-                    `;
+            if (!doc.url) {
+                // Если нет ссылки, показываем заглушку
+                placeholder.style.display = 'flex';
+                iframe.style.display = 'none';
+                loader.classList.add('hidden');
+                
+                placeholder.innerHTML = `
+                    <div class="icon">❌</div>
+                    <h3>Ссылка на документ отсутствует</h3>
+                    <p>Для этого документа не указана ссылка на Google Docs</p>
+                `;
+                return;
             }
             
-            contentDiv.innerHTML = content;
+            // Прячем заглушку, показываем iframe
+            placeholder.style.display = 'none';
+            iframe.style.display = 'block';
+            
+            // Показываем индикатор загрузки
+            loader.classList.remove('hidden');
+            
+            // Добавляем параметры для безопасности
+            let url = doc.url;
+            
+            // Добавляем параметр для скрытия элементов управления Google Docs
+            if (url.includes('?')) {
+                url += '&rm=minimal&headers=false&chrome=false';
+            } else {
+                url += '?rm=minimal&headers=false&chrome=false';
+            }
+            
+            // Устанавливаем источник iframe
+            iframe.src = url;
+            
+            // Обработчик загрузки iframe
+            iframe.onload = function() {
+                console.log("✅ Iframe загружен");
+                loader.classList.add('hidden');
+                
+                // Добавляем водяной знак через JavaScript (если нужно)
+                try {
+                    // Попытка добавить водяной знак в iframe (работает только для документов с того же домена)
+                    // Для кросс-доменных iframe это не сработает из-за политики безопасности
+                } catch (e) {
+                    console.log("Не удалось добавить водяной знак в iframe");
+                }
+            };
+            
+            // Обработчик ошибки
+            iframe.onerror = function() {
+                console.error("❌ Ошибка загрузки iframe");
+                loader.classList.add('hidden');
+                placeholder.style.display = 'flex';
+                iframe.style.display = 'none';
+                
+                placeholder.innerHTML = `
+                    <div class="icon">⚠️</div>
+                    <h3>Ошибка загрузки документа</h3>
+                    <p>Не удалось загрузить документ. Проверьте ссылку или попробуйте позже.</p>
+                    <div class="iframe-error">${doc.url}</div>
+                `;
+            };
         }
 
         // ============================================
-        // ОБНОВЛЕНИЕ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ
+        // ФУНКЦИИ ДЛЯ РАБОТЫ С IFRAME
         // ============================================
+        
+        // Обновление iframe
+        function refreshIframe() {
+            if (currentDocument && currentDocument.url) {
+                const iframe = document.getElementById('documentFrame');
+                const currentSrc = iframe.src;
+                iframe.src = 'about:blank';
+                
+                // Показываем индикатор загрузки
+                document.getElementById('iframeLoader').classList.remove('hidden');
+                
+                // Небольшая задержка перед перезагрузкой
+                setTimeout(() => {
+                    iframe.src = currentSrc;
+                }, 100);
+                
+                logAudit('refresh_document', `Обновление документа: ${currentDocument.name}`);
+            }
+        }
+        
+        // Открыть в новой вкладке
+        function openInNewTab() {
+            if (currentDocument && currentDocument.url) {
+                window.open(currentDocument.url, '_blank');
+                logAudit('open_new_tab', `Открытие документа в новой вкладке: ${currentDocument.name}`);
+            } else {
+                alert('Нет ссылки для открытия');
+            }
+        }
+        
+        // Печать документа
+        function printDocument() {
+            if (currentDocument && currentDocument.url) {
+                logAudit('print_attempt', `Попытка печати документа: ${currentDocument.name}`);
+                
+                // Создаем скрытый iframe для печати
+                const printFrame = document.createElement('iframe');
+                printFrame.style.position = 'absolute';
+                printFrame.style.width = '0';
+                printFrame.style.height = '0';
+                printFrame.style.border = 'none';
+                printFrame.src = currentDocument.url;
+                
+                document.body.appendChild(printFrame);
+                
+                printFrame.onload = function() {
+                    setTimeout(() => {
+                        try {
+                            printFrame.contentWindow.print();
+                        } catch (e) {
+                            alert('🖨️ Печать документа разрешена только через интерфейс Google Docs');
+                            window.open(currentDocument.url, '_blank');
+                        }
+                        
+                        // Удаляем iframe после печати
+                        setTimeout(() => {
+                            document.body.removeChild(printFrame);
+                        }, 1000);
+                    }, 500);
+                };
+            } else {
+                alert('Нет документа для печати');
+            }
+        }
+        
+        // Обновление информации о пользователе
         function updateUserInfo(user) {
-            // Основная информация
             document.getElementById('viewerUser').textContent = user.email;
             document.getElementById('infoUser').textContent = user.email;
-            
-            // Роль (в реальной системе из Firestore)
             document.getElementById('infoRole').textContent = 'Пользователь';
             
-            // Время последнего входа
             const now = new Date();
             document.getElementById('infoLastLogin').textContent = 
                 now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU');
         }
 
-        // ============================================
-        // ТАЙМЕР СЕССИИ
-        // ============================================
+        // Таймер сессии
         function startSessionTimer() {
-            // Останавливаем предыдущий таймер если есть
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
             
-            // Запускаем новый таймер
             timerInterval = setInterval(() => {
                 sessionTimer--;
                 
-                // Форматируем время
                 const minutes = Math.floor(sessionTimer / 60);
                 const seconds = sessionTimer % 60;
                 const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 
-                // Обновляем отображение
                 document.getElementById('sessionTimer').textContent = timeString;
                 document.getElementById('infoSessionTime').textContent = timeString;
                 
-                // Если время вышло
                 if (sessionTimer <= 0) {
                     clearInterval(timerInterval);
                     alert('Время сессии истекло. Вы будете перенаправлены на страницу входа.');
                     logout();
                 }
             }, 1000);
-        }
-
-        // ============================================
-        // ФУНКЦИИ ПРОСМОТРЩИКА
-        // ============================================
-        function zoomIn() {
-            zoomLevel += 0.1;
-            updateZoom();
-        }
-        
-        function zoomOut() {
-            zoomLevel = Math.max(0.5, zoomLevel - 0.1);
-            updateZoom();
-        }
-        
-        function updateZoom() {
-            const content = document.getElementById('documentContent');
-            content.style.transform = `scale(${zoomLevel})`;
-            content.style.transformOrigin = 'top center';
-            document.getElementById('zoomLevel').textContent = `${Math.round(zoomLevel * 100)}%`;
-        }
-        
-        function printDocument() {
-            logAudit('print_attempt', 'Попытка печати документа');
-            alert('🖨️ Печать документа разрешена только с разрешения администратора');
-        }
-        
-        function downloadDocument() {
-            logAudit('download_attempt', 'Попытка скачивания документа');
-            alert('⬇️ Скачивание документов контролируется системой безопасности');
         }
         
         function goBack() {
@@ -793,16 +877,18 @@
             }
         }
 
-        // ============================================
-        // АУДИТ И ЛОГИРОВАНИЕ
-        // ============================================
+        // Аудит и логирование
         async function logAudit(action, details) {
+            if (!currentUser) return;
+            
             try {
                 const auditData = {
                     userId: currentUser.uid,
                     userEmail: currentUser.email,
                     action: action,
                     details: details,
+                    documentName: currentDocument ? currentDocument.name : null,
+                    documentId: currentDocument ? currentDocument.id : null,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     userAgent: navigator.userAgent
                 };
@@ -818,9 +904,7 @@
             }
         }
 
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
-        // ============================================
+        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
             console.log("📄 Страница просмотрщика загружена");
             
