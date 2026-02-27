@@ -12,22 +12,35 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .viewer-header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
             color: white;
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-bottom: 2px solid #3498db;
         }
         
         .header-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            filter: drop-shadow(0 2px 5px rgba(52,152,219,0.5));
         }
         
         .btn-back {
@@ -38,37 +51,48 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .btn-back:hover {
             background: rgba(255,255,255,0.2);
+            transform: translateX(-3px);
         }
         
         .user-info-small {
             display: flex;
             align-items: center;
             gap: 15px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 25px;
         }
         
         .btn-logout-small {
             background: transparent;
-            border: 1px solid white;
+            border: 1px solid #e74c3c;
             color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
+            padding: 5px 12px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 12px;
+            transition: all 0.3s;
         }
         
         .btn-logout-small:hover {
-            background: rgba(255,255,255,0.1);
+            background: #e74c3c;
+            border-color: #e74c3c;
         }
         
         .session-timer {
-            background: rgba(255,255,255,0.1);
-            padding: 5px 10px;
-            border-radius: 15px;
+            background: rgba(52,152,219,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
             font-size: 12px;
+            border: 1px solid #3498db;
         }
         
         /* Основное содержимое */
@@ -76,23 +100,36 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            background: #ecf0f1;
         }
         
         /* Боковая панель с документами */
         .documents-sidebar {
-            width: 350px;
+            width: 380px;
             background: #f8f9fa;
             border-right: 1px solid #dee2e6;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
         }
         
         .sidebar-header {
             padding: 20px;
             border-bottom: 1px solid #dee2e6;
-            background: #2c3e50;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+        
+        .sidebar-header p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
         }
         
         .documents-list {
@@ -101,61 +138,120 @@
             padding: 15px;
         }
         
+        /* Поиск документов */
+        .search-box {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        
+        .search-input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 10px rgba(52,152,219,0.2);
+        }
+        
         .document-item {
             background: white;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
         }
         
         .document-item:hover {
-            background: #e3f2fd;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             border-color: #3498db;
-            transform: translateY(-2px);
         }
         
         .document-item.active {
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             color: white;
-            border-color: #3498db;
+            border-color: #2980b9;
+        }
+        
+        .document-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: transparent;
+            transition: all 0.3s;
+        }
+        
+        .document-item.active::before {
+            background: #f1c40f;
         }
         
         .doc-icon {
-            font-size: 24px;
-            margin-right: 10px;
+            font-size: 28px;
+            margin-right: 12px;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
         }
         
         .doc-name {
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 5px;
             word-break: break-word;
+            font-size: 14px;
         }
         
         .doc-meta {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             display: flex;
             justify-content: space-between;
+            margin-top: 3px;
         }
         
         .document-item.active .doc-meta {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .doc-access-badge {
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .doc-url-preview {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             margin-top: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 10px;
         }
         
         .document-item.active .doc-url-preview {
-            color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.2);
+            color: white;
         }
         
         /* Область просмотра документа */
@@ -170,27 +266,33 @@
         
         .viewer-toolbar {
             background: white;
-            padding: 15px;
-            border-radius: 8px 8px 0 0;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 1px;
+            border-bottom: 2px solid #3498db;
         }
         
         .tool-btn {
             background: #f8f9fa;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             padding: 8px 12px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
-        .tool-btn:hover {
-            background: #e9ecef;
+        .tool-btn:hover:not(:disabled) {
+            background: #3498db;
             border-color: #3498db;
+            color: white;
+            transform: translateY(-2px);
         }
         
         .tool-btn:disabled {
@@ -198,12 +300,19 @@
             cursor: not-allowed;
         }
         
+        .tool-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
         .viewer-content {
             flex: 1;
             background: white;
-            border-radius: 0 0 8px 8px;
+            border-radius: 0 0 12px 12px;
             overflow: hidden;
             position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .document-frame {
@@ -220,105 +329,139 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecf1 100%);
             color: #666;
         }
         
         .iframe-placeholder .icon {
-            font-size: 64px;
+            font-size: 80px;
             margin-bottom: 20px;
+            color: #3498db;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
         .iframe-placeholder h3 {
             margin-bottom: 10px;
-            color: #333;
+            color: #2c3e50;
+            font-size: 24px;
         }
         
         .iframe-error {
             color: #e74c3c;
             margin-top: 10px;
             font-size: 14px;
+            max-width: 80%;
+            text-align: center;
+            word-break: break-all;
+            background: #fdeaea;
+            padding: 10px;
+            border-radius: 8px;
         }
         
         /* Информация о документе */
         .document-info {
             background: white;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .document-info h4 {
-            margin-bottom: 15px;
+            margin: 0 0 15px 0;
             color: #2c3e50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .info-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
         
         .info-item {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
         
         .info-label {
-            font-weight: bold;
+            font-weight: 600;
             color: #666;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 3px;
         }
         
         .info-value {
             color: #2c3e50;
+            font-size: 14px;
+            font-weight: 500;
         }
         
-        .document-url {
+        .document-url-box {
             background: #f8f9fa;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px dashed #3498db;
+        }
+        
+        .document-url-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .document-url-text {
             font-size: 12px;
             word-break: break-all;
+            color: #2c3e50;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .copy-url-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
             margin-top: 5px;
+            transition: all 0.3s;
+        }
+        
+        .copy-url-btn:hover {
+            background: #2980b9;
         }
         
         /* Предупреждение безопасности */
         .security-warning {
-            background: #fff3cd;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffecb5 100%);
             color: #856404;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
             border-top: 2px solid #ffc107;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 500;
         }
         
-        /* Сообщение при отсутствии документов */
-        .no-documents {
-            text-align: center;
-            padding: 50px 20px;
-            color: #666;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(52, 152, 219, 0.3);
-            border-radius: 50%;
-            border-top-color: #3498db;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        /* Индикатор загрузки iframe */
+        /* Индикатор загрузки */
         .iframe-loader {
             position: absolute;
             top: 50%;
@@ -326,10 +469,82 @@
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 10;
+            background: rgba(255,255,255,0.9);
+            padding: 20px 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
         
-        .iframe-loader.hidden {
-            display: none;
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        /* Фильтры документов */
+        .filter-tabs {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #f0f0f0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .filter-tab:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .filter-tab.active {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2c3e50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+            border-left: 4px solid #3498db;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left-color: #27ae60;
+        }
+        
+        .notification.error {
+            border-left-color: #e74c3c;
+        }
+        
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -339,16 +554,18 @@
         <header class="viewer-header">
             <div class="header-left">
                 <button onclick="goBack()" class="btn-back">← Назад</button>
-                <h2 id="documentTitle">Metro Security Docs</h2>
+                <div class="logo-area">
+                    <span class="logo-icon">📋</span>
+                    <h2 id="documentTitle">Metro Security Docs</h2>
+                </div>
             </div>
             <div class="header-right">
                 <div class="user-info-small">
-                    <span id="viewerUser">Загрузка...</span>
+                    <span>👤 <span id="viewerUser">Загрузка...</span></span>
                     <button onclick="logout()" class="btn-logout-small">Выйти</button>
                 </div>
                 <div class="session-timer">
-                    <span>Сессия: </span>
-                    <span id="sessionTimer">30:00</span>
+                    <span>⏱️ <span id="sessionTimer">30:00</span></span>
                 </div>
             </div>
         </header>
@@ -362,10 +579,26 @@
                     <p id="documentsCount">Загрузка...</p>
                 </div>
                 
+                <!-- Поиск -->
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" 
+                           placeholder="🔍 Поиск документов..." oninput="searchDocuments()">
+                </div>
+                
+                <!-- Фильтры по уровню доступа -->
+                <div class="filter-tabs" id="filterTabs">
+                    <button class="filter-tab active" onclick="filterDocuments('all')">Все</button>
+                    <button class="filter-tab" onclick="filterDocuments('Публичный')">📢 Публичный</button>
+                    <button class="filter-tab" onclick="filterDocuments('Внутренний')">🏢 Внутренний</button>
+                    <button class="filter-tab" onclick="filterDocuments('Конфиденциально')">🔒 Конф.</button>
+                    <button class="filter-tab" onclick="filterDocuments('Секретно')">⚡ Секретно</button>
+                </div>
+                
                 <div class="documents-list" id="documentsList">
                     <!-- Документы загружаются через JavaScript -->
                     <div class="no-documents" id="noDocuments">
-                        <p>📭 Документы не найдены</p>
+                        <div style="font-size: 48px; margin-bottom: 20px;">📭</div>
+                        <p>Документы не найдены</p>
                         <p><small>Здесь появятся документы после их добавления</small></p>
                     </div>
                 </div>
@@ -375,11 +608,21 @@
             <main class="document-viewer">
                 <!-- Панель инструментов -->
                 <div class="viewer-toolbar">
-                    <button class="tool-btn" onclick="refreshIframe()" title="Обновить" id="refreshBtn">🔄</button>
-                    <button class="tool-btn" onclick="openInNewTab()" title="Открыть в новой вкладке" id="newTabBtn">↗️</button>
-                    <button class="tool-btn" onclick="printDocument()" title="Печать" id="printBtn">🖨️</button>
-                    <span style="margin-left: auto; color: #666;" id="docTypeIndicator">
-                        Google Docs документ
+                    <button class="tool-btn" onclick="refreshIframe()" title="Обновить" id="refreshBtn">
+                        🔄 Обновить
+                    </button>
+                    <button class="tool-btn" onclick="openInNewTab()" title="Открыть в новой вкладке" id="newTabBtn">
+                        ↗️ Открыть
+                    </button>
+                    <button class="tool-btn" onclick="printDocument()" title="Печать" id="printBtn">
+                        🖨️ Печать
+                    </button>
+                    <button class="tool-btn" onclick="toggleFullscreen()" title="Полный экран" id="fullscreenBtn">
+                        🖥️ На весь экран
+                    </button>
+                    <span style="margin-left: auto; color: #666; background: #f0f0f0; padding: 5px 10px; border-radius: 5px;" 
+                          id="docTypeIndicator">
+                        📄 Google Docs
                     </span>
                 </div>
 
@@ -388,29 +631,61 @@
                     <!-- Индикатор загрузки -->
                     <div class="iframe-loader hidden" id="iframeLoader">
                         <div class="spinner"></div>
-                        <p style="margin-top: 10px;">Загрузка документа...</p>
+                        <p style="margin-top: 15px; font-weight: 500;">Загрузка документа...</p>
                     </div>
                     
                     <!-- Iframe для отображения документа -->
                     <iframe 
                         id="documentFrame"
                         class="document-frame"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads"
-                        allow="fullscreen"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals"
+                        allow="fullscreen; clipboard-read; clipboard-write"
                         src="about:blank"
                     ></iframe>
                     
                     <!-- Заглушка когда документ не выбран -->
                     <div id="iframePlaceholder" class="iframe-placeholder">
                         <div class="icon">📄</div>
-                        <h3>Выберите документ из списка</h3>
-                        <p>Для просмотра выберите документ в боковой панели</p>
+                        <h3>Выберите документ</h3>
+                        <p style="color: #666;">Для просмотра выберите документ в боковой панели</p>
                     </div>
                 </div>
 
                 <!-- Информация о текущем документе -->
-                <div class="document-info">
-                    <h4>📊 Информация о системе</h4>
+                <div class="document-info" id="documentInfo">
+                    <h4>📊 Информация о текущем документе</h4>
+                    <div class="info-grid" id="currentDocInfo">
+                        <div class="info-item">
+                            <span class="info-label">Название:</span>
+                            <span class="info-value" id="infoDocName">Не выбран</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Тип:</span>
+                            <span class="info-value" id="infoDocType">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Уровень доступа:</span>
+                            <span class="info-value" id="infoDocAccess">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Дата:</span>
+                            <span class="info-value" id="infoDocDate">-</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Блок с URL документа -->
+                    <div class="document-url-box hidden" id="documentUrlBox">
+                        <div class="document-url-label">
+                            🔗 Ссылка на документ:
+                        </div>
+                        <div class="document-url-text" id="documentUrlText"></div>
+                        <button class="copy-url-btn" onclick="copyDocumentUrl()">Копировать ссылку</button>
+                    </div>
+                </div>
+
+                <!-- Системная информация -->
+                <div class="document-info" style="margin-top: 10px;">
+                    <h4>⚙️ Системная информация</h4>
                     <div class="info-grid">
                         <div class="info-item">
                             <span class="info-label">Пользователь:</span>
@@ -425,19 +700,10 @@
                             <span class="info-value" id="infoTotalDocs">0</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Активных сессий:</span>
-                            <span class="info-value" id="infoActiveSessions">1</span>
-                        </div>
-                        <div class="info-item">
                             <span class="info-label">Время сессии:</span>
                             <span class="info-value" id="infoSessionTime">30:00</span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Последний вход:</span>
-                            <span class="info-value" id="infoLastLogin">Сегодня</span>
-                        </div>
                     </div>
-                    <div class="document-url hidden" id="documentUrl"></div>
                 </div>
             </main>
         </div>
@@ -445,9 +711,12 @@
         <!-- Предупреждение безопасности -->
         <div class="security-warning">
             ⚠️ <strong>ВНИМАНИЕ:</strong> Все действия в системе отслеживаются и записываются. 
-            Запрещено копирование, распространение и несанкционированный доступ к документам.
+            Запрещено копирование и распространение документов.
         </div>
     </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
 
     <!-- Подключаем Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -473,13 +742,15 @@
         let auth, db;
         let currentUser = null;
         let currentDocument = null;
-        let sessionTimer = 30 * 60; // 30 минут в секундах
+        let sessionTimer = 30 * 60;
         let timerInterval;
+        let allDocuments = [];
+        let currentFilter = 'all';
+        let searchTerm = '';
 
         try {
-            // Инициализируем Firebase
             firebase.initializeApp(firebaseConfig);
-            console.log("✅ Firebase инициализирован в viewer.html");
+            console.log("✅ Firebase инициализирован");
             
             auth = firebase.auth();
             db = firebase.firestore();
@@ -493,25 +764,16 @@
         // ============================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Пользователь авторизован
                 currentUser = user;
                 console.log("✅ Пользователь авторизован:", user.email);
                 
-                // Обновляем информацию о пользователе
                 updateUserInfo(user);
-                
-                // Загружаем документы
                 await loadDocuments();
-                
-                // Запускаем таймер сессии
                 startSessionTimer();
-                
-                // Записываем в аудит
                 await logAudit('viewer_open', 'Открыта страница просмотра документов');
                 
             } else {
-                // Пользователь не авторизован - перенаправляем на логин
-                console.log("❌ Пользователь не авторизован, перенаправляем...");
+                console.log("❌ Пользователь не авторизован");
                 window.location.href = 'login.html';
             }
         });
@@ -520,81 +782,118 @@
         // ЗАГРУЗКА ДОКУМЕНТОВ
         // ============================================
         async function loadDocuments() {
-            const documentsList = document.getElementById('documentsList');
-            const noDocuments = document.getElementById('noDocuments');
-            const documentsCount = document.getElementById('documentsCount');
-            
             try {
                 console.log("🔄 Загружаем документы...");
                 
-                // ТЕСТОВЫЕ ДОКУМЕНТЫ С GOOGLE DOCS ССЫЛКАМИ
-                // В реальной системе они будут загружаться из Firestore
-                const testDocuments = [
+                // ТЕСТОВЫЕ ДОКУМЕНТЫ (в реальной системе будут из Firestore)
+                allDocuments = [
                     {
                         id: '1',
-                        name: 'Технический регламент метрополитена.pdf',
+                        name: 'Технический регламент метрополитена',
                         type: 'pdf',
                         size: '2.4 MB',
                         date: '15.01.2024',
                         access: 'Конфиденциально',
+                        description: 'Технические требования и нормы эксплуатации',
                         // Пример ссылки на опубликованный Google Docs
                         url: 'https://docs.google.com/document/d/e/2PACX-1vRvligepysBxTXy4KcWzNquDcvaKLr9E4rO6_KuKUr0ELwDlq8qafWuiGY7aM4wDmZ24XNmBahgoh8t/pub?embedded=true'
                     },
                     {
                         id: '2',
-                        name: 'Инструкция по безопасности движения.docx',
+                        name: 'Инструкция по безопасности движения',
                         type: 'docx',
                         size: '1.8 MB',
                         date: '10.01.2024',
                         access: 'Внутренний',
+                        description: 'Правила безопасности для машинистов',
                         url: 'https://docs.google.com/document/d/e/2PACX-1vT7zH5QhXyDf3KjL8mN9oP2rS4tU6vW8xY0zA1bC3dE5fG7hI9jK1lM3n/pub?embedded=true'
                     },
                     {
                         id: '3',
-                        name: 'Схема эвакуации станции.jpg',
+                        name: 'Схема эвакуации станции "Центральная"',
                         type: 'jpg',
                         size: '4.2 MB',
                         date: '05.01.2024',
                         access: 'Публичный',
+                        description: 'План эвакуации при ЧС',
                         url: 'https://docs.google.com/document/d/e/2PACX-1vR2aB4cD6eF8gH0iJ2kL4mN6oP8qR0sT2uV4wX6yZ8/pub?embedded=true'
                     },
                     {
                         id: '4',
-                        name: 'Отчет о техническом обслуживании.xlsx',
+                        name: 'Отчет о техническом обслуживании',
                         type: 'xlsx',
                         size: '3.1 MB',
                         date: '20.12.2023',
                         access: 'Секретно',
+                        description: 'Данные о состоянии оборудования',
                         url: 'https://docs.google.com/document/d/e/2PACX-1vW1xY3zA5bC7dE9fG1hI3jK5lM7nO9pQ1rS3tU5vW7xY9/pub?embedded=true'
+                    },
+                    {
+                        id: '5',
+                        name: 'План мероприятий по безопасности',
+                        type: 'docx',
+                        size: '1.2 MB',
+                        date: '18.01.2024',
+                        access: 'Конфиденциально',
+                        description: 'План на 2024 год',
+                        url: 'https://docs.google.com/document/d/e/2PACX-1vX5yZ7bA9cD1eF3gH5iJ7kL9mN1oP3qR5sT7uV9wX1yZ3/pub?embedded=true'
                     }
                 ];
                 
-                // Очищаем список
-                documentsList.innerHTML = '';
+                renderDocuments();
                 
-                // Добавляем документы
-                testDocuments.forEach(doc => {
-                    const docElement = createDocumentElement(doc);
-                    documentsList.appendChild(docElement);
-                });
-                
-                // Обновляем счетчик
-                documentsCount.textContent = `${testDocuments.length} документов`;
-                noDocuments.style.display = 'none';
-                
-                // Обновляем общее количество документов в информации
-                document.getElementById('infoTotalDocs').textContent = testDocuments.length;
-                
-                console.log(`✅ Загружено ${testDocuments.length} документов`);
+                console.log(`✅ Загружено ${allDocuments.length} документов`);
                 
             } catch (error) {
                 console.error("❌ Ошибка загрузки документов:", error);
+                showNotification('Ошибка загрузки документов', 'error');
+            }
+        }
+
+        // ============================================
+        // ОТОБРАЖЕНИЕ ДОКУМЕНТОВ
+        // ============================================
+        function renderDocuments() {
+            const documentsList = document.getElementById('documentsList');
+            const noDocuments = document.getElementById('noDocuments');
+            const documentsCount = document.getElementById('documentsCount');
+            
+            // Фильтруем документы
+            let filteredDocs = allDocuments;
+            
+            // Поиск
+            if (searchTerm) {
+                filteredDocs = filteredDocs.filter(doc => 
+                    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    doc.description.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            
+            // Фильтр по доступу
+            if (currentFilter !== 'all') {
+                filteredDocs = filteredDocs.filter(doc => doc.access === currentFilter);
+            }
+            
+            documentsList.innerHTML = '';
+            
+            if (filteredDocs.length === 0) {
                 noDocuments.style.display = 'block';
                 noDocuments.innerHTML = `
-                    <p>❌ Ошибка загрузки документов</p>
-                    <p><small>${error.message}</small></p>
+                    <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                    <p>Документы не найдены</p>
+                    <p><small>Попробуйте изменить параметры поиска</small></p>
                 `;
+            } else {
+                noDocuments.style.display = 'none';
+                
+                filteredDocs.forEach(doc => {
+                    const docElement = createDocumentElement(doc);
+                    documentsList.appendChild(docElement);
+                });
             }
+            
+            documentsCount.textContent = `${filteredDocs.length} из ${allDocuments.length} документов`;
+            document.getElementById('infoTotalDocs').textContent = allDocuments.length;
         }
 
         // ============================================
@@ -605,21 +904,24 @@
             div.className = 'document-item';
             div.dataset.id = doc.id;
             
-            // Иконка в зависимости от типа
-            let icon = '📄';
-            if (doc.type === 'pdf') icon = '📕';
-            else if (doc.type === 'docx') icon = '📘';
-            else if (doc.type === 'jpg') icon = '🖼️';
-            else if (doc.type === 'xlsx') icon = '📊';
+            const icons = {
+                pdf: '📕',
+                docx: '📘',
+                jpg: '🖼️',
+                xlsx: '📊',
+                default: '📄'
+            };
             
-            // Цвет в зависимости от уровня доступа
-            let accessColor = '#27ae60'; // зеленый для публичного
-            if (doc.access === 'Внутренний') accessColor = '#3498db';
-            else if (doc.access === 'Конфиденциально') accessColor = '#f39c12';
-            else if (doc.access === 'Секретно') accessColor = '#e74c3c';
+            const icon = icons[doc.type] || icons.default;
             
-            // Извлекаем короткую ссылку для предпросмотра
-            const shortUrl = doc.url ? doc.url.substring(0, 40) + '...' : 'нет ссылки';
+            const accessColors = {
+                'Публичный': '#27ae60',
+                'Внутренний': '#3498db',
+                'Конфиденциально': '#f39c12',
+                'Секретно': '#e74c3c'
+            };
+            
+            const accessColor = accessColors[doc.access] || '#95a5a6';
             
             div.innerHTML = `
                 <div style="display: flex; align-items: flex-start;">
@@ -630,20 +932,39 @@
                             <span>${doc.type.toUpperCase()} • ${doc.size}</span>
                             <span>${doc.date}</span>
                         </div>
-                        ${doc.url ? `<div class="doc-url-preview">🔗 ${shortUrl}</div>` : ''}
+                        <div style="font-size: 11px; color: #666; margin-top: 3px;">
+                            ${doc.description}
+                        </div>
                     </div>
                 </div>
-                <div style="margin-top: 8px; font-size: 11px; padding: 3px 8px; 
-                     background: ${accessColor}; color: white; border-radius: 10px; 
-                     display: inline-block;">
+                <div class="doc-access-badge" style="background: ${accessColor}; color: white;">
                     ${doc.access}
                 </div>
             `;
             
-            // Обработчик клика
             div.addEventListener('click', () => selectDocument(doc));
             
             return div;
+        }
+
+        // ============================================
+        // ПОИСК И ФИЛЬТРАЦИЯ
+        // ============================================
+        function searchDocuments() {
+            searchTerm = document.getElementById('searchInput').value;
+            renderDocuments();
+        }
+        
+        function filterDocuments(filter) {
+            currentFilter = filter;
+            
+            // Обновляем активный таб
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderDocuments();
         }
 
         // ============================================
@@ -654,37 +975,36 @@
             
             currentDocument = doc;
             
-            // Убираем выделение у всех документов
             document.querySelectorAll('.document-item').forEach(item => {
                 item.classList.remove('active');
             });
             
-            // Выделяем выбранный документ
             const selectedItem = document.querySelector(`.document-item[data-id="${doc.id}"]`);
             if (selectedItem) {
                 selectedItem.classList.add('active');
             }
             
-            // Обновляем заголовок
             document.getElementById('documentTitle').textContent = doc.name;
             
             // Обновляем информацию о документе
-            document.getElementById('docTypeIndicator').textContent = 
+            document.getElementById('infoDocName').textContent = doc.name;
+            document.getElementById('infoDocType').textContent = doc.type.toUpperCase();
+            document.getElementById('infoDocAccess').textContent = doc.access;
+            document.getElementById('infoDocDate').textContent = doc.date;
+            
+            document.getElementById('docTypeIndicator').innerHTML = 
                 doc.url ? '📄 Google Docs документ' : '⚠️ Ссылка отсутствует';
             
-            // Показываем/скрываем URL документа
-            const urlDiv = document.getElementById('documentUrl');
+            const urlBox = document.getElementById('documentUrlBox');
             if (doc.url) {
-                urlDiv.textContent = `🔗 ${doc.url}`;
-                urlDiv.classList.remove('hidden');
+                document.getElementById('documentUrlText').textContent = doc.url;
+                urlBox.classList.remove('hidden');
             } else {
-                urlDiv.classList.add('hidden');
+                urlBox.classList.add('hidden');
             }
             
-            // Загружаем документ в iframe
             loadDocumentInIframe(doc);
             
-            // Записываем в аудит
             logAudit('document_view', `Просмотр документа: ${doc.name}`);
         }
 
@@ -697,7 +1017,6 @@
             const loader = document.getElementById('iframeLoader');
             
             if (!doc.url) {
-                // Если нет ссылки, показываем заглушку
                 placeholder.style.display = 'flex';
                 iframe.style.display = 'none';
                 loader.classList.add('hidden');
@@ -705,46 +1024,55 @@
                 placeholder.innerHTML = `
                     <div class="icon">❌</div>
                     <h3>Ссылка на документ отсутствует</h3>
-                    <p>Для этого документа не указана ссылка на Google Docs</p>
+                    <p>Для этого документа не указана ссылка</p>
                 `;
                 return;
             }
             
-            // Прячем заглушку, показываем iframe
             placeholder.style.display = 'none';
             iframe.style.display = 'block';
-            
-            // Показываем индикатор загрузки
             loader.classList.remove('hidden');
             
-            // Добавляем параметры для безопасности
+            // Оптимизируем URL для встраивания
             let url = doc.url;
             
-            // Добавляем параметр для скрытия элементов управления Google Docs
+            // Добавляем параметры для чистого отображения
             if (url.includes('?')) {
-                url += '&rm=minimal&headers=false&chrome=false';
+                url += '&rm=minimal&headers=false&chrome=false&widget=false';
             } else {
-                url += '?rm=minimal&headers=false&chrome=false';
+                url += '?rm=minimal&headers=false&chrome=false&widget=false';
             }
             
-            // Устанавливаем источник iframe
             iframe.src = url;
             
-            // Обработчик загрузки iframe
             iframe.onload = function() {
                 console.log("✅ Iframe загружен");
                 loader.classList.add('hidden');
                 
-                // Добавляем водяной знак через JavaScript (если нужно)
+                // Пытаемся добавить защиту от копирования
                 try {
-                    // Попытка добавить водяной знак в iframe (работает только для документов с того же домена)
-                    // Для кросс-доменных iframe это не сработает из-за политики безопасности
+                    // Для документов Google можно добавить CSS
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        * {
+                            -webkit-user-select: none !important;
+                            -moz-user-select: none !important;
+                            -ms-user-select: none !important;
+                            user-select: none !important;
+                        }
+                    `;
+                    
+                    // Это может не сработать из-за CORS, но попробовать стоит
+                    if (iframe.contentDocument) {
+                        iframe.contentDocument.head.appendChild(style);
+                    }
                 } catch (e) {
-                    console.log("Не удалось добавить водяной знак в iframe");
+                    console.log("Не удалось добавить защиту в iframe");
                 }
+                
+                showNotification('Документ загружен', 'success');
             };
             
-            // Обработчик ошибки
             iframe.onerror = function() {
                 console.error("❌ Ошибка загрузки iframe");
                 loader.classList.add('hidden');
@@ -753,82 +1081,102 @@
                 
                 placeholder.innerHTML = `
                     <div class="icon">⚠️</div>
-                    <h3>Ошибка загрузки документа</h3>
-                    <p>Не удалось загрузить документ. Проверьте ссылку или попробуйте позже.</p>
+                    <h3>Ошибка загрузки</h3>
+                    <p>Не удалось загрузить документ</p>
                     <div class="iframe-error">${doc.url}</div>
+                    <button class="tool-btn" onclick="openInNewTab()" style="margin-top: 15px;">
+                        Открыть в новой вкладке
+                    </button>
                 `;
             };
         }
 
         // ============================================
-        // ФУНКЦИИ ДЛЯ РАБОТЫ С IFRAME
+        // ФУНКЦИИ ДЛЯ РАБОТЫ С ДОКУМЕНТОМ
         // ============================================
         
-        // Обновление iframe
         function refreshIframe() {
             if (currentDocument && currentDocument.url) {
                 const iframe = document.getElementById('documentFrame');
                 const currentSrc = iframe.src;
                 iframe.src = 'about:blank';
                 
-                // Показываем индикатор загрузки
                 document.getElementById('iframeLoader').classList.remove('hidden');
                 
-                // Небольшая задержка перед перезагрузкой
                 setTimeout(() => {
                     iframe.src = currentSrc;
                 }, 100);
                 
                 logAudit('refresh_document', `Обновление документа: ${currentDocument.name}`);
+                showNotification('Документ обновляется...', 'success');
             }
         }
         
-        // Открыть в новой вкладке
         function openInNewTab() {
             if (currentDocument && currentDocument.url) {
-                window.open(currentDocument.url, '_blank');
+                window.open(currentDocument.url.split('?')[0], '_blank');
                 logAudit('open_new_tab', `Открытие документа в новой вкладке: ${currentDocument.name}`);
             } else {
-                alert('Нет ссылки для открытия');
+                showNotification('Нет ссылки для открытия', 'error');
             }
         }
         
-        // Печать документа
         function printDocument() {
             if (currentDocument && currentDocument.url) {
-                logAudit('print_attempt', `Попытка печати документа: ${currentDocument.name}`);
+                logAudit('print_attempt', `Попытка печати: ${currentDocument.name}`);
                 
-                // Создаем скрытый iframe для печати
-                const printFrame = document.createElement('iframe');
-                printFrame.style.position = 'absolute';
-                printFrame.style.width = '0';
-                printFrame.style.height = '0';
-                printFrame.style.border = 'none';
-                printFrame.src = currentDocument.url;
+                showNotification('Подготовка к печати...', 'success');
                 
-                document.body.appendChild(printFrame);
-                
-                printFrame.onload = function() {
-                    setTimeout(() => {
-                        try {
-                            printFrame.contentWindow.print();
-                        } catch (e) {
-                            alert('🖨️ Печать документа разрешена только через интерфейс Google Docs');
-                            window.open(currentDocument.url, '_blank');
-                        }
-                        
-                        // Удаляем iframe после печати
-                        setTimeout(() => {
-                            document.body.removeChild(printFrame);
-                        }, 1000);
-                    }, 500);
-                };
+                // Открываем в новой вкладке для печати
+                const printUrl = currentDocument.url.replace('embedded=true', 'chrome=false');
+                window.open(printUrl, '_blank');
             } else {
-                alert('Нет документа для печати');
+                showNotification('Нет документа для печати', 'error');
             }
         }
         
-        // Обновление информации о пользователе
+        function toggleFullscreen() {
+            const viewerContent = document.getElementById('viewerContent');
+            
+            if (!document.fullscreenElement) {
+                viewerContent.requestFullscreen();
+                document.getElementById('fullscreenBtn').style.background = '#3498db';
+                document.getElementById('fullscreenBtn').style.color = 'white';
+            } else {
+                document.exitFullscreen();
+                document.getElementById('fullscreenBtn').style.background = '';
+                document.getElementById('fullscreenBtn').style.color = '';
+            }
+        }
+        
+        function copyDocumentUrl() {
+            if (currentDocument && currentDocument.url) {
+                navigator.clipboard.writeText(currentDocument.url).then(() => {
+                    showNotification('Ссылка скопирована!', 'success');
+                    logAudit('copy_url', `Копирование ссылки: ${currentDocument.name}`);
+                }).catch(() => {
+                    showNotification('Ошибка копирования', 'error');
+                });
+            }
+        }
+        
+        // ============================================
+        // УВЕДОМЛЕНИЯ
+        // ============================================
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // ============================================
+        // ОБНОВЛЕНИЕ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ
+        // ============================================
         function updateUserInfo(user) {
             document.getElementById('viewerUser').textContent = user.email;
             document.getElementById('infoUser').textContent = user.email;
@@ -839,7 +1187,9 @@
                 now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU');
         }
 
-        // Таймер сессии
+        // ============================================
+        // ТАЙМЕР СЕССИИ
+        // ============================================
         function startSessionTimer() {
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -857,8 +1207,13 @@
                 
                 if (sessionTimer <= 0) {
                     clearInterval(timerInterval);
-                    alert('Время сессии истекло. Вы будете перенаправлены на страницу входа.');
-                    logout();
+                    showNotification('Время сессии истекло', 'error');
+                    setTimeout(logout, 2000);
+                }
+                
+                // Предупреждение за 5 минут
+                if (sessionTimer === 300) {
+                    showNotification('До окончания сессии осталось 5 минут', 'error');
                 }
             }, 1000);
         }
@@ -869,7 +1224,7 @@
         
         async function logout() {
             try {
-                await logAudit('logout', 'Выход из системы просмотра');
+                await logAudit('logout', 'Выход из системы');
                 await auth.signOut();
                 window.location.href = 'login.html';
             } catch (error) {
@@ -877,7 +1232,9 @@
             }
         }
 
-        // Аудит и логирование
+        // ============================================
+        // АУДИТ И ЛОГИРОВАНИЕ
+        // ============================================
         async function logAudit(action, details) {
             if (!currentUser) return;
             
@@ -890,7 +1247,8 @@
                     documentName: currentDocument ? currentDocument.name : null,
                     documentId: currentDocument ? currentDocument.id : null,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    userAgent: navigator.userAgent
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
                 };
                 
                 await db.collection('metro-security-docs')
@@ -898,23 +1256,39 @@
                     .collection('audit_logs')
                     .add(auditData);
                     
-                console.log(`📝 Аудит: ${action} - ${details}`);
+                console.log(`📝 Аудит: ${action}`);
             } catch (error) {
                 console.error("Ошибка записи аудита:", error);
             }
         }
 
-        // Инициализация при загрузке
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log("📄 Страница просмотрщика загружена");
             
-            // Автоматически выбираем первый документ
+            // Автовыбор первого документа
             setTimeout(() => {
                 const firstDoc = document.querySelector('.document-item');
-                if (firstDoc) {
-                    firstDoc.click();
+                if (firstDoc && allDocuments.length > 0) {
+                    selectDocument(allDocuments[0]);
                 }
             }, 1000);
+            
+            // Обработка клавиш
+            document.addEventListener('keydown', function(e) {
+                // F5 - обновление
+                if (e.key === 'F5') {
+                    e.preventDefault();
+                    refreshIframe();
+                }
+                // Ctrl+P - печать
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    printDocument();
+                }
+            });
         });
     </script>
 </body>
