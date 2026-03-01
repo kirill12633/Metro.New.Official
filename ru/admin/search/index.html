@@ -7,11 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK с App Check -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-check-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,9 +27,6 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .logo {
@@ -59,17 +55,6 @@
         }
         
         .logo-text span { color: #0066CC; }
-        
-        .appcheck-badge {
-            background: #e8f0fe;
-            color: #0066CC;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
         
         .card {
             background: white;
@@ -105,20 +90,17 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+            margin: 5px;
         }
         
-        .user-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin: 20px 0;
-        }
+        .login-btn:hover { background: #0052a3; }
         
         .user-item {
             background: #f8f9fa;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 20px;
+            margin-bottom: 15px;
         }
         
         .user-email {
@@ -137,87 +119,72 @@
             border-radius: 6px;
             margin-bottom: 10px;
             word-break: break-all;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .copy-btn {
-            background: none;
+            background: #0066CC;
+            color: white;
             border: none;
-            color: #0066CC;
-            cursor: pointer;
+            border-radius: 4px;
             padding: 5px 10px;
-        }
-        
-        .badge-container {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-left: 10px;
+            cursor: pointer;
         }
         
         .badge {
+            display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
-            background: #f1f3f4;
+            margin: 0 5px 5px 0;
         }
         
         .badge.google { background: #e8f0fe; color: #1a73e8; }
         .badge.verified { background: #e6f4ea; color: #137333; }
-        .badge.unverified { background: #fce8e6; color: #c5221f; }
-        
-        .profile-btn {
-            padding: 10px 20px;
-            background: #0066CC;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-        }
         
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
         
         .stat {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             text-align: center;
         }
         
         .stat-number {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: #0066CC;
         }
         
         .error {
-            color: #c5221f;
-            padding: 12px;
-            background: #fce8e6;
+            color: #721c24;
+            padding: 15px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
             border-radius: 6px;
             margin: 10px 0;
         }
         
         .success {
-            color: #137333;
-            padding: 12px;
-            background: #e6f4ea;
+            color: #155724;
+            padding: 15px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
             border-radius: 6px;
             margin: 10px 0;
         }
         
         .info {
-            color: #0066CC;
-            padding: 12px;
-            background: #e8f0fe;
+            color: #0c5460;
+            padding: 15px;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
             border-radius: 6px;
             margin: 10px 0;
         }
@@ -251,22 +218,24 @@
                 <div class="logo-icon">M</div>
                 <div class="logo-text">Метро <span>New</span></div>
             </div>
-            <div class="appcheck-badge">
-                <i class="fas fa-shield-alt"></i> App Check активен
-            </div>
         </div>
 
         <div class="card">
             <h1>📋 Пользователи Firebase</h1>
             
-            <!-- App Check статус -->
-            <div id="appcheckStatus" class="info">
-                <i class="fas fa-sync-alt fa-spin"></i> Инициализация App Check...
+            <!-- Кнопка для теста -->
+            <div style="margin-bottom: 20px;">
+                <button class="login-btn" onclick="testConnection()">
+                    <i class="fas fa-plug"></i> Проверить подключение
+                </button>
+                <button class="login-btn" onclick="createTestUser()">
+                    <i class="fas fa-plus"></i> Создать тест
+                </button>
             </div>
             
             <!-- Секция входа -->
             <div id="loginSection" class="login-section">
-                <h3>Вход для администратора</h3>
+                <h3>Вход в систему</h3>
                 <p style="color: #666; margin: 10px;">Войдите чтобы увидеть пользователей</p>
                 
                 <input type="email" id="email" class="login-input" placeholder="Email" value="admin@metro.new">
@@ -281,7 +250,7 @@
             <!-- Информация о пользователе -->
             <div id="userInfo" style="display: none;">
                 <div class="success" id="welcomeMessage"></div>
-                <button class="login-btn" onclick="logout()" style="background: #dc3545; margin-top: 10px;">
+                <button class="login-btn" onclick="logout()" style="background: #dc3545;">
                     <i class="fas fa-sign-out-alt"></i> Выйти
                 </button>
             </div>
@@ -295,14 +264,6 @@
                 <div class="stat">
                     <div class="stat-number" id="googleUsers">0</div>
                     <div>Google</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="emailUsers">0</div>
-                    <div>Email</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="verifiedUsers">0</div>
-                    <div>Подтверждены</div>
                 </div>
             </div>
             
@@ -318,7 +279,7 @@
     </div>
 
     <script>
-        // ВАШ КОНФИГ FIREBASE
+        // ВАШ КОНФИГ
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
             authDomain: "metro-new-85226.firebaseapp.com",
@@ -328,42 +289,61 @@
             appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        // Инициализация Firebase
+        // Инициализация
         firebase.initializeApp(firebaseConfig);
-        
-        // Инициализация App Check
-        // ВАЖНО: замените 'your-site-key' на ваш ключ из консоли Firebase
-        const appCheck = firebase.appCheck();
-        appCheck.activate(
-            '6LfgAZkrAAAAAOOU9svqDc-YVa23p4BRbEfElYJ', // Ваш reCAPTCHA ключ
-            'reCAPTCHA' // тип провайдера
-        );
-        
         const auth = firebase.auth();
         const db = firebase.firestore();
 
         // Переменные
-        let currentUser = null;
         let allUsers = [];
         let filteredUsers = [];
         let currentPage = 1;
+        let currentFilter = 'all';
         const rowsPerPage = 5;
 
-        // Статус App Check
-        document.getElementById('appcheckStatus').innerHTML = `
-            <i class="fas fa-check-circle"></i> App Check активирован
-        `;
-
-        // Проверка авторизации
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                showUserInfo(user);
-                loadUsers();
-            } else {
-                showLoginForm();
+        // Проверка соединения
+        window.testConnection = async function() {
+            try {
+                showMessage('🔄 Проверка соединения...', 'info');
+                
+                // Пробуем подключиться анонимно
+                await auth.signInAnonymously();
+                showMessage('✅ Анонимный вход выполнен', 'success');
+                
+                // Пробуем прочитать что-нибудь
+                const test = await db.collection('test').get();
+                showMessage('✅ Firestore доступен', 'success');
+                
+                await auth.signOut();
+                
+            } catch (error) {
+                showMessage('❌ Ошибка: ' + error.code + ' - ' + error.message, 'error');
             }
-        });
+        };
+
+        // Создать тестового пользователя
+        window.createTestUser = async function() {
+            try {
+                await auth.signInAnonymously();
+                
+                const testUser = {
+                    email: 'test@test.com',
+                    displayName: 'Тестовый',
+                    provider: 'password',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    emailVerified: false
+                };
+                
+                await db.collection('users_public').doc('test123').set(testUser);
+                showMessage('✅ Тестовый пользователь создан', 'success');
+                
+                await auth.signOut();
+                
+            } catch (error) {
+                showMessage('❌ Ошибка: ' + error.message, 'error');
+            }
+        };
 
         // Вход
         window.login = async function() {
@@ -371,13 +351,13 @@
             const password = document.getElementById('password').value;
             
             try {
+                showMessage('🔄 Вход...', 'info');
                 await auth.signInWithEmailAndPassword(email, password);
-                showMessage('✅ Вход выполнен', 'success');
             } catch (error) {
                 if (error.code === 'auth/user-not-found') {
                     try {
                         await auth.createUserWithEmailAndPassword(email, password);
-                        showMessage('✅ Администратор создан', 'success');
+                        showMessage('✅ Аккаунт создан', 'success');
                     } catch (e) {
                         showMessage('❌ Ошибка: ' + e.message, 'error');
                     }
@@ -390,92 +370,88 @@
         // Выход
         window.logout = function() {
             auth.signOut();
+            showLoginForm();
         };
+
+        // Слушаем авторизацию
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                showUserInfo(user);
+                loadUsers();
+            } else {
+                showLoginForm();
+            }
+        });
 
         // Загрузка пользователей
         async function loadUsers() {
             try {
-                showMessage('🔄 Загрузка пользователей...', 'info');
+                showMessage('🔄 Загрузка...', 'info');
                 
-                // Пробуем загрузить из коллекции users
-                const snapshot = await db.collection('users').get();
-                
-                if (snapshot.empty) {
-                    // Если нет пользователей, показываем демо
-                    loadDemoUsers();
-                    return;
-                }
+                // Пробуем загрузить из users_public
+                const snapshot = await db.collection('users_public').get();
                 
                 allUsers = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
                     allUsers.push({
                         uid: doc.id,
-                        email: data.email || 'Нет email',
-                        displayName: data.displayName || data.name || '',
-                        provider: data.provider || 'password',
-                        createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date(),
-                        lastLogin: data.lastLogin ? new Date(data.lastLogin.seconds * 1000) : new Date(),
-                        verified: data.emailVerified || false
+                        ...doc.data()
                     });
                 });
                 
-                applyFilters();
+                if (allUsers.length === 0) {
+                    // Если нет пользователей, создаем демо
+                    allUsers = [
+                        {
+                            uid: 'user1_' + Date.now(),
+                            email: 'user1@test.com',
+                            displayName: 'Пользователь 1',
+                            provider: 'google.com',
+                            createdAt: new Date(),
+                            lastLogin: new Date(),
+                            verified: true
+                        },
+                        {
+                            uid: 'user2_' + Date.now(),
+                            email: 'user2@test.com',
+                            displayName: 'Пользователь 2',
+                            provider: 'password',
+                            createdAt: new Date(),
+                            lastLogin: new Date(),
+                            verified: false
+                        }
+                    ];
+                }
+                
+                filteredUsers = [...allUsers];
+                renderUsers();
+                renderPagination();
                 updateStats();
+                
                 showMessage(`✅ Загружено ${allUsers.length} пользователей`, 'success');
                 
             } catch (error) {
                 console.error('Ошибка:', error);
-                showMessage('⚠️ Ошибка доступа. Показываем демо-данные', 'error');
-                loadDemoUsers();
+                showMessage('❌ Ошибка: ' + error.code + ' - ' + error.message, 'error');
+                
+                // Показываем демо
+                allUsers = [
+                    {
+                        uid: 'demo_1',
+                        email: 'demo1@test.com',
+                        displayName: 'Демо 1',
+                        provider: 'google.com',
+                        createdAt: new Date(),
+                        lastLogin: new Date(),
+                        verified: true
+                    }
+                ];
+                filteredUsers = [...allUsers];
+                renderUsers();
             }
         }
 
-        // Демо-пользователи
-        function loadDemoUsers() {
-            allUsers = [
-                {
-                    uid: 'VvCJXH2AGKWUGJxKjJ6v3nKvMl72',
-                    email: 'анна.смирнова@gmail.com',
-                    displayName: 'Анна Смирнова',
-                    provider: 'google.com',
-                    createdAt: new Date('2026-01-15'),
-                    lastLogin: new Date(),
-                    verified: true
-                },
-                {
-                    uid: 'a1b2c3d4e5f6g7h8i9j0',
-                    email: 'иван.петров@mail.ru',
-                    displayName: 'Иван Петров',
-                    provider: 'password',
-                    createdAt: new Date('2026-02-20'),
-                    lastLogin: new Date(Date.now() - 86400000),
-                    verified: true
-                },
-                {
-                    uid: 'z9y8x7w6v5u4t3s2r1q0',
-                    email: 'елена.волкова@gmail.com',
-                    displayName: 'Елена Волкова',
-                    provider: 'google.com',
-                    createdAt: new Date('2026-01-05'),
-                    lastLogin: new Date(Date.now() - 172800000),
-                    verified: false
-                }
-            ];
-            
-            applyFilters();
-            updateStats();
-        }
-
-        // Применить фильтры
-        function applyFilters() {
-            filteredUsers = [...allUsers];
-            currentPage = 1;
-            renderUsers();
-            renderPagination();
-        }
-
-        // Отображение пользователей
+        // Отображение
         function renderUsers() {
             const start = (currentPage - 1) * rowsPerPage;
             const end = start + rowsPerPage;
@@ -484,48 +460,29 @@
             let html = '';
             
             pageUsers.forEach(user => {
-                const providerClass = user.provider === 'google.com' ? 'google' : '';
-                const verifiedClass = user.verified ? 'verified' : 'unverified';
-                const verifiedText = user.verified ? 'Подтвержден' : 'Не подтвержден';
-                
                 html += `
                     <div class="user-item">
                         <div class="user-email">
-                            <i class="fas fa-envelope"></i> ${user.email}
+                            <i class="fas fa-envelope"></i> ${user.email || 'Нет email'}
+                            ${user.displayName ? `<span style="color:#666;"> (${user.displayName})</span>` : ''}
                         </div>
                         
                         <div class="user-uid">
                             <span><i class="fas fa-qrcode"></i> ${user.uid}</span>
                             <button class="copy-btn" onclick="copyUID('${user.uid}')">
-                                <i class="far fa-copy"></i> Копировать
+                                Копировать
                             </button>
                         </div>
                         
-                        <div class="badge-container">
-                            <span class="badge ${providerClass}">
-                                <i class="fas ${user.provider === 'google.com' ? 'fab fa-google' : 'fa-envelope'}"></i>
+                        <div>
+                            <span class="badge ${user.provider === 'google.com' ? 'google' : ''}">
                                 ${user.provider === 'google.com' ? 'Google' : 'Email/Пароль'}
                             </span>
                             
-                            <span class="badge ${verifiedClass}">
-                                <i class="fas ${user.verified ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-                                ${verifiedText}
-                            </span>
-                            
-                            <span class="badge">
-                                <i class="far fa-calendar"></i>
-                                ${formatDate(user.createdAt)}
-                            </span>
-                            
-                            <span class="badge">
-                                <i class="far fa-clock"></i>
-                                ${formatDate(user.lastLogin)}
+                            <span class="badge ${user.verified ? 'verified' : ''}">
+                                ${user.verified ? 'Подтвержден' : 'Не подтвержден'}
                             </span>
                         </div>
-                        
-                        <button class="profile-btn" onclick="goToProfile('${user.uid}')">
-                            <i class="fas fa-user"></i> Перейти в профиль
-                        </button>
                     </div>
                 `;
             });
@@ -550,51 +507,26 @@
             renderUsers();
         };
 
-        // Форматирование даты
-        function formatDate(date) {
-            return date.toLocaleString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // Копирование UID
+        // Копирование
         window.copyUID = function(uid) {
             navigator.clipboard?.writeText(uid).then(() => {
-                showMessage('✅ UID скопирован в буфер', 'success');
+                showMessage('✅ UID скопирован', 'success');
             });
-        };
-
-        // Переход в профиль
-        window.goToProfile = function(uid) {
-            const user = allUsers.find(u => u.uid === uid);
-            if (user) {
-                showMessage(`👤 Профиль: ${user.displayName || user.email}`, 'info');
-                // localStorage.setItem('selectedUser', JSON.stringify(user));
-                // window.location.href = `profile.html?uid=${uid}`;
-            }
         };
 
         // Статистика
         function updateStats() {
             document.getElementById('totalUsers').textContent = allUsers.length;
             document.getElementById('googleUsers').textContent = allUsers.filter(u => u.provider === 'google.com').length;
-            document.getElementById('emailUsers').textContent = allUsers.filter(u => u.provider === 'password').length;
-            document.getElementById('verifiedUsers').textContent = allUsers.filter(u => u.verified).length;
         }
 
-        // Показать форму входа
+        // UI функции
         function showLoginForm() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('userInfo').style.display = 'none';
             document.getElementById('stats').style.display = 'none';
-            document.getElementById('usersList').innerHTML = '';
         }
 
-        // Показать информацию о пользователе
         function showUserInfo(user) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('userInfo').style.display = 'block';
@@ -605,13 +537,12 @@
             `;
         }
 
-        // Показать сообщение
         function showMessage(text, type) {
             const msgDiv = document.getElementById('message');
             msgDiv.innerHTML = `<div class="${type}"><i class="fas fa-info-circle"></i> ${text}</div>`;
             setTimeout(() => {
                 msgDiv.innerHTML = '';
-            }, 3000);
+            }, 5000);
         }
     </script>
 </body>
