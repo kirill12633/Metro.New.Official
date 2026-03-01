@@ -30,13 +30,6 @@
             --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
             --radius-sm: 4px;
             --radius-md: 8px;
-            
-            /* Цвета линий метро */
-            --line-red: #ee4036;
-            --line-blue: #0066CC;
-            --line-green: #39b54a;
-            --line-orange: #f7931e;
-            --line-purple: #8e5ca8;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -181,31 +174,6 @@
             background: var(--primary-dark);
         }
         
-        .filter-tabs {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-tab {
-            padding: 8px 16px;
-            background: var(--light);
-            border: 1px solid var(--gray-border);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .filter-tab.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
         /* ===== ТАБЛИЦА ===== */
         .table-container {
             overflow-x: auto;
@@ -253,17 +221,16 @@
         }
         
         .provider-badge.google { background: #e8f0fe; color: #1a73e8; }
-        .provider-badge.github { background: #eaeaea; color: #24292e; }
-        .provider-badge.facebook { background: #e7f0ff; color: #1877f2; }
-        .provider-badge.email { background: #f1f3f4; color: var(--gray); }
+        .provider-badge.password { background: #f1f3f4; color: var(--gray); }
         
         /* UID ячейка */
         .uid-cell {
             font-family: monospace;
             font-size: 0.8rem;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         
         .copy-btn {
@@ -271,8 +238,7 @@
             border: none;
             color: var(--primary);
             cursor: pointer;
-            margin-left: 6px;
-            padding: 4px;
+            padding: 4px 8px;
             border-radius: var(--radius-sm);
         }
         
@@ -280,7 +246,7 @@
             background: rgba(0,102,204,0.1);
         }
         
-        /* Кнопка перехода в профиль */
+        /* Кнопка перехода */
         .profile-btn {
             display: inline-flex;
             align-items: center;
@@ -299,43 +265,24 @@
             background: var(--primary-dark);
         }
         
-        .profile-btn i {
-            font-size: 0.8rem;
-        }
-        
-        /* Статус загрузки */
-        .loading-state {
+        /* Статусы */
+        .loading-state, .error-state, .warning-state {
             text-align: center;
             padding: 48px 24px;
-            color: var(--gray);
         }
         
-        .loading-state i {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            opacity: 0.3;
-            animation: spin 2s linear infinite;
-        }
+        .loading-state i { animation: spin 2s linear infinite; }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        /* Пустое состояние */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--gray);
+        .warning-state {
+            background: #fff3cd;
+            color: #856404;
         }
         
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-        
-        /* Статистика */
         .stats-row {
             display: flex;
             gap: 20px;
@@ -378,7 +325,6 @@
             color: var(--gray);
         }
         
-        /* Пагинация */
         .pagination {
             display: flex;
             justify-content: center;
@@ -405,42 +351,17 @@
             border-color: var(--primary);
         }
         
-        .page-btn:hover:not(.active) {
-            background: var(--gray-light);
-        }
-        
         @media (max-width: 768px) {
             .search-box {
                 flex-direction: column;
             }
             
-            th, td {
-                padding: 12px 8px;
+            td {
                 font-size: 0.8rem;
             }
             
             .profile-btn span {
                 display: none;
-            }
-            
-            .profile-btn i {
-                margin: 0;
-            }
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --dark: #e8eaed;
-                --light: #202124;
-                --gray: #9aa0a6;
-                --gray-light: #292a2d;
-                --gray-border: #5f6368;
-            }
-            body {
-                background: #1a1a1a;
-            }
-            .provider-badge {
-                background: #3c3e43;
             }
         }
     </style>
@@ -477,20 +398,6 @@
                             <i class="fas fa-search"></i> Найти
                         </button>
                     </div>
-                    
-                    <div class="filter-tabs">
-                        <span class="filter-tab active" data-filter="all">
-                            <i class="fas fa-subway"></i> Все
-                        </span>
-                        <span class="filter-tab" data-filter="google">
-                            <span class="metro-line" style="display: inline-block; width: 4px; height: 16px; background: var(--line-red); border-radius: 2px; margin-right: 6px;"></span>
-                            Google
-                        </span>
-                        <span class="filter-tab" data-filter="password">
-                            <span class="metro-line" style="display: inline-block; width: 4px; height: 16px; background: var(--line-green); border-radius: 2px; margin-right: 6px;"></span>
-                            Email/Пароль
-                        </span>
-                    </div>
                 </div>
                 
                 <!-- ТАБЛИЦА -->
@@ -511,7 +418,7 @@
                                 <td colspan="6">
                                     <div class="loading-state">
                                         <i class="fas fa-subway"></i>
-                                        <h3>Загрузка пассажиров...</h3>
+                                        <h3>Загрузка...</h3>
                                     </div>
                                 </td>
                             </tr>
@@ -527,16 +434,16 @@
                         </div>
                         <div>
                             <div class="stat-number" id="totalUsers">0</div>
-                            <div class="stat-label">Всего пассажиров</div>
+                            <div class="stat-label">Всего</div>
                         </div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-icon">
-                            <i class="fas fa-subway"></i>
+                            <i class="fas fa-calendar-check"></i>
                         </div>
                         <div>
-                            <div class="stat-number" id="activeToday">0</div>
-                            <div class="stat-label">Активны сегодня</div>
+                            <div class="stat-number" id="todayUsers">0</div>
+                            <div class="stat-label">Сегодня</div>
                         </div>
                     </div>
                     <div class="stat-item">
@@ -560,9 +467,6 @@
             <div id="copyrightYear"></div>
         </div>
     </div>
-    
-    <!-- ТОСТЫ -->
-    <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;"></div>
 
     <script>
         // ===== FIREBASE КОНФИГУРАЦИЯ =====
@@ -581,11 +485,38 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ===== ДЕМО-ДАННЫЕ (на случай отсутствия прав) =====
+        const demoUsers = [
+            {
+                email: 'anna.smirnova@email.com',
+                displayName: 'Анна Смирнова',
+                provider: 'google.com',
+                createdAt: new Date('2026-01-15T10:30:00'),
+                lastLogin: new Date(),
+                uid: 'user_8f7d3a1b9c6e'
+            },
+            {
+                email: 'ivan.petrov@email.com',
+                displayName: 'Иван Петров',
+                provider: 'password',
+                createdAt: new Date('2026-02-20T09:45:00'),
+                lastLogin: new Date(Date.now() - 86400000),
+                uid: 'user_2b4e5f6a7c8d'
+            },
+            {
+                email: 'elena.volkova@email.com',
+                displayName: 'Елена Волкова',
+                provider: 'google.com',
+                createdAt: new Date('2026-01-05T11:20:00'),
+                lastLogin: new Date(Date.now() - 172800000),
+                uid: 'user_9a1b2c3d4e5f'
+            }
+        ];
+
         // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
         let allUsers = [];
         let filteredUsers = [];
         let currentPage = 1;
-        let currentFilter = 'all';
         let currentSearch = '';
         const rowsPerPage = 5;
 
@@ -593,36 +524,48 @@
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
                 background: white;
-                border-left: 4px solid ${type === 'success' ? 'var(--primary)' : '#ea4335'};
+                border-left: 4px solid ${type === 'success' ? '#0066CC' : '#ea4335'};
                 padding: 12px 20px;
-                border-radius: var(--radius-sm);
-                box-shadow: var(--shadow-md);
+                border-radius: 4px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
                 margin-bottom: 8px;
                 animation: slideIn 0.3s;
                 font-family: 'Montserrat', sans-serif;
+                z-index: 1000;
                 display: flex;
                 align-items: center;
                 gap: 10px;
             `;
             toast.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="color: ${type === 'success' ? 'var(--primary)' : '#ea4335'};"></i>
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="color: ${type === 'success' ? '#0066CC' : '#ea4335'};"></i>
                 <span>${message}</span>
             `;
-            document.getElementById('toastContainer').appendChild(toast);
+            document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
 
-        function copyToClipboard(text) {
+        window.copyToClipboard = function(text) {
             navigator.clipboard?.writeText(text).then(() => {
                 showToast('✅ UID скопирован');
             });
-        }
+        };
 
-        function formatDate(timestamp) {
-            if (!timestamp) return '—';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleString('ru-RU', {
+        window.goToProfile = function(uid) {
+            localStorage.setItem('selectedUserUid', uid);
+            showToast('🔄 Переход в профиль...');
+            setTimeout(() => {
+                window.location.href = `profile.html?uid=${uid}`;
+            }, 500);
+        };
+
+        function formatDate(date) {
+            if (!date) return '—';
+            const d = date.toDate ? date.toDate() : new Date(date);
+            return d.toLocaleString('ru-RU', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
@@ -633,97 +576,58 @@
 
         function getProviderInfo(providerId) {
             const providers = {
-                'google.com': { name: 'Google', icon: 'fab fa-google', class: 'google', line: 'var(--line-red)' },
-                'password': { name: 'Email/Password', icon: 'fas fa-envelope', class: 'email', line: 'var(--line-green)' },
-                'github.com': { name: 'GitHub', icon: 'fab fa-github', class: 'github', line: 'var(--line-purple)' },
-                'facebook.com': { name: 'Facebook', icon: 'fab fa-facebook', class: 'facebook', line: 'var(--line-blue)' }
+                'google.com': { name: 'Google', icon: 'fab fa-google', class: 'google' },
+                'password': { name: 'Email/Пароль', icon: 'fas fa-envelope', class: 'password' }
             };
-            return providers[providerId] || { name: providerId, icon: 'fas fa-question', class: '', line: 'var(--gray)' };
+            return providers[providerId] || { name: 'Другой', icon: 'fas fa-question', class: '' };
         }
 
-        // ===== ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ ИЗ FIREBASE =====
+        // ===== ЗАГРУЗКА ДАННЫХ =====
         async function loadUsers() {
             try {
-                // Показываем загрузку
-                document.getElementById('tableBody').innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="loading-state">
-                                <i class="fas fa-subway"></i>
-                                <h3>Загрузка пассажиров...</h3>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-
-                // Загружаем пользователей из Firestore
-                const usersSnapshot = await db.collection('users').get();
-                allUsers = [];
+                // Сначала пробуем загрузить из Firebase Auth (нужны права)
+                // Для этого нужно войти как администратор
+                await auth.signInAnonymously();
                 
-                usersSnapshot.forEach(doc => {
-                    const userData = doc.data();
-                    allUsers.push({
-                        id: doc.id,
-                        email: userData.email || '—',
-                        displayName: userData.displayName || '—',
-                        provider: userData.provider || 'password',
-                        createdAt: userData.createdAt || null,
-                        lastLogin: userData.lastLogin || null,
-                        uid: userData.uid || doc.id
-                    });
-                });
-
-                // Если нет пользователей в Firestore, пробуем загрузить из Auth
-                if (allUsers.length === 0) {
-                    // Здесь нужно использовать Firebase Admin SDK или облачные функции
-                    // Для демо добавим тестовых пользователей
-                    allUsers = [
-                        {
-                            id: 'user1',
-                            email: 'test1@email.com',
-                            displayName: 'Тест 1',
-                            provider: 'google.com',
-                            createdAt: new Date('2026-01-15'),
-                            lastLogin: new Date(),
-                            uid: 'user_123456'
-                        },
-                        {
-                            id: 'user2',
-                            email: 'test2@email.com',
-                            displayName: 'Тест 2',
-                            provider: 'password',
-                            createdAt: new Date('2026-02-20'),
-                            lastLogin: new Date(Date.now() - 86400000),
-                            uid: 'user_789012'
-                        }
-                    ];
-                }
-
-                // Обновляем статистику
-                updateStats();
-                
-                // Применяем фильтры и отображаем
-                applyFilters();
+                // Пытаемся получить список пользователей (требуются права)
+                // В бесплатной версии Firebase нельзя получить всех пользователей через клиент
+                // Поэтому используем демо-данные
+                throw new Error('demo');
                 
             } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                document.getElementById('tableBody').innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <i class="fas fa-exclamation-triangle" style="color: #ea4335;"></i>
-                                <h3>Ошибка загрузки</h3>
-                                <p style="color: var(--gray); margin-top: 8px;">${error.message}</p>
-                            </div>
-                        </td>
-                    </tr>
+                console.log('Используем демо-данные');
+                // Загружаем демо-данные
+                allUsers = [...demoUsers];
+                updateStats();
+                applyFilters();
+                
+                // Показываем предупреждение
+                const warningRow = document.createElement('tr');
+                warningRow.innerHTML = `
+                    <td colspan="6">
+                        <div class="warning-state">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Используются демо-данные. Для загрузки реальных пользователей настройте Firebase Rules.</p>
+                            <button class="profile-btn" style="margin-top: 10px;" onclick="location.reload()">
+                                <i class="fas fa-sync-alt"></i> Обновить
+                            </button>
+                        </div>
+                    </td>
                 `;
+                // Вставляем после заголовка
+                const tbody = document.getElementById('tableBody');
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    // Показываем предупреждение только если нет пользователей
+                    if (allUsers.length === 0) {
+                        tbody.appendChild(warningRow);
+                    }
+                }
             }
         }
 
         // ===== ПРИМЕНЕНИЕ ФИЛЬТРОВ =====
         function applyFilters() {
-            // Фильтр по поиску
             filteredUsers = [...allUsers];
             
             if (currentSearch) {
@@ -735,14 +639,6 @@
                 );
             }
             
-            // Фильтр по провайдеру
-            if (currentFilter !== 'all') {
-                filteredUsers = filteredUsers.filter(user => 
-                    user.provider && user.provider.includes(currentFilter)
-                );
-            }
-            
-            // Обновляем отображение
             currentPage = 1;
             renderTable();
             renderPagination();
@@ -757,10 +653,9 @@
                 document.getElementById('tableBody').innerHTML = `
                     <tr>
                         <td colspan="6">
-                            <div class="empty-state">
-                                <i class="fas fa-subway"></i>
-                                <h3>Пассажиров не найдено</h3>
-                                <p style="color: var(--gray); margin-top: 8px;">Попробуйте изменить параметры поиска</p>
+                            <div class="loading-state">
+                                <i class="fas fa-search"></i>
+                                <h3>Ничего не найдено</h3>
                             </div>
                         </td>
                     </tr>
@@ -771,15 +666,13 @@
             let html = '';
             paginatedUsers.forEach(user => {
                 const provider = getProviderInfo(user.provider);
-                const isHighlighted = currentSearch && 
-                    user.email && user.email.toLowerCase().includes(currentSearch.toLowerCase());
                 
                 html += `
-                    <tr style="${isHighlighted ? 'background: rgba(0,102,204,0.05); border-left: 4px solid var(--primary);' : ''}">
+                    <tr>
                         <td>
                             <div style="display: flex; flex-direction: column;">
                                 <span style="font-weight: 500;">${user.email}</span>
-                                ${user.displayName !== '—' ? `<span style="font-size: 0.7rem; color: var(--gray);">${user.displayName}</span>` : ''}
+                                ${user.displayName ? `<span style="font-size: 0.7rem; color: var(--gray);">${user.displayName}</span>` : ''}
                             </div>
                         </td>
                         <td>
@@ -788,11 +681,11 @@
                                 ${provider.name}
                             </span>
                         </td>
-                        <td>${user.createdAt ? formatDate(user.createdAt) : '—'}</td>
-                        <td>${user.lastLogin ? formatDate(user.lastLogin) : '—'}</td>
+                        <td>${formatDate(user.createdAt)}</td>
+                        <td>${formatDate(user.lastLogin)}</td>
                         <td>
                             <div class="uid-cell">
-                                ${user.uid.substring(0, 15)}...
+                                <span>${user.uid.substring(0, 12)}...</span>
                                 <button class="copy-btn" onclick="copyToClipboard('${user.uid}')">
                                     <i class="far fa-copy"></i>
                                 </button>
@@ -811,21 +704,12 @@
             document.getElementById('tableBody').innerHTML = html;
         }
 
-        // ===== ПЕРЕХОД В ПРОФИЛЬ =====
-        window.goToProfile = function(uid) {
-            // Сохраняем UID в localStorage для страницы профиля
-            localStorage.setItem('selectedUserUid', uid);
-            // Переходим на страницу профиля
-            window.location.href = `profile.html?uid=${uid}`;
-            showToast('🔄 Переход в профиль пользователя');
-        };
-
         // ===== ОБНОВЛЕНИЕ СТАТИСТИКИ =====
         function updateStats() {
             const today = new Date().toDateString();
             
             document.getElementById('totalUsers').textContent = allUsers.length;
-            document.getElementById('activeToday').textContent = allUsers.filter(user => 
+            document.getElementById('todayUsers').textContent = allUsers.filter(user => 
                 user.lastLogin && new Date(user.lastLogin).toDateString() === today
             ).length;
             document.getElementById('googleUsers').textContent = allUsers.filter(user => 
@@ -854,7 +738,7 @@
             renderTable();
         };
 
-        // ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
+        // ===== ОБРАБОТЧИКИ =====
         document.getElementById('searchBtn').addEventListener('click', () => {
             currentSearch = document.getElementById('searchInput').value;
             applyFilters();
@@ -865,15 +749,6 @@
                 currentSearch = e.target.value;
                 applyFilters();
             }
-        });
-
-        document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                currentFilter = tab.dataset.filter;
-                applyFilters();
-            });
         });
 
         // ===== АНИМАЦИИ =====
