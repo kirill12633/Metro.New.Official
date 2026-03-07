@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New — Пользователи</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #0066CC;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .logo-text span { color: #0066CC; }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 { font-size: 24px; margin-bottom: 20px; color: #333; }
+        
+        .login-section {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .login-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        
+        .login-btn {
+            padding: 12px 30px;
+            background: #0066CC;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .login-btn:hover { background: #0052a3; }
+        .login-btn.danger { background: #dc3545; }
+        
+        .user-item {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .user-email {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .user-uid {
+            font-family: monospace;
+            font-size: 13px;
+            color: #666;
+            background: #f1f3f4;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: #0066CC;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+            background: #e9ecef;
+        }
+        
+        .badge.google { background: #e8f0fe; color: #1a73e8; }
+        .badge.verified { background: #d4edda; color: #155724; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0066CC;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .page-btn.active {
+            background: #0066CC;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">Метро <span>New</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h1>📋 Пользователи Firebase</h1>
+            
+            <!-- Панель управления -->
+            <div style="margin-bottom: 20px; text-align: center;">
+                <button class="login-btn" onclick="checkRules()">
+                    <i class="fas fa-shield-alt"></i> Проверить правила
+                </button>
+                <button class="login-btn" onclick="createTestCollection()">
+                    <i class="fas fa-plus-circle"></i> Создать тест
+                </button>
+                <button class="login-btn" onclick="forceRefresh()">
+                    <i class="fas fa-sync-alt"></i> Обновить
+                </button>
+            </div>
+            
+            <!-- Секция входа -->
+            <div id="loginSection" class="login-section">
+                <h3>Вход в систему</h3>
+                <p style="color: #666; margin: 10px;">Войдите чтобы увидеть пользователей</p>
+                
+                <input type="email" id="email" class="login-input" placeholder="Email" value="admin@metro.new">
+                <input type="password" id="password" class="login-input" placeholder="Пароль" value="admin123">
+                
+                <br>
+                <button class="login-btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+                <button class="login-btn" onclick="anonymousLogin()">
+                    <i class="fas fa-user-secret"></i> Анонимно
+                </button>
+            </div>
+            
+            <!-- Информация о пользователе -->
+            <div id="userInfo" style="display: none;">
+                <div class="message success" id="welcomeMessage"></div>
+                <div style="text-align: center; margin: 10px 0;">
+                    <button class="login-btn danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Статистика -->
+            <div id="stats" style="display: none;" class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div>Всего</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="googleUsers">0</div>
+                    <div>Google</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="emailUsers">0</div>
+                    <div>Email</div>
+                </div>
+            </div>
+            
+            <!-- Список пользователей -->
+            <div id="usersList" class="user-list"></div>
+            
+            <!-- Пагинация -->
+            <div id="pagination" class="pagination"></div>
+            
+            <!-- Сообщения -->
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // ВАШ КОНФИГ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализация
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Включаем сохранение сессии
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        // Переменные
+        let allUsers = [];
+        let filteredUsers = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+
+        // ПРОВЕРКА ПРАВИЛ
+        window.checkRules = async function() {
+            showMessage('🔄 Проверка правил Firestore...', 'info');
+            
+            try {
+                // 1. Проверяем анонимный доступ
+                await auth.signInAnonymously();
+                showMessage('✅ Анонимный вход работает', 'success');
+                
+                // 2. Пробуем создать тестовую коллекцию
+                const testRef = db.collection('test_rules').doc('test');
+                await testRef.set({
+                    test: true,
+                    timestamp: new Date().toISOString()
+                });
+                showMessage('✅ Запись в Firestore работает', 'success');
+                
+                // 3. Пробуем прочитать
+                await testRef.get();
+                showMessage('✅ Чтение из Firestore работает', 'success');
+                
+                // 4. Удаляем тест
+                await testRef.delete();
+                
+                await auth.signOut();
+                showMessage('✅ Все правила работают!', 'success');
+                
+            } catch (error) {
+                showMessage('❌ Ошибка: ' + error.code + ' - ' + error.message, 'error');
+                console.error('Детали:', error);
+            }
+        };
+
+        // СОЗДАТЬ ТЕСТОВУЮ КОЛЛЕКЦИЮ
+        window.createTestCollection = async function() {
+            try {
+                await auth.signInAnonymously();
+                
+                // Создаем тестовых пользователей
+                for (let i = 1; i <= 3; i++) {
+                    await db.collection('users_public').doc(`test_user_${i}`).set({
+                        email: `test${i}@example.com`,
+                        displayName: `Тест ${i}`,
+                        provider: i % 2 === 0 ? 'google.com' : 'password',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                        emailVerified: i % 2 === 0
+                    });
+                }
+                
+                showMessage('✅ Тестовые пользователи созданы', 'success');
+                await auth.signOut();
+                
+                // Перезагружаем
+                setTimeout(() => location.reload(), 1000);
+                
+            } catch (error) {
+                showMessage('❌ Ошибка: ' + error.message, 'error');
+            }
+        };
+
+        // АНОНИМНЫЙ ВХОД
+        window.anonymousLogin = async function() {
+            try {
+                showMessage('🔄 Анонимный вход...', 'info');
+                await auth.signInAnonymously();
+            } catch (error) {
+                showMessage('❌ Ошибка: ' + error.message, 'error');
+            }
+        };
+
+        // ВХОД
+        window.login = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                showMessage('🔄 Вход...', 'info');
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        await auth.createUserWithEmailAndPassword(email, password);
+                        showMessage('✅ Аккаунт создан', 'success');
+                    } catch (e) {
+                        showMessage('❌ Ошибка: ' + e.message, 'error');
+                    }
+                } else {
+                    showMessage('❌ Ошибка: ' + error.message, 'error');
+                }
+            }
+        };
+
+        // ВЫХОД
+        window.logout = function() {
+            auth.signOut();
+        };
+
+        // ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ
+        window.forceRefresh = function() {
+            location.reload();
+        };
+
+        // СЛУШАЕМ АВТОРИЗАЦИЮ
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                showUserInfo(user);
+                loadUsers();
+            } else {
+                showLoginForm();
+            }
+        });
+
+        // ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ
+        async function loadUsers() {
+            try {
+                showMessage('🔄 Загрузка пользователей...', 'info');
+                
+                // Пробуем загрузить из users_public
+                const snapshot = await db.collection('users_public').get();
+                
+                allUsers = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allUsers.push({
+                        uid: doc.id,
+                        email: data.email || 'Нет email',
+                        displayName: data.displayName || '',
+                        provider: data.provider || 'password',
+                        createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date(),
+                        lastLogin: data.lastLogin ? new Date(data.lastLogin.seconds * 1000) : new Date(),
+                        verified: data.emailVerified || false
+                    });
+                });
+                
+                if (allUsers.length === 0) {
+                    // Если нет пользователей, показываем демо
+                    allUsers = [
+                        {
+                            uid: 'demo_1',
+                            email: 'demo1@example.com',
+                            displayName: 'Демо 1',
+                            provider: 'google.com',
+                            createdAt: new Date(),
+                            lastLogin: new Date(),
+                            verified: true
+                        },
+                        {
+                            uid: 'demo_2',
+                            email: 'demo2@example.com', 
+                            displayName: 'Демо 2',
+                            provider: 'password',
+                            createdAt: new Date(),
+                            lastLogin: new Date(),
+                            verified: false
+                        }
+                    ];
+                    
+                    showMessage('ℹ️ Показываем демо-данные', 'info');
+                } else {
+                    showMessage(`✅ Загружено ${allUsers.length} пользователей`, 'success');
+                }
+                
+                filteredUsers = [...allUsers];
+                renderUsers();
+                renderPagination();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                
+                // Показываем демо-данные при ошибке
+                allUsers = [
+                    {
+                        uid: 'error_demo_1',
+                        email: 'ошибка@демо.ру',
+                        displayName: 'Демо режим',
+                        provider: 'google.com',
+                        createdAt: new Date(),
+                        lastLogin: new Date(),
+                        verified: true
+                    }
+                ];
+                filteredUsers = [...allUsers];
+                renderUsers();
+                
+                showMessage('❌ Ошибка: ' + error.code + ' - ' + error.message, 'error');
+            }
+        }
+
+        // ОТРИСОВКА
+        function renderUsers() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageUsers = filteredUsers.slice(start, end);
+            
+            let html = '';
+            
+            pageUsers.forEach(user => {
+                html += `
+                    <div class="user-item">
+                        <div class="user-email">
+                            <i class="fas fa-envelope"></i> ${user.email}
+                            ${user.displayName ? `<span style="color:#666;"> (${user.displayName})</span>` : ''}
+                        </div>
+                        
+                        <div class="user-uid">
+                            <span><i class="fas fa-qrcode"></i> ${user.uid}</span>
+                            <button class="copy-btn" onclick="copyUID('${user.uid}')">
+                                <i class="far fa-copy"></i> Копировать
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <span class="badge ${user.provider === 'google.com' ? 'google' : ''}">
+                                ${user.provider === 'google.com' ? 'Google' : 'Email/Пароль'}
+                            </span>
+                            
+                            <span class="badge ${user.verified ? 'verified' : ''}">
+                                ${user.verified ? '✓ Подтвержден' : '✗ Не подтвержден'}
+                            </span>
+                            
+                            <span class="badge">
+                                📅 ${user.createdAt.toLocaleDateString()}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('usersList').innerHTML = html;
+        }
+
+        // ПАГИНАЦИЯ
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+            let html = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        window.goToPage = function(page) {
+            currentPage = page;
+            renderUsers();
+        };
+
+        // КОПИРОВАНИЕ
+        window.copyUID = function(uid) {
+            navigator.clipboard?.writeText(uid).then(() => {
+                showMessage('✅ UID скопирован', 'success');
+            });
+        };
+
+        // СТАТИСТИКА
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            document.getElementById('googleUsers').textContent = allUsers.filter(u => u.provider === 'google.com').length;
+            document.getElementById('emailUsers').textContent = allUsers.filter(u => u.provider === 'password').length;
+        }
+
+        // UI
+        function showLoginForm() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('stats').style.display = 'none';
+        }
+
+        function showUserInfo(user) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('welcomeMessage').innerHTML = `
+                <i class="fas fa-check-circle"></i> 
+                Вы вошли как: ${user.email || 'Аноним'}
+            `;
+        }
+
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.innerHTML = `<div class="message ${type}"><i class="fas fa-info-circle"></i> ${text}</div>`;
+        }
+    </script>
+</body>
+</html>
