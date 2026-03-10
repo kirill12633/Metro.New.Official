@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход / Регистрация</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+</head>
+<body style="font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px;">
+    
+    <h2>Вход / Регистрация</h2>
+    <p><small>С App Check</small></p>
+    
+    <!-- Форма -->
+    <input type="email" id="email" placeholder="Email" style="width: 100%; padding: 10px; margin: 5px 0;"><br>
+    <input type="password" id="password" placeholder="Пароль" style="width: 100%; padding: 10px; margin: 5px 0;"><br>
+    
+    <button onclick="register()" style="padding: 10px 20px; margin: 5px;">Регистрация</button>
+    <button onclick="login()" style="padding: 10px 20px; margin: 5px;">Вход</button>
+    <button onclick="sendVerification()" style="padding: 10px 20px; margin: 5px;">Отправить подтверждение</button>
+    
+    <!-- Статусы -->
+    <div id="appCheckStatus" style="margin-top: 10px; padding: 5px; background: #e0e0e0; font-size: 0.9rem;"></div>
+    <div id="message" style="margin-top: 10px; padding: 10px; background: #f0f0f0; min-height: 50px;"></div>
+
+    <script>
+        // ===== FIREBASE =====
+        firebase.initializeApp({
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin"
+        });
+
+        // ===== APP CHECK =====
+        const appCheckStatus = document.getElementById('appCheckStatus');
+        
+        try {
+            // Активируем App Check с вашим ключом
+            firebase.appCheck().activate(
+                '6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', // Ваш ключ
+                true // Режим провайдера токена
+            );
+            
+            appCheckStatus.innerHTML = '✅ App Check активирован';
+            appCheckStatus.style.color = 'green';
+            
+            // Получаем токен для проверки
+            firebase.appCheck().getToken()
+                .then(result => {
+                    console.log('App Check токен получен:', result);
+                })
+                .catch(error => {
+                    console.warn('Ошибка получения токена:', error);
+                });
+                
+        } catch (e) {
+            appCheckStatus.innerHTML = '❌ Ошибка App Check: ' + e.message;
+            appCheckStatus.style.color = 'red';
+            console.error('App Check error:', e);
+        }
+
+        const auth = firebase.auth();
+        const messageDiv = document.getElementById('message');
+
+        // Показывать сообщения
+        function showMessage(text, isError = false) {
+            messageDiv.style.color = isError ? 'red' : 'green';
+            messageDiv.innerHTML = text;
+        }
+
+        // ===== РЕГИСТРАЦИЯ =====
+        function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showMessage('❌ Введите email и пароль', true);
+                return;
+            }
+            
+            showMessage('⏳ Регистрация...');
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    showMessage('✅ Регистрация успешна! Отправляем письмо...');
+                    // Сразу отправляем письмо
+                    setTimeout(sendVerification, 1000);
+                })
+                .catch(error => {
+                    showMessage('❌ ' + error.message, true);
+                    console.error('Register error:', error);
+                });
+        }
+
+        // ===== ВХОД =====
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showMessage('❌ Введите email и пароль', true);
+                return;
+            }
+            
+            showMessage('⏳ Вход...');
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => showMessage('✅ Вход выполнен'))
+                .catch(error => {
+                    showMessage('❌ ' + error.message, true);
+                    console.error('Login error:', error);
+                });
+        }
+
+        // ===== ОТПРАВКА ПИСЬМА =====
+        function sendVerification() {
+            const user = auth.currentUser;
+            
+            if (!user) {
+                showMessage('❌ Сначала войдите', true);
+                return;
+            }
+            
+            showMessage('⏳ Отправка письма...');
+            
+            user.sendEmailVerification()
+                .then(() => {
+                    showMessage(`
+                        ✅ Письмо отправлено на ${user.email}<br>
+                        <small>Ссылка ведет на: 
+                        <br>https://kirill12633.github.io/Metro.New.Official/auth/verify-email</small>
+                    `);
+                    
+                    // Показываем ссылку для теста
+                    console.log('Тестовая ссылка (скопируйте):');
+                    console.log('https://kirill12633.github.io/Metro.New.Official/auth/verify-email');
+                })
+                .catch(error => {
+                    showMessage('❌ ' + error.message, true);
+                    console.error('Send verification error:', error);
+                });
+        }
+
+        // ===== ОТСЛЕЖИВАНИЕ СТАТУСА =====
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const verified = user.emailVerified ? '✅' : '❌';
+                showMessage(`
+                    👤 Пользователь: ${user.email}<br>
+                    Статус: ${user.emailVerified ? '✅ Подтвержден' : '❌ Не подтвержден'}<br>
+                    UID: ${user.uid.substring(0, 8)}...
+                `);
+            } else {
+                showMessage('🔓 Не авторизован');
+            }
+        });
+
+        // Проверка App Check при загрузке
+        console.log('App Check настроен с ключом: 6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-');
+    </script>
+</body>
+</html>
