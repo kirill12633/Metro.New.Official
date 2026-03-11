@@ -15,7 +15,6 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
     
     <style>
@@ -82,6 +81,97 @@
         
         .content {
             padding: 24px;
+        }
+        
+        /* Навигация */
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            color: #5f6368;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #e8f0fe;
+            border-color: #0066CC;
+            color: #0066CC;
+        }
+        
+        /* Форма входа */
+        .login-form {
+            padding: 20px;
+        }
+        
+        .login-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .login-input:focus {
+            border-color: #0066CC;
+            outline: none;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0066CC;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+        }
+        
+        .login-btn-outline {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid #0066CC;
+            color: #0066CC;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .login-btn-outline:hover {
+            background: #0066CC;
+            color: white;
         }
         
         /* Профиль */
@@ -279,7 +369,7 @@
             background: #b0281a;
         }
         
-        /* Уведомления */
+        /* Сообщения */
         .message {
             padding: 15px;
             border-radius: 8px;
@@ -338,6 +428,7 @@
             justify-content: center;
             gap: 15px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         
         .footer-links a {
@@ -348,17 +439,36 @@
         .footer-links a:hover {
             color: #0066CC;
         }
+        
+        /* Спиннер */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0066CC;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Навигация -->
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn btn-small">
+        <div class="nav-links">
+            <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="nav-btn">
                 <i class="fas fa-home"></i> На главную
             </a>
-            <a href="https://kirill12633.github.io/Metro.New.Official/auth/send-actions.html" class="btn btn-small btn-outline">
+            <a href="https://kirill12633.github.io/Metro.New.Official/auth/send-actions.html" class="nav-btn">
                 <i class="fas fa-envelope"></i> Отправка писем
+            </a>
+            <a href="https://kirill12633.github.io/Metro.New.Official/auth/action-handler.html" class="nav-btn">
+                <i class="fas fa-bolt"></i> Обработчик
             </a>
         </div>
         
@@ -376,13 +486,33 @@
                 <!-- Сообщения -->
                 <div id="message" class="message"></div>
                 
-                <!-- Профиль (загружается динамически) -->
-                <div id="profileSection">
-                    <div style="text-align: center; padding: 20px;">
-                        <div class="spinner" style="border-top-color: #0066CC; width: 40px; height: 40px; border-width: 3px; margin: 0 auto;"></div>
-                        <p style="color: #5f6368; margin-top: 10px;">Загрузка профиля...</p>
+                <!-- Форма входа (показывается если не авторизован) -->
+                <div id="loginCard" class="card" style="margin-bottom: 0;">
+                    <div class="login-form">
+                        <div class="login-title">
+                            <i class="fas fa-user-lock"></i> Вход в аккаунт
+                        </div>
+                        
+                        <input type="email" id="loginEmail" class="login-input" placeholder="Email" value="test@test.com">
+                        <input type="password" id="loginPassword" class="login-input" placeholder="Пароль" value="123456">
+                        
+                        <button class="login-btn" onclick="login()">
+                            <i class="fas fa-sign-in-alt"></i> Войти
+                        </button>
+                        
+                        <button class="login-btn-outline" onclick="register()">
+                            <i class="fas fa-user-plus"></i> Создать аккаунт
+                        </button>
+                        
+                        <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #5f6368;">
+                            <i class="fas fa-info-circle"></i> 
+                            Тестовый аккаунт: test@test.com / 123456
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Профиль (загружается динамически) -->
+                <div id="profileSection" style="display: none;"></div>
                 
                 <!-- Настройки (показываются только если пользователь вошел) -->
                 <div id="settingsSection" style="display: none;">
@@ -494,16 +624,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- Не авторизован -->
-                <div id="notLoggedIn" style="text-align: center; padding: 40px 20px; display: none;">
-                    <i class="fas fa-user-lock" style="font-size: 48px; color: #9aa0a6; margin-bottom: 20px;"></i>
-                    <h3 style="color: #202124; margin-bottom: 10px;">Вы не вошли в аккаунт</h3>
-                    <p style="color: #5f6368; margin-bottom: 20px;">Войдите, чтобы управлять настройками</p>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/auth/send-actions.html" class="btn">
-                        <i class="fas fa-sign-in-alt"></i> Войти
-                    </a>
-                </div>
             </div>
         </div>
         
@@ -536,12 +656,11 @@
         } catch (e) {}
 
         const auth = firebase.auth();
-        const db = firebase.firestore();
 
         // ===== ЭЛЕМЕНТЫ =====
+        const loginCard = document.getElementById('loginCard');
         const profileSection = document.getElementById('profileSection');
         const settingsSection = document.getElementById('settingsSection');
-        const notLoggedIn = document.getElementById('notLoggedIn');
         const messageDiv = document.getElementById('message');
 
         // ===== АВТОМАТИЧЕСКИЙ ГОД =====
@@ -556,6 +675,46 @@
                 messageDiv.classList.remove('show');
             }, 3000);
         }
+
+        // ===== ВХОД =====
+        window.login = function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Введите email и пароль', 'error');
+                return;
+            }
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    showMessage('✅ Вход выполнен');
+                    loginCard.style.display = 'none';
+                })
+                .catch(error => {
+                    showMessage('❌ ' + error.message, 'error');
+                });
+        };
+
+        // ===== РЕГИСТРАЦИЯ =====
+        window.register = function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Введите email и пароль', 'error');
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    showMessage('✅ Аккаунт создан');
+                    loginCard.style.display = 'none';
+                })
+                .catch(error => {
+                    showMessage('❌ ' + error.message, 'error');
+                });
+        };
 
         // ===== ЗАГРУЗКА ПРОФИЛЯ =====
         function loadProfile(user) {
@@ -573,16 +732,15 @@
                     </div>
                 </div>
             `;
+            profileSection.style.display = 'block';
         }
 
         // ===== ЗАГРУЗКА НАСТРОЕК =====
         function loadSettings() {
-            // Язык
             const savedLang = localStorage.getItem('metroLang') || 'ru';
             document.getElementById('langRu').classList.toggle('active', savedLang === 'ru');
             document.getElementById('langEn').classList.toggle('active', savedLang === 'en');
             
-            // Уведомления
             document.getElementById('emailNotifications').checked = 
                 localStorage.getItem('emailNotifications') !== 'false';
             document.getElementById('loginNotifications').checked = 
@@ -592,7 +750,7 @@
         // ===== СОХРАНЕНИЕ НАСТРОЕК =====
         window.saveSetting = function(key, value) {
             localStorage.setItem(key, value);
-            showMessage('Настройка сохранена');
+            showMessage('✅ Настройка сохранена');
         };
 
         // ===== СМЕНА ЯЗЫКА =====
@@ -600,10 +758,7 @@
             localStorage.setItem('metroLang', lang);
             document.getElementById('langRu').classList.toggle('active', lang === 'ru');
             document.getElementById('langEn').classList.toggle('active', lang === 'en');
-            showMessage(`Язык изменен на ${lang === 'ru' ? 'русский' : 'английский'}`);
-            
-            // Здесь можно перезагрузить страницу для применения
-            setTimeout(() => location.reload(), 1000);
+            showMessage(`🌐 Язык изменен на ${lang === 'ru' ? 'русский' : 'английский'}`);
         };
 
         // ===== СМЕНА ПАРОЛЯ =====
@@ -613,10 +768,10 @@
             
             auth.sendPasswordResetEmail(email)
                 .then(() => {
-                    showMessage('Письмо для сброса пароля отправлено на почту');
+                    showMessage('📧 Письмо для сброса пароля отправлено на почту');
                 })
                 .catch(error => {
-                    showMessage('Ошибка: ' + error.message, 'error');
+                    showMessage('❌ ' + error.message, 'error');
                 });
         };
 
@@ -627,10 +782,10 @@
             
             auth.currentUser.verifyBeforeUpdateEmail(newEmail)
                 .then(() => {
-                    showMessage('Письмо для подтверждения отправлено на ' + newEmail);
+                    showMessage('📧 Письмо для подтверждения отправлено на ' + newEmail);
                 })
                 .catch(error => {
-                    showMessage('Ошибка: ' + error.message, 'error');
+                    showMessage('❌ ' + error.message, 'error');
                 });
         };
 
@@ -639,13 +794,13 @@
             const history = JSON.parse(localStorage.getItem('loginHistory') || '[]');
             
             if (history.length === 0) {
-                alert('История входов пуста');
+                alert('📭 История входов пуста');
                 return;
             }
             
-            let text = '📋 Последние входы:\n\n';
-            history.forEach(item => {
-                text += `${item.time}\n${item.device}\n${item.success ? '✅' : '❌'}\n\n`;
+            let text = '📋 Последние 10 входов:\n\n';
+            history.forEach((item, i) => {
+                text += `${i+1}. ${item.time}\n   ${item.device}\n   ${item.success ? '✅' : '❌'}\n\n`;
             });
             
             alert(text);
@@ -657,17 +812,17 @@
                 return;
             }
             
-            if (!confirm('Еще раз подтвердите: удалить аккаунт?')) {
+            if (!confirm('❗ Еще раз подтвердите: удалить аккаунт?')) {
                 return;
             }
             
             auth.currentUser.delete()
                 .then(() => {
-                    showMessage('Аккаунт удален');
+                    showMessage('✅ Аккаунт удален');
                     setTimeout(() => location.reload(), 2000);
                 })
                 .catch(error => {
-                    showMessage('Ошибка: ' + error.message, 'error');
+                    showMessage('❌ ' + error.message, 'error');
                 });
         };
 
@@ -675,7 +830,7 @@
         window.logout = function() {
             auth.signOut()
                 .then(() => {
-                    showMessage('Вы вышли из аккаунта');
+                    showMessage('👋 Вы вышли из аккаунта');
                     setTimeout(() => location.reload(), 1000);
                 });
         };
@@ -687,7 +842,7 @@
                 const history = JSON.parse(localStorage.getItem('loginHistory') || '[]');
                 history.unshift({
                     time: new Date().toLocaleString(),
-                    device: navigator.userAgent.substring(0, 30),
+                    device: navigator.userAgent.substring(0, 40),
                     success: true
                 });
                 localStorage.setItem('loginHistory', JSON.stringify(history.slice(0,10)));
@@ -696,14 +851,14 @@
                 loadProfile(user);
                 loadSettings();
                 
+                loginCard.style.display = 'none';
                 profileSection.style.display = 'block';
                 settingsSection.style.display = 'block';
-                notLoggedIn.style.display = 'none';
             } else {
-                // Показываем "не авторизован"
+                // Показываем форму входа
+                loginCard.style.display = 'block';
                 profileSection.style.display = 'none';
                 settingsSection.style.display = 'none';
-                notLoggedIn.style.display = 'block';
             }
         });
     </script>
