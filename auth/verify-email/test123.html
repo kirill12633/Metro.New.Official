@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отправка действий - Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            padding: 30px 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #202124;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .content {
+            padding: 32px 24px;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .user-info p {
+            margin: 5px 0;
+            color: #202124;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-verified {
+            background: #e6f4ea;
+            color: #1e8e3e;
+        }
+        
+        .status-unverified {
+            background: #fef2f2;
+            color: #d93025;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .action-card {
+            border: 2px solid #dadce0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .action-card:hover {
+            border-color: #0066CC;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,102,204,0.15);
+        }
+        
+        .action-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+        
+        .action-card.disabled:hover {
+            border-color: #dadce0;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .action-icon {
+            font-size: 24px;
+            color: #0066CC;
+            margin-bottom: 10px;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #202124;
+        }
+        
+        .action-desc {
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+        
+        .action-hint {
+            color: #0066CC;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .email-form {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .email-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+        
+        .email-form input:focus {
+            border-color: #0066CC;
+            outline: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #0066CC;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #5f6368;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a4d52;
+        }
+        
+        .message-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .message-success {
+            background: #e6f4ea;
+            border: 1px solid #1e8e3e;
+            color: #1e8e3e;
+        }
+        
+        .message-error {
+            background: #fef2f2;
+            border: 1px solid #d93025;
+            color: #d93025;
+        }
+        
+        .message-info {
+            background: #e8f0fe;
+            border: 1px solid #0066CC;
+            color: #0066CC;
+        }
+        
+        .footer {
+            padding: 20px 24px;
+            border-top: 1px solid #dadce0;
+            text-align: center;
+            background: #f8f9fa;
+            font-size: 0.75rem;
+            color: #9aa0a6;
+        }
+        
+        .link-box {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            word-break: break-all;
+            font-size: 0.8rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1>Управление аккаунтом</h1>
+                <p>Отправка действий на email</p>
+            </div>
+            
+            <div class="content" id="content">
+                <!-- Статус пользователя -->
+                <div class="user-info" id="userInfo">
+                    <p id="userEmail">⏳ Загрузка...</p>
+                    <p id="userStatus"></p>
+                </div>
+                
+                <!-- Форма входа/регистрации (показывается если не авторизован) -->
+                <div id="authForm" class="hidden">
+                    <div class="email-form">
+                        <h3 style="margin-bottom: 15px;">Вход / Регистрация</h3>
+                        <input type="email" id="loginEmail" placeholder="Email" value="test@metro.new">
+                        <input type="password" id="loginPassword" placeholder="Пароль" value="123456">
+                        <button class="btn" onclick="register()" style="margin-bottom: 10px;">Регистрация</button>
+                        <button class="btn btn-secondary" onclick="login()">Вход</button>
+                    </div>
+                </div>
+                
+                <!-- Действия (показываются если авторизован) -->
+                <div id="actionsPanel" class="hidden">
+                    <div class="action-grid">
+                        <!-- Подтверждение email -->
+                        <div class="action-card" onclick="sendVerification()" id="verifyAction">
+                            <div class="action-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="action-title">Подтверждение email</div>
+                            <div class="action-desc">Отправить письмо для подтверждения</div>
+                            <div class="action-hint" id="verifyHint"></div>
+                        </div>
+                        
+                        <!-- Сброс пароля -->
+                        <div class="action-card" onclick="sendPasswordReset()">
+                            <div class="action-icon"><i class="fas fa-key"></i></div>
+                            <div class="action-title">Сброс пароля</div>
+                            <div class="action-desc">Отправить ссылку для сброса</div>
+                        </div>
+                        
+                        <!-- Изменение email -->
+                        <div class="action-card" onclick="showChangeEmailForm()">
+                            <div class="action-icon"><i class="fas fa-at"></i></div>
+                            <div class="action-title">Изменение email</div>
+                            <div class="action-desc">Сменить адрес электронной почты</div>
+                        </div>
+                        
+                        <!-- Восстановление email -->
+                        <div class="action-card" onclick="sendRecoverEmail()">
+                            <div class="action-icon"><i class="fas fa-undo-alt"></i></div>
+                            <div class="action-title">Восстановление email</div>
+                            <div class="action-desc">Восстановить старый email</div>
+                        </div>
+                        
+                        <!-- Настройка 2FA (заглушка) -->
+                        <div class="action-card disabled">
+                            <div class="action-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div class="action-title">Двухфакторная аутентификация</div>
+                            <div class="action-desc">Скоро будет доступно</div>
+                        </div>
+                        
+                        <!-- Выход -->
+                        <div class="action-card" onclick="logout()">
+                            <div class="action-icon"><i class="fas fa-sign-out-alt"></i></div>
+                            <div class="action-title">Выйти</div>
+                            <div class="action-desc">Завершить сеанс</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Сообщения -->
+                <div id="messageArea" class="hidden"></div>
+                
+                <!-- Форма смены email (скрыта) -->
+                <div id="changeEmailForm" class="email-form hidden">
+                    <h3 style="margin-bottom: 15px;">Смена email</h3>
+                    <input type="email" id="newEmail" placeholder="Новый email">
+                    <button class="btn" onclick="sendChangeEmail()">Отправить подтверждение</button>
+                    <button class="btn btn-secondary" onclick="hideChangeEmailForm()">Отмена</button>
+                </div>
+                
+                <!-- Ссылки для тестирования -->
+                <div id="testLinks" class="link-box hidden"></div>
+            </div>
+            
+            <div class="footer">
+                <p id="copyright"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== КОНФИГУРАЦИЯ =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        
+        try {
+            firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
+        } catch (e) {}
+
+        const auth = firebase.auth();
+        
+        // Элементы
+        const content = document.getElementById('content');
+        const userInfo = document.getElementById('userInfo');
+        const userEmail = document.getElementById('userEmail');
+        const userStatus = document.getElementById('userStatus');
+        const authForm = document.getElementById('authForm');
+        const actionsPanel = document.getElementById('actionsPanel');
+        const messageArea = document.getElementById('messageArea');
+        const changeEmailForm = document.getElementById('changeEmailForm');
+        const testLinks = document.getElementById('testLinks');
+        const verifyHint = document.getElementById('verifyHint');
+        const verifyAction = document.getElementById('verifyAction');
+
+        // Автоматический год
+        document.getElementById('copyright').innerHTML = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+
+        // Автоопределение языка
+        const isEnglish = navigator.language.startsWith('en');
+        
+        const texts = {
+            loading: isEnglish ? 'Loading...' : 'Загрузка...',
+            notLoggedIn: isEnglish ? 'Not logged in' : 'Не авторизован',
+            verified: isEnglish ? 'Verified' : 'Подтвержден',
+            notVerified: isEnglish ? 'Not verified' : 'Не подтвержден',
+            emailSent: isEnglish ? 'Email sent to' : 'Письмо отправлено на',
+            error: isEnglish ? 'Error' : 'Ошибка',
+            success: isEnglish ? 'Success' : 'Успешно',
+            checkSpam: isEnglish ? 'Check spam folder' : 'Проверьте папку спам',
+            copyLink: isEnglish ? 'Test link copied' : 'Тестовая ссылка скопирована'
+        };
+
+        // ===== ПОКАЗ СООБЩЕНИЙ =====
+        function showMessage(text, type = 'info') {
+            messageArea.classList.remove('hidden');
+            messageArea.className = `message-box message-${type}`;
+            messageArea.innerHTML = text;
+            
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 10000);
+        }
+
+        // ===== ПОКАЗ ТЕСТОВЫХ ССЫЛОК =====
+        function showTestLinks(action, oobCode) {
+            const baseUrl = 'https://kirill12633.github.io/Metro.New.Official/auth/action-handler.html';
+            const url = `${baseUrl}?mode=${action}&oobCode=${oobCode}`;
+            
+            testLinks.classList.remove('hidden');
+            testLinks.innerHTML = `
+                <strong>${isEnglish ? 'Test link:' : 'Тестовая ссылка:'}</strong><br>
+                <a href="${url}" target="_blank">${url}</a><br>
+                <button class="btn btn-secondary" style="margin-top:10px;" onclick="copyToClipboard('${url}')">
+                    <i class="fas fa-copy"></i> ${isEnglish ? 'Copy' : 'Копировать'}
+                </button>
+            `;
+        }
+
+        // ===== КОПИРОВАНИЕ =====
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text);
+            showMessage(texts.copyLink, 'success');
+        };
+
+        // ===== ОТСЛЕЖИВАНИЕ СОСТОЯНИЯ =====
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Показываем информацию о пользователе
+                userEmail.innerHTML = `<i class="fas fa-user"></i> ${user.email}`;
+                
+                const verified = user.emailVerified;
+                userStatus.innerHTML = `
+                    <span class="status-badge ${verified ? 'status-verified' : 'status-unverified'}">
+                        ${verified ? texts.verified : texts.notVerified}
+                    </span>
+                    ${verified ? '✅' : '❌'}
+                `;
+                
+                // Обновляем подсказку для кнопки подтверждения
+                if (verified) {
+                    verifyAction.classList.add('disabled');
+                    verifyHint.innerHTML = '✓ Email уже подтвержден';
+                } else {
+                    verifyAction.classList.remove('disabled');
+                    verifyHint.innerHTML = '↻ Требуется подтверждение';
+                }
+                
+                // Показываем панель действий, скрываем форму входа
+                authForm.classList.add('hidden');
+                actionsPanel.classList.remove('hidden');
+            } else {
+                // Показываем форму входа
+                userEmail.innerHTML = texts.notLoggedIn;
+                userStatus.innerHTML = '';
+                authForm.classList.remove('hidden');
+                actionsPanel.classList.add('hidden');
+                changeEmailForm.classList.add('hidden');
+            }
+        });
+
+        // ===== РЕГИСТРАЦИЯ =====
+        window.register = function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    showMessage(`${texts.success}!`, 'success');
+                    sendVerification();
+                })
+                .catch(error => showMessage(`${texts.error}: ${error.message}`, 'error'));
+        };
+
+        // ===== ВХОД =====
+        window.login = function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => showMessage(`${texts.success}!`, 'success'))
+                .catch(error => showMessage(`${texts.error}: ${error.message}`, 'error'));
+        };
+
+        // ===== ВЫХОД =====
+        window.logout = function() {
+            auth.signOut();
+        };
+
+        // ===== ПОДТВЕРЖДЕНИЕ EMAIL =====
+        window.sendVerification = function() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            if (user.emailVerified) {
+                showMessage(isEnglish ? 'Email already verified' : 'Email уже подтвержден', 'info');
+                return;
+            }
+            
+            user.sendEmailVerification()
+                .then(() => {
+                    showMessage(`${texts.emailSent} ${user.email}. ${texts.checkSpam}.`, 'success');
+                    // Показываем тестовую ссылку
+                    showTestLinks('verifyEmail', 'TEST-CODE-VERIFY-' + Date.now());
+                })
+                .catch(error => showMessage(`${texts.error}: ${error.message}`, 'error'));
+        };
+
+        // ===== СБРОС ПАРОЛЯ =====
+        window.sendPasswordReset = function() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            auth.sendPasswordResetEmail(user.email)
+                .then(() => {
+                    showMessage(`${texts.emailSent} ${user.email}`, 'success');
+                    showTestLinks('resetPassword', 'TEST-CODE-RESET-' + Date.now());
+                })
+                .catch(error => showMessage(`${texts.error}: ${error.message}`, 'error'));
+        };
+
+        // ===== ПОКАЗ ФОРМЫ СМЕНЫ EMAIL =====
+        window.showChangeEmailForm = function() {
+            changeEmailForm.classList.remove('hidden');
+        };
+
+        window.hideChangeEmailForm = function() {
+            changeEmailForm.classList.add('hidden');
+        };
+
+        // ===== СМЕНА EMAIL =====
+        window.sendChangeEmail = function() {
+            const user = auth.currentUser;
+            const newEmail = document.getElementById('newEmail').value;
+            
+            if (!user || !newEmail) return;
+            
+            user.verifyBeforeUpdateEmail(newEmail)
+                .then(() => {
+                    showMessage(`${texts.emailSent} ${newEmail}`, 'success');
+                    showTestLinks('verifyAndChangeEmail', 'TEST-CODE-CHANGE-' + Date.now());
+                    hideChangeEmailForm();
+                })
+                .catch(error => showMessage(`${texts.error}: ${error.message}`, 'error'));
+        };
+
+        // ===== ВОССТАНОВЛЕНИЕ EMAIL =====
+        window.sendRecoverEmail = function() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            // Firebase сам обрабатывает восстановление через applyActionCode
+            showMessage(isEnglish ? 'Recovery handled via email link' : 'Восстановление через ссылку в письме', 'info');
+            showTestLinks('recoverEmail', 'TEST-CODE-RECOVER-' + Date.now());
+        };
+    </script>
+</body>
+</html>
