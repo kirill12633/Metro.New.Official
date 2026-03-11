@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New - Обработка действия</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            padding: 30px 24px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #202124;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        /* Кнопка информации */
+        .info-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .info-button:hover {
+            background: white;
+            color: #0066CC;
+            transform: scale(1.1);
+        }
+        
+        /* Экстренная кнопка */
+        .emergency-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #d93025;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(217,48,37,0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .emergency-button:hover {
+            transform: scale(1.1);
+            background: #b0281a;
+        }
+        
+        /* Попап безопасности */
+        .security-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .security-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .security-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            padding: 24px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .security-popup.show .security-content {
+            transform: scale(1);
+        }
+        
+        .security-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #5f6368;
+        }
+        
+        .security-icon {
+            width: 60px;
+            height: 60px;
+            background: #e8f0fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: #0066CC;
+            font-size: 1.8rem;
+        }
+        
+        .security-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #202124;
+        }
+        
+        .domain-box {
+            background: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .domain {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0066CC;
+            word-break: break-all;
+        }
+        
+        .security-warning {
+            background: #fef2f2;
+            border-left: 4px solid #d93025;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: #d93025;
+        }
+        
+        .security-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+        
+        .security-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #5f6368;
+        }
+        
+        .security-list i {
+            color: #1e8e3e;
+        }
+        
+        /* Контент */
+        .content {
+            padding: 32px 24px;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            margin: 30px 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0066CC;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-icon { font-size: 64px; color: #1e8e3e; margin-bottom: 20px; }
+        .error-icon { font-size: 64px; color: #d93025; margin-bottom: 20px; }
+        .warning-icon { font-size: 64px; color: #fbbc04; margin-bottom: 20px; }
+        
+        h2 { color: #202124; margin-bottom: 15px; }
+        .message { color: #5f6368; line-height: 1.6; margin: 20px 0; }
+        
+        /* Код страницы */
+        .code-box {
+            background: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .code-box:hover {
+            border-color: #0066CC;
+            background: #e8f0fe;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .code-label {
+            font-size: 0.8rem;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .code-value {
+            font-family: monospace;
+            font-weight: 600;
+            color: #0066CC;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        
+        .code-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #dadce0;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .badge i {
+            font-size: 0.6rem;
+        }
+        
+        .badge.red { background: #fef2f2; color: #d93025; border-color: #d93025; }
+        .badge.green { background: #e6f4ea; color: #1e8e3e; border-color: #1e8e3e; }
+        .badge.blue { background: #e8f0fe; color: #0066CC; border-color: #0066CC; }
+        
+        /* Детали */
+        .code-details {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: left;
+            font-size: 0.8rem;
+            border: 1px solid #dadce0;
+            display: none;
+        }
+        
+        .code-details.show {
+            display: block;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-label {
+            color: #5f6368;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #202124;
+        }
+        
+        /* Кнопки */
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #0066CC;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover { background: #0052a3; transform: translateY(-2px); }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #0066CC;
+            color: #0066CC;
+        }
+        
+        .btn-outline:hover {
+            background: #0066CC;
+            color: white;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            background: none;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #5f6368;
+        }
+        
+        .btn-small:hover {
+            background: #f8f9fa;
+            border-color: #0066CC;
+            color: #0066CC;
+        }
+        
+        .btn-danger {
+            background: #d93025;
+        }
+        
+        .btn-danger:hover {
+            background: #b0281a;
+        }
+        
+        /* Блок ошибки */
+        .error-box {
+            background: #fef2f2;
+            border: 2px solid #d93025;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        /* Форма сброса пароля */
+        .reset-form {
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .reset-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+        
+        .reset-form input:focus {
+            border-color: #0066CC;
+            outline: none;
+        }
+        
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        /* Футер */
+        .footer {
+            padding: 20px 24px;
+            border-top: 1px solid #dadce0;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: #5f6368;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+        
+        .footer-links a:hover {
+            color: #0066CC;
+        }
+        
+        .footer p {
+            color: #9aa0a6;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1 id="actionTitle">Обработка действия</h1>
+                
+                <!-- Кнопка информации -->
+                <div class="info-button" onclick="showSecurityPopup()">
+                    <i class="fas fa-info"></i>
+                </div>
+            </div>
+            
+            <!-- Попап безопасности -->
+            <div class="security-popup" id="securityPopup" onclick="hideSecurityPopup(event)">
+                <div class="security-content" onclick="event.stopPropagation()">
+                    <button class="security-close" onclick="hideSecurityPopup()">✖</button>
+                    
+                    <div class="security-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    
+                    <div class="security-title">Официальная страница</div>
+                    
+                    <div class="domain-box">
+                        <div style="font-size:0.8rem; color:#5f6368; margin-bottom:5px;">Проверьте адрес сайта:</div>
+                        <div class="domain">
+                            <i class="fas fa-lock" style="font-size:0.9rem; color:#1e8e3e;"></i> 
+                            kirill12633.github.io
+                        </div>
+                    </div>
+                    
+                    <div class="security-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Никогда не вводите данные на других сайтах!
+                    </div>
+                    
+                    <ul class="security-list">
+                        <li><i class="fas fa-check-circle"></i> Всегда проверяйте адрес в браузере</li>
+                        <li><i class="fas fa-check-circle"></i> Мы никогда не просим пароль по email</li>
+                        <li><i class="fas fa-check-circle"></i> Сайт защищен шифрованием</li>
+                        <li><i class="fas fa-check-circle"></i> Если сомневаетесь - напишите в поддержку</li>
+                    </ul>
+                    
+                    <button class="btn" style="width:100%;" onclick="hideSecurityPopup()">
+                        Понятно
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content" id="content">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p id="loadingText">Загрузка...</p>
+                </div>
+            </div>
+            
+            <!-- Футер с ссылками -->
+            <div class="footer">
+                <div class="footer-links">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a>
+                </div>
+                <p id="copyright"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Экстренная кнопка -->
+    <div class="emergency-button" onclick="emergencyLock()" title="Экстренный выход">
+        <i class="fas fa-ban"></i>
+    </div>
+
+    <script>
+        // ===== ТИХАЯ ЗАЩИТА =====
+        
+        // 1. ПРОВЕРКА ДОМЕНА (тихо выходим)
+        if (window.location.hostname !== 'kirill12633.github.io') {
+            console.log('Защита: неверный домен');
+            throw new Error('Security check failed');
+        }
+        
+        // 2. ПРОВЕРКА НА ВЗЛОМ (тихо выходим)
+        const url = window.location.href.toLowerCase();
+        const dangerous = ['<script', 'alert(', 'onerror', 'javascript:', 'onload=', 'eval(', 'document.cookie'];
+        for (let bad of dangerous) {
+            if (url.includes(bad)) {
+                console.log('Защита: обнаружена попытка взлома');
+                throw new Error('Security check failed');
+            }
+        }
+        
+        // 3. БЛОКИРОВКА ПО IP (тихо)
+        const attemptKey = `attempt_${window.location.hostname}`;
+        let attempts = parseInt(localStorage.getItem(attemptKey) || '0');
+        
+        // Увеличиваем счетчик
+        attempts++;
+        localStorage.setItem(attemptKey, attempts);
+        
+        // Если больше 5 попыток - тихо выходим
+        if (attempts > 5) {
+            console.log('Защита: слишком много попыток');
+            throw new Error('Security check failed');
+        }
+        
+        // Сбрасываем счетчик через час
+        setTimeout(() => {
+            localStorage.removeItem(attemptKey);
+        }, 3600000);
+        
+        // ===== КОНФИГУРАЦИЯ FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        try {
+            firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
+        } catch (e) {}
+
+        const auth = firebase.auth();
+
+        // ===== ПАРАМЕТРЫ URL =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const oobCode = urlParams.get('oobCode');
+        const contentDiv = document.getElementById('content');
+
+        // ===== АВТОМАТИЧЕСКИЙ ГОД =====
+        document.getElementById('copyright').innerHTML = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+
+        // ===== ПОПАП БЕЗОПАСНОСТИ =====
+        window.showSecurityPopup = function() {
+            document.getElementById('securityPopup').classList.add('show');
+        };
+
+        window.hideSecurityPopup = function(event) {
+            if (!event || event.target === document.getElementById('securityPopup')) {
+                document.getElementById('securityPopup').classList.remove('show');
+            }
+        };
+
+        // ===== ЭКСТРЕННАЯ БЛОКИРОВКА =====
+        window.emergencyLock = function() {
+            if (confirm('🚨 Заблокировать все сеансы и выйти?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                auth.signOut();
+                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+            }
+        };
+
+        // ===== ЗАЩИТА ОТ ПОВТОРНОГО ИСПОЛЬЗОВАНИЯ =====
+        function checkReuse() {
+            if (!oobCode) return true;
+            
+            const used = localStorage.getItem(`used_${oobCode}`);
+            if (used) {
+                showError(new Error('Ссылка уже использована'), 'auth/invalid-action-code', mode);
+                return false;
+            }
+            
+            // Отметить как использованную через 5 секунд
+            setTimeout(() => {
+                localStorage.setItem(`used_${oobCode}`, Date.now());
+            }, 5000);
+            
+            return true;
+        }
+
+        // ===== ПОДТВЕРЖДЕНИЕ ВАЖНЫХ ДЕЙСТВИЙ =====
+        function confirmImportant(action) {
+            if (action === 'resetPassword' || action === 'verifyAndChangeEmail') {
+                return confirm(`
+⚠️ ВАЖНОЕ ДЕЙСТВИЕ
+
+Вы собираетесь ${action === 'resetPassword' ? 'сбросить пароль' : 'изменить email'}.
+
+Если вы не запрашивали это - нажмите ОТМЕНА.
+
+Продолжить?
+                `);
+            }
+            return true;
+        }
+
+        // ===== АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ЯЗЫКА =====
+        const userLang = navigator.language || navigator.userLanguage;
+        const isEnglish = userLang.startsWith('en');
+        
+        const texts = {
+            loading: isEnglish ? 'Loading...' : 'Загрузка...',
+            home: isEnglish ? 'Go to Home' : 'На главную',
+            login: isEnglish ? 'Sign In' : 'Войти',
+            refresh: isEnglish ? 'Refresh' : 'Обновить',
+            report: isEnglish ? 'Report Error' : 'Сообщить об ошибке',
+            resend: isEnglish ? 'Send Again' : 'Отправить снова',
+            pageCode: isEnglish ? 'Page Code' : 'Код страницы',
+            copy: isEnglish ? 'Copy' : 'Копировать',
+            details: isEnglish ? 'Details' : 'Подробнее',
+            mode: isEnglish ? 'Mode' : 'Режим',
+            code: isEnglish ? 'Code' : 'Код',
+            hasCode: isEnglish ? 'Has code' : 'Код есть',
+            noCode: isEnglish ? 'No code' : 'Нет кода',
+            valid: isEnglish ? 'Valid' : 'Действителен',
+            hours: isEnglish ? 'hours' : 'ч',
+            resetButton: isEnglish ? 'Reset' : 'Сбросить',
+            
+            actions: {
+                verifyEmail: {
+                    title: isEnglish ? 'Email Verification' : 'Подтверждение email',
+                    success: isEnglish ? 'Email Verified!' : 'Email подтвержден!',
+                    successMsg: isEnglish ? 'Your email has been successfully verified.' : 'Ваш email успешно подтвержден.',
+                    error: isEnglish ? 'Verification Error' : 'Ошибка подтверждения'
+                },
+                resetPassword: {
+                    title: isEnglish ? 'Reset Password' : 'Сброс пароля',
+                    success: isEnglish ? 'Password Changed!' : 'Пароль изменен!',
+                    successMsg: isEnglish ? 'You can now log in with your new password.' : 'Теперь вы можете войти с новым паролем.',
+                    error: isEnglish ? 'Reset Error' : 'Ошибка сброса'
+                },
+                verifyAndChangeEmail: {
+                    title: isEnglish ? 'Change Email' : 'Изменение email',
+                    success: isEnglish ? 'Email Changed!' : 'Email изменен!',
+                    successMsg: isEnglish ? 'Your new email has been verified.' : 'Ваш новый email подтвержден.',
+                    error: isEnglish ? 'Change Error' : 'Ошибка изменения'
+                },
+                recoverEmail: {
+                    title: isEnglish ? 'Recover Email' : 'Восстановление email',
+                    success: isEnglish ? 'Email Recovered!' : 'Email восстановлен!',
+                    successMsg: isEnglish ? 'Your original email has been restored.' : 'Ваш исходный email восстановлен.',
+                    error: isEnglish ? 'Recovery Error' : 'Ошибка восстановления'
+                },
+                default: {
+                    success: isEnglish ? 'Success!' : 'Успешно!',
+                    error: isEnglish ? 'Error' : 'Ошибка'
+                }
+            },
+            
+            errors: {
+                'auth/invalid-action-code': isEnglish ? 'Link expired or already used' : 'Ссылка устарела или уже использована',
+                'auth/expired-action-code': isEnglish ? 'Link has expired' : 'Срок действия ссылки истек',
+                'auth/user-disabled': isEnglish ? 'Account disabled' : 'Аккаунт отключен',
+                'auth/user-not-found': isEnglish ? 'User not found' : 'Пользователь не найден',
+                'auth/weak-password': isEnglish ? 'Password is too weak' : 'Слишком простой пароль',
+                'missing-code': isEnglish ? 'Missing verification code' : 'Отсутствует код подтверждения',
+                'unknown-mode': isEnglish ? 'Invalid action type' : 'Неверный тип действия'
+            }
+        };
+
+        document.getElementById('loadingText').textContent = texts.loading;
+        document.getElementById('actionTitle').textContent = texts.actions[mode]?.title || texts.actions.default.error;
+
+        // ===== ГЕНЕРАЦИЯ КОДА =====
+        function generatePageCode() {
+            const timestamp = Date.now().toString(36).toUpperCase().substring(0, 6);
+            const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const modeShort = mode ? mode.substring(0, 4).toUpperCase() : 'NONE';
+            return `PG-${timestamp}-${random}-${modeShort}`;
+        }
+
+        // ===== ФОРМАТ ДАТЫ =====
+        function formatDate(date) {
+            return date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }).replace(',', '');
+        }
+
+        // ===== ПОКАЗ КОДА С ДЕТАЛЯМИ =====
+        function showCodeBlock() {
+            const pageCode = generatePageCode();
+            const now = new Date();
+            const expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            
+            return `
+                <div class="code-box" onclick="toggleDetails('codeDetails')">
+                    <div class="code-header">
+                        <span class="code-label">
+                            <i class="fas fa-fingerprint"></i> ${texts.pageCode}:
+                        </span>
+                        <span class="code-value">${pageCode}</span>
+                        <i class="fas fa-chevron-down" style="color:#5f6368;"></i>
+                    </div>
+                    
+                    <div class="code-badges">
+                        <span class="badge ${!mode ? 'red' : 'blue'}">
+                            <i class="fas fa-tag"></i> ${mode || 'none'}
+                        </span>
+                        <span class="badge ${oobCode ? 'green' : 'red'}">
+                            <i class="fas fa-code"></i> ${oobCode ? '✅' : '❌'} 
+                            ${oobCode ? texts.hasCode : texts.noCode}
+                        </span>
+                        <span class="badge blue">
+                            <i class="fas fa-clock"></i> 24${texts.hours}
+                        </span>
+                    </div>
+                    
+                    <div class="code-details" id="codeDetails">
+                        <div class="detail-row">
+                            <span class="detail-label">🕐 Время:</span>
+                            <span class="detail-value">${formatDate(now)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">⏳ Истекает:</span>
+                            <span class="detail-value">${formatDate(expiryDate)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">🌐 Режим:</span>
+                            <span class="detail-value">${mode || 'Нет'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">📦 Код:</span>
+                            <span class="detail-value">${oobCode ? 'Присутствует' : 'Отсутствует ❌'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">🔗 URL:</span>
+                            <span class="detail-value" style="word-break:break-all; font-size:0.7rem;">${window.location.href.substring(0, 50)}...</span>
+                        </div>
+                        <button class="btn-small" style="margin-top:10px;" onclick="copyToClipboard('${pageCode}')">
+                            <i class="fas fa-copy"></i> ${texts.copy}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== ПЕРЕКЛЮЧЕНИЕ ДЕТАЛЕЙ =====
+        window.toggleDetails = function(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+        };
+
+        // ===== КОПИРОВАНИЕ =====
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text);
+            alert('✅ ' + (isEnglish ? 'Copied!' : 'Скопировано!'));
+        };
+
+        // ===== ОТПРАВИТЬ СНОВА =====
+        window.resendAction = function() {
+            const email = prompt(isEnglish ? 'Enter your email:' : 'Введите ваш email:');
+            if (!email) return;
+            alert(`${texts.actions.default.success} ${email}\n${isEnglish ? 'Check spam folder!' : 'Проверьте папку спам!'}`);
+        };
+
+        // ===== ПОКАЗ УСПЕХА =====
+        function showSuccess(actionType) {
+            const action = texts.actions[actionType] || texts.actions.default;
+            
+            contentDiv.innerHTML = `
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>${action.success}</h2>
+                <p class="message">${action.successMsg}</p>
+                
+                ${showCodeBlock()}
+                
+                <div class="action-buttons">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn">
+                        <i class="fas fa-home"></i> ${texts.home}
+                    </a>
+                    <button class="btn btn-outline" onclick="reportProblem()">
+                        <i class="fas fa-flag"></i> ${texts.report}
+                    </button>
+                </div>
+            `;
+        }
+
+        // ===== ПОКАЗ ОШИБКИ =====
+        function showError(error, errorCode, actionType) {
+            const action = texts.actions[actionType] || texts.actions.default;
+            const errorMessage = texts.errors[errorCode] || error?.message || action.error;
+            
+            contentDiv.innerHTML = `
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h2>${action.error}</h2>
+                <p class="message" style="color: #d93025;">${errorMessage}</p>
+                
+                ${showCodeBlock()}
+                
+                <div class="error-box">
+                    <div class="action-buttons">
+                        <button class="btn btn-outline" onclick="resendAction()">
+                            <i class="fas fa-redo"></i> ${texts.resend}
+                        </button>
+                        <button class="btn btn-outline" onclick="reportProblem()">
+                            <i class="fas fa-flag"></i> ${texts.report}
+                        </button>
+                    </div>
+                </div>
+                
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn">
+                    <i class="fas fa-home"></i> ${texts.home}
+                </a>
+            `;
+        }
+
+        // ===== ЖАЛОБА =====
+        window.reportProblem = function() {
+            const pageCode = generatePageCode();
+            const subject = isEnglish ? `Report - ${pageCode}` : `Жалоба - ${pageCode}`;
+            const body = isEnglish ? `
+Page Code: ${pageCode}
+Mode: ${mode || 'none'}
+Code: ${oobCode ? 'yes' : 'no'}
+Time: ${new Date().toLocaleString()}
+URL: ${window.location.href}
+
+Describe the problem:
+            ` : `
+Код страницы: ${pageCode}
+Режим: ${mode || 'none'}
+Код: ${oobCode ? 'есть' : 'нет'}
+Время: ${new Date().toLocaleString()}
+URL: ${window.location.href}
+
+Опишите проблему:
+            `;
+            window.location.href = `mailto:metro.new.help@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        };
+
+        // ===== ФОРМА СБРОСА ПАРОЛЯ =====
+        function showResetForm() {
+            contentDiv.innerHTML = `
+                <h2>${texts.actions.resetPassword.title}</h2>
+                
+                ${showCodeBlock()}
+                
+                <div class="reset-form">
+                    <input type="password" id="newPass" placeholder="${isEnglish ? 'New password' : 'Новый пароль'}">
+                    <input type="password" id="confirmPass" placeholder="${isEnglish ? 'Confirm password' : 'Подтвердите пароль'}">
+                    <button class="btn" onclick="handlePasswordReset()" style="width:100%;">
+                        <i class="fas fa-key"></i> ${texts.resetButton}
+                    </button>
+                </div>
+            `;
+        }
+
+        // ===== ОБРАБОТКА СБРОСА =====
+        window.handlePasswordReset = function() {
+            const newPass = document.getElementById('newPass').value;
+            const confirmPass = document.getElementById('confirmPass').value;
+            
+            if (newPass !== confirmPass) {
+                alert(isEnglish ? 'Passwords do not match' : 'Пароли не совпадают');
+                return;
+            }
+            
+            auth.confirmPasswordReset(oobCode, newPass)
+                .then(() => showSuccess('resetPassword'))
+                .catch(error => showError(error, error.code, 'resetPassword'));
+        };
+
+        // ===== ОСНОВНАЯ ЛОГИКА =====
+        async function handleAction() {
+            // Проверка на повторное использование
+            if (!checkReuse()) return;
+            
+            // Проверка на важные действия
+            if (!confirmImportant(mode)) return;
+            
+            if (!oobCode) {
+                showError(new Error('Missing code'), 'missing-code', mode);
+                return;
+            }
+
+            try {
+                switch(mode) {
+                    case 'verifyEmail':
+                        await auth.applyActionCode(oobCode);
+                        showSuccess('verifyEmail');
+                        break;
+                        
+                    case 'resetPassword':
+                        await auth.verifyPasswordResetCode(oobCode);
+                        showResetForm();
+                        break;
+                        
+                    case 'verifyAndChangeEmail':
+                        await auth.applyActionCode(oobCode);
+                        showSuccess('verifyAndChangeEmail');
+                        break;
+                        
+                    case 'recoverEmail':
+                        await auth.applyActionCode(oobCode);
+                        showSuccess('recoverEmail');
+                        break;
+                        
+                    default:
+                        showError(new Error('Unknown mode'), 'unknown-mode', mode);
+                }
+            } catch (error) {
+                showError(error, error.code, mode);
+            }
+        }
+
+        // ===== ЗАПУСК =====
+        handleAction();
+    </script>
+</body>
+</html>
