@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки - Метро New</title>
+    
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            padding: 30px 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #202124;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 24px;
+        }
+        
+        /* Профиль */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .profile-info h3 {
+            color: #202124;
+            margin-bottom: 5px;
+        }
+        
+        .profile-info p {
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .badge.verified {
+            background: #e6f4ea;
+            color: #1e8e3e;
+        }
+        
+        .badge.unverified {
+            background: #fef2f2;
+            color: #d93025;
+        }
+        
+        /* Настройки */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #0066CC;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .setting-item:hover {
+            background: #e8f0fe;
+        }
+        
+        .setting-info {
+            flex: 1;
+        }
+        
+        .setting-name {
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+        
+        .setting-desc {
+            font-size: 0.85rem;
+            color: #5f6368;
+        }
+        
+        .setting-value {
+            color: #0066CC;
+            font-weight: 500;
+            margin-right: 15px;
+        }
+        
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #0066CC;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Кнопки */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #0066CC;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #0066CC;
+            color: #0066CC;
+        }
+        
+        .btn-outline:hover {
+            background: #0066CC;
+            color: white;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: #d93025;
+        }
+        
+        .btn-danger:hover {
+            background: #b0281a;
+        }
+        
+        /* Уведомления */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .message.show {
+            display: block;
+        }
+        
+        .message.success {
+            background: #e6f4ea;
+            border: 1px solid #1e8e3e;
+            color: #1e8e3e;
+        }
+        
+        .message.error {
+            background: #fef2f2;
+            border: 1px solid #d93025;
+            color: #d93025;
+        }
+        
+        /* Языки */
+        .lang-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .lang-btn {
+            padding: 8px 16px;
+            border: 2px solid #dadce0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .lang-btn.active {
+            background: #0066CC;
+            color: white;
+            border-color: #0066CC;
+        }
+        
+        /* Футер */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #9aa0a6;
+            font-size: 0.8rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #5f6368;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: #0066CC;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn btn-small">
+                <i class="fas fa-home"></i> На главную
+            </a>
+            <a href="https://kirill12633.github.io/Metro.New.Official/auth/send-actions.html" class="btn btn-small btn-outline">
+                <i class="fas fa-envelope"></i> Отправка писем
+            </a>
+        </div>
+        
+        <!-- Основная карточка -->
+        <div class="card">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1>Настройки аккаунта</h1>
+            </div>
+            
+            <div class="content">
+                <!-- Сообщения -->
+                <div id="message" class="message"></div>
+                
+                <!-- Профиль (загружается динамически) -->
+                <div id="profileSection">
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="spinner" style="border-top-color: #0066CC; width: 40px; height: 40px; border-width: 3px; margin: 0 auto;"></div>
+                        <p style="color: #5f6368; margin-top: 10px;">Загрузка профиля...</p>
+                    </div>
+                </div>
+                
+                <!-- Настройки (показываются только если пользователь вошел) -->
+                <div id="settingsSection" style="display: none;">
+                    
+                    <!-- Язык -->
+                    <div class="settings-section">
+                        <div class="section-title">
+                            <i class="fas fa-language"></i> Язык интерфейса
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-name">Выберите язык</div>
+                                <div class="setting-desc">Интерфейс будет отображаться на выбранном языке</div>
+                            </div>
+                            <div class="lang-buttons">
+                                <button class="lang-btn" id="langRu" onclick="setLanguage('ru')">Русский</button>
+                                <button class="lang-btn" id="langEn" onclick="setLanguage('en')">English</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Уведомления -->
+                    <div class="settings-section">
+                        <div class="section-title">
+                            <i class="fas fa-bell"></i> Уведомления
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-name">Email уведомления</div>
+                                <div class="setting-desc">Получать уведомления о важных событиях</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" onchange="saveSetting('emailNotifications', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-name">Уведомления о входе</div>
+                                <div class="setting-desc">При входе с нового устройства</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="loginNotifications" onchange="saveSetting('loginNotifications', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Безопасность -->
+                    <div class="settings-section">
+                        <div class="section-title">
+                            <i class="fas fa-shield-alt"></i> Безопасность
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-name">Сменить пароль</div>
+                                <div class="setting-desc">Обновить пароль для входа</div>
+                            </div>
+                            <button class="btn-small btn-outline" onclick="changePassword()">
+                                <i class="fas fa-key"></i> Сменить
+                            </button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-name">Сменить email</div>
+                                <div class="setting-desc">Изменить адрес электронной почты</div>
+                            </div>
+                            <button class="btn-small btn-outline" onclick="changeEmail()">
+                                <i class="fas fa-envelope"></i> Сменить
+                            </button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-name">История входов</div>
+                                <div class="setting-desc">Просмотр последних входов в аккаунт</div>
+                            </div>
+                            <button class="btn-small btn-outline" onclick="showLoginHistory()">
+                                <i class="fas fa-history"></i> Смотреть
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Опасная зона -->
+                    <div class="settings-section">
+                        <div class="section-title" style="color: #d93025;">
+                            <i class="fas fa-exclamation-triangle"></i> Опасная зона
+                        </div>
+                        
+                        <div class="setting-item" style="border: 2px solid #d93025;">
+                            <div class="setting-info">
+                                <div class="setting-name" style="color: #d93025;">Удалить аккаунт</div>
+                                <div class="setting-desc">Это действие нельзя отменить</div>
+                            </div>
+                            <button class="btn-small btn-danger" onclick="deleteAccount()">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Выход -->
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn btn-outline" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Не авторизован -->
+                <div id="notLoggedIn" style="text-align: center; padding: 40px 20px; display: none;">
+                    <i class="fas fa-user-lock" style="font-size: 48px; color: #9aa0a6; margin-bottom: 20px;"></i>
+                    <h3 style="color: #202124; margin-bottom: 10px;">Вы не вошли в аккаунт</h3>
+                    <p style="color: #5f6368; margin-bottom: 20px;">Войдите, чтобы управлять настройками</p>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/auth/send-actions.html" class="btn">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Футер -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a>
+            </div>
+            <p id="copyright">© 2026 Метро New. Все права защищены.</p>
+        </div>
+    </div>
+
+    <script>
+        // ===== КОНФИГУРАЦИЯ FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        
+        try {
+            firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
+        } catch (e) {}
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ===== ЭЛЕМЕНТЫ =====
+        const profileSection = document.getElementById('profileSection');
+        const settingsSection = document.getElementById('settingsSection');
+        const notLoggedIn = document.getElementById('notLoggedIn');
+        const messageDiv = document.getElementById('message');
+
+        // ===== АВТОМАТИЧЕСКИЙ ГОД =====
+        document.getElementById('copyright').innerHTML = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+
+        // ===== ПОКАЗ СООБЩЕНИЙ =====
+        function showMessage(text, type = 'success') {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 3000);
+        }
+
+        // ===== ЗАГРУЗКА ПРОФИЛЯ =====
+        function loadProfile(user) {
+            const initial = user.email ? user.email[0].toUpperCase() : 'U';
+            
+            profileSection.innerHTML = `
+                <div class="profile-section">
+                    <div class="profile-avatar">${initial}</div>
+                    <div class="profile-info">
+                        <h3>${user.email || 'Пользователь'}</h3>
+                        <p>UID: ${user.uid.substring(0, 8)}...</p>
+                        <span class="badge ${user.emailVerified ? 'verified' : 'unverified'}">
+                            ${user.emailVerified ? '✅ Email подтвержден' : '❌ Email не подтвержден'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== ЗАГРУЗКА НАСТРОЕК =====
+        function loadSettings() {
+            // Язык
+            const savedLang = localStorage.getItem('metroLang') || 'ru';
+            document.getElementById('langRu').classList.toggle('active', savedLang === 'ru');
+            document.getElementById('langEn').classList.toggle('active', savedLang === 'en');
+            
+            // Уведомления
+            document.getElementById('emailNotifications').checked = 
+                localStorage.getItem('emailNotifications') !== 'false';
+            document.getElementById('loginNotifications').checked = 
+                localStorage.getItem('loginNotifications') !== 'false';
+        }
+
+        // ===== СОХРАНЕНИЕ НАСТРОЕК =====
+        window.saveSetting = function(key, value) {
+            localStorage.setItem(key, value);
+            showMessage('Настройка сохранена');
+        };
+
+        // ===== СМЕНА ЯЗЫКА =====
+        window.setLanguage = function(lang) {
+            localStorage.setItem('metroLang', lang);
+            document.getElementById('langRu').classList.toggle('active', lang === 'ru');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            showMessage(`Язык изменен на ${lang === 'ru' ? 'русский' : 'английский'}`);
+            
+            // Здесь можно перезагрузить страницу для применения
+            setTimeout(() => location.reload(), 1000);
+        };
+
+        // ===== СМЕНА ПАРОЛЯ =====
+        window.changePassword = function() {
+            const email = auth.currentUser?.email;
+            if (!email) return;
+            
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showMessage('Письмо для сброса пароля отправлено на почту');
+                })
+                .catch(error => {
+                    showMessage('Ошибка: ' + error.message, 'error');
+                });
+        };
+
+        // ===== СМЕНА EMAIL =====
+        window.changeEmail = function() {
+            const newEmail = prompt('Введите новый email:');
+            if (!newEmail) return;
+            
+            auth.currentUser.verifyBeforeUpdateEmail(newEmail)
+                .then(() => {
+                    showMessage('Письмо для подтверждения отправлено на ' + newEmail);
+                })
+                .catch(error => {
+                    showMessage('Ошибка: ' + error.message, 'error');
+                });
+        };
+
+        // ===== ИСТОРИЯ ВХОДОВ =====
+        window.showLoginHistory = function() {
+            const history = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+            
+            if (history.length === 0) {
+                alert('История входов пуста');
+                return;
+            }
+            
+            let text = '📋 Последние входы:\n\n';
+            history.forEach(item => {
+                text += `${item.time}\n${item.device}\n${item.success ? '✅' : '❌'}\n\n`;
+            });
+            
+            alert(text);
+        };
+
+        // ===== УДАЛЕНИЕ АККАУНТА =====
+        window.deleteAccount = function() {
+            if (!confirm('⚠️ ВНИМАНИЕ! Вы точно хотите удалить аккаунт? Это действие нельзя отменить.')) {
+                return;
+            }
+            
+            if (!confirm('Еще раз подтвердите: удалить аккаунт?')) {
+                return;
+            }
+            
+            auth.currentUser.delete()
+                .then(() => {
+                    showMessage('Аккаунт удален');
+                    setTimeout(() => location.reload(), 2000);
+                })
+                .catch(error => {
+                    showMessage('Ошибка: ' + error.message, 'error');
+                });
+        };
+
+        // ===== ВЫХОД =====
+        window.logout = function() {
+            auth.signOut()
+                .then(() => {
+                    showMessage('Вы вышли из аккаунта');
+                    setTimeout(() => location.reload(), 1000);
+                });
+        };
+
+        // ===== ОТСЛЕЖИВАНИЕ СОСТОЯНИЯ =====
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Сохраняем в историю
+                const history = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+                history.unshift({
+                    time: new Date().toLocaleString(),
+                    device: navigator.userAgent.substring(0, 30),
+                    success: true
+                });
+                localStorage.setItem('loginHistory', JSON.stringify(history.slice(0,10)));
+                
+                // Показываем профиль и настройки
+                loadProfile(user);
+                loadSettings();
+                
+                profileSection.style.display = 'block';
+                settingsSection.style.display = 'block';
+                notLoggedIn.style.display = 'none';
+            } else {
+                // Показываем "не авторизован"
+                profileSection.style.display = 'none';
+                settingsSection.style.display = 'none';
+                notLoggedIn.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
