@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подтверждение email - Метро New</title>
+    <title>Метро New - Обработка действия</title>
     
     <!-- Иконки -->
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
     <!-- Шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,13 +15,10 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Montserrat', sans-serif;
@@ -31,7 +27,6 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
         }
         
@@ -53,7 +48,6 @@
             padding: 30px 24px;
             text-align: center;
             color: white;
-            border-bottom: 1px solid #dadce0;
         }
         
         .logo {
@@ -75,20 +69,18 @@
             color: #202124;
             font-weight: bold;
             font-size: 1.5rem;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         
         .logo-text {
             font-size: 1.8rem;
             font-weight: 700;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
         .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 500;
+            opacity: 0.9;
         }
         
         .content {
@@ -96,7 +88,6 @@
             text-align: center;
         }
         
-        /* Анимация загрузки */
         .loading-spinner {
             margin: 30px 0;
         }
@@ -116,117 +107,28 @@
             100% { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            color: #5f6368;
-            font-size: 1rem;
-            margin-top: 15px;
-        }
+        .success-icon { font-size: 64px; color: #1e8e3e; margin-bottom: 20px; }
+        .error-icon { font-size: 64px; color: #d93025; margin-bottom: 20px; }
+        .warning-icon { font-size: 64px; color: #fbbc04; margin-bottom: 20px; }
         
-        /* Иконки результатов */
-        .success-icon {
-            font-size: 64px;
-            color: #1e8e3e;
-            margin-bottom: 20px;
-        }
+        h2 { color: #202124; margin-bottom: 15px; font-size: 1.5rem; }
+        .message { color: #5f6368; line-height: 1.6; margin: 20px 0; }
         
-        .error-icon {
-            font-size: 64px;
-            color: #d93025;
-            margin-bottom: 20px;
-        }
-        
-        .warning-icon {
-            font-size: 64px;
-            color: #fbbc04;
-            margin-bottom: 20px;
-        }
-        
-        /* Тексты */
-        h2 {
-            color: #202124;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .message {
-            color: #5f6368;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin: 20px 0;
-        }
-        
-        /* Блок ошибки с репортом */
-        .error-box {
-            background: #fef2f2;
-            border: 2px solid #d93025;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
-            text-align: left;
-        }
-        
-        .error-code {
-            background: white;
-            border: 1px solid #d93025;
-            border-radius: 6px;
-            padding: 12px;
-            margin: 15px 0;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: #d93025;
-            word-break: break-all;
-        }
-        
-        .error-details {
-            background: white;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 0.9rem;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #dadce0;
-        }
-        
-        .error-details pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: #5f6368;
-        }
-        
-        .report-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        
-        /* Кнопки */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+            display: inline-block;
             padding: 12px 30px;
             background: #0066CC;
             color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 1rem;
             border: none;
             cursor: pointer;
-            transition: all 0.3s;
             margin: 5px;
+            transition: all 0.3s;
         }
         
-        .btn:hover {
-            background: #0052a3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
-        }
+        .btn:hover { background: #0052a3; transform: translateY(-2px); }
         
         .btn-outline {
             background: transparent;
@@ -239,590 +141,282 @@
             color: white;
         }
         
-        .btn-danger {
-            background: #d93025;
+        .reset-form {
+            text-align: left;
+            margin: 20px 0;
         }
         
-        .btn-danger:hover {
-            background: #b0281a;
-        }
-        
-        .btn-warning {
-            background: #fbbc04;
-            color: #202124;
-        }
-        
-        .btn-warning:hover {
-            background: #f9ab00;
-        }
-        
-        /* Информационные блоки */
-        .info-box {
-            background: #f8f9fa;
-            border: 1px solid #dadce0;
+        .reset-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dadce0;
             border-radius: 8px;
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+        
+        .reset-form input:focus {
+            border-color: #0066CC;
+            outline: none;
+        }
+        
+        .error-box {
+            background: #fef2f2;
+            border: 2px solid #d93025;
+            border-radius: 12px;
             padding: 20px;
-            margin: 25px 0;
+            margin: 20px 0;
             text-align: left;
         }
         
-        .info-title {
-            color: #0066CC;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .info-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .info-list li {
-            color: #5f6368;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .info-list i {
-            color: #0066CC;
-            width: 20px;
-        }
-        
-        /* Социальные ссылки */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .social-link {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f8f9fa;
-            border: 1px solid #dadce0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #5f6368;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .social-link:hover {
-            background: #0066CC;
-            color: white;
-            border-color: #0066CC;
-            transform: translateY(-3px);
-        }
-        
-        /* Футер */
         .footer {
             padding: 20px 24px;
             border-top: 1px solid #dadce0;
             text-align: center;
             background: #f8f9fa;
-        }
-        
-        .footer p {
+            font-size: 0.75rem;
             color: #9aa0a6;
-            font-size: 0.75rem;
-            margin: 5px 0;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: #5f6368;
-            text-decoration: none;
-            font-size: 0.75rem;
-        }
-        
-        .footer-links a:hover {
-            color: #0066CC;
-        }
-        
-        /* Адаптация */
-        @media (max-width: 480px) {
-            .header {
-                padding: 20px 15px;
-            }
-            
-            .logo-text {
-                font-size: 1.5rem;
-            }
-            
-            .content {
-                padding: 24px 15px;
-            }
-            
-            h2 {
-                font-size: 1.3rem;
-            }
-            
-            .btn {
-                display: block;
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .report-buttons {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <!-- Шапка -->
             <div class="header">
                 <div class="logo">
                     <div class="logo-icon">M</div>
                     <div class="logo-text">Метро New</div>
                 </div>
-                <h1 id="headerTitle">Подтверждение email</h1>
-                
-                <!-- Индикатор языка (маленький) -->
-                <div style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">
-                    <span id="languageIndicator">RU</span>
-                </div>
+                <h1 id="actionTitle">Обработка запроса</h1>
             </div>
             
-            <!-- Контент (будет заполнен динамически) -->
             <div class="content" id="content">
                 <div class="loading-spinner">
                     <div class="spinner"></div>
-                    <p class="loading-text" id="loadingText">Обработка подтверждения...</p>
+                    <p id="loadingText">Загрузка...</p>
                 </div>
             </div>
             
-            <!-- Футер с автоматическим годом -->
             <div class="footer">
-                <div class="footer-links">
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" id="privacyLink">Политика конфиденциальности</a>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" id="termsLink">Пользовательское соглашение</a>
-                </div>
-                <p id="copyright">© 2026 Метро New. Все права защищены.</p>
-                <p id="version">Версия 2.0.1</p>
+                <p id="copyright"></p>
             </div>
         </div>
     </div>
 
     <script>
-        // ===== МУЛЬТИЯЗЫЧНОСТЬ - АВТОМАТИЧЕСКИЙ ВЫБОР =====
-        const translations = {
-            ru: {
-                // Заголовки
-                headerTitle: "Подтверждение email",
-                loading: "Обработка подтверждения...",
-                
-                // Успех
-                successTitle: "Email успешно подтвержден!",
-                successMessage: "Спасибо! Ваш email подтвержден. Теперь у вас есть полный доступ ко всем функциям проекта \"Метро New\".",
-                
-                // Что дальше
-                whatNext: "Что дальше?",
-                nextSignin: "Войти в аккаунт",
-                nextNews: "Изучить новости проекта",
-                nextCommunity: "Присоединиться к сообществу",
-                
-                // Кнопки
-                btnHome: "На главную",
-                btnNews: "Новости",
-                btnRefresh: "Обновить",
-                btnReport: "Сообщить об ошибке",
-                btnCopy: "Копировать код",
-                
-                // Ошибки
-                errorTitle: "Ошибка подтверждения",
-                unknownError: "Произошла неизвестная ошибка",
-                missingCode: "Отсутствует код подтверждения",
-                invalidMode: "Неверная ссылка",
-                invalidModeMessage: "Эта ссылка не предназначена для подтверждения email. Проверьте, правильно ли вы скопировали ссылку из письма.",
-                
-                // Репорт
-                pageCode: "Код страницы:",
-                errorDetails: "Детали ошибки:",
-                reportHint: "Код страницы поможет нам быстрее найти проблему",
-                
-                // Футер
-                privacy: "Политика конфиденциальности",
-                terms: "Пользовательское соглашение",
-                copyright: "© {year} Метро New. Все права защищены.",
-                version: "Версия 2.0.1",
-                lang: "RU"
-            },
-            
-            en: {
-                // Headers
-                headerTitle: "Email Verification",
-                loading: "Processing verification...",
-                
-                // Success
-                successTitle: "Email Successfully Verified!",
-                successMessage: "Thank you! Your email has been verified. Now you have full access to all features of the \"Metro New\" project.",
-                
-                // What's next
-                whatNext: "What's Next?",
-                nextSignin: "Sign in to your account",
-                nextNews: "Explore project news",
-                nextCommunity: "Join the community",
-                
-                // Buttons
-                btnHome: "Go to Home",
-                btnNews: "News",
-                btnRefresh: "Refresh",
-                btnReport: "Report Error",
-                btnCopy: "Copy Code",
-                
-                // Errors
-                errorTitle: "Verification Error",
-                unknownError: "An unknown error occurred",
-                missingCode: "Missing verification code",
-                invalidMode: "Invalid Link",
-                invalidModeMessage: "This link is not for email verification. Please check if you copied the link correctly from the email.",
-                
-                // Report
-                pageCode: "Page Code:",
-                errorDetails: "Error Details:",
-                reportHint: "Page code helps us find the issue faster",
-                
-                // Footer
-                privacy: "Privacy Policy",
-                terms: "Terms of Service",
-                copyright: "© {year} Metro New. All rights reserved.",
-                version: "Version 2.0.1",
-                lang: "EN"
-            }
+        // ===== КОНФИГУРАЦИЯ FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
 
-        // ===== АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ЯЗЫКА =====
-        function detectLanguage() {
-            // Сначала проверяем параметр в URL (можно переопределить)
-            const urlLang = new URLSearchParams(window.location.search).get('lang');
-            if (urlLang === 'en') return 'en';
-            if (urlLang === 'ru') return 'ru';
-            
-            // Определяем язык браузера
-            const browserLang = navigator.language.toLowerCase();
-            
-            // Проверяем, английский ли это
-            if (browserLang.startsWith('en')) {
-                return 'en';
-            }
-            
-            // По умолчанию русский
-            return 'ru';
-        }
-
-        // Выбираем язык
-        const currentLang = detectLanguage();
-        const t = translations[currentLang];
-
-        // ===== ПРИМЕНЯЕМ ПЕРЕВОДЫ К СТАТИЧЕСКИМ ЭЛЕМЕНТАМ =====
-        document.title = currentLang === 'en' ? 'Email Verification - Metro New' : 'Подтверждение email - Метро New';
-        document.getElementById('headerTitle').textContent = t.headerTitle;
-        document.getElementById('loadingText').textContent = t.loading;
-        document.getElementById('privacyLink').textContent = t.privacy;
-        document.getElementById('termsLink').textContent = t.terms;
-        document.getElementById('version').textContent = t.version;
+        firebase.initializeApp(firebaseConfig);
         
-        // Индикатор языка
-        const langIndicator = document.getElementById('languageIndicator');
-        if (langIndicator) {
-            langIndicator.textContent = t.lang;
-        }
+        try {
+            firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
+        } catch (e) {}
 
-        // Автоматический год
-        document.getElementById('copyright').innerHTML = t.copyright.replace('{year}', new Date().getFullYear());
+        const auth = firebase.auth();
 
-        // ===== ИНИЦИАЛИЗАЦИЯ FIREBASE =====
-        firebase.initializeApp({
-            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
-            authDomain: "metro-new-admin.firebaseapp.com",
-            projectId: "metro-new-admin"
-        });
-
-        // ===== ГЕНЕРАЦИЯ УНИКАЛЬНОГО КОДА СТРАНИЦЫ =====
-        function generatePageCode() {
-            const timestamp = Date.now().toString(36);
-            const random = Math.random().toString(36).substring(2, 8);
-            const urlCode = window.location.pathname.replace(/\//g, '-').substring(0, 20);
-            return `PG-${timestamp}-${random}-${urlCode}`.toUpperCase();
-        }
-
-        // ===== СБОР ЛОГОВ =====
-        function collectLogs(error, errorCode) {
-            const logs = {
-                pageCode: generatePageCode(),
-                timestamp: new Date().toISOString(),
-                url: window.location.href,
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                screenSize: `${window.innerWidth}x${window.innerHeight}`,
-                error: {
-                    code: errorCode || 'unknown',
-                    message: error?.message || 'Unknown error',
-                    stack: error?.stack || 'No stack'
-                },
-                firebase: {
-                    mode: new URLSearchParams(window.location.search).get('mode'),
-                    hasOobCode: !!new URLSearchParams(window.location.search).get('oobCode')
-                },
-                localStorage: {
-                    available: typeof localStorage !== 'undefined',
-                    length: localStorage?.length || 0
-                }
-            };
-            return logs;
-        }
-
-        // ===== ФУНКЦИЯ ДЛЯ РЕПОРТА В GMAIL =====
-        function reportError(error, errorCode) {
-            const logs = collectLogs(error, errorCode);
-            
-            // Формируем тело письма
-            const subject = `${currentLang === 'en' ? 'Error Report' : 'Репорт об ошибке'} - Email Verification - ${logs.pageCode}`;
-            
-            let body = currentLang === 'en' ? '=== ERROR REPORT ===\n\n' : '=== РЕПОРТ ОБ ОШИБКЕ ===\n\n';
-            body += `${currentLang === 'en' ? 'Page Code' : 'Код страницы'}: ${logs.pageCode}\n`;
-            body += `${currentLang === 'en' ? 'Time' : 'Время'}: ${logs.timestamp}\n\n`;
-            
-            body += currentLang === 'en' ? '=== INFORMATION ===\n' : '=== ИНФОРМАЦИЯ ===\n';
-            body += `${currentLang === 'en' ? 'Page' : 'Страница'}: Email Verification\n`;
-            body += `URL: ${logs.url}\n`;
-            body += `${currentLang === 'en' ? 'Browser' : 'Браузер'}: ${logs.userAgent}\n`;
-            body += `${currentLang === 'en' ? 'Language' : 'Язык'}: ${logs.language}\n`;
-            body += `${currentLang === 'en' ? 'Screen' : 'Экран'}: ${logs.screenSize}\n\n`;
-            
-            body += currentLang === 'en' ? '=== ERROR ===\n' : '=== ОШИБКА ===\n';
-            body += `${currentLang === 'en' ? 'Code' : 'Код'}: ${logs.error.code}\n`;
-            body += `${currentLang === 'en' ? 'Message' : 'Сообщение'}: ${logs.error.message}\n`;
-            body += `${currentLang === 'en' ? 'Stack' : 'Стек'}: ${logs.error.stack}\n\n`;
-            
-            body += currentLang === 'en' ? '=== FIREBASE ===\n' : '=== FIREBASE ===\n';
-            body += `Mode: ${logs.firebase.mode}\n`;
-            body += `OobCode: ${logs.firebase.hasOobCode ? (currentLang === 'en' ? 'Yes' : 'Да') : (currentLang === 'en' ? 'No' : 'Нет')}\n\n`;
-            
-            // Кодируем для URL
-            const mailtoLink = `mailto:metro.new.help@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            
-            // Открываем почту
-            window.location.href = mailtoLink;
-        }
-
-        // ===== ПОЛУЧАЕМ ПАРАМЕТРЫ ИЗ URL =====
+        // ===== ПАРАМЕТРЫ URL =====
         const urlParams = new URLSearchParams(window.location.search);
         const mode = urlParams.get('mode');
         const oobCode = urlParams.get('oobCode');
-
         const contentDiv = document.getElementById('content');
 
-        // ===== ФУНКЦИЯ ДЛЯ ПОКАЗА УСПЕХА =====
-        function showSuccess() {
+        // ===== АВТОМАТИЧЕСКИЙ ГОД =====
+        document.getElementById('copyright').innerHTML = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+
+        // ===== АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ЯЗЫКА =====
+        const userLang = navigator.language || navigator.userLanguage;
+        const isEnglish = userLang.startsWith('en');
+        
+        // Тексты
+        const texts = {
+            loading: isEnglish ? 'Loading...' : 'Загрузка...',
+            home: isEnglish ? 'Go to Home' : 'На главную',
+            login: isEnglish ? 'Sign In' : 'Войти',
+            refresh: isEnglish ? 'Refresh' : 'Обновить',
+            report: isEnglish ? 'Report Error' : 'Сообщить об ошибке',
+            pageCode: isEnglish ? 'Page Code:' : 'Код страницы:',
+            errorDetails: isEnglish ? 'Error Details:' : 'Детали ошибки:',
+            newPassword: isEnglish ? 'New Password' : 'Новый пароль',
+            confirmPassword: isEnglish ? 'Confirm Password' : 'Подтвердите пароль',
+            resetButton: isEnglish ? 'Reset Password' : 'Сбросить пароль',
+            passwordMismatch: isEnglish ? 'Passwords do not match' : 'Пароли не совпадают',
+            
+            actions: {
+                verifyEmail: {
+                    success: isEnglish ? 'Email Verified!' : 'Email подтвержден!',
+                    successMsg: isEnglish ? 'Your email has been successfully verified.' : 'Ваш email успешно подтвержден.',
+                    error: isEnglish ? 'Verification Error' : 'Ошибка подтверждения'
+                },
+                resetPassword: {
+                    success: isEnglish ? 'Password Changed!' : 'Пароль изменен!',
+                    successMsg: isEnglish ? 'You can now log in with your new password.' : 'Теперь вы можете войти с новым паролем.',
+                    error: isEnglish ? 'Reset Error' : 'Ошибка сброса'
+                },
+                verifyAndChangeEmail: {
+                    success: isEnglish ? 'Email Changed!' : 'Email изменен!',
+                    successMsg: isEnglish ? 'Your new email has been verified.' : 'Ваш новый email подтвержден.',
+                    error: isEnglish ? 'Change Error' : 'Ошибка изменения'
+                },
+                recoverEmail: {
+                    success: isEnglish ? 'Email Recovered!' : 'Email восстановлен!',
+                    successMsg: isEnglish ? 'Your original email has been restored.' : 'Ваш исходный email восстановлен.',
+                    error: isEnglish ? 'Recovery Error' : 'Ошибка восстановления'
+                },
+                default: {
+                    success: isEnglish ? 'Success!' : 'Успешно!',
+                    successMsg: isEnglish ? 'Action completed successfully.' : 'Действие выполнено успешно.',
+                    error: isEnglish ? 'Error' : 'Ошибка'
+                }
+            },
+            
+            errors: {
+                'auth/invalid-action-code': isEnglish ? 'Link expired or already used' : 'Ссылка устарела или уже использована',
+                'auth/expired-action-code': isEnglish ? 'Link has expired' : 'Срок действия ссылки истек',
+                'auth/user-disabled': isEnglish ? 'Account disabled' : 'Аккаунт отключен',
+                'auth/user-not-found': isEnglish ? 'User not found' : 'Пользователь не найден',
+                'auth/weak-password': isEnglish ? 'Password is too weak' : 'Слишком простой пароль',
+                'missing-code': isEnglish ? 'Missing verification code' : 'Отсутствует код подтверждения',
+                'unknown-mode': isEnglish ? 'Invalid action type' : 'Неверный тип действия'
+            }
+        };
+
+        document.getElementById('loadingText').textContent = texts.loading;
+
+        // ===== ГЕНЕРАЦИЯ КОДА СТРАНИЦЫ =====
+        function generatePageCode() {
+            return 'PG-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        // ===== ПОКАЗ УСПЕХА =====
+        function showSuccess(actionType) {
+            const action = texts.actions[actionType] || texts.actions.default;
+            
             contentDiv.innerHTML = `
                 <div class="success-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <h2>${t.successTitle}</h2>
-                <p class="message">
-                    ${t.successMessage}
-                </p>
-                
-                <div class="info-box">
-                    <div class="info-title">
-                        <i class="fas fa-star"></i> ${t.whatNext}
-                    </div>
-                    <ul class="info-list">
-                        <li>
-                            <i class="fas fa-check"></i>
-                            ${t.nextSignin}
-                        </li>
-                        <li>
-                            <i class="fas fa-check"></i>
-                            ${t.nextNews}
-                        </li>
-                        <li>
-                            <i class="fas fa-check"></i>
-                            ${t.nextCommunity}
-                        </li>
-                    </ul>
-                </div>
-                
-                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <h2>${action.success}</h2>
+                <p class="message">${action.successMsg}</p>
+                <div style="margin-top: 20px;">
                     <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn">
-                        <i class="fas fa-home"></i> ${t.btnHome}
+                        <i class="fas fa-home"></i> ${texts.home}
                     </a>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news/" class="btn btn-outline">
-                        <i class="fas fa-newspaper"></i> ${t.btnNews}
-                    </a>
-                </div>
-                
-                <div class="social-links">
-                    <a href="https://t.me/Metro_New_Official" class="social-link" target="_blank">
-                        <i class="fab fa-telegram-plane"></i>
-                    </a>
-                    <a href="https://discord.gg/WjGZBs3HMX" class="social-link" target="_blank">
-                        <i class="fab fa-discord"></i>
-                    </a>
-                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" class="social-link" target="_blank">
-                        <i class="fab fa-roblox"></i>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/auth/simple-auth.html" class="btn btn-outline">
+                        <i class="fas fa-sign-in-alt"></i> ${texts.login}
                     </a>
                 </div>
             `;
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ПОКАЗА ОШИБКИ С РЕПОРТОМ =====
-        function showError(error, errorCode) {
-            const logs = collectLogs(error, errorCode);
-            const pageCode = logs.pageCode;
-            
-            let errorMessage = t.unknownError;
-            if (errorCode === 'missing-code') errorMessage = t.missingCode;
-            else if (error?.message) errorMessage = error.message;
+        // ===== ПОКАЗ ОШИБКИ =====
+        function showError(error, errorCode, actionType) {
+            const action = texts.actions[actionType] || texts.actions.default;
+            const pageCode = generatePageCode();
+            const errorMessage = texts.errors[errorCode] || error?.message || action.error;
             
             contentDiv.innerHTML = `
                 <div class="error-icon">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
-                <h2>${t.errorTitle}</h2>
-                <p class="message" style="color: #d93025;">
-                    ${errorMessage}
-                </p>
+                <h2>${action.error}</h2>
+                <p class="message" style="color: #d93025;">${errorMessage}</p>
                 
                 <div class="error-box">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-                        <i class="fas fa-code" style="color: #d93025;"></i>
-                        <strong style="color: #d93025;">${t.pageCode}</strong>
-                    </div>
-                    <div class="error-code">
-                        ${pageCode}
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; gap: 8px; margin: 15px 0 10px;">
-                        <i class="fas fa-bug" style="color: #d93025;"></i>
-                        <strong style="color: #d93025;">${t.errorDetails}</strong>
-                    </div>
-                    <div class="error-details">
-                        <pre>${JSON.stringify(logs.error, null, 2)}</pre>
-                    </div>
-                    
-                    <div class="report-buttons">
-                        <button class="btn btn-danger" onclick='reportError(${JSON.stringify(error).replace(/'/g, "\\'")}, "${errorCode}")'>
-                            <i class="fas fa-exclamation-triangle"></i>
-                            ${t.btnReport}
-                        </button>
-                        <button class="btn btn-warning" onclick="copyErrorCode('${pageCode}')">
-                            <i class="fas fa-copy"></i>
-                            ${t.btnCopy}
-                        </button>
-                    </div>
-                    
-                    <p style="color: #5f6368; font-size: 0.8rem; margin-top: 15px; text-align: center;">
-                        ${t.reportHint}
-                    </p>
+                    <p><strong>${texts.pageCode}</strong><br>${pageCode}</p>
+                    <button class="btn btn-outline" onclick="reportError('${pageCode}', '${errorCode}', '${actionType}')">
+                        <i class="fas fa-exclamation-triangle"></i> ${texts.report}
+                    </button>
                 </div>
                 
-                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn">
-                        <i class="fas fa-home"></i> ${t.btnHome}
-                    </a>
-                    <button class="btn btn-outline" onclick="window.location.reload()">
-                        <i class="fas fa-redo"></i> ${t.btnRefresh}
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn">
+                    <i class="fas fa-home"></i> ${texts.home}
+                </a>
+            `;
+        }
+
+        // ===== ФОРМА СБРОСА ПАРОЛЯ =====
+        function showResetForm() {
+            contentDiv.innerHTML = `
+                <h2>${texts.actions.resetPassword.error}</h2>
+                <div class="reset-form">
+                    <input type="password" id="newPass" placeholder="${texts.newPassword}">
+                    <input type="password" id="confirmPass" placeholder="${texts.confirmPassword}">
+                    <button class="btn" onclick="handlePasswordReset()" style="width: 100%;">
+                        <i class="fas fa-key"></i> ${texts.resetButton}
                     </button>
                 </div>
             `;
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ КОПИРОВАНИЯ КОДА =====
-        window.copyErrorCode = function(code) {
-            navigator.clipboard.writeText(code).then(() => {
-                alert(currentLang === 'en' ? 'Code copied: ' + code : 'Код скопирован: ' + code);
-            }).catch(() => {
-                prompt(currentLang === 'en' ? 'Copy code manually:' : 'Скопируйте код вручную:', code);
-            });
-        };
-
-        // ===== ФУНКЦИЯ ДЛЯ НЕВЕРНОГО РЕЖИМА =====
-        function showInvalidMode() {
-            const error = new Error(t.invalidMode);
-            const logs = collectLogs(error, 'invalid-mode');
+        // ===== ОБРАБОТКА СБРОСА ПАРОЛЯ =====
+        window.handlePasswordReset = function() {
+            const newPass = document.getElementById('newPass').value;
+            const confirmPass = document.getElementById('confirmPass').value;
             
-            contentDiv.innerHTML = `
-                <div class="warning-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <h2>${t.invalidMode}</h2>
-                <p class="message">
-                    ${t.invalidModeMessage}
-                </p>
-                
-                <div class="error-box">
-                    <div class="error-code">
-                        ${logs.pageCode}
-                    </div>
-                    
-                    <div class="report-buttons">
-                        <button class="btn btn-danger" onclick='reportError(${JSON.stringify(error).replace(/'/g, "\\'")}, "invalid-mode")'>
-                            <i class="fas fa-exclamation-triangle"></i>
-                            ${t.btnReport}
-                        </button>
-                    </div>
-                </div>
-                
-                <a href="https://kirill12633.github.io/Metro.New.Official/ru/" class="btn">
-                    <i class="fas fa-home"></i> ${t.btnHome}
-                </a>
-            `;
-        }
-
-        // ===== ОСНОВНАЯ ФУНКЦИЯ ОБРАБОТКИ =====
-        async function handleVerification() {
-            // Проверяем наличие кода
-            if (!oobCode) {
-                showError(new Error(t.missingCode), 'missing-code');
+            if (newPass !== confirmPass) {
+                alert(texts.passwordMismatch);
                 return;
             }
+            
+            auth.confirmPasswordReset(oobCode, newPass)
+                .then(() => showSuccess('resetPassword'))
+                .catch(error => showError(error, error.code, 'resetPassword'));
+        };
 
-            // Проверяем режим
-            if (mode !== 'verifyEmail') {
-                showInvalidMode();
+        // ===== РЕПОРТ ОБ ОШИБКЕ =====
+        window.reportError = function(pageCode, errorCode, actionType) {
+            const subject = `Error - ${actionType} - ${pageCode}`;
+            const body = `Page Code: ${pageCode}\nError: ${errorCode}\nMode: ${mode}\nURL: ${window.location.href}`;
+            window.location.href = `mailto:metro.new.help@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        };
+
+        // ===== ОСНОВНАЯ ЛОГИКА =====
+        async function handleAction() {
+            if (!oobCode) {
+                showError(new Error('Missing code'), 'missing-code', mode);
                 return;
             }
 
             try {
-                // Применяем код подтверждения
-                await firebase.auth().applyActionCode(oobCode);
-                
-                // Успех!
-                showSuccess();
-                
-                console.log('Email verified successfully', { oobCode, mode, language: currentLang });
-                
+                switch(mode) {
+                    case 'verifyEmail':
+                        await auth.applyActionCode(oobCode);
+                        showSuccess('verifyEmail');
+                        break;
+                        
+                    case 'resetPassword':
+                        await auth.verifyPasswordResetCode(oobCode);
+                        showResetForm();
+                        break;
+                        
+                    case 'verifyAndChangeEmail':
+                        await auth.applyActionCode(oobCode);
+                        showSuccess('verifyAndChangeEmail');
+                        break;
+                        
+                    case 'recoverEmail':
+                        await auth.applyActionCode(oobCode);
+                        showSuccess('recoverEmail');
+                        break;
+                        
+                    default:
+                        showError(new Error('Unknown mode'), 'unknown-mode', mode);
+                }
             } catch (error) {
-                console.error('Verification error:', error);
-                showError(error, error.code);
+                showError(error, error.code, mode);
             }
         }
 
-        // ===== ЗАПУСК =====
-        handleVerification();
+        handleAction();
     </script>
 </body>
 </html>
