@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архив апелляций | Метро New</title>
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F8F9FA;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0066CC, #0052a3);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FFD700, #e6c200);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1A1A1A;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .login-btn {
+            background: #FFD700;
+            color: #1A1A1A;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .page-hero {
+            background: linear-gradient(135deg, #6C757D, #495057);
+            border-radius: 20px;
+            padding: 2rem 3rem;
+            text-align: center;
+            color: white;
+            margin: 2rem 0;
+        }
+        
+        .page-hero h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .appeal-nav {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e0e6ed;
+        }
+        
+        .appeal-nav a {
+            color: #0066CC;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            transition: all 0.2s;
+            background: #f0f4fa;
+        }
+        
+        .appeal-nav a:hover, .appeal-nav a.active {
+            background: #0066CC;
+            color: white;
+        }
+        
+        .stats-banner {
+            background: #e8f0fe;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-badge i {
+            font-size: 1.2rem;
+            color: #0066CC;
+        }
+        
+        .archive-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #6C757D;
+            display: inline-block;
+        }
+        
+        .archive-list {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e0e6ed;
+            overflow: hidden;
+        }
+        
+        .archive-row {
+            display: grid;
+            grid-template-columns: auto 180px 200px 120px 120px 100px;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e0e6ed;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .archive-header {
+            background: #f0f4fa;
+            font-weight: 700;
+            color: #6C757D;
+        }
+        
+        .archive-row:last-child {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-archived { background: #6C757D; color: white; }
+        .status-approved { background: #28a745; color: white; }
+        .status-rejected { background: #b91c1c; color: white; }
+        
+        .empty-message {
+            padding: 2rem;
+            text-align: center;
+            color: #6C757D;
+        }
+        
+        .archive-note {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #6C757D;
+            text-align: center;
+            border: 1px dashed #e0e6ed;
+        }
+        
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-clear:hover {
+            background: #c82333;
+        }
+        
+        footer {
+            background: #1A1A1A;
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 2rem;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-col h3 {
+            color: #FFD700;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .footer-col ul {
+            list-style: none;
+        }
+        
+        .footer-col a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+        }
+        
+        .float-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #5865F2;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: none;
+            z-index: 999;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+        
+        @media (max-width: 1000px) {
+            .archive-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+            .archive-header {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            nav { flex-direction: column; }
+            .page-hero { padding: 1.5rem; }
+            .page-hero h1 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="https://kirill12633.github.io/Metro.New.Official/" class="logo">
+                    <span class="logo-icon">M</span>
+                    <span>Метро New</span>
+                </a>
+                <div class="nav-links">
+                    <a href="appeal.html">Апелляции</a>
+                    <a href="/appeal/status">Мои апелляции</a>
+                    <a href="appeal/contact">Информация</a>
+                    <a href="/appeal/archive" class="active">Архив</a>
+                    <a href="/appeal/faq">FAQ</a>
+                    <a href="/appeal/templates">Шаблоны</a>
+                </div>
+                <button class="login-btn" onclick="alert('Вход временно недоступен')">
+                    <i class="fas fa-user"></i> Вход
+                </button>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="page-hero">
+                <h1><i class="fas fa-archive"></i> Архив апелляций</h1>
+                <p>Завершённые апелляции старше 180 дней</p>
+            </div>
+            
+            <div class="appeal-nav">
+                <a href="appeal.html"><i class="fas fa-pen"></i> Подать апелляцию</a>
+                <a href="/appeal/status"><i class="fas fa-search"></i> Мои апелляции</a>
+                <a href="appeal/contact"><i class="fas fa-info-circle"></i> Контакты</a>
+                <a href="/appeal/archive" class="active"><i class="fas fa-folder-open"></i> Архив</a>
+                <a href="/appeal/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+                <a href="/appeal/templates"><i class="fas fa-file-alt"></i> Шаблоны</a>
+            </div>
+            
+            <!-- Статистика -->
+            <div class="stats-banner">
+                <div class="stat-badge">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Архивируются апелляции <strong>старше 180 дней</strong></span>
+                </div>
+                <div class="stat-badge" id="archiveCount">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Загружается...</span>
+                </div>
+                <button class="btn-clear" id="clearArchiveBtn" onclick="clearArchive()">
+                    <i class="fas fa-trash-alt"></i> Очистить архив
+                </button>
+            </div>
+            
+            <!-- Список архивированных апелляций -->
+            <div class="archive-section">
+                <h2 class="section-title"><i class="fas fa-folder-open"></i> Архивированные апелляции</h2>
+                <div class="archive-list" id="archiveList">
+                    <!-- Загружается через JS -->
+                </div>
+            </div>
+            
+            <div class="archive-note">
+                <i class="fas fa-info-circle"></i> 
+                Апелляции попадают в архив автоматически через 180 дней после подачи. 
+                Здесь хранятся только завершённые заявления. Данные хранятся локально на вашем устройстве.
+                <br><br>
+                <small>Архив можно очистить вручную — это удалит все записи из архива на этом устройстве.</small>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Апелляции</h3>
+                    <ul>
+                        <li><a href="appeal.html">Подать апелляцию</a></li>
+                        <li><a href="/appeal/status">Проверить статус</a></li>
+                        <li><a href="/appeal/templates">Шаблоны</a></li>
+                        <li><a href="/appeal/faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>О проекте</h3>
+                    <ul><li><a href="https://kirill12633.github.io/Metro.New.Official/">Главная</a></li><li><a href="https://discord.com/invite/WjGZBs3HMX">Discord</a></li></ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Контакты</h3>
+                    <ul><li><a href="mailto:metro.new.help@gmail.com">metro.new.help@gmail.com</a></li></ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.7rem;">Почта для апелляций: metro.new.help@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+    
+    <button class="float-btn" onclick="window.open('https://discord.com/invite/WjGZBs3HMX', '_blank')">
+        <i class="fab fa-discord"></i>
+    </button>
+    
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const STORAGE_KEY = 'metro_new_appeals';
+        
+        function getAppeals() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            return [];
+        }
+        
+        function saveAppeals(appeals) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appeals));
+        }
+        
+        function getArchivedAppeals() {
+            let appeals = getAppeals();
+            const now = new Date();
+            
+            // Обновляем статус архивации
+            let updated = false;
+            appeals = appeals.map(appeal => {
+                if (!appeal.isArchived && appeal.submitDate) {
+                    const appealDate = new Date(appeal.submitDate);
+                    const daysDiff = (now - appealDate) / (1000 * 60 * 60 * 24);
+                    if (daysDiff >= 180) {
+                        updated = true;
+                        return { ...appeal, isArchived: true, status: 'Архив' };
+                    }
+                }
+                return appeal;
+            });
+            
+            if (updated) {
+                saveAppeals(appeals);
+            }
+            
+            return appeals.filter(a => a.isArchived === true);
+        }
+        
+        function renderArchive() {
+            const archived = getArchivedAppeals();
+            const container = document.getElementById('archiveList');
+            const countSpan = document.getElementById('archiveCount');
+            
+            countSpan.innerHTML = `<i class="fas fa-file-alt"></i> <span>В архиве: <strong>${archived.length}</strong> записей</span>`;
+            
+            if (archived.length === 0) {
+                container.innerHTML = '<div class="empty-message"><i class="fas fa-archive"></i> Архив пуст. Здесь появятся апелляции старше 180 дней.</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="archive-row archive-header">
+                    <span>Ник</span>
+                    <span>ID наказания</span>
+                    <span>Дата наказания</span>
+                    <span>Тип</span>
+                    <span>Дата подачи</span>
+                    <span>Статус</span>
+                </div>
+                ${archived.map(appeal => `
+                    <div class="archive-row">
+                        <span><strong>${escapeHtml(appeal.nick)}</strong></span>
+                        <span>${escapeHtml(appeal.punishmentId)}</span>
+                        <span>${escapeHtml(appeal.punishmentDate)}</span>
+                        <span>${escapeHtml(appeal.type)}</span>
+                        <span>${formatDate(appeal.submitDate)}</span>
+                        <span><span class="status-badge status-archived">Архив</span></span>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return '—';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ru-RU');
+            } catch(e) {
+                return dateString.substring(0, 10);
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+        
+        window.clearArchive = function() {
+            if (confirm('ВНИМАНИЕ! Это удалит ВСЕ записи из архива на этом устройстве. Восстановить их будет невозможно. Продолжить?')) {
+                let appeals = getAppeals();
+                // Оставляем только неархивированные
+                const nonArchived = appeals.filter(a => !a.isArchived);
+                saveAppeals(nonArchived);
+                renderArchive();
+                showToast('🗑️ Архив очищен');
+                
+                // Обновляем страницу "Мои апелляции" если она открыта
+                try {
+                    localStorage.setItem('metro_new_appeals_updated', Date.now().toString());
+                } catch(e) {}
+            }
+        };
+        
+        // Инициализация
+        renderArchive();
+        
+        // Слушаем изменения
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEY) {
+                renderArchive();
+            }
+        });
+    </script>
+</body>
+</html>
