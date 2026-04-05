@@ -2,467 +2,403 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Админ-панель — Метро New</title>
-
-    <!-- Иконки -->
+    
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    
     <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Montserrat', sans-serif;
-            background: #f0f2f5;
-            padding: 20px;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
         
-        /* Навигация */
-        .top-nav {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            padding: 15px 25px;
-            margin-bottom: 25px;
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container { width: 90%; max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+        
+        nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 1rem;
         }
-        .logo {
+        
+        .logo a {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: #0066CC;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        .logo-text {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1a2a3a;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: #0066CC;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
-            font-weight: bold;
+            text-decoration: none;
         }
         
-        /* Вкладки */
-        .tabs {
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
             display: flex;
-            gap: 5px;
-            background: white;
-            border-radius: 16px;
-            padding: 8px 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .admin-badge { background: var(--secondary); color: var(--dark); padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 600; font-size: 0.8rem; }
+        .login-btn { background-color: var(--secondary); color: var(--dark); padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .burger-menu { display: none; font-size: 1.5rem; cursor: pointer; color: white; background: none; border: none; }
+        
+        main { padding: 2rem 0; min-height: calc(100vh - 150px); }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .admin-header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
         }
         .tab-btn {
-            padding: 12px 28px;
+            padding: 10px 24px;
+            background: none;
             border: none;
-            background: transparent;
-            border-radius: 12px;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
+            border-radius: 30px;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #5f6368;
+            font-family: 'Montserrat', sans-serif;
         }
-        .tab-btn:hover {
-            background: #f0f2f5;
-            color: #0066CC;
-        }
-        .tab-btn.active {
-            background: #0066CC;
-            color: white;
-        }
-        .badge {
-            background: #d93025;
-            color: white;
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            margin-left: 5px;
-        }
+        .tab-btn:hover { background: var(--primary-light); color: white; }
+        .tab-btn.active { background: var(--primary); color: white; }
         
-        /* Панели */
-        .admin-panel {
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            overflow: hidden;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-md);
         }
-        .panel-header {
-            background: linear-gradient(135deg, #0066CC, #0052a3);
-            color: white;
-            padding: 20px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+        .stat-card i { font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .stat-card .number { font-size: 2rem; font-weight: 700; }
+        .stat-card .label { color: var(--gray); font-size: 0.85rem; }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
         }
-        .panel-header h1 {
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .card h3 { color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.3rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--radius-md);
+            font-family: 'Montserrat', sans-serif;
         }
-        .panel-body {
-            padding: 25px;
-        }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
         
         .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
+            padding: 10px 24px;
             border: none;
-            border-radius: 10px;
+            border-radius: 30px;
+            cursor: pointer;
             font-weight: 600;
-            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
             transition: all 0.2s;
-            font-size: 0.9rem;
         }
-        .btn-white {
-            background: white;
-            color: #0066CC;
-        }
-        .btn-primary {
-            background: #0066CC;
-            color: white;
-        }
-        .btn-success {
-            background: #1e8e3e;
-            color: white;
-        }
-        .btn-danger {
-            background: #d93025;
-            color: white;
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 0.8rem;
-        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: var(--dark); }
         
-        /* Таблицы */
-        .filters {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 10px 12px 10px 40px;
-            border: 1px solid #dadce0;
-            border-radius: 30px;
-            font-size: 0.9rem;
-        }
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #5f6368;
-        }
-        .filter-select {
-            padding: 10px 20px;
-            border: 1px solid #dadce0;
-            border-radius: 30px;
-            background: white;
-            cursor: pointer;
-        }
-        
-        .data-table {
+        .news-table, .comments-table, .banned-table {
             width: 100%;
             border-collapse: collapse;
         }
-        .data-table th {
-            text-align: left;
-            padding: 12px 10px;
-            background: #f8f9fa;
-            color: #5f6368;
-            font-weight: 600;
-            border-bottom: 2px solid #dadce0;
-        }
-        .data-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #dadce0;
-            vertical-align: middle;
-        }
-        .data-table tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        .status-pending { background: #fef7e0; color: #fbbc04; }
-        .status-approved { background: #e6f4ea; color: #1e8e3e; }
-        .status-rejected { background: #fce8e6; color: #d93025; }
-        .status-published { background: #e6f4ea; color: #1e8e3e; }
-        .status-draft { background: #fef7e0; color: #fbbc04; }
-        
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid #dadce0;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 2px;
-        }
-        .action-btn.approve:hover { background: #1e8e3e; color: white; border-color: #1e8e3e; }
-        .action-btn.reject:hover { background: #d93025; color: white; border-color: #d93025; }
-        .action-btn.edit:hover { background: #0066CC; color: white; }
-        .action-btn.delete:hover { background: #d93025; color: white; }
-        
-        /* Форма */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        .form-control {
-            width: 100%;
+        .news-table th, .news-table td, .comments-table th, .comments-table td, .banned-table th, .banned-table td {
             padding: 12px;
-            border: 1px solid #dadce0;
-            border-radius: 10px;
-            font-family: inherit;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .toggle-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .toggle-btn {
-            flex: 1;
-            padding: 10px;
-            background: white;
-            border: 1px solid #dadce0;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .toggle-btn.active {
-            background: #0066CC;
-            color: white;
-            border-color: #0066CC;
-        }
+        .news-table th, .comments-table th, .banned-table th { background: var(--light); font-weight: 600; }
         
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 25px;
-        }
-        .page-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid #dadce0;
-            background: white;
-            cursor: pointer;
-        }
-        .page-btn.active {
-            background: #0066CC;
-            color: white;
-        }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .status-published { background: var(--success); color: white; }
+        .status-draft { background: var(--warning); color: var(--dark); }
+        .status-pending { background: var(--warning); color: var(--dark); }
+        .status-approved { background: var(--success); color: white; }
+        .status-banned { background: var(--danger); color: white; }
+        .report-badge { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
         
-        .modal {
-            display: none;
+        .action-btn { background: none; border: none; cursor: pointer; margin: 0 5px; font-size: 1rem; }
+        .edit-btn { color: var(--primary); }
+        .delete-btn { color: var(--danger); }
+        .approve-btn { color: var(--success); }
+        
+        .select-checkbox { width: 20px; height: 20px; cursor: pointer; }
+        .mass-actions { margin-bottom: 1rem; padding: 0.5rem; background: var(--light); border-radius: var(--radius-md); display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        
+        .toast {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
         }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            padding: 25px;
-            text-align: center;
-        }
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
+        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 2000;
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 2rem;
         }
-        .notification.show {
-            display: flex;
-        }
-        .notification.success {
-            border-left: 4px solid #1e8e3e;
-        }
-        .notification.error {
-            border-left: 4px solid #d93025;
-        }
+        .footer-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .footer-column h3 { color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem; }
+        .footer-column ul { list-style: none; }
+        .footer-column li { margin-bottom: 0.5rem; }
+        .footer-column a { color: rgba(255,255,255,0.8); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .footer-column a:hover { color: var(--secondary); }
+        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .copyright { color: var(--gray); font-size: 0.9rem; }
         
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #5f6368;
-        }
-        
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .tabs {
-                flex-direction: column;
-            }
-            .tab-btn {
-                justify-content: center;
-            }
-            .data-table {
-                display: block;
-                overflow-x: auto;
-            }
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+            .nav-links { display: none; width: 100%; flex-direction: column; background: var(--primary-dark); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; }
+            .nav-links.active { display: flex; }
+            .news-table, .comments-table { display: block; overflow-x: auto; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="top-nav">
-            <div class="logo">
-                <div class="logo-icon">M</div>
-                <div class="logo-text">Метро New</div>
-            </div>
-            <div class="user-info">
-                <span id="userName">Загрузка...</span>
-                <div class="user-avatar" id="userAvatar">A</div>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo"><a href="#"><span class="logo-icon">M</span><span>Метро New</span></a></div>
+                <button class="burger-menu" id="burgerMenu"><i class="fas fa-bars"></i></button>
+                <div class="nav-links" id="navLinks">
+                    <span class="admin-badge"><i class="fas fa-shield-alt"></i> Админ-панель</span>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news/" class="login-btn"><i class="fas fa-arrow-left"></i> На сайт</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="admin-header">
+            <h1><i class="fas fa-crown"></i> Админ-панель</h1>
+            <p>Управление новостями, комментариями, пользователями и настройками</p>
+        </div>
+        
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('stats')"><i class="fas fa-chart-line"></i> Статистика</button>
+            <button class="tab-btn" onclick="switchTab('news')"><i class="fas fa-newspaper"></i> Новости</button>
+            <button class="tab-btn" onclick="switchTab('add')"><i class="fas fa-plus-circle"></i> Добавить</button>
+            <button class="tab-btn" onclick="switchTab('comments')"><i class="fas fa-comments"></i> Комментарии</button>
+            <button class="tab-btn" onclick="switchTab('banned')"><i class="fas fa-ban"></i> Бан-лист</button>
+            <button class="tab-btn" onclick="switchTab('settings')"><i class="fas fa-sliders-h"></i> Настройки</button>
+        </div>
+        
+        <!-- Статистика -->
+        <div id="tab-stats" class="tab-content active">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><i class="fas fa-newspaper"></i><div class="number" id="totalNews">0</div><div class="label">Новостей</div></div>
+                <div class="stat-card"><i class="fas fa-eye"></i><div class="number" id="totalViews">0</div><div class="label">Просмотров</div></div>
+                <div class="stat-card"><i class="fas fa-comments"></i><div class="number" id="totalComments">0</div><div class="label">Комментариев</div></div>
+                <div class="stat-card"><i class="fas fa-clock"></i><div class="number" id="pendingComments">0</div><div class="label">На модерации</div></div>
+                <div class="stat-card"><i class="fas fa-flag"></i><div class="number" id="reportedComments">0</div><div class="label">С жалобами</div></div>
+                <div class="stat-card"><i class="fas fa-ban"></i><div class="number" id="bannedUsers">0</div><div class="label">Заблокировано</div></div>
             </div>
         </div>
         
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('news')">
-                <i class="fas fa-newspaper"></i> Новости
-            </button>
-            <button class="tab-btn" onclick="switchTab('comments')">
-                <i class="fas fa-comments"></i> Комментарии
-                <span id="pendingBadge" class="badge" style="display: none;">0</span>
-            </button>
+        <!-- Новости с версионированием -->
+        <div id="tab-news" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-list"></i> Список новостей</h3>
+                <div style="overflow-x: auto;">
+                    <table class="news-table">
+                        <thead><tr><th>Заголовок</th><th>Категория</th><th>Статус</th><th>Просмотры</th><th>Версия</th><th>Действия</th></tr></thead>
+                        <tbody id="newsList"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         
-        <div id="newsPanel" class="admin-panel">
-            <div class="panel-header">
-                <h1><i class="fas fa-newspaper"></i> Управление новостями</h1>
-                <button class="btn btn-white" onclick="showCreateForm()"><i class="fas fa-plus"></i> Создать</button>
+        <!-- Добавление новости -->
+        <div id="tab-add" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Добавить новость</h3>
+                <form id="addNewsForm">
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="newsTitle" required></div>
+                    <div class="form-group"><label>Краткое описание</label><textarea id="newsExcerpt" rows="2"></textarea></div>
+                    <div class="form-group"><label>Полный контент (HTML)</label><textarea id="newsContent" rows="5"></textarea></div>
+                    <div class="form-group"><label>Категория</label><select id="newsCategory"><option value="update">Обновление</option><option value="event">Событие</option><option value="important">Важное</option><option value="announcement">Анонс</option></select></div>
+                    <div class="form-group"><label>Бейдж</label><input type="text" id="newsBadge" placeholder="🔥 Горячее"></div>
+                    <div class="form-group"><label>Теги (через запятую)</label><input type="text" id="newsTags" placeholder="поезда, обновление"></div>
+                    <div class="form-group"><label><input type="checkbox" id="newsImportant"> Важная новость</label></div>
+                    <div class="form-group"><label>Статус</label><select id="newsStatus"><option value="published">Опубликовано</option><option value="draft">Черновик</option></select></div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Сохранить</button>
+                </form>
             </div>
-            <div class="panel-body" id="newsListContainer">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>
-            </div>
-            <div id="formContainer" class="panel-body" style="display: none;"></div>
         </div>
         
-        <div id="commentsPanel" class="admin-panel" style="display: none;">
-            <div class="panel-header">
-                <h1><i class="fas fa-comments"></i> Модерация комментариев</h1>
-                <button class="btn btn-white" onclick="loadComments()"><i class="fas fa-sync-alt"></i> Обновить</button>
+        <!-- Комментарии с массовыми действиями -->
+        <div id="tab-comments" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-clock"></i> На модерации</h3>
+                <div class="mass-actions">
+                    <input type="checkbox" id="selectAllPending" onchange="toggleSelectAll('pending')"> <label>Выбрать все</label>
+                    <button class="btn btn-success" onclick="massApprove()"><i class="fas fa-check"></i> Одобрить выбранные</button>
+                    <button class="btn btn-danger" onclick="massDelete('pending')"><i class="fas fa-trash"></i> Удалить выбранные</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="comments-table">
+                        <thead><tr><th><i class="fas fa-check-square"></i></th><th>Новость</th><th>Текст</th><th>Автор</th><th>Дата</th><th>Жалобы</th><th>Действия</th></tr></thead>
+                        <tbody id="pendingCommentsList"></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="panel-body" id="commentsContainer">
-                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>
+            <div class="card">
+                <h3><i class="fas fa-check-circle"></i> Одобренные</h3>
+                <div class="mass-actions">
+                    <input type="checkbox" id="selectAllApproved" onchange="toggleSelectAll('approved')"> <label>Выбрать все</label>
+                    <button class="btn btn-danger" onclick="massDelete('approved')"><i class="fas fa-trash"></i> Удалить выбранные</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="comments-table">
+                        <thead><tr><th><i class="fas fa-check-square"></i></th><th>Новость</th><th>Текст</th><th>Автор</th><th>Дата</th><th>Действия</th></tr></thead>
+                        <tbody id="approvedCommentsList"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="modal" id="deleteModal">
-        <div class="modal-content">
-            <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #d93025;"></i>
-            <h3 id="deleteTitle">Удалить?</h3>
-            <p id="deleteText"></p>
-            <div class="modal-buttons">
-                <button class="btn btn-sm" onclick="closeModal()">Отмена</button>
-                <button class="btn btn-sm btn-danger" id="confirmDelete">Удалить</button>
+        
+        <!-- Бан-лист (IP + Fingerprint) -->
+        <div id="tab-banned" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-ban"></i> Заблокированные пользователи</h3>
+                <div style="overflow-x: auto;">
+                    <table class="banned-table">
+                        <thead><tr><th>Тип</th><th>Идентификатор</th><th>Причина</th><th>Забанен до</th><th>Действия</th></tr></thead>
+                        <tbody id="bannedList"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-user-slash"></i> Забанить гостя (по IP или отпечатку браузера)</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <input type="text" id="banIdentifier" placeholder="IP-адрес или Fingerprint" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                    <input type="text" id="banReasonGuest" placeholder="Причина" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                    <input type="number" id="banDaysGuest" placeholder="Дней (0 = навсегда)" style="width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                    <button class="btn btn-danger" onclick="banGuest()"><i class="fas fa-ban"></i> Забанить гостя</button>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--gray);"><i class="fas fa-info-circle"></i> Чтобы узнать IP или fingerprint нарушителя, включите режим отладки на сайте или посмотрите логи комментариев.</p>
             </div>
         </div>
-    </div>
-    
-    <div class="notification" id="notification">
-        <i class="fas" id="notifIcon"></i>
-        <span id="notifMsg"></span>
-    </div>
+        
+        <!-- Настройки -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-ban"></i> Черный список слов (автоматическая модерация)</h3>
+                <div id="badWordsList" style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="newBadWord" placeholder="Новое слово" style="padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                    <button class="btn btn-primary" onclick="addBadWord()"><i class="fas fa-plus"></i> Добавить</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-tachometer-alt"></i> Лимиты для пользователей</h3>
+                <div class="form-group"><label>Максимум комментариев в день для гостей</label><input type="number" id="guestCommentLimit" value="5" style="width: 150px;"></div>
+                <button class="btn btn-primary" onclick="saveLimits()"><i class="fas fa-save"></i> Сохранить лимиты</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column"><h3>О нас</h3><ul><li><a href="#">О проекте</a></li><li><a href="#">Наша команда</a></li></ul></div>
+                <div class="footer-column"><h3>Информация</h3><ul><li><a href="#">FAQ</a></li><li><a href="#">Wiki</a></li></ul></div>
+                <div class="footer-column"><h3>Правовые документы</h3><ul><li><a href="#">Политика конфиденциальности</a></li><li><a href="#">Пользовательское соглашение</a></li></ul></div>
+                <div class="footer-column"><h3>Социальные сети</h3><ul><li><a href="#">Discord</a></li><li><a href="#">Telegram</a></li></ul></div>
+            </div>
+            <div class="footer-bottom"><p class="copyright">© 2026 Метро New. Админ-панель</p></div>
+        </div>
+    </footer>
 
     <script>
         firebase.initializeApp({
@@ -473,350 +409,192 @@
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
         });
-        
-        try { firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true); } catch(e) {}
-        
         const db = firebase.firestore();
-        const auth = firebase.auth();
         
-        let currentUser = null;
-        let allNews = [];
-        let currentPage = 1;
-        const pageSize = 10;
-        let deleteId = null;
-        let deleteType = null;
-        let currentEditId = null;
-        let simplemde = null;
-        let currentTab = 'news';
+        let newsData = [], commentsData = [], bannedData = [], badWords = [];
         
-        function showNotification(msg, type = 'success') {
-            const n = document.getElementById('notification');
-            const icon = document.getElementById('notifIcon');
-            const text = document.getElementById('notifMsg');
-            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-            text.textContent = msg;
-            n.className = `notification show ${type}`;
-            setTimeout(() => n.classList.remove('show'), 3000);
+        function showToast(msg, isError = false) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; if(isError) t.style.background = '#dc3545'; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+        function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+        
+        async function loadStats() {
+            const newsSnap = await db.collection('news').get();
+            const commentsSnap = await db.collection('comments').get();
+            const bannedSnap = await db.collection('banned').get();
+            let totalViews = 0, pending = 0, reported = 0;
+            newsSnap.forEach(doc => totalViews += doc.data().views || 0);
+            commentsSnap.forEach(doc => { if(doc.data().status === 'pending') pending++; if((doc.data().reports || 0) > 0) reported++; });
+            document.getElementById('totalNews').textContent = newsSnap.size;
+            document.getElementById('totalViews').textContent = totalViews;
+            document.getElementById('totalComments').textContent = commentsSnap.size;
+            document.getElementById('pendingComments').textContent = pending;
+            document.getElementById('reportedComments').textContent = reported;
+            document.getElementById('bannedUsers').textContent = bannedSnap.size;
         }
         
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('userName').textContent = user.email || 'Админ';
-                document.getElementById('userAvatar').textContent = (user.email || 'A')[0].toUpperCase();
-                loadNews();
-                loadPendingCount();
-            } else {
-                window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login';
-            }
-        });
-        
-        async function loadPendingCount() {
-            try {
-                const snap = await db.collection('comments').where('status', '==', 'pending').limit(100).get();
-                const count = snap.size;
-                const badge = document.getElementById('pendingBadge');
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.style.display = 'inline-block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            } catch(e) {}
+        async function loadNewsList() {
+            const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
+            newsData = [];
+            snapshot.forEach(doc => newsData.push({ id: doc.id, ...doc.data() }));
+            const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
+            document.getElementById('newsList').innerHTML = newsData.map(n => `
+                <tr><td>${escapeHtml(n.title)}</td><td>${categoryNames[n.category]}</td>
+                <td><span class="status-badge ${n.status === 'published' ? 'status-published' : 'status-draft'}">${n.status === 'published' ? 'Опубликовано' : 'Черновик'}</span></td>
+                <td>${n.views || 0}</td><td>v${n.version || 1}</td>
+                <td><button class="action-btn edit-btn" onclick="editNews('${n.id}')"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete-btn" onclick="deleteNews('${n.id}')"><i class="fas fa-trash"></i></button>
+                <button class="action-btn" onclick="showVersions('${n.id}')" title="Версии"><i class="fas fa-history"></i></button></td></tr>
+            `).join('');
         }
         
-        window.switchTab = (tab) => {
-            currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            if (tab === 'news') {
-                document.querySelector('.tab-btn:first-child').classList.add('active');
-                document.getElementById('newsPanel').style.display = 'block';
-                document.getElementById('commentsPanel').style.display = 'none';
-                loadNews();
-            } else {
-                document.querySelector('.tab-btn:last-child').classList.add('active');
-                document.getElementById('newsPanel').style.display = 'none';
-                document.getElementById('commentsPanel').style.display = 'block';
-                loadComments();
+        window.editNews = async (id) => {
+            const news = newsData.find(n => n.id === id);
+            if(!news) return;
+            document.getElementById('newsTitle').value = news.title || '';
+            document.getElementById('newsExcerpt').value = news.excerpt || '';
+            document.getElementById('newsContent').value = news.content || '';
+            document.getElementById('newsCategory').value = news.category || 'announcement';
+            document.getElementById('newsBadge').value = news.badge || '';
+            document.getElementById('newsTags').value = (news.tags || []).join(', ');
+            document.getElementById('newsImportant').checked = news.important || false;
+            document.getElementById('newsStatus').value = news.status || 'published';
+            document.getElementById('addNewsForm').dataset.editId = id;
+            switchTab('add');
+        };
+        
+        window.showVersions = async (id) => {
+            const versionsSnap = await db.collection('news_versions').where('newsId', '==', id).orderBy('version', 'desc').get();
+            let msg = `История версий:\n`;
+            versionsSnap.forEach(doc => { const v = doc.data(); msg += `v${v.version}: ${v.title} (${v.createdAt?.toDate?.().toLocaleString() || '—'})\n`; });
+            alert(msg || 'Нет сохраненных версий');
+        };
+        
+        window.deleteNews = async (id) => {
+            if(confirm('Удалить новость?')) {
+                await db.collection('news').doc(id).delete();
+                showToast('Новость удалена');
+                loadNewsList(); loadStats();
             }
         };
         
-        async function loadComments() {
-            const container = document.getElementById('commentsContainer');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>';
-            try {
-                const snap = await db.collection('comments').orderBy('createdAt', 'desc').limit(200).get();
-                if (snap.empty) {
-                    container.innerHTML = '<div style="text-align:center;padding:40px;">Нет комментариев</div>';
-                    return;
-                }
-                let comments = [];
-                snap.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
-                
-                const newsTitles = {};
-                for (const c of comments) {
-                    if (!newsTitles[c.newsId]) {
-                        const ndoc = await db.collection('news').doc(c.newsId).get();
-                        newsTitles[c.newsId] = ndoc.exists ? ndoc.data().title : 'Новость удалена';
-                    }
-                }
-                
-                const statusNames = { pending: 'На модерации', approved: 'Одобрен', rejected: 'Отклонен' };
-                const statusClass = { pending: 'status-pending', approved: 'status-approved', rejected: 'status-rejected' };
-                
-                let html = `
-                    <div class="filters">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="commentSearch" placeholder="Поиск..." oninput="filterComments()">
-                        </div>
-                        <select class="filter-select" id="commentStatus" onchange="filterComments()">
-                            <option value="all">Все</option>
-                            <option value="pending">На модерации</option>
-                            <option value="approved">Одобренные</option>
-                            <option value="rejected">Отклоненные</option>
-                        </select>
-                    </div>
-                    <div style="overflow-x:auto;">
-                        <table class="data-table">
-                            <thead><tr><th>Новость</th><th>Комментарий</th><th>Автор</th><th>Дата</th><th>Статус</th><th>Действия</th></tr></thead>
-                            <tbody id="commentsTableBody">
-                `;
-                comments.forEach(c => {
-                    const date = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : 'только что';
-                    const text = (c.text || '').substring(0, 100) + ((c.text || '').length > 100 ? '...' : '');
-                    html += `
-                        <tr data-status="${c.status}" data-text="${(c.text || '').toLowerCase()}">
-                            <td><a href="https://kirill12633.github.io/Metro.New.Official/ru/news?id=${c.newsId}" target="_blank" style="color:#0066CC;">${(newsTitles[c.newsId] || 'Новость').substring(0, 40)}</a></td>
-                            <td title="${escapeHtml(c.text || '')}">${escapeHtml(text)}</td>
-                            <td><i class="fas fa-user"></i> ${escapeHtml(c.author || 'Гость')}</td>
-                            <td>${date}</td>
-                            <td><span class="status-badge ${statusClass[c.status]}">${statusNames[c.status]}</span></td>
-                            <td>
-                                ${c.status === 'pending' ? `
-                                    <button class="action-btn approve" onclick="moderate('${c.id}', 'approved')" title="Одобрить"><i class="fas fa-check"></i></button>
-                                    <button class="action-btn reject" onclick="moderate('${c.id}', 'rejected')" title="Отклонить"><i class="fas fa-times"></i></button>
-                                ` : ''}
-                                <button class="action-btn delete" onclick="showDeleteModal('${c.id}', 'comment', 'Удалить комментарий?')" title="Удалить"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                html += `</tbody></table></div>`;
-                container.innerHTML = html;
-                loadPendingCount();
-            } catch(e) {
-                container.innerHTML = '<div class="loading" style="color:#d93025;">Ошибка загрузки</div>';
-            }
-        }
-        
-        window.filterComments = () => {
-            const search = document.getElementById('commentSearch')?.value.toLowerCase() || '';
-            const status = document.getElementById('commentStatus')?.value || 'all';
-            const rows = document.querySelectorAll('#commentsTableBody tr');
-            rows.forEach(row => {
-                let show = true;
-                if (status !== 'all' && row.dataset.status !== status) show = false;
-                if (search && !row.dataset.text.includes(search)) show = false;
-                row.style.display = show ? '' : 'none';
-            });
-        };
-        
-        window.moderate = async (id, status) => {
-            try {
-                await db.collection('comments').doc(id).update({ status });
-                showNotification(status === 'approved' ? 'Комментарий одобрен' : 'Комментарий отклонен');
-                loadComments();
-            } catch(e) { showNotification('Ошибка', 'error'); }
-        };
-        
-        async function loadNews() {
-            try {
-                const snap = await db.collection('news').orderBy('createdAt', 'desc').get();
-                allNews = [];
-                snap.forEach(doc => allNews.push({ id: doc.id, ...doc.data() }));
-                displayNewsList();
-            } catch(e) { console.error(e); }
-        }
-        
-        function displayNewsList() {
-            const search = document.getElementById('newsSearch')?.value.toLowerCase() || '';
-            const status = document.getElementById('newsStatus')?.value || 'all';
-            const category = document.getElementById('newsCategory')?.value || 'all';
-            
-            let filtered = allNews.filter(n => {
-                if (search && !n.title?.toLowerCase().includes(search)) return false;
-                if (status !== 'all' && n.status !== status) return false;
-                if (category !== 'all' && n.category !== category) return false;
-                return true;
-            });
-            
-            const totalPages = Math.ceil(filtered.length / pageSize);
-            const start = (currentPage - 1) * pageSize;
-            const paginated = filtered.slice(start, start + pageSize);
-            
-            const catNames = { announcement: 'Анонс', update: 'Обновление', important: 'Важное', event: 'Событие' };
-            const statusNames = { published: 'Опубликовано', draft: 'Черновик' };
-            
-            let html = `
-                <div class="filters">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="newsSearch" placeholder="Поиск..." oninput="filterNews()" value="${search}"></div>
-                    <select class="filter-select" id="newsStatus" onchange="filterNews()"><option value="all">Все статусы</option><option value="published" ${status === 'published' ? 'selected' : ''}>Опубликовано</option><option value="draft" ${status === 'draft' ? 'selected' : ''}>Черновик</option></select>
-                    <select class="filter-select" id="newsCategory" onchange="filterNews()"><option value="all">Все категории</option><option value="announcement" ${category === 'announcement' ? 'selected' : ''}>Анонс</option><option value="update" ${category === 'update' ? 'selected' : ''}>Обновление</option><option value="important" ${category === 'important' ? 'selected' : ''}>Важное</option><option value="event" ${category === 'event' ? 'selected' : ''}>Событие</option></select>
-                </div>
-                <div style="overflow-x:auto;">
-                    <table class="data-table">
-                        <thead><tr><th>Заголовок</th><th>Категория</th><th>Статус</th><th>Дата</th><th>Просмотры</th><th>Действия</th></tr></thead>
-                        <tbody>
-            `;
-            if (paginated.length === 0) {
-                html += '<tr><td colspan="6" style="text-align:center;padding:40px;">Нет новостей</td></tr>';
-            } else {
-                paginated.forEach(n => {
-                    const date = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString() : 'н/д';
-                    html += `<tr>
-                        <td><div style="font-weight:600;color:#0066CC;">${escapeHtml(n.title || 'Без названия')}</div>${n.badge ? `<small>🏷️ ${escapeHtml(n.badge)}</small>` : ''}</td>
-                        <td><span class="status-badge" style="background:#f0f2f5;">${catNames[n.category] || n.category}</span></td>
-                        <td><span class="status-badge ${n.status === 'published' ? 'status-approved' : 'status-pending'}">${statusNames[n.status] || n.status}</span></td>
-                        <td>${date}</td>
-                        <td>${n.views || 0}</td>
-                        <td>
-                            <button class="action-btn edit" onclick="showEditForm('${n.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete" onclick="showDeleteModal('${n.id}', 'news', 'Удалить новость "${escapeHtml(n.title).replace(/'/g, "\\'")}"?')"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-                });
-            }
-            html += `</tbody></table></div>`;
-            
-            if (totalPages > 1) {
-                html += '<div class="pagination">';
-                for (let i = 1; i <= Math.min(totalPages, 7); i++) {
-                    html += `<button class="page-btn ${currentPage === i ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-                }
-                html += '</div>';
-            }
-            document.getElementById('newsListContainer').innerHTML = html;
-        }
-        
-        window.filterNews = () => { currentPage = 1; displayNewsList(); };
-        window.goToPage = (p) => { currentPage = p; displayNewsList(); };
-        
-        window.showCreateForm = () => loadForm(null);
-        window.showEditForm = (id) => loadForm(id);
-        
-        async function loadForm(id = null) {
-            currentEditId = id;
-            document.getElementById('newsListContainer').style.display = 'none';
-            document.getElementById('formContainer').style.display = 'block';
-            
-            let newsData = { title: '', excerpt: '', content: '', category: 'announcement', badge: '', important: false, status: 'draft' };
-            if (id) {
-                const doc = await db.collection('news').doc(id).get();
-                if (doc.exists) newsData = { ...doc.data(), id: doc.id };
-            }
-            
-            const formHtml = `
-                <h2 style="margin-bottom:20px;"><i class="fas ${id ? 'fa-edit' : 'fa-plus'}"></i> ${id ? 'Редактирование' : 'Создание'}</h2>
-                <form id="newsForm">
-                    <div class="form-grid">
-                        <div>
-                            <div class="form-group"><label>Заголовок *</label><input type="text" id="formTitle" class="form-control" value="${escapeHtml(newsData.title)}" required></div>
-                            <div class="form-group"><label>Краткое описание *</label><textarea id="formExcerpt" class="form-control" rows="3" required>${escapeHtml(newsData.excerpt)}</textarea></div>
-                            <div class="form-group"><label>Полный текст *</label><textarea id="formContent" style="display:none;">${escapeHtml(newsData.content)}</textarea><div id="markdownEditor"></div></div>
-                        </div>
-                        <div>
-                            <div class="form-group"><label>Категория</label><div class="toggle-group" id="catGroup">
-                                <div class="toggle-btn ${newsData.category === 'announcement' ? 'active' : ''}" data-cat="announcement" onclick="selectCat('announcement')">📢 Анонс</div>
-                                <div class="toggle-btn ${newsData.category === 'update' ? 'active' : ''}" data-cat="update" onclick="selectCat('update')">🔄 Обновление</div>
-                                <div class="toggle-btn ${newsData.category === 'important' ? 'active' : ''}" data-cat="important" onclick="selectCat('important')">⚠️ Важное</div>
-                                <div class="toggle-btn ${newsData.category === 'event' ? 'active' : ''}" data-cat="event" onclick="selectCat('event')">📅 Событие</div>
-                            </div><input type="hidden" id="formCategory" value="${newsData.category}"></div>
-                            <div class="form-group"><label>Метка (badge)</label><input type="text" id="formBadge" class="form-control" value="${escapeHtml(newsData.badge)}" placeholder="🔥 Горячее"></div>
-                            <div class="form-group"><label><input type="checkbox" id="formImportant" ${newsData.important ? 'checked' : ''}> Важная новость</label></div>
-                            <div class="form-group"><label><input type="checkbox" id="formPublish" ${newsData.status === 'published' ? 'checked' : ''}> Опубликовать сразу</label></div>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:15px;justify-content:flex-end;margin-top:25px;">
-                        <button type="button" class="btn" onclick="cancelForm()">Отмена</button>
-                        <button type="submit" class="btn btn-success">Сохранить</button>
-                    </div>
-                </form>
-            `;
-            document.getElementById('formContainer').innerHTML = formHtml;
-            if (simplemde) simplemde.toTextArea();
-            simplemde = new SimpleMDE({ element: document.getElementById('formContent'), spellChecker: false, placeholder: 'Текст новости...' });
-            if (newsData.content) simplemde.value(newsData.content);
-            document.getElementById('newsForm').addEventListener('submit', saveNews);
-        }
-        
-        window.selectCat = (cat) => {
-            document.querySelectorAll('#catGroup .toggle-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`#catGroup .toggle-btn[data-cat="${cat}"]`).classList.add('active');
-            document.getElementById('formCategory').value = cat;
-        };
-        
-        async function saveNews(e) {
+        document.getElementById('addNewsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const title = document.getElementById('formTitle').value.trim();
-            const excerpt = document.getElementById('formExcerpt').value.trim();
-            const content = simplemde.value().trim();
-            if (!title || !excerpt || !content) { showNotification('Заполните все поля', 'error'); return; }
-            
+            const editId = e.target.dataset.editId;
             const data = {
-                title, excerpt, content,
-                category: document.getElementById('formCategory').value,
-                badge: document.getElementById('formBadge').value.trim() || null,
-                important: document.getElementById('formImportant').checked,
-                status: document.getElementById('formPublish').checked ? 'published' : 'draft',
+                title: document.getElementById('newsTitle').value,
+                excerpt: document.getElementById('newsExcerpt').value,
+                content: document.getElementById('newsContent').value,
+                category: document.getElementById('newsCategory').value,
+                badge: document.getElementById('newsBadge').value,
+                tags: document.getElementById('newsTags').value.split(',').map(t => t.trim()).filter(t => t),
+                important: document.getElementById('newsImportant').checked,
+                status: document.getElementById('newsStatus').value,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            if (!currentEditId) {
-                data.views = 0;
-                data.ratings = [];
+            if(editId) {
+                const old = newsData.find(n => n.id === editId);
+                const version = (old.version || 1) + 1;
+                await db.collection('news_versions').add({ newsId: editId, version: version, ...old, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                await db.collection('news').doc(editId).update({ ...data, version: version });
+                showToast('Новость обновлена (версия ' + version + ')');
+                delete e.target.dataset.editId;
+            } else {
                 data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                data.views = 0; data.likeCount = 0; data.dislikeCount = 0; data.version = 1;
+                await db.collection('news').add(data);
+                showToast('Новость добавлена');
             }
-            try {
-                if (currentEditId) await db.collection('news').doc(currentEditId).update(data);
-                else await db.collection('news').add(data);
-                showNotification('Сохранено!');
-                cancelForm();
-                loadNews();
-            } catch(e) { showNotification('Ошибка', 'error'); }
-        }
-        
-        window.cancelForm = () => {
-            document.getElementById('newsListContainer').style.display = 'block';
-            document.getElementById('formContainer').style.display = 'none';
-            if (simplemde) { simplemde.toTextArea(); simplemde = null; }
-            currentEditId = null;
-        };
-        
-        window.showDeleteModal = (id, type, text) => {
-            deleteId = id;
-            deleteType = type;
-            document.getElementById('deleteTitle').textContent = type === 'news' ? 'Удалить новость?' : 'Удалить комментарий?';
-            document.getElementById('deleteText').textContent = text;
-            document.getElementById('deleteModal').classList.add('active');
-        };
-        
-        window.closeModal = () => {
-            deleteId = null;
-            document.getElementById('deleteModal').classList.remove('active');
-        };
-        
-        document.getElementById('confirmDelete').addEventListener('click', async () => {
-            if (!deleteId) return;
-            try {
-                await db.collection(deleteType === 'news' ? 'news' : 'comments').doc(deleteId).delete();
-                showNotification('Удалено');
-                closeModal();
-                if (deleteType === 'news') loadNews();
-                else loadComments();
-            } catch(e) { showNotification('Ошибка', 'error'); }
+            document.getElementById('addNewsForm').reset();
+            loadNewsList(); loadStats();
         });
         
-        function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+        async function loadComments() {
+            const snapshot = await db.collection('comments').orderBy('createdAt', 'desc').get();
+            commentsData = [];
+            snapshot.forEach(doc => commentsData.push({ id: doc.id, ...doc.data() }));
+            const newsMap = {}; newsData.forEach(n => { newsMap[n.id] = n.title; });
+            const pending = commentsData.filter(c => c.status === 'pending');
+            const approved = commentsData.filter(c => c.status === 'approved');
+            document.getElementById('pendingCommentsList').innerHTML = pending.map(c => `
+                <tr><td><input type="checkbox" class="pending-checkbox" data-id="${c.id}"></td>
+                <td>${escapeHtml(newsMap[c.newsId] || c.newsId)}</td>
+                <td>${escapeHtml(c.text.substring(0, 80))}${c.text.length > 80 ? '...' : ''}</td>
+                <td>${escapeHtml(c.author || 'Гость')}</td>
+                <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : '—'}</td>
+                <td>${c.reports || 0}</td>
+                <td><button class="action-btn approve-btn" onclick="approveComment('${c.id}')"><i class="fas fa-check"></i></button>
+                <button class="action-btn delete-btn" onclick="deleteComment('${c.id}')"><i class="fas fa-trash"></i></button></td></tr>
+            `).join('');
+            document.getElementById('approvedCommentsList').innerHTML = approved.map(c => `
+                <tr><td><input type="checkbox" class="approved-checkbox" data-id="${c.id}"></td>
+                <td>${escapeHtml(newsMap[c.newsId] || c.newsId)}</td>
+                <td>${escapeHtml(c.text.substring(0, 80))}${c.text.length > 80 ? '...' : ''}</td>
+                <td>${escapeHtml(c.author || 'Гость')}</td>
+                <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : '—'}</td>
+                <td><button class="action-btn delete-btn" onclick="deleteComment('${c.id}')"><i class="fas fa-trash"></i></button></td></tr>
+            `).join('');
+        }
+        
+        window.approveComment = async (id) => { await db.collection('comments').doc(id).update({ status: 'approved', reports: 0 }); showToast('Одобрено'); loadComments(); loadStats(); };
+        window.deleteComment = async (id) => { await db.collection('comments').doc(id).delete(); showToast('Удалено'); loadComments(); loadStats(); };
+        
+        window.toggleSelectAll = (type) => { const checkboxes = document.querySelectorAll(`.${type}-checkbox`); const selectAll = document.getElementById(`selectAll${type.charAt(0).toUpperCase() + type.slice(1)}`); checkboxes.forEach(cb => cb.checked = selectAll.checked); };
+        window.massApprove = async () => { const checkboxes = document.querySelectorAll('.pending-checkbox:checked'); for(let cb of checkboxes) { await db.collection('comments').doc(cb.dataset.id).update({ status: 'approved', reports: 0 }); } showToast(`Одобрено ${checkboxes.length} комментариев`); loadComments(); loadStats(); };
+        window.massDelete = async (type) => { const checkboxes = document.querySelectorAll(`.${type}-checkbox:checked`); if(confirm(`Удалить ${checkboxes.length} комментариев?`)) { for(let cb of checkboxes) { await db.collection('comments').doc(cb.dataset.id).delete(); } showToast(`Удалено ${checkboxes.length}`); loadComments(); loadStats(); } };
+        
+        async function loadBanned() {
+            const snapshot = await db.collection('banned').get();
+            bannedData = []; snapshot.forEach(doc => bannedData.push({ id: doc.id, ...doc.data() }));
+            document.getElementById('bannedList').innerHTML = bannedData.map(b => `
+                <tr>
+                    <td><span class="status-badge ${b.type === 'ip' ? 'status-published' : 'status-warning'}">${b.type === 'ip' ? 'IP-адрес' : 'Fingerprint'}</span></td>
+                    <td>${escapeHtml(b.identifier)}</td>
+                    <td>${escapeHtml(b.reason)}</td>
+                    <td>${b.until ? new Date(b.until).toLocaleString() : 'Навсегда'}</td>
+                    <td><button class="action-btn delete-btn" onclick="unbanUser('${b.id}')"><i class="fas fa-user-check"></i> Разбанить</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        window.banGuest = async () => {
+            const identifier = document.getElementById('banIdentifier').value.trim();
+            const reason = document.getElementById('banReasonGuest').value.trim() || 'Нарушение правил';
+            const days = parseInt(document.getElementById('banDaysGuest').value);
+            if(!identifier) { showToast('Введите IP или fingerprint', true); return; }
+            let until = null;
+            if(days > 0) { until = new Date(); until.setDate(until.getDate() + days); }
+            const type = identifier.includes('.') || identifier.includes(':') ? 'ip' : 'fingerprint';
+            await db.collection('banned').add({ identifier, reason, until: until?.toISOString(), type, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            showToast(`Гость ${identifier} забанен`);
+            document.getElementById('banIdentifier').value = '';
+            document.getElementById('banReasonGuest').value = '';
+            document.getElementById('banDaysGuest').value = '';
+            loadBanned(); loadStats();
+        };
+        window.unbanUser = async (id) => { await db.collection('banned').doc(id).delete(); showToast('Пользователь разбанен'); loadBanned(); loadStats(); };
+        
+        async function loadBadWords() {
+            const doc = await db.collection('settings').doc('badWords').get();
+            badWords = doc.exists ? doc.data().words || [] : ['хуй', 'пизда', 'бля', 'ебал', 'мудак', 'пидор', 'сука', 'гандон', 'шлюха', 'уебан', 'долбоеб', 'ебать', 'хуя'];
+            document.getElementById('badWordsList').innerHTML = badWords.map(w => `<span class="status-badge status-draft">${escapeHtml(w)} <button onclick="removeBadWord('${w}')" style="background:none;border:none;cursor:pointer;">❌</button></span>`).join('');
+        }
+        window.addBadWord = async () => { const word = document.getElementById('newBadWord').value.trim().toLowerCase(); if(word && !badWords.includes(word)) { badWords.push(word); await db.collection('settings').doc('badWords').set({ words: badWords }); document.getElementById('newBadWord').value = ''; loadBadWords(); showToast('Слово добавлено в черный список'); } };
+        window.removeBadWord = async (word) => { badWords = badWords.filter(w => w !== word); await db.collection('settings').doc('badWords').set({ words: badWords }); loadBadWords(); showToast('Слово удалено'); };
+        
+        window.saveLimits = async () => { const limit = parseInt(document.getElementById('guestCommentLimit').value); await db.collection('settings').doc('limits').set({ guestCommentLimit: limit }); showToast('Лимиты сохранены'); };
+        async function loadLimits() { const doc = await db.collection('settings').doc('limits').get(); if(doc.exists) document.getElementById('guestCommentLimit').value = doc.data().guestCommentLimit || 5; }
+        
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(event && event.target) event.target.classList.add('active');
+        };
+        
+        const burger = document.getElementById('burgerMenu'), navLinks = document.getElementById('navLinks');
+        if(burger) burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        
+        async function init() { await loadStats(); await loadNewsList(); await loadComments(); await loadBanned(); await loadBadWords(); await loadLimits(); }
+        init();
     </script>
 </body>
 </html>
