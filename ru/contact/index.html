@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Контакты — Метро New</title>
+    
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown > button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dropdown > button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .dropdown > button i {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.open > button i {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 240px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown.open .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-content a i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 5px 0;
+        }
+        
+        .login-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--secondary-dark);
+        }
+        
+        .burger-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .contact-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 3rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .contact-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .contact-form-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .contact-form-card .card-header {
+            background: var(--light);
+            padding: 1.2rem 1.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .contact-form-card .card-header h2 {
+            font-size: 1.3rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .contact-form-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--dark);
+        }
+        
+        .form-group label i {
+            color: var(--primary);
+            width: 20px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .checkbox-group {
+            margin: 1rem 0;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-card .card-header {
+            background: var(--light);
+            padding: 1.2rem 1.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .info-card .card-header h2 {
+            font-size: 1.3rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            padding: 0.8rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+            transition: transform 0.2s;
+        }
+        
+        .contact-method:hover {
+            transform: translateX(5px);
+        }
+        
+        .contact-method .icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .contact-method .details h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .contact-method .details p {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        .contact-method .details a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .contact-method .details a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        
+        .social-btn.discord {
+            background: #5865F2;
+            color: white;
+        }
+        
+        .social-btn.telegram {
+            background: #0088cc;
+            color: white;
+        }
+        
+        .social-btn.youtube {
+            background: #FF0000;
+            color: white;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .support-note {
+            background: #fef9e6;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        
+        /* Футер — точь-в-точь как в примере */
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 992px) {
+            .burger-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--primary-dark);
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-content {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                margin-left: 1rem;
+                box-shadow: none;
+            }
+            
+            .dropdown-content a {
+                color: white;
+            }
+            
+            .dropdown-content a i {
+                color: var(--secondary);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .contact-header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .contact-header {
+                padding: 1.5rem;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">M</span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+                
+                <button class="burger-menu" id="burgerMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-links" id="navLinks">
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Другое <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/news"><i class="fas fa-newspaper"></i> Новости</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/gallery"><i class="fas fa-images"></i> Галерея</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Контакты</a>
+                            <div class="divider"></div>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/"><i class="fas fa-gavel"></i> Правовые документы</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown" id="dropdownLinks">
+                        <button id="dropdownLinksBtn">
+                            Полезные ссылки <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank"><i class="fas fa-play"></i> Начать играть</a>
+                            <a href="https://kirill12633.github.io/status.metro.new/" target="_blank"><i class="fas fa-chart-line"></i> Статус сервисов</a>
+                        </div>
+                    </div>
+                    
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="contact-header">
+            <h1><i class="fas fa-envelope"></i> Свяжитесь с нами</h1>
+            <p>Мы всегда рады помочь! Напишите нам через форму или выберите удобный способ связи</p>
+        </div>
+        
+        <div class="contact-grid">
+            <!-- Форма обратной связи -->
+            <div class="contact-form-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-paper-plane"></i> Отправить сообщение</h2>
+                </div>
+                <div class="card-body">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Ваше имя или как к вам обращаться</label>
+                            <input type="text" id="userName" placeholder="Например: Александр или AlexMetro" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-at"></i> Ваш email (для ответа)</label>
+                            <input type="email" id="userEmail" placeholder="example@mail.ru" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-comment"></i> Описание вопроса / Сообщение</label>
+                            <textarea id="userMessage" placeholder="Опишите подробно ваш вопрос или предложение..." required></textarea>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeCheckbox" required>
+                                <span>Я соглашаюсь с <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>, <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Пользовательским соглашением</a> и <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/" target="_blank">Правилами сайта</a>. Понимаю, что заявка будет отправлена через мою почту (откроется email-клиент).</span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit" id="submitBtn">
+                            <i class="fas fa-envelope"></i> Отправить
+                        </button>
+                    </form>
+                    <p style="font-size: 0.7rem; color: #aaa; text-align: center; margin-top: 1rem;">
+                        <i class="fas fa-info-circle"></i> После нажатия "Отправить" откроется ваша почта — просто отправьте письмо
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Контактная информация -->
+            <div>
+                <div class="info-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-address-card"></i> Контакты</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="contact-method">
+                            <div class="icon"><i class="fab fa-discord"></i></div>
+                            <div class="details">
+                                <h4>Канал вопросов и поддержка</h4>
+                                <p><a href="https://discord.com/invite/EwDWSFqDjn" target="_blank">https://discord.com/invite/EwDWSFqDjn</a></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="icon"><i class="fab fa-telegram"></i></div>
+                            <div class="details">
+                                <h4>Telegram канал</h4>
+                                <p><a href="https://t.me/Metro_New_Official" target="_blank">https://t.me/Metro_New_Official</a></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="icon"><i class="fas fa-envelope"></i></div>
+                            <div class="details">
+                                <h4>Электронная почта</h4>
+                                <p><a href="mailto:metro.new.help@gmail.com">metro.new.help@gmail.com</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-share-alt"></i> Социальные сети</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="social-links">
+                            <a href="https://discord.com/invite/EwDWSFqDjn" class="social-btn discord" target="_blank">
+                                <i class="fab fa-discord"></i> Discord
+                            </a>
+                            <a href="https://t.me/Metro_New_Official" class="social-btn telegram" target="_blank">
+                                <i class="fab fa-telegram"></i> Telegram
+                            </a>
+                            <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" class="social-btn youtube" target="_blank">
+                                <i class="fab fa-youtube"></i> YouTube
+                            </a>
+                        </div>
+                        <div class="support-note">
+                            <i class="fas fa-clock"></i> <strong>Время ответа:</strong> Обычно мы отвечаем в течение 24-48 часов. По срочным вопросам лучше писать в Discord.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>О нас</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about">О проекте</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff">Наша команда</a></li>
+                        <li><a href="https://discord.com/invite/EwDWSFqDjn">Discord сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Информация</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq">FAQ</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki">Wiki</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Правовые документы</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/">Политика возврата</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/">Правила сайта</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Социальные сети</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/EwDWSFqDjn">Discord</a></li>
+                        <li><a href="https://t.me/Metro_New_Official">Telegram</a></li>
+                        <li><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox">YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© 2026 Метро New. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Мобильное меню
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        
+        // Дропдауны
+        const dropdownOther = document.getElementById('dropdownOther');
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        dropdownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownOther.classList.toggle('open');
+        });
+        
+        const dropdownLinks = document.getElementById('dropdownLinks');
+        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        dropdownLinksBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownLinks.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
+            if (!dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
+        });
+        
+        // Форма: при отправке открывает почтовый клиент (mailto)
+        const contactForm = document.getElementById('contactForm');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        const userMessage = document.getElementById('userMessage');
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!userName.value.trim()) {
+                alert('Пожалуйста, укажите ваше имя или как к вам обращаться');
+                userName.focus();
+                return;
+            }
+            if (!userEmail.value.trim()) {
+                alert('Пожалуйста, укажите ваш email для ответа');
+                userEmail.focus();
+                return;
+            }
+            if (!userEmail.value.includes('@')) {
+                alert('Введите корректный email адрес');
+                userEmail.focus();
+                return;
+            }
+            if (!userMessage.value.trim()) {
+                alert('Пожалуйста, напишите ваше сообщение');
+                userMessage.focus();
+                return;
+            }
+            if (!agreeCheckbox.checked) {
+                alert('Пожалуйста, подтвердите согласие с правовыми документами');
+                return;
+            }
+            
+            const subject = encodeURIComponent(`Обращение от ${userName.value.trim()} (через сайт Метро New)`);
+            const body = encodeURIComponent(
+                `Имя/Обращение: ${userName.value.trim()}\n` +
+                `Email для ответа: ${userEmail.value.trim()}\n\n` +
+                `Текст сообщения:\n${userMessage.value.trim()}\n\n` +
+                `---\nОтправлено через форму контактов сайта Метро New`
+            );
+            
+            window.location.href = `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
+            alert('Открывается ваша почта! Пожалуйста, отправьте письмо. Спасибо за обращение!');
+        });
+    </script>
+</body>
+</html>
