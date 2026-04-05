@@ -24,10 +24,11 @@
             --primary-dark: #0052a3;
             --primary-light: #4d94ff;
             --secondary: #FFD700;
-            --secondary-dark: #e6c200;
             --dark: #1A1A1A;
             --light: #F8F9FA;
             --gray: #6C757D;
+            --danger: #dc3545;
+            --success: #28a745;
             --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
             --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
             --radius-md: 8px;
@@ -51,7 +52,7 @@
             box-shadow: var(--shadow-md);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
         }
         
         .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
@@ -269,6 +270,7 @@
             border-top: 1px solid #e0e0e0;
             padding-top: 0.8rem;
         }
+        .share-btn { cursor: pointer; }
         
         .important-badge { background: #fbbc04; color: var(--dark); font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
         
@@ -288,61 +290,110 @@
             font-family: 'Montserrat', sans-serif;
             transition: all 0.2s;
         }
-        .page-btn:hover { background: var(--primary-light); color: white; border-color: var(--primary-light); }
+        .page-btn:hover { background: var(--primary-light); color: white; }
         .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         
-        /* Модальное окно для просмотра новости */
-        .modal {
+        /* МОДАЛЬНОЕ ОКНО - отдельное окно с дизайном */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 2000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s ease;
         }
-        .modal-content {
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-window {
             background: white;
             border-radius: var(--radius-xl);
-            max-width: 700px;
             width: 90%;
+            max-width: 750px;
             max-height: 85vh;
             overflow-y: auto;
-            padding: 1.5rem;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--secondary);
-        }
-        .modal-header h2 { color: var(--primary); font-size: 1.3rem; }
-        .close-modal { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--gray); }
-        .close-modal:hover { color: var(--dark); }
-        .modal-image {
-            height: 200px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: var(--radius-lg);
-            margin-bottom: 1rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
             position: relative;
         }
         
-        /* Блок комментариев */
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.3rem;
+            margin: 0;
+            padding-right: 2rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            transform: scale(1.1);
+            color: var(--secondary);
+        }
+        
+        .modal-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            position: relative;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-meta {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .modal-content-text {
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
         .comments-section {
             margin-top: 1.5rem;
             padding-top: 1rem;
             border-top: 2px solid #e0e0e0;
         }
-        .comments-title {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
+        .comments-title { font-size: 1.1rem; margin-bottom: 1rem; color: var(--primary); }
         .comment-form textarea {
             width: 100%;
             padding: 10px;
@@ -362,13 +413,11 @@
             font-family: 'Montserrat', sans-serif;
             margin-bottom: 1rem;
         }
-        .comment-submit:hover { background: var(--primary-dark); }
         .comment-item {
             background: var(--light);
             padding: 0.8rem;
             border-radius: var(--radius-md);
             margin-bottom: 0.8rem;
-            position: relative;
         }
         .comment-header {
             display: flex;
@@ -379,38 +428,6 @@
         }
         .comment-author { font-weight: 600; color: var(--primary); }
         .comment-text { font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.5rem; word-break: break-word; }
-        .comment-footer { display: flex; gap: 1rem; font-size: 0.7rem; }
-        .report-btn { background: none; border: none; color: var(--gray); cursor: pointer; }
-        .report-btn:hover { color: #d93025; }
-        .comment-menu { position: relative; display: inline-block; }
-        .comment-dots { cursor: pointer; padding: 0 5px; }
-        .comment-menu-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background: white;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-md);
-            z-index: 10;
-        }
-        .comment-menu-content button {
-            display: block;
-            width: 100%;
-            padding: 6px 12px;
-            background: none;
-            border: none;
-            text-align: left;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .comment-menu-content button:hover { background: #f0f0f0; }
-        .age-restricted {
-            background: #ffe0e0;
-            padding: 1rem;
-            border-radius: var(--radius-md);
-            text-align: center;
-            color: #d93025;
-        }
         .no-comments { text-align: center; color: var(--gray); padding: 1rem; }
         
         .similar-news {
@@ -432,6 +449,7 @@
             background-color: var(--dark);
             color: white;
             padding: 3rem 0 2rem;
+            margin-top: 2rem;
         }
         .footer-container {
             display: grid;
@@ -452,13 +470,14 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1e8e3e;
+            background: var(--success);
             color: white;
             padding: 12px 25px;
             border-radius: 30px;
-            z-index: 9999;
+            z-index: 10001;
             animation: slideUp 0.3s ease;
         }
+        .toast.error { background: var(--danger); }
         @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         
         @media (max-width: 992px) {
@@ -474,6 +493,8 @@
             .news-header h1 { font-size: 1.6rem; }
             .news-header { padding: 1.5rem; }
             .news-grid { grid-template-columns: 1fr; }
+            .modal-window { width: 95%; }
+            .modal-header h2 { font-size: 1rem; }
         }
     </style>
 </head>
@@ -519,7 +540,7 @@
     <main class="container">
         <div class="news-header">
             <h1><i class="fas fa-newspaper"></i> Новости проекта</h1>
-            <p>Будьте в курсе последних событий, обновлений и анонсов</p>
+            <p>Будьте в курсе последних событий</p>
         </div>
         <div class="news-section">
             <div class="search-container"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" class="search-input" placeholder="Поиск новостей..."></div>
@@ -529,17 +550,20 @@
         </div>
     </main>
 
-    <div id="newsModal" class="modal">
-        <div class="modal-content">
+    <!-- Модальное окно - отдельное окно -->
+    <div id="newsModal" class="modal-overlay">
+        <div class="modal-window">
             <div class="modal-header">
                 <h2 id="modalTitle"></h2>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <div id="modalImage" class="modal-image"></div>
-            <div id="modalContent" class="modal-content-text"></div>
-            <div id="modalMeta" style="margin-top:1rem;font-size:0.8rem;color:var(--gray);"></div>
-            <div id="commentsBlock" class="comments-section"></div>
-            <div id="similarNews" class="similar-news"><h4 style="font-size:0.9rem;">📰 Похожие новости</h4><div id="similarList"></div></div>
+            <div class="modal-body">
+                <div id="modalMeta" class="modal-meta"></div>
+                <div id="modalContent" class="modal-content-text"></div>
+                <div id="commentsBlock" class="comments-section"></div>
+                <div id="similarNews" class="similar-news"><h4 style="font-size:0.9rem;">📰 Похожие новости</h4><div id="similarList"></div></div>
+            </div>
         </div>
     </div>
 
@@ -556,334 +580,121 @@
     </footer>
 
     <script>
-        // Firebase
-        firebase.initializeApp({
+        const firebaseConfig = {
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
             projectId: "metro-new-admin",
             storageBucket: "metro-new-admin.firebasestorage.app",
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-        });
+        };
+        
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        let allNews = [];
-        let currentCategory = 'all';
-        let searchTerm = '';
-        let currentPage = 1;
-        const itemsPerPage = 6;
+        let allNews = [], currentCategory = 'all', searchTerm = '', currentPage = 1, itemsPerPage = 6, currentNewsId = null;
         
-        // Возрастное ограничение (13+)
-        let userAge = parseInt(localStorage.getItem('user_age') || '0');
-        let currentNewsId = null;
-        
-        const categories = [
-            { id: 'all', name: 'Все', icon: 'fa-newspaper' },
-            { id: 'update', name: 'Обновления', icon: 'fa-sync-alt' },
-            { id: 'event', name: 'События', icon: 'fa-calendar-alt' },
-            { id: 'important', name: 'Важное', icon: 'fa-exclamation-triangle' },
-            { id: 'announcement', name: 'Анонсы', icon: 'fa-bullhorn' }
-        ];
+        const categories = [{ id: 'all', name: 'Все', icon: 'fa-newspaper' },{ id: 'update', name: 'Обновления', icon: 'fa-sync-alt' },{ id: 'event', name: 'События', icon: 'fa-calendar-alt' },{ id: 'important', name: 'Важное', icon: 'fa-exclamation-triangle' },{ id: 'announcement', name: 'Анонсы', icon: 'fa-bullhorn' }];
         
         function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
         function formatDate(timestamp) { if(!timestamp) return 'Дата не указана'; if(timestamp.toDate) return timestamp.toDate().toLocaleDateString('ru-RU'); return timestamp; }
+        function showToast(msg, isError = false) { const t = document.createElement('div'); t.className = 'toast' + (isError ? ' error' : ''); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
         
-        function renderCategories() {
-            const container = document.getElementById('categoriesContainer');
-            container.innerHTML = categories.map(cat => `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-category="${cat.id}" onclick="filterByCategory('${cat.id}')"><i class="fas ${cat.icon}"></i> ${cat.name}</button>`).join('');
-        }
+        function renderCategories() { document.getElementById('categoriesContainer').innerHTML = categories.map(cat => `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" onclick="filterByCategory('${cat.id}')"><i class="fas ${cat.icon}"></i> ${cat.name}</button>`).join(''); }
         
         async function loadNews() {
             try {
-                const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
-                allNews = [];
-                snapshot.forEach(doc => { const data = doc.data(); if(data.status === 'published' || !data.status) allNews.push({ id: doc.id, ...data }); });
+                let query = db.collection('news').where('status', '==', 'published').orderBy('createdAt', 'desc');
+                if(currentCategory !== 'all') query = query.where('category', '==', currentCategory);
+                const snapshot = await query.get();
+                allNews = []; snapshot.forEach(doc => allNews.push({ id: doc.id, ...doc.data() }));
                 applyFiltersAndRender();
-            } catch(e) { console.error(e); document.getElementById('newsGrid').innerHTML = '<div class="error-message">❌ Ошибка загрузки</div>'; }
+            } catch(e) { document.getElementById('newsGrid').innerHTML = '<div class="error-message">❌ Ошибка загрузки</div>'; }
         }
         
         function applyFiltersAndRender() {
             let filtered = [...allNews];
-            if(currentCategory !== 'all') filtered = filtered.filter(n => n.category === currentCategory);
             if(searchTerm) filtered = filtered.filter(n => (n.title || '').toLowerCase().includes(searchTerm) || (n.excerpt || '').toLowerCase().includes(searchTerm));
             const totalPages = Math.ceil(filtered.length / itemsPerPage);
             const start = (currentPage - 1) * itemsPerPage;
-            const paginated = filtered.slice(start, start + itemsPerPage);
-            renderNewsGrid(paginated);
+            renderNewsGrid(filtered.slice(start, start + itemsPerPage));
             renderPagination(totalPages);
         }
         
         function renderNewsGrid(newsList) {
             const grid = document.getElementById('newsGrid');
-            if(newsList.length === 0) { grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">📭 Новостей не найдено</div>'; return; }
-            
+            if(!newsList.length) { grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">📭 Новостей не найдено</div>'; return; }
             const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
             const likes = JSON.parse(localStorage.getItem('likes') || '{}');
             const dislikes = JSON.parse(localStorage.getItem('dislikes') || '{}');
             const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
             const categoryIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
-            
-            grid.innerHTML = newsList.map(n => {
-                const date = n.createdAt ? formatDate(n.createdAt) : 'Дата не указана';
-                const isFav = favs.includes(n.id);
-                const userLiked = likes[n.id];
-                const userDisliked = dislikes[n.id];
-                const likeCount = n.likeCount || 0;
-                const dislikeCount = n.dislikeCount || 0;
-                const tags = n.tags || [];
-                return `<div class="news-card" onclick="openNews('${n.id}')">
-                    <div class="news-image">
-                        ${n.badge ? `<span class="news-badge">${escapeHtml(n.badge)}</span>` : ''}
-                        <span class="category-badge"><i class="fas ${categoryIcons[n.category] || 'fa-newspaper'}"></i> ${categoryNames[n.category] || 'Новость'}</span>
-                    </div>
-                    <div class="news-content">
-                        <h3 class="news-title">${escapeHtml(n.title)}${n.important ? '<span class="important-badge">Важно!</span>' : ''}</h3>
-                        <p class="news-excerpt">${escapeHtml((n.excerpt || '').substring(0, 100))}...</p>
-                        <div class="tags">${tags.map(t => `<span class="tag" onclick="event.stopPropagation(); searchByTag('${t}')">#${escapeHtml(t)}</span>`).join('')}</div>
-                        <div class="news-stats">
-                            <span class="like-btn ${userLiked ? 'active' : ''}" onclick="event.stopPropagation(); rateNews('${n.id}', 'like')"><i class="fas fa-thumbs-up"></i> ${likeCount}</span>
-                            <span class="dislike-btn ${userDisliked ? 'active' : ''}" onclick="event.stopPropagation(); rateNews('${n.id}', 'dislike')"><i class="fas fa-thumbs-down"></i> ${dislikeCount}</span>
-                            <span><i class="fas fa-comment"></i> ${n.commentsCount || 0}</span>
-                            <span class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${n.id}', '${escapeHtml(n.title).replace(/'/g, "\\'")}')"><i class="fas fa-star"></i></span>
-                        </div>
-                        <div class="news-meta">
-                            <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                            <span><i class="far fa-eye"></i> ${n.views || 0}</span>
-                            <span class="share-btn" onclick="event.stopPropagation(); shareNews('${n.id}', '${escapeHtml(n.title).replace(/'/g, "\\'")}')"><i class="fas fa-share-alt"></i> Поделиться</span>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+            grid.innerHTML = newsList.map(n => `<div class="news-card" onclick="openNews('${n.id}')"><div class="news-image">${n.badge ? `<span class="news-badge">${escapeHtml(n.badge)}</span>` : ''}<span class="category-badge"><i class="fas ${categoryIcons[n.category]}"></i> ${categoryNames[n.category]}</span></div><div class="news-content"><h3 class="news-title">${escapeHtml(n.title)}${n.important ? '<span class="important-badge">Важно!</span>' : ''}</h3><p class="news-excerpt">${escapeHtml((n.excerpt || '').substring(0, 100))}...</p><div class="tags">${(n.tags || []).map(t => `<span class="tag" onclick="event.stopPropagation(); searchByTag('${t}')">#${escapeHtml(t)}</span>`).join('')}</div><div class="news-stats"><span class="like-btn ${likes[n.id] ? 'active' : ''}" onclick="event.stopPropagation(); rateNews('${n.id}', 'like')"><i class="fas fa-thumbs-up"></i> ${n.likeCount || 0}</span><span class="dislike-btn ${dislikes[n.id] ? 'active' : ''}" onclick="event.stopPropagation(); rateNews('${n.id}', 'dislike')"><i class="fas fa-thumbs-down"></i> ${n.dislikeCount || 0}</span><span><i class="fas fa-comment"></i> ${n.commentsCount || 0}</span><span class="favorite-btn ${favs.includes(n.id) ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${n.id}')"><i class="fas fa-star"></i></span></div><div class="news-meta"><span><i class="far fa-calendar-alt"></i> ${formatDate(n.createdAt)}</span><span><i class="far fa-eye"></i> ${n.views || 0}</span><span class="share-btn" onclick="event.stopPropagation(); shareNews('${n.id}', '${escapeHtml(n.title)}')"><i class="fas fa-share-alt"></i> Поделиться</span></div></div></div>`).join('');
         }
         
-        function renderPagination(totalPages) {
-            const container = document.getElementById('paginationContainer');
-            if(totalPages <= 1) { container.innerHTML = ''; return; }
-            let html = '';
-            for(let i = 1; i <= Math.min(totalPages, 10); i++) {
-                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-            }
-            container.innerHTML = html;
-        }
+        function renderPagination(totalPages) { const container = document.getElementById('paginationContainer'); if(totalPages <= 1) { container.innerHTML = ''; return; } let html = ''; for(let i = 1; i <= Math.min(totalPages, 10); i++) html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`; container.innerHTML = html; }
         
         window.goToPage = (page) => { currentPage = page; applyFiltersAndRender(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
         window.filterByCategory = (cat) => { currentCategory = cat; currentPage = 1; applyFiltersAndRender(); renderCategories(); };
         window.searchByTag = (tag) => { document.getElementById('searchInput').value = tag; searchTerm = tag; currentPage = 1; applyFiltersAndRender(); };
         document.getElementById('searchInput').addEventListener('input', (e) => { searchTerm = e.target.value.toLowerCase(); currentPage = 1; applyFiltersAndRender(); });
         
-        window.rateNews = async (id, type) => {
-            let likes = JSON.parse(localStorage.getItem('likes') || '{}');
-            let dislikes = JSON.parse(localStorage.getItem('dislikes') || '{}');
-            const newsRef = db.collection('news').doc(id);
-            if(type === 'like') {
-                if(likes[id]) { showToast('Вы уже оценили'); return; }
-                if(dislikes[id]) { await newsRef.update({ dislikeCount: firebase.firestore.FieldValue.increment(-1) }); delete dislikes[id]; }
-                await newsRef.update({ likeCount: firebase.firestore.FieldValue.increment(1) });
-                likes[id] = true;
-                showToast('👍 Спасибо за оценку!');
-            } else {
-                if(dislikes[id]) { showToast('Вы уже оценили'); return; }
-                if(likes[id]) { await newsRef.update({ likeCount: firebase.firestore.FieldValue.increment(-1) }); delete likes[id]; }
-                await newsRef.update({ dislikeCount: firebase.firestore.FieldValue.increment(1) });
-                dislikes[id] = true;
-                showToast('👎 Спасибо за отзыв!');
-            }
-            localStorage.setItem('likes', JSON.stringify(likes));
-            localStorage.setItem('dislikes', JSON.stringify(dislikes));
-            loadNews();
-        };
+        window.rateNews = async (id, type) => { let likes = JSON.parse(localStorage.getItem('likes') || '{}'), dislikes = JSON.parse(localStorage.getItem('dislikes') || '{}'); const ref = db.collection('news').doc(id); if(type === 'like') { if(likes[id]) return; if(dislikes[id]) { await ref.update({ dislikeCount: firebase.firestore.FieldValue.increment(-1) }); delete dislikes[id]; } await ref.update({ likeCount: firebase.firestore.FieldValue.increment(1) }); likes[id] = true; showToast('👍 Спасибо'); } else { if(dislikes[id]) return; if(likes[id]) { await ref.update({ likeCount: firebase.firestore.FieldValue.increment(-1) }); delete likes[id]; } await ref.update({ dislikeCount: firebase.firestore.FieldValue.increment(1) }); dislikes[id] = true; showToast('👎 Спасибо за отзыв'); } localStorage.setItem('likes', JSON.stringify(likes)); localStorage.setItem('dislikes', JSON.stringify(dislikes)); loadNews(); };
+        window.toggleFavorite = (id) => { let favs = JSON.parse(localStorage.getItem('favorites') || '[]'); if(favs.includes(id)) { favs = favs.filter(f => f !== id); showToast('❌ Удалено из избранного'); } else { favs.push(id); showToast('✅ Добавлено в избранное'); } localStorage.setItem('favorites', JSON.stringify(favs)); applyFiltersAndRender(); };
+        window.shareNews = (id, title) => { const url = window.location.href.split('?')[0] + '?id=' + id; if(navigator.share) navigator.share({ title, url }); else { navigator.clipboard.writeText(url); showToast('📋 Ссылка скопирована'); } };
         
-        window.toggleFavorite = (id, title) => {
-            let favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-            if(favs.includes(id)) { favs = favs.filter(f => f !== id); showToast(`❌ "${title}" удалено из избранного`); }
-            else { favs.push(id); showToast(`✅ "${title}" добавлено в избранное`); }
-            localStorage.setItem('favorites', JSON.stringify(favs));
-            applyFiltersAndRender();
-        };
+        async function getCommentsCount(newsId) { try { const snapshot = await db.collection('comments').where('newsId', '==', newsId).where('status', '==', 'approved').get(); return snapshot.size; } catch(e) { return 0; } }
         
-        window.shareNews = (id, title) => {
-            const url = window.location.href.split('?')[0] + '?id=' + id;
-            if(navigator.share) navigator.share({ title, url });
-            else { navigator.clipboard.writeText(url); showToast('📋 Ссылка скопирована'); }
+        window.openNews = async function(id) {
+            currentNewsId = id;
+            const modal = document.getElementById('newsModal');
+            modal.style.display = 'flex';
+            await db.collection('news').doc(id).update({ views: firebase.firestore.FieldValue.increment(1) });
+            const doc = await db.collection('news').doc(id).get();
+            if(!doc.exists) return;
+            const news = doc.data();
+            document.getElementById('modalTitle').textContent = escapeHtml(news.title);
+            document.getElementById('modalImage').innerHTML = `${news.badge ? `<span style="position:absolute;top:15px;left:15px;background:var(--secondary);color:var(--dark);padding:6px 18px;border-radius:30px;font-weight:700;">${escapeHtml(news.badge)}</span>` : ''}<span style="position:absolute;top:15px;right:15px;background:rgba(0,0,0,0.6);color:white;padding:6px 18px;border-radius:30px;"><i class="fas ${news.category === 'update' ? 'fa-sync-alt' : news.category === 'event' ? 'fa-calendar-alt' : news.category === 'important' ? 'fa-exclamation-triangle' : 'fa-bullhorn'}"></i> ${news.category === 'update' ? 'Обновление' : news.category === 'event' ? 'Событие' : news.category === 'important' ? 'Важное' : 'Анонс'}</span>`;
+            document.getElementById('modalImage').style.position = 'relative';
+            document.getElementById('modalContent').innerHTML = news.content ? DOMPurify.sanitize(news.content) : '<p>Содержимое отсутствует</p>';
+            document.getElementById('modalMeta').innerHTML = `<i class="far fa-calendar-alt"></i> ${formatDate(news.createdAt)} &nbsp;|&nbsp; <i class="far fa-eye"></i> ${(news.views || 0) + 1}`;
+            await loadComments(id);
+            const similar = allNews.filter(n => n.id !== id && n.category === news.category).slice(0, 3);
+            document.getElementById('similarList').innerHTML = similar.map(s => `<a class="similar-item" onclick="closeModal(); openNews('${s.id}')">📌 ${escapeHtml(s.title)}</a>`).join('');
         };
-        
-        async function getCommentsCount(newsId) {
-            try {
-                const snapshot = await db.collection('comments').where('newsId', '==', newsId).where('status', '==', 'approved').get();
-                return snapshot.size;
-            } catch(e) { return 0; }
-        }
         
         async function loadComments(newsId) {
             const container = document.getElementById('commentsBlock');
-            if(!container) return;
-            try {
-                const snapshot = await db.collection('comments')
-                    .where('newsId', '==', newsId)
-                    .where('status', '==', 'approved')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
-                let commentsHtml = `<div class="comments-title"><i class="fas fa-comments"></i> Комментарии (${snapshot.size})</div>`;
-                if(snapshot.empty) {
-                    commentsHtml += `<div class="no-comments">💬 Нет комментариев. Будьте первым!</div>`;
-                } else {
-                    snapshot.forEach(doc => {
-                        const c = doc.data();
-                        const date = c.createdAt?.toDate?.()?.toLocaleString() || 'только что';
-                        commentsHtml += `
-                            <div class="comment-item">
-                                <div class="comment-header">
-                                    <span class="comment-author"><i class="fas fa-user"></i> ${escapeHtml(c.author || 'Гость')}</span>
-                                    <div class="comment-menu">
-                                        <span class="comment-dots" onclick="toggleCommentMenu(this)"><i class="fas fa-ellipsis-v"></i></span>
-                                        <div class="comment-menu-content">
-                                            <button onclick="reportComment('${doc.id}', '${newsId}')"><i class="fas fa-flag"></i> Пожаловаться</button>
-                                            <button onclick="shareComment('${escapeHtml(c.text).replace(/'/g, "\\'")}')"><i class="fas fa-share"></i> Поделиться</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="comment-text">${escapeHtml(c.text)}</div>
-                                <div class="comment-footer">
-                                    <span><i class="far fa-clock"></i> ${date}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                // Форма добавления комментария (с проверкой возраста)
-                if(userAge >= 13 && userAge > 0) {
-                    commentsHtml += `
-                        <div class="comment-form">
-                            <textarea id="commentText" rows="3" placeholder="Напишите комментарий... (до 500 символов, без мата и ссылок)"></textarea>
-                            <button class="comment-submit" onclick="submitComment('${newsId}')"><i class="fas fa-paper-plane"></i> Отправить</button>
-                        </div>
-                    `;
-                } else if(userAge === 0) {
-                    commentsHtml += `
-                        <div class="age-restricted">
-                            <i class="fas fa-shield-alt"></i> Для комментирования укажите ваш возраст:<br>
-                            <input type="number" id="ageInput" placeholder="Ваш возраст" style="margin-top:10px;padding:8px;border-radius:8px;border:1px solid #ccc;width:120px;">
-                            <button onclick="setAge()" style="margin-left:10px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">Подтвердить</button>
-                        </div>
-                    `;
-                } else if(userAge < 13) {
-                    commentsHtml += `<div class="age-restricted"><i class="fas fa-sad-tear"></i> Упсс... Похоже, вам нет 13 лет! Комментирование недоступно.<br><small>Код ошибки: AGE_RESTRICTED</small></div>`;
-                }
-                container.innerHTML = commentsHtml;
-            } catch(e) { container.innerHTML = '<div class="error-message">Ошибка загрузки комментариев</div>'; }
+            const snapshot = await db.collection('comments').where('newsId', '==', newsId).where('status', '==', 'approved').orderBy('createdAt', 'desc').limit(50).get();
+            let html = `<div class="comments-title"><i class="fas fa-comments"></i> Комментарии (${snapshot.size})</div>`;
+            if(snapshot.empty) html += `<div class="no-comments">💬 Нет комментариев. Будьте первым!</div>`;
+            else snapshot.forEach(doc => { const c = doc.data(); html += `<div class="comment-item"><div class="comment-header"><span class="comment-author"><i class="fas fa-user"></i> ${escapeHtml(c.author || 'Гость')}</span><span>${c.createdAt?.toDate?.().toLocaleString() || 'только что'}</span></div><div class="comment-text">${escapeHtml(c.text)}</div></div>`; });
+            html += `<div class="comment-form"><textarea id="commentText" rows="3" placeholder="Напишите комментарий... (до 500 символов)"></textarea><button class="comment-submit" onclick="submitComment('${newsId}')"><i class="fas fa-paper-plane"></i> Отправить</button></div>`;
+            container.innerHTML = html;
         }
         
-        window.setAge = () => {
-            const age = parseInt(document.getElementById('ageInput')?.value);
-            if(age && age >= 13) {
-                localStorage.setItem('user_age', age);
-                userAge = age;
-                showToast('✅ Возраст подтвержден! Теперь вы можете комментировать.');
-                if(currentNewsId) loadComments(currentNewsId);
-            } else if(age && age < 13) {
-                localStorage.setItem('user_age', age);
-                userAge = age;
-                showToast('😢 Вам нет 13 лет. Комментирование недоступно.');
-                if(currentNewsId) loadComments(currentNewsId);
-            } else {
-                showToast('Введите корректный возраст (число)');
-            }
-        };
-        
         window.submitComment = async (newsId) => {
-            if(userAge < 13) { showToast('❌ Вам нет 13 лет'); return; }
             const text = document.getElementById('commentText')?.value.trim();
             if(!text) { showToast('Введите текст'); return; }
             if(text.length > 500) { showToast('Максимум 500 символов'); return; }
             if(/(https?:\/\/|www\.)/i.test(text)) { showToast('❌ Ссылки запрещены'); return; }
-            if(/хуй|пизда|бля|ебал|мудак|пидор|сука|гандон|шлюха|уебан|долбоеб|ебать|хуя/i.test(text)) { showToast('❌ Запрещенные слова'); return; }
             try {
-                await db.collection('comments').add({
-                    newsId,
-                    text: text.replace(/[<>]/g, ''),
-                    author: 'Гость',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'pending',
-                    reports: 0
-                });
-                showToast('💬 На модерации (до 24ч)');
+                await db.collection('comments').add({ newsId, text: text.replace(/[<>]/g, ''), author: 'Гость', createdAt: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', reports: 0 });
                 document.getElementById('commentText').value = '';
+                showToast('💬 На модерации (до 24ч)');
                 loadComments(newsId);
                 loadNews();
             } catch(e) { showToast('Ошибка'); }
         };
         
-        window.toggleCommentMenu = (btn) => { const menu = btn.nextElementSibling; menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; setTimeout(() => { document.addEventListener('click', function closeMenu(e) { if(!btn.contains(e.target) && !menu.contains(e.target)) { menu.style.display = 'none'; document.removeEventListener('click', closeMenu); } }); }, 10); };
+        window.closeModal = () => { document.getElementById('newsModal').style.display = 'none'; };
         
-        window.reportComment = async (commentId, newsId) => {
-            try {
-                const comment = await db.collection('comments').doc(commentId).get();
-                const reports = (comment.data()?.reports || 0) + 1;
-                if(reports >= 3) { await db.collection('comments').doc(commentId).delete(); showToast('🚫 Комментарий удален за 3 жалобы'); }
-                else { await db.collection('comments').doc(commentId).update({ reports }); showToast('🚩 Жалоба отправлена'); }
-                loadComments(newsId);
-                loadNews();
-            } catch(e) { showToast('Ошибка'); }
-        };
-        
-        window.shareComment = (text) => { if(navigator.share) navigator.share({ text }); else { navigator.clipboard.writeText(text); showToast('📋 Комментарий скопирован'); } };
-        
-        window.openNews = async function(newsId) {
-            currentNewsId = newsId;
-            const modal = document.getElementById('newsModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalContent = document.getElementById('modalContent');
-            const modalMeta = document.getElementById('modalMeta');
-            const modalImage = document.getElementById('modalImage');
-            modal.style.display = 'flex';
-            modalTitle.textContent = 'Загрузка...';
-            try {
-                await db.collection('news').doc(newsId).update({ views: firebase.firestore.FieldValue.increment(1) });
-                const doc = await db.collection('news').doc(newsId).get();
-                if(!doc.exists) throw new Error();
-                const news = doc.data();
-                const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
-                const views = (news.views || 0) + 1;
-                const commentsCount = await getCommentsCount(newsId);
-                const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
-                const categoryIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
-                modalTitle.textContent = escapeHtml(news.title);
-                modalImage.innerHTML = `${news.badge ? `<span style="position:absolute;top:15px;left:15px;background:var(--secondary);color:var(--dark);padding:6px 18px;border-radius:30px;font-weight:700;">${escapeHtml(news.badge)}</span>` : ''}<span style="position:absolute;top:15px;right:15px;background:rgba(0,0,0,0.6);color:white;padding:6px 18px;border-radius:30px;"><i class="fas ${categoryIcons[news.category] || 'fa-newspaper'}"></i> ${categoryNames[news.category] || 'Новость'}</span>`;
-                modalImage.style.position = 'relative';
-                modalImage.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
-                modalContent.innerHTML = news.content ? DOMPurify.sanitize(news.content) : '<p>Содержимое отсутствует</p>';
-                modalMeta.innerHTML = `<i class="far fa-calendar-alt"></i> ${date} &nbsp;|&nbsp; <i class="far fa-eye"></i> ${views} &nbsp;|&nbsp; <i class="fas fa-comment"></i> ${commentsCount} комментариев`;
-                await loadComments(newsId);
-                const similar = allNews.filter(n => n.id !== newsId && (n.category === news.category || (n.tags && news.tags && n.tags.some(t => (n.tags || []).includes(t))))).slice(0, 3);
-                const similarList = document.getElementById('similarList');
-                if(similar.length) {
-                    similarList.innerHTML = similar.map(s => `<a class="similar-item" onclick="closeModal(); openNews('${s.id}')">📌 ${escapeHtml(s.title)}</a>`).join('');
-                } else {
-                    similarList.innerHTML = '<p style="color:var(--gray);">Нет похожих новостей</p>';
-                }
-            } catch(e) { modalContent.innerHTML = '<p>Ошибка загрузки</p>'; }
-        };
-        
-        window.closeModal = () => { document.getElementById('newsModal').style.display = 'none'; currentNewsId = null; };
-        const modal = document.getElementById('newsModal');
-        if(modal) modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
-        
-        // Навигация
-        const burger = document.getElementById('burgerMenu');
-        const navLinks = document.getElementById('navLinks');
+        const burger = document.getElementById('burgerMenu'), navLinks = document.getElementById('navLinks');
         if(burger) burger.addEventListener('click', () => navLinks.classList.toggle('active'));
-        const dropdownOther = document.getElementById('dropdownOther');
-        const dropdownBtn = document.getElementById('dropdownBtn');
-        const dropdownLinks = document.getElementById('dropdownLinks');
-        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        const dropdownOther = document.getElementById('dropdownOther'), dropdownBtn = document.getElementById('dropdownBtn'), dropdownLinks = document.getElementById('dropdownLinks'), dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
         if(dropdownBtn) dropdownBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); dropdownOther.classList.toggle('open'); });
         if(dropdownLinksBtn) dropdownLinksBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); dropdownLinks.classList.toggle('open'); });
-        document.addEventListener('click', (e) => {
-            if(dropdownOther && !dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
-            if(dropdownLinks && !dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
-        });
+        document.addEventListener('click', (e) => { if(dropdownOther && !dropdownOther.contains(e.target)) dropdownOther.classList.remove('open'); if(dropdownLinks && !dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open'); });
         
         renderCategories();
         loadNews();
