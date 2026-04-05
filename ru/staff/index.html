@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Метро New - Наша команда</title>
+    
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown > button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dropdown > button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .dropdown > button i {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.open > button i {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 240px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown.open .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-content a i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 5px 0;
+        }
+        
+        .login-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--secondary-dark);
+        }
+        
+        .burger-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .team-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .team-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .team-section {
+            margin-bottom: 3rem;
+        }
+        
+        .team-section-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+            display: inline-block;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .team-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            padding: 1.5rem;
+            cursor: default;
+        }
+        
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .team-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 3rem;
+            color: white;
+        }
+        
+        .team-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--dark);
+        }
+        
+        .team-role {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .team-role.owner { color: #FFD700; }
+        .team-role.ceo { color: #9B59B6; }
+        .team-role.manager { color: #E67E22; }
+        .team-role.admin { color: #E74C3C; }
+        .team-role.moderator { color: #2ECC71; }
+        .team-role.developer { color: #3498DB; }
+        
+        .team-desc {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .team-tag {
+            display: inline-block;
+            background: var(--light);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.75rem;
+            font-family: monospace;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 992px) {
+            .burger-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--primary-dark);
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-content {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                margin-left: 1rem;
+                box-shadow: none;
+            }
+            
+            .dropdown-content a {
+                color: white;
+            }
+            
+            .dropdown-content a i {
+                color: var(--secondary);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .team-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">M</span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+                
+                <button class="burger-menu" id="burgerMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-links" id="navLinks">
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Другое <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/news"><i class="fas fa-newspaper"></i> Новости</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/gallery"><i class="fas fa-images"></i> Галерея</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Контакты</a>
+                            <div class="divider"></div>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/"><i class="fas fa-gavel"></i> Правовые документы</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown" id="dropdownLinks">
+                        <button id="dropdownLinksBtn">
+                            Полезные ссылки <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank"><i class="fas fa-play"></i> Начать играть</a>
+                            <a href="https://kirill12633.github.io/status.metro.new/" target="_blank"><i class="fas fa-chart-line"></i> Статус сервисов</a>
+                        </div>
+                    </div>
+                    
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="team-header">
+            <h1>Наша команда</h1>
+            <p>Люди, которые создают и развивают проект Метро New</p>
+        </div>
+        
+        <!-- Руководство -->
+        <div class="team-section">
+            <h2 class="team-section-title">Руководство</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <div class="team-name">kirill12633</div>
+                    <div class="team-role owner">👑 Основатель / Главный разработчик</div>
+                    <div class="team-desc">Создатель проекта, отвечает за разработку и общее управление</div>
+                    <div class="team-tag">@kirill12633</div>
+                </div>
+                
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="team-name">blackwidow9133</div>
+                    <div class="team-role ceo">💎 Генеральный директор</div>
+                    <div class="team-desc">Стратегическое развитие проекта, партнёрства и общее руководство</div>
+                    <div class="team-tag">@blackwidow9133</div>
+                </div>
+                
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="team-name">uwas_official</div>
+                    <div class="team-role manager">📋 Менеджер проекта / Админ-куратор</div>
+                    <div class="team-desc">Координация работы команды, контроль задач и администрирование</div>
+                    <div class="team-tag">@uwas_official</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Администрация -->
+        <div class="team-section">
+            <h2 class="team-section-title">Администрация</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="team-name">Yroslav_prow</div>
+                    <div class="team-role admin">🛡️ Главный администратор (G.ADM)</div>
+                    <div class="team-desc">Контроль порядка в игре и на сервере, управление администраторским составом</div>
+                    <div class="team-tag">@Yroslav_prow</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Модерация -->
+        <div class="team-section">
+            <h2 class="team-section-title">Модерация</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <div class="team-name">. (Точка)</div>
+                    <div class="team-role moderator">⚖️ Главный модератор</div>
+                    <div class="team-desc">Надзор за модераторами, решение спорных ситуаций, контроль соблюдения правил</div>
+                    <div class="team-tag">Главный модератор</div>
+                </div>
+                
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="team-name">4eByRek</div>
+                    <div class="team-role moderator">👁️ Следящий за хелперами</div>
+                    <div class="team-desc">Контроль работы хелперов, обучение новых помощников, помощь игрокам</div>
+                    <div class="team-tag">@4eByRek</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Разработка -->
+        <div class="team-section">
+            <h2 class="team-section-title">Разработка</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="team-name">Dimon</div>
+                    <div class="team-role developer">💻 Главный разработчик (G.DV)</div>
+                    <div class="team-desc">Техническая реализация игровых механик, скрипты, программирование</div>
+                    <div class="team-tag">@Dimon</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>О нас</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about">О проекте</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff">Наша команда</a></li>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX">Discord сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Информация</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq">FAQ</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki">Wiki</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Правовые документы</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy">Политика возврата</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Социальные сети</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX">Discord</a></li>
+                        <li><a href="https://t.me/metronewroblox">Telegram</a></li>
+                        <li><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox">YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        
+        const dropdownOther = document.getElementById('dropdownOther');
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        dropdownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownOther.classList.toggle('open');
+        });
+        
+        const dropdownLinks = document.getElementById('dropdownLinks');
+        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        dropdownLinksBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownLinks.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
+            if (!dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
+        });
+    </script>
+</body>
+</html>
