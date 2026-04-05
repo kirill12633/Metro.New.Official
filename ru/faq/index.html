@@ -2,240 +2,805 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ - Метро New</title>
-
-    <!-- Favicon -->
-    <link rel="icon" href="images/metro-icon.png" type="image/png">
-
-    <!-- Google Fonts -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Метро New - FAQ</title>
+    
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Основной CSS -->
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- reCAPTCHA v3 -->
-    <script src="https://www.google.com/recaptcha/api.js?render=6LcC3s0pAAAAAJjQHG3e9_2R0wKZ8g9d7b7gXqX7"></script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown > button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dropdown > button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .dropdown > button i {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.open > button i {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 240px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown.open .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-content a i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 5px 0;
+        }
+        
+        .login-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--secondary-dark);
+        }
+        
+        .burger-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .hero-faq {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-faq h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-faq p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        
+        .category-btn {
+            background: white;
+            border: 2px solid var(--primary-light);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: var(--dark);
+        }
+        
+        .category-btn:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+        
+        .category-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .faq-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        
+        .faq-section-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid var(--secondary);
+            padding-left: 20px;
+        }
+        
+        .faq-item {
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .faq-question {
+            padding: 1rem 0;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        
+        .faq-question:hover {
+            color: var(--primary);
+        }
+        
+        .faq-question i {
+            transition: transform 0.3s;
+            color: var(--primary);
+        }
+        
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            padding: 0 0 1rem 0;
+            color: var(--gray);
+            display: none;
+            line-height: 1.6;
+        }
+        
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        
+        .contact-support {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .contact-support p {
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+        
+        .support-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .support-link:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 992px) {
+            .burger-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--primary-dark);
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-content {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                margin-left: 1rem;
+                box-shadow: none;
+            }
+            
+            .dropdown-content a {
+                color: white;
+            }
+            
+            .dropdown-content a i {
+                color: var(--secondary);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-faq h1 {
+                font-size: 1.8rem;
+            }
+            
+            .faq-categories {
+                flex-wrap: wrap;
+            }
+            
+            .category-btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 1rem;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav>
                 <div class="logo">
-                    <span class="logo-icon">M</span>
-                    <span>Метро New</span>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">M</span>
+                        <span>Метро New</span>
+                    </a>
                 </div>
-                <div class="nav-links">
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
-                    <a href="https://www.roblox.com/communities/34820737/RP-NEW">Игра</a>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki/">Wiki</a>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news/">Новости</a>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/faq/" class="active">FAQ</a>
+                
+                <button class="burger-menu" id="burgerMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-links" id="navLinks">
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Другое <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/news"><i class="fas fa-newspaper"></i> Новости</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/gallery"><i class="fas fa-images"></i> Галерея</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Контакты</a>
+                            <div class="divider"></div>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/"><i class="fas fa-gavel"></i> Правовые документы</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown" id="dropdownLinks">
+                        <button id="dropdownLinksBtn">
+                            Полезные ссылки <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank"><i class="fas fa-play"></i> Начать играть</a>
+                            <a href="https://kirill12633.github.io/status.metro.new/" target="_blank"><i class="fas fa-chart-line"></i> Статус сервисов</a>
+                        </div>
+                    </div>
+                    
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
                 </div>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container">
-        <div class="page-header">
+        <div class="hero-faq">
             <h1>Часто задаваемые вопросы</h1>
-            <p>Найдите ответы на самые популярные вопросы о нашем проекте</p>
+            <p>Ответы на самые популярные вопросы о проекте Метро New</p>
         </div>
-
-        <!-- Пример изображения на странице -->
-        <div class="page-image">
-            <img src="images/metro1.jpg" alt="Метро New" class="responsive-img">
-        </div>
-
-        <!-- Поиск по FAQ -->
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Поиск по вопросам...">
-            </div>
-        </div>
-
-        <!-- Категории FAQ -->
-        <div class="categories">
+        
+        <div class="faq-categories">
             <button class="category-btn active" data-category="all">Все вопросы</button>
-            <button class="category-btn" data-category="general">Общие</button>
-            <button class="category-btn" data-category="project">Проект</button>
-            <button class="category-btn" data-category="technical">Технические</button>
+            <button class="category-btn" data-category="game">🎮 Об игре</button>
+            <button class="category-btn" data-category="technical">⚙️ Технические</button>
+            <button class="category-btn" data-category="community">👥 Сообщество</button>
+            <button class="category-btn" data-category="other">📌 Другое</button>
         </div>
-
-        <!-- FAQ Аккордеон -->
-        <div class="faq-container">
-            <!-- Общие вопросы -->
-            <div class="faq-category" data-category="general">
-                <h3><i class="fas fa-question-circle"></i> Общие вопросы</h3>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Что такое Метро New?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Метро New - это инновационный проект, посвященный созданию уникального игрового опыта в Roblox. Мы воссоздаем московский метрополитен с максимальной детализацией.
-                    </div>
+        
+        <!-- Категория: Об игре -->
+        <div class="faq-section" data-category="game">
+            <h2 class="faq-section-title">
+                <i class="fas fa-gamepad"></i>
+                Об игре
+            </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Как начать играть в Метро New?</span>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Как присоединиться к проекту?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Вы можете присоединиться к нашему сообществу через Discord, следить за обновлениями на сайте и участвовать в тестировании новых функций проекта.
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Бесплатен ли доступ к проекту?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Основной функционал проекта полностью бесплатен. Мы стремимся сделать наш проект доступным для всех желающих.
-                    </div>
+                <div class="faq-answer">
+                    Перейдите на страницу игры в Roblox по ссылке "Начать играть" и нажмите "Играть". После загрузки вы окажетесь на одной из станций метро. Управление: W/A/S/D — движение, E — взаимодействие, Shift — бег.
                 </div>
             </div>
-
-            <!-- Проект -->
-            <div class="faq-category" data-category="project">
-                <h3><i class="fas fa-rocket"></i> О проекте</h3>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Какие основные цели проекта?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Наша главная цель - создание качественного игрового контента и сильного сообщества. Мы работаем над инновационными решениями в игровой индустрии.
-                    </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Как управлять поездом?</span>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Как часто выходят обновления?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Мы регулярно выпускаем обновления. Мелкие исправления выходят еженедельно, крупные обновления - ежемесячно. Следите за новостями!
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Можно ли предложить свою идею для проекта?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Да! Мы всегда рады новым идеям от сообщества. Вы можете предложить свою идею через наш Discord сервер.
-                    </div>
+                <div class="faq-answer">
+                    Чтобы стать машинистом, подойдите к кабине поезда и нажмите E. Для движения используйте рычаги управления. Скорость регулируется ползунком. Не забывайте открывать и закрывать двери на станциях!
                 </div>
             </div>
-
-            <!-- Технические вопросы -->
-            <div class="faq-category" data-category="technical">
-                <h3><i class="fas fa-cogs"></i> Технические вопросы</h3>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Какие системные требования?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Проект работает на платформе Roblox, поэтому системные требования соответствуют требованиям Roblox. Рекомендуется стабильное интернет-соединение.
-                    </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Какие поезда есть в игре?</span>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Что делать при возникновении ошибок?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        При возникновении ошибок проверьте соединение с интернетом, обновите Roblox до последней версии. Если проблема сохраняется, обратитесь в техническую поддержку.
-                    </div>
+                <div class="faq-answer">
+                    В игре представлено 5+ моделей поездов из разных стран мира. Каждый поезд имеет уникальный дизайн, звуки и характеристики. Список всех поездов можно найти в разделе Wiki.
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        Поддерживаются ли мобильные устройства?
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        Да, проект доступен на всех устройствах, поддерживающих Roblox, включая мобильные телефоны и планшеты.
-                    </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Сколько станций сейчас в игре?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    На данный момент в игре доступно 5+ станций. Мы постоянно работаем над добавлением новых станций из разных стран мира. Следите за обновлениями!
                 </div>
             </div>
         </div>
-
-        <!-- Блок помощи -->
-        <div class="help-section">
-            <h2>Нужна помощь?</h2>
-            <p>Наша команда поддержки всегда готова помочь вам</p>
-            <div class="contact-buttons">
-                <a href="https://discord.com/invite/WjGZBs3HMX" class="contact-btn">
-                    <i class="fab fa-discord"></i>
-                    Discord сообщество
-                </a>
-                <a href="https://t.me/metronewroblox" class="contact-btn">
-                    <i class="fab fa-telegram"></i>
-                    Telegram канал
-                </a>
+        
+        <!-- Категория: Технические -->
+        <div class="faq-section" data-category="technical">
+            <h2 class="faq-section-title">
+                <i class="fas fa-microchip"></i>
+                Технические вопросы
+            </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ У меня лагает игра. Что делать?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Попробуйте снизить настройки графики в Roblox (Esc → Настройки → Графика → Качество графики). Также закройте фоновые приложения. Если проблема остаётся — напишите в поддержку.
+                </div>
             </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Как сообщить о баге?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Вы можете написать в Discord-сервере в канал #bugs. Опишите проблему подробно, приложите скриншот или видео. Также можно использовать форму обратной связи на сайте.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Когда выйдет следующее обновление?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Мы не公布аем точные даты, но обновления выходят регулярно. Следите за новостями в нашем Discord и Telegram каналах, чтобы быть в курсе всех анонсов!
+                </div>
+            </div>
+        </div>
+        
+        <!-- Категория: Сообщество -->
+        <div class="faq-section" data-category="community">
+            <h2 class="faq-section-title">
+                <i class="fas fa-users"></i>
+                Сообщество
+            </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Как попасть в Discord сервер?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Перейдите по ссылке в разделе "Социальные сети" или нажмите на иконку Discord в футере сайта. Присоединяйтесь к нашему сообществу, там уже более 1000 участников!
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Как стать частью команды разработки?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Мы периодически набираем талантливых строителей, программистов и дизайнеров. Следите за объявлениями в Discord в канале #recruitment. Заполните анкету и мы свяжемся с вами!
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Где можно предложить идею для игры?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    У нас есть специальный канал в Discord — #suggestions. Напишите свою идею там. Команда проекта регулярно просматривает предложения и лучшие из них добавляет в игру!
+                </div>
+            </div>
+        </div>
+        
+        <!-- Категория: Другое -->
+        <div class="faq-section" data-category="other">
+            <h2 class="faq-section-title">
+                <i class="fas fa-question"></i>
+                Другое
+            </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Будет ли добавлена новая линия?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Да! Мы постоянно работаем над расширением метро. Следующие в плане — новые линии из разных стран мира. Следите за новостями в нашем Discord и Telegram.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Есть ли система уровней или достижений?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Да! За поездки, перевозку пассажиров и другие действия вы получаете опыт. Повышайте уровень, открывайте новые поезда и получайте уникальные достижения. Скоро добавим больше наград!
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Сколько стоит игра?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Метро New — полностью бесплатная игра! Вы можете играть без каких-либо вложений. Внутриигровые покупсупки (скины, аксессуары) — только для тех, кто хочет поддержать проект.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>❓ Как связаться с поддержкой?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Вы можете написать в Discord в канал #support, отправить сообщение в Telegram боту или использовать форму обратной связи на сайте. Мы отвечаем в течение 24 часов.
+                </div>
+            </div>
+        </div>
+        
+        <div class="contact-support">
+            <p>❓ Не нашли ответ на свой вопрос?</p>
+            <a href="https://discord.com/invite/WjGZBs3HMX" class="support-link" target="_blank">
+                <i class="fab fa-discord"></i> Спросить в Discord
+            </a>
         </div>
     </main>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-container">
                 <div class="footer-column">
                     <h3>О нас</h3>
                     <ul>
-                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank">Discord сообщество</a></li>
-                        <li><a href="about.html">О проекте</a></li>
-                        <li><a href="team.html">Наша команда</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about">О проекте</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff">Наша команда</a></li>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX">Discord сообщество</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
-                    <h3>Контакты</h3>
+                    <h3>Информация</h3>
                     <ul>
-                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank">Discord сервер</a></li>
-                        <li><a href="contact.html">Форма обратной связи</a></li>
-                        <li><a href="https://kirill12633.github.io/support.metro.new/">Техническая поддержка</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq">FAQ</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki">Wiki</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
                     <h3>Правовые документы</h3>
                     <ul>
-                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/legal.html">Правовые документы</a></li>
-                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/privacy-policy.html">Политика конфиденциальности</a></li>
-                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/terms-of-service.html">Пользовательское соглашение</a></li>
-                        <li><a href="https://kirill12633.github.io/Metro.New.Official/Rules/refund-policy.html">Политика возврата</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy">Политика возврата</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
-                    <h3>Полезные ссылки</h3>
+                    <h3>Социальные сети</h3>
                     <ul>
-                        <li><a href="https://www.roblox.com/communities/34820737/RP-NEW">Начать играть</a></li>
-                        <li><a href="wiki.html">База знаний</a></li>
-                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
-                        <li><a href="faq.html">Частые вопросы</a></li>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX">Discord</a></li>
+                        <li><a href="https://t.me/metronewroblox">Telegram</a></li>
+                        <li><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox">YouTube</a></li>
                     </ul>
                 </div>
             </div>
-                      
             <div class="footer-bottom">
                 <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
-    <!-- JS -->
-    <script src="js/script.js"></script>
-    <script src="js/privacy-banner.js"></script>
-    <script src="js/external-link-warning.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        
+        const dropdownOther = document.getElementById('dropdownOther');
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        dropdownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownOther.classList.toggle('open');
+        });
+        
+        const dropdownLinks = document.getElementById('dropdownLinks');
+        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        dropdownLinksBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownLinks.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
+            if (!dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
+        });
+        
+        // Аккордеон для FAQ
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                item.classList.toggle('active');
+            });
+        });
+        
+        // Фильтр по категориям
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const faqSections = document.querySelectorAll('.faq-section');
+        
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const category = btn.dataset.category;
+                
+                faqSections.forEach(section => {
+                    if (category === 'all' || section.dataset.category === category) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
