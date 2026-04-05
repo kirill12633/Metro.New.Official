@@ -2,327 +2,252 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель — Метро New</title>
-    
-    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <style>
-        :root {
-            --primary: #0066CC;
-            --primary-dark: #0052a3;
-            --primary-light: #4d94ff;
-            --secondary: #FFD700;
-            --dark: #1A1A1A;
-            --light: #F8F9FA;
-            --gray: #6C757D;
-            --danger: #dc3545;
-            --success: #28a745;
-            --warning: #ffc107;
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
-            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 15px;
-        }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
+            background: #f0f2f5;
         }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        .header {
+            background: linear-gradient(135deg, #0066CC, #004d99);
             color: white;
-            padding: 1rem 0;
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .container { width: 90%; max-width: 1400px; margin: 0 auto; padding: 0 15px; }
-        
-        nav {
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 15px;
         }
-        
-        .logo a {
+        .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: white;
-            text-decoration: none;
         }
-        
         .logo-icon {
             width: 35px;
             height: 35px;
-            background-color: var(--secondary);
+            background: #FFD700;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--dark);
-            font-weight: bold;
-            font-size: 1.2rem;
+            color: #1a1a2e;
         }
-        
-        .nav-links { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .admin-badge { background: var(--secondary); color: var(--dark); padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 600; font-size: 0.8rem; }
-        .login-btn { background-color: var(--secondary); color: var(--dark); padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-        .burger-menu { display: none; font-size: 1.5rem; cursor: pointer; color: white; background: none; border: none; }
-        
-        main { padding: 2rem 0; min-height: calc(100vh - 150px); }
-        
-        .admin-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: var(--radius-xl);
-            padding: 2rem;
-            color: white;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .admin-header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        
-        .admin-tabs {
+        .admin-info {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 0.5rem;
+            align-items: center;
+            gap: 15px;
         }
-        .tab-btn {
-            padding: 10px 24px;
+        .admin-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .tab {
+            padding: 10px 20px;
             background: none;
             border: none;
-            font-weight: 600;
-            cursor: pointer;
             border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
             transition: all 0.2s;
-            font-family: 'Montserrat', sans-serif;
         }
-        .tab-btn:hover { background: var(--primary-light); color: white; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            box-shadow: var(--shadow-md);
-        }
-        .stat-card i { font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
-        .stat-card .number { font-size: 2rem; font-weight: 700; }
-        .stat-card .label { color: var(--gray); font-size: 0.85rem; }
+        .tab:hover { background: #e0e0e0; }
+        .tab.active { background: #0066CC; color: white; }
         
         .card {
             background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-md);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .card h3 { color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
-        
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 0.3rem; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--radius-md);
-            font-family: 'Montserrat', sans-serif;
+        .card h3 {
+            color: #0066CC;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Montserrat', sans-serif;
-            transition: all 0.2s;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-warning { background: var(--warning); color: var(--dark); }
-        
-        .news-table, .comments-table, .banned-table, .complaints-table {
+        table {
             width: 100%;
             border-collapse: collapse;
         }
-        .news-table th, .news-table td, .comments-table th, .comments-table td, .banned-table th, .banned-table td, .complaints-table th, .complaints-table td {
+        th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #eee;
         }
-        .news-table th, .comments-table th, .banned-table th, .complaints-table th { background: var(--light); font-weight: 600; }
-        
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-        .status-published { background: var(--success); color: white; }
-        .status-draft { background: var(--warning); color: var(--dark); }
-        .status-pending { background: var(--warning); color: var(--dark); }
-        .status-approved { background: var(--success); color: white; }
-        .status-banned { background: var(--danger); color: white; }
-        
-        .action-btn { background: none; border: none; cursor: pointer; margin: 0 5px; font-size: 1rem; }
-        .edit-btn { color: var(--primary); }
-        .delete-btn { color: var(--danger); }
-        .approve-btn { color: var(--success); }
-        .ban-btn { color: var(--danger); }
+        th { background: #f8f9fa; font-weight: 600; }
+        .btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        .btn-primary { background: #0066CC; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+        .status-published { background: #28a745; color: white; }
+        .status-draft { background: #ffc107; color: #000; }
+        .status-pending { background: #ffc107; color: #000; }
+        .status-approved { background: #28a745; color: white; }
+        input, textarea, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-row .form-group { flex: 1; }
         
         .toast {
             position: fixed;
-            bottom: 30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--success);
+            background: #28a745;
             color: white;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 30px;
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
+            z-index: 1000;
+            font-size: 14px;
         }
-        .toast.error { background: var(--danger); }
-        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        .toast.error { background: #dc3545; }
         
-        .footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 3rem 0 2rem;
-            margin-top: 2rem;
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
         }
-        .footer-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
-        .footer-column h3 { color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem; }
-        .footer-column ul { list-style: none; }
-        .footer-column li { margin-bottom: 0.5rem; }
-        .footer-column a { color: rgba(255,255,255,0.8); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-        .footer-column a:hover { color: var(--secondary); }
-        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); }
-        .copyright { color: var(--gray); font-size: 0.9rem; }
-        
-        @media (max-width: 992px) {
-            .burger-menu { display: block; }
-            .nav-links { display: none; width: 100%; flex-direction: column; background: var(--primary-dark); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; }
-            .nav-links.active { display: flex; }
-            .news-table, .comments-table, .banned-table, .complaints-table { display: block; overflow-x: auto; }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-        
-        .ip-cell { font-family: monospace; font-size: 0.8rem; }
-        .ban-form { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
-        .ban-form .form-group { margin-bottom: 0; flex: 1; }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFD700;
+        }
+        @media (max-width: 768px) {
+            table { display: block; overflow-x: auto; }
+            .form-row { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <div class="logo"><a href="#"><span class="logo-icon">M</span><span>Метро New</span></a></div>
-                <button class="burger-menu" id="burgerMenu"><i class="fas fa-bars"></i></button>
-                <div class="nav-links" id="navLinks">
-                    <span class="admin-badge"><i class="fas fa-shield-alt"></i> Админ-панель</span>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news/" class="login-btn"><i class="fas fa-arrow-left"></i> На сайт</a>
-                </div>
-            </nav>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">M</div>
+            <span>Метро New — Админ-панель</span>
         </div>
-    </header>
-
-    <main class="container">
-        <div class="admin-header">
-            <h1><i class="fas fa-crown"></i> Админ-панель</h1>
-            <p>Управление новостями, комментариями, банами и жалобами</p>
+        <div class="admin-info" id="adminInfo">
+            <img id="adminAvatar" class="admin-avatar" src="">
+            <span id="adminName"></span>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
         </div>
-        
-        <div class="admin-tabs">
-            <button class="tab-btn active" onclick="switchTab('stats')"><i class="fas fa-chart-line"></i> Статистика</button>
-            <button class="tab-btn" onclick="switchTab('news')"><i class="fas fa-newspaper"></i> Новости</button>
-            <button class="tab-btn" onclick="switchTab('add')"><i class="fas fa-plus-circle"></i> Добавить</button>
-            <button class="tab-btn" onclick="switchTab('comments')"><i class="fas fa-comments"></i> Комментарии</button>
-            <button class="tab-btn" onclick="switchTab('banned')"><i class="fas fa-ban"></i> Бан IP</button>
-            <button class="tab-btn" onclick="switchTab('complaints')"><i class="fas fa-flag"></i> Жалобы</button>
+    </div>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('news')"><i class="fas fa-newspaper"></i> Новости</button>
+            <button class="tab" onclick="showTab('moderation')"><i class="fas fa-comments"></i> Модерация</button>
+            <button class="tab" onclick="showTab('bans')"><i class="fas fa-ban"></i> Баны</button>
         </div>
         
-        <!-- Статистика -->
-        <div id="tab-stats" class="tab-content active">
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card"><i class="fas fa-newspaper"></i><div class="number" id="totalNews">0</div><div class="label">Новостей</div></div>
-                <div class="stat-card"><i class="fas fa-eye"></i><div class="number" id="totalViews">0</div><div class="label">Просмотров</div></div>
-                <div class="stat-card"><i class="fas fa-thumbs-up"></i><div class="number" id="totalLikes">0</div><div class="label">Лайков</div></div>
-                <div class="stat-card"><i class="fas fa-comments"></i><div class="number" id="totalComments">0</div><div class="label">Комментариев</div></div>
-                <div class="stat-card"><i class="fas fa-clock"></i><div class="number" id="pendingComments">0</div><div class="label">На модерации</div></div>
-                <div class="stat-card"><i class="fas fa-ban"></i><div class="number" id="bannedCount">0</div><div class="label">Забаненных IP</div></div>
-                <div class="stat-card"><i class="fas fa-flag"></i><div class="number" id="complaintsCount">0</div><div class="label">Жалоб</div></div>
-            </div>
-        </div>
-        
-        <!-- Новости -->
+        <!-- Страница 1: Новости -->
         <div id="tab-news" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Создать новость</h3>
+                <div class="form-row">
+                    <div class="form-group"><input type="text" id="newsTitle" placeholder="Заголовок"></div>
+                    <div class="form-group"><select id="newsCategory"><option value="update">Обновление</option><option value="event">Событие</option><option value="important">Важное</option><option value="announcement">Анонс</option></select></div>
+                </div>
+                <div class="form-group"><input type="text" id="newsImageUrl" placeholder="Ссылка на картинку"></div>
+                <div class="form-group"><textarea id="newsExcerpt" rows="2" placeholder="Краткое описание"></textarea></div>
+                <div class="form-group"><textarea id="newsContent" rows="5" placeholder="Полный текст (HTML)"></textarea></div>
+                <div class="form-group"><input type="text" id="newsTags" placeholder="Теги (через запятую)"></div>
+                <div class="form-group"><label><input type="checkbox" id="newsImportant"> Важная новость</label></div>
+                <button class="btn btn-primary" onclick="createNews()"><i class="fas fa-save"></i> Опубликовать</button>
+            </div>
+            
             <div class="card">
                 <h3><i class="fas fa-list"></i> Список новостей</h3>
                 <div style="overflow-x: auto;">
-                    <table class="news-table">
-                        <thead><tr><th>Заголовок</th><th>Категория</th><th>Статус</th><th>Просмотры</th><th>Лайки</th><th>Дизлайки</th><th>Действия</th></tr></thead>
+                    <table>
+                        <thead><tr><th>Заголовок</th><th>Категория</th><th>Просмотры</th><th>Действия</th></tr></thead>
                         <tbody id="newsList"></tbody>
                     </table>
                 </div>
             </div>
         </div>
         
-        <!-- Добавление новости -->
-        <div id="tab-add" class="tab-content">
-            <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> Добавить новость</h3>
-                <form id="addNewsForm">
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="newsTitle" required></div>
-                    <div class="form-group"><label>Краткое описание</label><textarea id="newsExcerpt" rows="2"></textarea></div>
-                    <div class="form-group"><label>Полный контент (HTML)</label><textarea id="newsContent" rows="5"></textarea></div>
-                    <div class="form-group"><label>Категория</label><select id="newsCategory"><option value="update">Обновление</option><option value="event">Событие</option><option value="important">Важное</option><option value="announcement">Анонс</option></select></div>
-                    <div class="form-group"><label>Бейдж</label><input type="text" id="newsBadge" placeholder="🔥 Горячее"></div>
-                    <div class="form-group"><label>Теги (через запятую)</label><input type="text" id="newsTags" placeholder="поезда, обновление, станции"></div>
-                    <div class="form-group"><label><input type="checkbox" id="newsImportant"> Важная новость</label></div>
-                    <div class="form-group"><label>Статус</label><select id="newsStatus"><option value="published">Опубликовано</option><option value="draft">Черновик</option></select></div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Опубликовать</button>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Комментарии с возможностью бана по IP -->
-        <div id="tab-comments" class="tab-content">
+        <!-- Страница 2: Модерация (комментарии + жалобы) -->
+        <div id="tab-moderation" class="tab-content" style="display:none;">
             <div class="card">
                 <h3><i class="fas fa-clock"></i> На модерации</h3>
                 <div style="overflow-x: auto;">
-                    <table class="comments-table">
-                        <thead><tr><th>Новость</th><th>Текст</th><th>Автор</th><th>IP</th><th>Дата</th><th>Жалобы</th><th>Действия</th></tr></thead>
+                    <table>
+                        <thead><tr><th>Новость</th><th>Текст</th><th>Автор</th><th>Действия</th></tr></thead>
                         <tbody id="pendingCommentsList"></tbody>
                     </table>
                 </div>
@@ -330,64 +255,52 @@
             <div class="card">
                 <h3><i class="fas fa-check-circle"></i> Одобренные</h3>
                 <div style="overflow-x: auto;">
-                    <table class="comments-table">
-                        <thead><tr><th>Новость</th><th>Текст</th><th>Автор</th><th>IP</th><th>Дата</th><th>Действия</th></tr></thead>
+                    <table>
+                        <thead><tr><th>Новость</th><th>Текст</th><th>Автор</th><th>Действия</th></tr></thead>
                         <tbody id="approvedCommentsList"></tbody>
                     </table>
                 </div>
             </div>
-        </div>
-        
-        <!-- Бан IP -->
-        <div id="tab-banned" class="tab-content">
             <div class="card">
-                <h3><i class="fas fa-ban"></i> Забаненные IP-адреса</h3>
+                <h3><i class="fas fa-flag"></i> Жалобы</h3>
                 <div style="overflow-x: auto;">
-                    <table class="banned-table">
-                        <thead><tr><th>IP-адрес</th><th>Причина</th><th>Дата бана</th><th>Забанен до</th><th>Действия</th></tr></thead>
-                        <tbody id="bannedList"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> Забанить IP</h3>
-                <div class="ban-form">
-                    <div class="form-group" style="flex:2"><label>IP-адрес</label><input type="text" id="banIp" placeholder="например: 192.168.1.1"></div>
-                    <div class="form-group" style="flex:2"><label>Причина</label><input type="text" id="banReason" placeholder="Причина бана"></div>
-                    <div class="form-group" style="flex:1"><label>Дней (0=навсегда)</label><input type="number" id="banDays" value="0" min="0"></div>
-                    <button class="btn btn-danger" onclick="banIp()"><i class="fas fa-ban"></i> Забанить</button>
-                </div>
-                <p style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
-                    <i class="fas fa-info-circle"></i> IP-адрес можно скопировать из комментариев выше.
-                </p>
-            </div>
-        </div>
-        
-        <!-- Жалобы -->
-        <div id="tab-complaints" class="tab-content">
-            <div class="card">
-                <h3><i class="fas fa-flag"></i> Жалобы на комментарии</h3>
-                <div style="overflow-x: auto;">
-                    <table class="complaints-table">
-                        <thead><tr><th>Комментарий</th><th>IP жалобщика</th><th>Дата жалобы</th><th>Действия</th></tr></thead>
+                    <table>
+                        <thead><tr><th>Текст жалобы</th><th>ID комментария</th><th>Дата</th><th>Действия</th></tr></thead>
                         <tbody id="complaintsList"></tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-container">
-                <div class="footer-column"><h3>О нас</h3><ul><li><a href="#">О проекте</a></li></ul></div>
-                <div class="footer-column"><h3>Информация</h3><ul><li><a href="#">FAQ</a></li></ul></div>
-                <div class="footer-column"><h3>Правовые документы</h3><ul><li><a href="#">Политика конфиденциальности</a></li></ul></div>
-                <div class="footer-column"><h3>Социальные сети</h3><ul><li><a href="#">Discord</a></li><li><a href="#">Telegram</a></li></ul></div>
+        
+        <!-- Страница 3: Баны -->
+        <div id="tab-bans" class="tab-content" style="display:none;">
+            <div class="card">
+                <h3><i class="fas fa-ban"></i> Забаненные пользователи</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead><tr><th>UID</th><th>Имя</th><th>Дата</th><th>Действия</th></tr></thead>
+                        <tbody id="bannedList"></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="footer-bottom"><p class="copyright">© 2026 Метро New. Админ-панель</p></div>
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Забанить пользователя</h3>
+                <div class="form-row">
+                    <div class="form-group"><input type="text" id="banUid" placeholder="UID пользователя"></div>
+                    <div class="form-group"><input type="text" id="banName" placeholder="Имя"></div>
+                    <div class="form-group"><button class="btn btn-danger" onclick="banUser()"><i class="fas fa-ban"></i> Забанить</button></div>
+                </div>
+                <p style="font-size:12px; color:#666; margin-top:10px;">UID можно скопировать из комментариев в модерации</p>
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <div id="versionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>История версий</h3><button onclick="closeModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button></div>
+            <div id="versionList"></div>
+        </div>
+    </div>
 
     <script>
         const firebaseConfig = {
@@ -400,307 +313,274 @@
         };
         
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.firestore();
         
-        let newsData = [];
+        let currentAdmin = null;
         
-        function showToast(msg, isError = false) { 
-            const t = document.createElement('div'); 
-            t.className = 'toast' + (isError ? ' error' : ''); 
-            t.textContent = msg; 
-            document.body.appendChild(t); 
-            setTimeout(() => t.remove(), 3000); 
-        }
-        
-        function escapeHtml(str) { 
-            if(!str) return ''; 
-            return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); 
-        }
-        
-        async function loadStats() {
-            const newsSnap = await db.collection('news').get();
-            const commentsSnap = await db.collection('comments').get();
-            const bannedSnap = await db.collection('banned_ips').get();
-            const complaintsSnap = await db.collection('complaints').get();
-            
-            let totalViews = 0, totalLikes = 0, pending = 0;
-            newsSnap.forEach(doc => { 
-                totalViews += doc.data().views || 0; 
-                totalLikes += doc.data().likeCount || 0;
-            });
-            commentsSnap.forEach(doc => { if(doc.data().status === 'pending') pending++; });
-            
-            document.getElementById('totalNews').textContent = newsSnap.size;
-            document.getElementById('totalViews').textContent = totalViews;
-            document.getElementById('totalLikes').textContent = totalLikes;
-            document.getElementById('totalComments').textContent = commentsSnap.size;
-            document.getElementById('pendingComments').textContent = pending;
-            document.getElementById('bannedCount').textContent = bannedSnap.size;
-            document.getElementById('complaintsCount').textContent = complaintsSnap.size;
-        }
-        
-        async function loadNewsList() {
-            const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
-            newsData = [];
-            snapshot.forEach(doc => newsData.push({ id: doc.id, ...doc.data() }));
-            const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
-            const tbody = document.getElementById('newsList');
-            tbody.innerHTML = newsData.map(n => `
-                <tr>
-                    <td>${escapeHtml(n.title)}</td>
-                    <td>${categoryNames[n.category] || n.category}</td>
-                    <td><span class="status-badge ${n.status === 'published' ? 'status-published' : 'status-draft'}">${n.status === 'published' ? 'Опубликовано' : 'Черновик'}</span></td>
-                    <td>${n.views || 0}</td>
-                    <td>${n.likeCount || 0}</td>
-                    <td>${n.dislikeCount || 0}</td>
-                    <td>
-                        <button class="action-btn edit-btn" onclick="editNews('${n.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn delete-btn" onclick="deleteNews('${n.id}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        window.editNews = async (id) => {
-            const news = newsData.find(n => n.id === id);
-            if(!news) return;
-            document.getElementById('newsTitle').value = news.title || '';
-            document.getElementById('newsExcerpt').value = news.excerpt || '';
-            document.getElementById('newsContent').value = news.content || '';
-            document.getElementById('newsCategory').value = news.category || 'announcement';
-            document.getElementById('newsBadge').value = news.badge || '';
-            document.getElementById('newsTags').value = (news.tags || []).join(', ');
-            document.getElementById('newsImportant').checked = news.important || false;
-            document.getElementById('newsStatus').value = news.status || 'published';
-            document.getElementById('addNewsForm').dataset.editId = id;
-            switchTab('add');
-            showToast('Редактирование: ' + news.title);
-        };
-        
-        window.deleteNews = async (id) => {
-            if(confirm('Удалить новость? Это также удалит все комментарии к ней.')) {
-                const commentsSnap = await db.collection('comments').where('newsId', '==', id).get();
-                commentsSnap.forEach(doc => doc.ref.delete());
-                await db.collection('news').doc(id).delete();
-                showToast('Новость удалена');
-                loadNewsList();
-                loadStats();
-                loadComments();
+        // Проверка авторизации
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
             }
+            currentAdmin = user;
+            document.getElementById('adminAvatar').src = user.photoURL || 'https://via.placeholder.com/35';
+            document.getElementById('adminName').textContent = user.displayName || user.email;
+            loadNewsList();
+            loadComments();
+            loadBanned();
+            loadComplaints();
+        });
+        
+        window.logout = async () => {
+            await auth.signOut();
+            window.location.href = 'login.html';
         };
         
-        document.getElementById('addNewsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const editId = e.target.dataset.editId;
+        function showToast(msg, isError = false) {
+            const t = document.createElement('div');
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+        
+        function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+        
+        function formatDate(timestamp) {
+            if(!timestamp) return '—';
+            if(timestamp.toDate) return timestamp.toDate().toLocaleString();
+            return timestamp;
+        }
+        
+        window.showTab = (tab) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.getElementById(`tab-${tab}`).style.display = 'block';
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if(event && event.target) event.target.classList.add('active');
+        };
+        
+        // ========== НОВОСТИ ==========
+        window.createNews = async () => {
             const data = {
                 title: document.getElementById('newsTitle').value,
+                imageUrl: document.getElementById('newsImageUrl').value,
                 excerpt: document.getElementById('newsExcerpt').value,
                 content: document.getElementById('newsContent').value,
                 category: document.getElementById('newsCategory').value,
-                badge: document.getElementById('newsBadge').value,
                 tags: document.getElementById('newsTags').value.split(',').map(t => t.trim()).filter(t => t),
                 important: document.getElementById('newsImportant').checked,
-                status: document.getElementById('newsStatus').value,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                status: 'published',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                views: 0,
+                likeCount: 0,
+                dislikeCount: 0,
+                version: 1
             };
-            
-            if(editId) {
-                await db.collection('news').doc(editId).update(data);
-                showToast('Новость обновлена');
-                delete e.target.dataset.editId;
-            } else {
-                data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                data.views = 0;
-                data.likeCount = 0;
-                data.dislikeCount = 0;
-                await db.collection('news').add(data);
-                showToast('Новость добавлена');
-            }
-            document.getElementById('addNewsForm').reset();
+            if(!data.title) { showToast('Введите заголовок', true); return; }
+            await db.collection('news').add(data);
+            showToast('Новость создана');
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsImageUrl').value = '';
+            document.getElementById('newsExcerpt').value = '';
+            document.getElementById('newsContent').value = '';
+            document.getElementById('newsTags').value = '';
+            document.getElementById('newsImportant').checked = false;
             loadNewsList();
-            loadStats();
-            switchTab('news');
-        });
-        
-        async function loadComments() {
-            const snapshot = await db.collection('comments').orderBy('createdAt', 'desc').get();
-            const newsMap = {};
-            newsData.forEach(n => { newsMap[n.id] = n.title; });
-            
-            const pending = [];
-            const approved = [];
-            snapshot.forEach(doc => {
-                const c = doc.data();
-                if(c.status === 'pending') pending.push({ id: doc.id, ...c });
-                else if(c.status === 'approved') approved.push({ id: doc.id, ...c });
-            });
-            
-            const pendingTbody = document.getElementById('pendingCommentsList');
-            pendingTbody.innerHTML = pending.map(c => `
-                <tr>
-                    <td>${escapeHtml(newsMap[c.newsId] || c.newsId)}</td>
-                    <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.text.substring(0, 80))}${c.text.length > 80 ? '...' : ''}</td>
-                    <td>${escapeHtml(c.author || 'Гость')}</td>
-                    <td class="ip-cell"><code>${c.ip || '—'}</code> <button class="action-btn ban-btn" onclick="banIpFromComment('${c.ip}')" title="Забанить этот IP"><i class="fas fa-ban"></i></button></td>
-                    <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : '—'}</td>
-                    <td>${c.reports || 0}</td>
-                    <td>
-                        <button class="action-btn approve-btn" onclick="approveComment('${c.id}')"><i class="fas fa-check"></i></button>
-                        <button class="action-btn delete-btn" onclick="deleteComment('${c.id}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-            
-            const approvedTbody = document.getElementById('approvedCommentsList');
-            approvedTbody.innerHTML = approved.map(c => `
-                <tr>
-                    <td>${escapeHtml(newsMap[c.newsId] || c.newsId)}</td>
-                    <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.text.substring(0, 80))}${c.text.length > 80 ? '...' : ''}</td>
-                    <td>${escapeHtml(c.author || 'Гость')}</td>
-                    <td class="ip-cell"><code>${c.ip || '—'}</code> <button class="action-btn ban-btn" onclick="banIpFromComment('${c.ip}')" title="Забанить этот IP"><i class="fas fa-ban"></i></button></td>
-                    <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : '—'}</td>
-                    <td><button class="action-btn delete-btn" onclick="deleteComment('${c.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-        }
-        
-        window.approveComment = async (id) => { 
-            await db.collection('comments').doc(id).update({ status: 'approved', reports: 0 }); 
-            showToast('Комментарий одобрен'); 
-            loadComments(); 
-            loadStats(); 
         };
         
-        window.deleteComment = async (id) => { 
-            if(confirm('Удалить комментарий?')) {
-                await db.collection('comments').doc(id).delete(); 
-                showToast('Комментарий удален'); 
-                loadComments(); 
-                loadStats(); 
-            }
-        };
-        
-        // Бан IP
-        window.banIp = async () => {
-            const ip = document.getElementById('banIp').value.trim();
-            const reason = document.getElementById('banReason').value.trim() || 'Нарушение правил';
-            const days = parseInt(document.getElementById('banDays').value);
-            
-            if(!ip) { showToast('Введите IP-адрес', true); return; }
-            
-            let until = null;
-            if(days > 0) { until = new Date(); until.setDate(until.getDate() + days); }
-            
-            await db.collection('banned_ips').doc(ip).set({
-                reason: reason,
-                until: until ? until.toISOString() : null,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            showToast(`IP ${ip} забанен`);
-            document.getElementById('banIp').value = '';
-            document.getElementById('banReason').value = '';
-            document.getElementById('banDays').value = '0';
-            loadBanned();
-            loadStats();
-        };
-        
-        window.banIpFromComment = async (ip) => {
-            if(!ip || ip === '—') { showToast('IP не указан', true); return; }
-            document.getElementById('banIp').value = ip;
-            document.getElementById('banReason').focus();
-            switchTab('banned');
-            showToast(`IP ${ip} готов к бану. Укажите причину.`);
-        };
-        
-        window.unbanIp = async (ip) => {
-            if(confirm(`Разбанить IP ${ip}?`)) {
-                await db.collection('banned_ips').doc(ip).delete();
-                showToast(`IP ${ip} разбанен`);
-                loadBanned();
-                loadStats();
-            }
-        };
-        
-        async function loadBanned() {
-            const snapshot = await db.collection('banned_ips').get();
-            const tbody = document.getElementById('bannedList');
-            if(snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет забаненных IP</td></tr>';
-                return;
-            }
+        async function loadNewsList() {
+            const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
+            const tbody = document.getElementById('newsList');
             tbody.innerHTML = '';
             snapshot.forEach(doc => {
-                const ban = doc.data();
-                const until = ban.until ? new Date(ban.until).toLocaleString() : 'Навсегда';
+                const n = doc.data();
                 tbody.innerHTML += `
                     <tr>
-                        <td class="ip-cell"><code>${escapeHtml(doc.id)}</code></td>
-                        <td>${escapeHtml(ban.reason || '—')}</td>
-                        <td>${ban.createdAt?.toDate ? ban.createdAt.toDate().toLocaleString() : '—'}</td>
-                        <td>${until}</td>
-                        <td><button class="action-btn delete-btn" onclick="unbanIp('${doc.id}')"><i class="fas fa-user-check"></i> Разбанить</button></td>
+                        <td>${escapeHtml(n.title)}</td>
+                        <td><span class="status-badge status-published">${n.category}</span></td>
+                        <td>${n.views || 0}</td>
+                        <td>
+                            <button class="btn btn-warning" onclick="editNews('${doc.id}')"><i class="fas fa-edit"></i> Ред.</button>
+                            <button class="btn btn-primary" onclick="copyNews('${doc.id}')"><i class="fas fa-copy"></i> Копировать</button>
+                            <button class="btn btn-info" onclick="showVersions('${doc.id}')"><i class="fas fa-history"></i> История</button>
+                            <button class="btn btn-danger" onclick="deleteNews('${doc.id}')"><i class="fas fa-trash"></i> Удалить</button>
+                        </td>
                     </tr>
                 `;
             });
         }
         
-        // Жалобы
+        window.editNews = async (id) => {
+            const doc = await db.collection('news').doc(id).get();
+            if(!doc.exists) return;
+            const n = doc.data();
+            document.getElementById('newsTitle').value = n.title || '';
+            document.getElementById('newsImageUrl').value = n.imageUrl || '';
+            document.getElementById('newsExcerpt').value = n.excerpt || '';
+            document.getElementById('newsContent').value = n.content || '';
+            document.getElementById('newsCategory').value = n.category || 'announcement';
+            document.getElementById('newsTags').value = (n.tags || []).join(', ');
+            document.getElementById('newsImportant').checked = n.important || false;
+            showToast('Редактирование: ' + n.title);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        
+        window.copyNews = async (id) => {
+            const doc = await db.collection('news').doc(id).get();
+            if(!doc.exists) return;
+            const n = doc.data();
+            const copyData = {
+                title: n.title + ' (копия)',
+                imageUrl: n.imageUrl,
+                excerpt: n.excerpt,
+                content: n.content,
+                category: n.category,
+                tags: n.tags,
+                important: n.important,
+                status: 'draft',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                views: 0,
+                likeCount: 0,
+                dislikeCount: 0,
+                version: 1
+            };
+            await db.collection('news').add(copyData);
+            showToast('Новость скопирована');
+            loadNewsList();
+        };
+        
+        window.showVersions = async (id) => {
+            const versions = await db.collection('news_versions').where('newsId', '==', id).orderBy('version', 'desc').get();
+            let html = '<ul style="list-style:none;">';
+            versions.forEach(doc => {
+                const v = doc.data();
+                html += `<li style="padding:8px;border-bottom:1px solid #eee;">📄 Версия ${v.version}: ${escapeHtml(v.title)} — ${formatDate(v.createdAt)}</li>`;
+            });
+            if(versions.empty) html += '<li>Нет сохраненных версий</li>';
+            html += '</ul>';
+            document.getElementById('versionList').innerHTML = html;
+            document.getElementById('versionModal').style.display = 'flex';
+        };
+        
+        window.deleteNews = async (id) => {
+            if(confirm('Удалить новость?')) {
+                await db.collection('news').doc(id).delete();
+                showToast('Новость удалена');
+                loadNewsList();
+            }
+        };
+        
+        // ========== МОДЕРАЦИЯ КОММЕНТАРИЕВ ==========
+        async function loadComments() {
+            const comments = await db.collection('comments').orderBy('createdAt', 'desc').get();
+            const newsMap = {};
+            (await db.collection('news').get()).forEach(doc => { newsMap[doc.id] = doc.data().title; });
+            
+            let pendingHtml = '', approvedHtml = '';
+            comments.forEach(doc => {
+                const c = doc.data();
+                const row = `
+                    <tr>
+                        <td>${escapeHtml(newsMap[c.newsId] || c.newsId)}</td>
+                        <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.text.substring(0, 80))}...</td>
+                        <td>${escapeHtml(c.author || 'Гость')}<br><code style="font-size:10px;">${c.authorId || '—'}</code></td>
+                        <td>
+                            ${c.status === 'pending' ? `<button class="btn btn-success" onclick="approveComment('${doc.id}')"><i class="fas fa-check"></i> Одобрить</button>` : ''}
+                            <button class="btn btn-danger" onclick="deleteComment('${doc.id}')"><i class="fas fa-trash"></i> Удалить</button>
+                            ${c.authorId ? `<button class="btn btn-warning" onclick="banFromComment('${c.authorId}', '${escapeHtml(c.author)}')"><i class="fas fa-ban"></i> Бан</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+                if(c.status === 'pending') pendingHtml += row;
+                else approvedHtml += row;
+            });
+            document.getElementById('pendingCommentsList').innerHTML = pendingHtml || '<tr><td colspan="4">Нет комментариев на модерации</td></tr>';
+            document.getElementById('approvedCommentsList').innerHTML = approvedHtml || '<tr><td colspan="4">Нет одобренных комментариев</td></tr>';
+        }
+        
+        window.approveComment = async (id) => {
+            await db.collection('comments').doc(id).update({ status: 'approved' });
+            showToast('Комментарий одобрен');
+            loadComments();
+        };
+        
+        window.deleteComment = async (id) => {
+            await db.collection('comments').doc(id).delete();
+            showToast('Комментарий удален');
+            loadComments();
+        };
+        
+        // ========== ЖАЛОБЫ ==========
         async function loadComplaints() {
             const snapshot = await db.collection('complaints').orderBy('createdAt', 'desc').get();
-            const tbody = document.getElementById('complaintsList');
-            if(snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Нет жалоб</td></tr>';
-                return;
-            }
-            tbody.innerHTML = '';
+            let html = '';
             snapshot.forEach(doc => {
                 const c = doc.data();
-                tbody.innerHTML += `
+                html += `
                     <tr>
                         <td style="max-width:300px;">${escapeHtml(c.text)}</td>
-                        <td class="ip-cell"><code>${c.ip || '—'}</code> <button class="action-btn ban-btn" onclick="banIpFromComment('${c.ip}')" title="Забанить этот IP"><i class="fas fa-ban"></i></button></td>
-                        <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : '—'}</td>
-                        <td><button class="action-btn delete-btn" onclick="deleteComplaint('${doc.id}')"><i class="fas fa-trash"></i> Удалить</button></td>
+                        <td><code>${c.commentId || '—'}</code></td>
+                        <td>${formatDate(c.createdAt)}</td>
+                        <td><button class="btn btn-danger" onclick="deleteComplaint('${doc.id}')">Удалить</button></td>
                     </tr>
                 `;
             });
+            document.getElementById('complaintsList').innerHTML = html || '<tr><td colspan="4">Нет жалоб</td></tr>';
         }
         
         window.deleteComplaint = async (id) => {
             await db.collection('complaints').doc(id).delete();
             showToast('Жалоба удалена');
             loadComplaints();
-            loadStats();
         };
         
-        window.switchTab = (tab) => {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            if(event && event.target) event.target.classList.add('active');
-            
-            // Обновляем данные при переключении
-            if(tab === 'banned') loadBanned();
-            if(tab === 'complaints') loadComplaints();
-            if(tab === 'comments') loadComments();
-            if(tab === 'stats') loadStats();
-            if(tab === 'news') loadNewsList();
-        };
-        
-        const burger = document.getElementById('burgerMenu');
-        const navLinks = document.getElementById('navLinks');
-        if(burger) burger.addEventListener('click', () => navLinks.classList.toggle('active'));
-        
-        async function init() {
-            await loadStats();
-            await loadNewsList();
-            await loadComments();
-            await loadBanned();
-            await loadComplaints();
+        // ========== БАНЫ ==========
+        async function loadBanned() {
+            const snapshot = await db.collection('banned_users').get();
+            let html = '';
+            snapshot.forEach(doc => {
+                const b = doc.data();
+                html += `
+                    <tr>
+                        <td><code>${doc.id}</code></td>
+                        <td>${escapeHtml(b.name || '—')}</td>
+                        <td>${formatDate(b.createdAt)}</td>
+                        <td><button class="btn btn-success" onclick="unbanUser('${doc.id}')">Разбанить</button></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('bannedList').innerHTML = html || '<tr><td colspan="4">Нет забаненных пользователей</td></tr>';
         }
         
-        init();
+        window.banUser = async () => {
+            const uid = document.getElementById('banUid').value.trim();
+            const name = document.getElementById('banName').value.trim();
+            if(!uid) { showToast('Введите UID', true); return; }
+            await db.collection('banned_users').doc(uid).set({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            showToast(`Пользователь ${uid} забанен`);
+            document.getElementById('banUid').value = '';
+            document.getElementById('banName').value = '';
+            loadBanned();
+        };
+        
+        window.banFromComment = async (uid, name) => {
+            await db.collection('banned_users').doc(uid).set({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            showToast(`Пользователь ${name} забанен`);
+            loadBanned();
+            loadComments();
+        };
+        
+        window.unbanUser = async (uid) => {
+            await db.collection('banned_users').doc(uid).delete();
+            showToast('Пользователь разбанен');
+            loadBanned();
+        };
+        
+        window.closeModal = () => {
+            document.getElementById('versionModal').style.display = 'none';
+        };
     </script>
 </body>
 </html>
