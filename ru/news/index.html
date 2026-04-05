@@ -2,262 +2,450 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Новости — Метро New</title>
     
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
         }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Montserrat', sans-serif;
-            background: #f8f9fa;
-            color: #1a2a3a;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
         }
         
-        .main-content {
-            flex: 1;
-            padding: 20px;
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
         
         nav {
             display: flex;
-            justify-content: flex-start;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .nav-link {
-            display: inline-flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            color: #0066CC;
-            text-decoration: none;
-            font-size: 0.9rem;
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            transition: all 0.2s;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         
-        .nav-link:hover {
-            background: #f8f9fa;
-            transform: translateY(-2px);
-        }
-        
-        .card {
-            background: white;
-            border: 1px solid #dadce0;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        
-        .card-header {
-            padding: 24px 24px 16px;
-            text-align: center;
-            border-bottom: 1px solid #dadce0;
-            background: linear-gradient(135deg, #0066CC, #0052a3);
-            color: white;
-        }
-        
-        .logo {
+        .logo a {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
-            margin-bottom: 16px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
         }
         
         .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: #FFD700;
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1a2a3a;
+            color: var(--dark);
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
         }
         
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .nav-links { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .dropdown { position: relative; }
+        .dropdown > button {
+            background: none;
+            border: none;
             color: white;
-        }
-        
-        .card-header h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 8px; }
-        .card-header p { font-size: 1rem; opacity: 0.9; }
-        .card-body { padding: 24px; }
-        
-        .categories {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .category-btn {
-            padding: 8px 20px;
-            background: white;
-            border: 1px solid #dadce0;
-            border-radius: 30px;
-            color: #1a2a3a;
             font-weight: 500;
-            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: all 0.2s;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        
-        .category-btn:hover {
-            border-color: #0066CC;
-            color: #0066CC;
+        .dropdown > button:hover { background-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+        .dropdown > button i { transition: transform 0.3s; }
+        .dropdown.open > button i { transform: rotate(180deg); }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 240px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
         }
+        .dropdown.open .dropdown-content { display: block; }
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        .dropdown-content a i { width: 20px; color: var(--primary); }
+        .dropdown-content a:hover { background-color: #f1f1f1; }
+        .divider { height: 1px; background: #e0e0e0; margin: 5px 0; }
+        .login-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); background-color: var(--secondary-dark); }
+        .burger-menu { display: none; font-size: 1.5rem; cursor: pointer; color: white; background: none; border: none; }
         
-        .category-btn.active {
-            background: #0066CC;
+        main { padding: 2rem 0; min-height: calc(100vh - 150px); }
+        
+        .news-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 3rem;
             color: white;
-            border-color: #0066CC;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .news-header h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+        .news-header p { font-size: 1rem; opacity: 0.9; }
+        
+        .news-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
         }
         
         .search-container {
-            max-width: 500px;
-            margin: 0 auto 24px;
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
             position: relative;
         }
-        
         .search-input {
             width: 100%;
-            padding: 12px 12px 12px 45px;
-            border: 2px solid #dadce0;
-            border-radius: 30px;
-            font-size: 1rem;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        
+        .categories {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .category-btn {
+            padding: 8px 20px;
             background: white;
+            border: 2px solid var(--primary-light);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
         }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #0066CC;
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #5f6368;
-        }
+        .category-btn:hover { background: var(--primary-light); color: white; }
+        .category-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
         
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
         }
         
         .news-card {
             background: white;
-            border: 1px solid #dadce0;
-            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            text-decoration: none;
-            color: #1a2a3a;
             transition: all 0.3s;
             cursor: pointer;
-            display: block;
         }
-        
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            border-color: #0066CC;
-        }
+        .news-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
         
         .news-image {
             height: 160px;
-            background: linear-gradient(135deg, #0066CC, #0052a3);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             position: relative;
         }
+        .news-badge { position: absolute; top: 12px; left: 12px; background: var(--secondary); color: var(--dark); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+        .category-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.65); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
         
-        .news-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: #FFD700;
-            color: #1a2a3a;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            z-index: 2;
+        .news-content { padding: 1.2rem; }
+        .news-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; }
+        .news-excerpt { font-size: 0.85rem; color: var(--gray); margin-bottom: 0.8rem; line-height: 1.5; }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
         }
-        
-        .category-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 5px 12px;
+        .tag {
+            background: #f0f0f0;
+            padding: 2px 10px;
             border-radius: 20px;
+            font-size: 0.65rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .tag:hover { background: var(--primary-light); color: white; }
+        
+        .news-stats {
+            display: flex;
+            gap: 1rem;
             font-size: 0.7rem;
-            backdrop-filter: blur(5px);
+            color: var(--gray);
+            margin-bottom: 0.8rem;
         }
-        
-        .news-content { padding: 20px; }
-        .news-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; color: #0066CC; }
-        .news-excerpt { color: #5f6368; font-size: 0.9rem; margin-bottom: 15px; line-height: 1.6; }
+        .like-btn, .dislike-btn { cursor: pointer; transition: all 0.2s; }
+        .like-btn.active { color: #1e8e3e; }
+        .dislike-btn.active { color: #d93025; }
+        .favorite-btn { cursor: pointer; transition: all 0.2s; margin-left: auto; }
+        .favorite-btn.active { color: var(--secondary); }
         
         .news-meta {
             display: flex;
-            gap: 15px;
-            color: #5f6368;
-            font-size: 0.8rem;
-            border-top: 1px solid #dadce0;
-            padding-top: 15px;
-        }
-        
-        .important-badge {
-            background: #fbbc04;
-            color: #1a2a3a;
+            justify-content: space-between;
             font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-left: 10px;
+            color: var(--gray);
+            border-top: 1px solid #e0e0e0;
+            padding-top: 0.8rem;
         }
         
-        .favorite-btn { cursor: pointer; transition: all 0.2s; }
-        .favorite-btn.active { color: #FFD700; }
+        .important-badge { background: #fbbc04; color: var(--dark); font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
         
-        .loading, .error-message { text-align: center; padding: 60px; color: #5f6368; }
-        .error-message { color: #d93025; }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+        }
+        .page-btn:hover { background: var(--primary-light); color: white; border-color: var(--primary-light); }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* Модальное окно для просмотра новости */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-xl);
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        .modal-header h2 { color: var(--primary); font-size: 1.3rem; }
+        .close-modal { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--gray); }
+        .close-modal:hover { color: var(--dark); }
+        .modal-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        /* Блок комментариев */
+        .comments-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e0e0e0;
+        }
+        .comments-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-md);
+            font-family: 'Montserrat', sans-serif;
+            resize: vertical;
+            margin-bottom: 0.5rem;
+        }
+        .comment-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 1rem;
+        }
+        .comment-submit:hover { background: var(--primary-dark); }
+        .comment-item {
+            background: var(--light);
+            padding: 0.8rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+        .comment-author { font-weight: 600; color: var(--primary); }
+        .comment-text { font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.5rem; word-break: break-word; }
+        .comment-footer { display: flex; gap: 1rem; font-size: 0.7rem; }
+        .report-btn { background: none; border: none; color: var(--gray); cursor: pointer; }
+        .report-btn:hover { color: #d93025; }
+        .comment-menu { position: relative; display: inline-block; }
+        .comment-dots { cursor: pointer; padding: 0 5px; }
+        .comment-menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+        .comment-menu-content button {
+            display: block;
+            width: 100%;
+            padding: 6px 12px;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .comment-menu-content button:hover { background: #f0f0f0; }
+        .age-restricted {
+            background: #ffe0e0;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            color: #d93025;
+        }
+        .no-comments { text-align: center; color: var(--gray); padding: 1rem; }
+        
+        .similar-news {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        .similar-item {
+            padding: 5px 0;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            font-size: 0.85rem;
+        }
+        .similar-item:hover { text-decoration: underline; }
+        
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-column h3 { color: var(--secondary); margin-bottom: 1rem; font-size: 1.1rem; }
+        .footer-column ul { list-style: none; }
+        .footer-column li { margin-bottom: 0.5rem; }
+        .footer-column a { color: rgba(255,255,255,0.8); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .footer-column a:hover { color: var(--secondary); }
+        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .copyright { color: var(--gray); font-size: 0.9rem; }
         
         .toast {
             position: fixed;
@@ -268,152 +456,107 @@
             color: white;
             padding: 12px 25px;
             border-radius: 30px;
-            font-size: 0.9rem;
             z-index: 9999;
             animation: slideUp 0.3s ease;
         }
+        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         
-        @keyframes slideUp {
-            from { transform: translate(-50%, 100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+            .nav-links { display: none; width: 100%; flex-direction: column; background: var(--primary-dark); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; }
+            .nav-links.active { display: flex; }
+            .dropdown { width: 100%; }
+            .dropdown-content { position: static; background: rgba(0,0,0,0.2); margin-left: 1rem; box-shadow: none; }
+            .dropdown-content a { color: white; }
+            .dropdown-content a i { color: var(--secondary); }
         }
-        
-        /* ФУТЕР — тёмный, единый фон, все ссылки красиво */
-        .footer {
-            background: #0f172a;
-            padding: 35px 20px 30px;
-            margin-top: 40px;
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 28px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-        }
-        
-        .footer-links a {
-            color: #cbd5e1;
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-        }
-        
-        .footer-links a:hover {
-            color: #FFD700;
-            text-decoration: underline;
-        }
-        
-        .social-icons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .social-icons a {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 1.2rem;
-            transition: all 0.25s ease;
-        }
-        
-        .social-icons a:hover {
-            background: #FFD700;
-            color: #0f172a;
-            transform: translateY(-3px);
-        }
-        
-        .copyright {
-            font-size: 0.75rem;
-            color: #64748b;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            padding-top: 22px;
-            margin-top: 5px;
-        }
-        
         @media (max-width: 768px) {
+            .news-header h1 { font-size: 1.6rem; }
+            .news-header { padding: 1.5rem; }
             .news-grid { grid-template-columns: 1fr; }
-            .footer-links { gap: 18px; }
-            .footer-links a { font-size: 0.75rem; }
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            body { background: #1a1a1a; }
-            .card, .news-card, .nav-link, .category-btn, .search-input { background: #2a2a2a; color: #e8eaed; border-color: #404040; }
-            .card-header { background: linear-gradient(135deg, #004d99, #003d77); }
-            .news-title { color: #66b5ff; }
         }
     </style>
 </head>
 <body>
-    <div class="main-content">
+    <header>
         <div class="container">
             <nav>
-                <!-- Кнопка "На главную" просто возвращает назад -->
-                <button class="nav-link" onclick="window.location.href='https://kirill12633.github.io/Metro.New.Official/ru/'">
-                    <i class="fas fa-arrow-left"></i> На главную
-                </button>
-                <a href="https://kirill12633.github.io/support.metro.new/" class="nav-link"><i class="fas fa-headset"></i> Поддержка</a>
-                <button class="nav-link" onclick="showFavorites()"><i class="fas fa-star"></i> Избранное</button>
-            </nav>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="logo">
-                        <div class="logo-icon">M</div>
-                        <div class="logo-text">Метро New</div>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">M</span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+                <button class="burger-menu" id="burgerMenu"><i class="fas fa-bars"></i></button>
+                <div class="nav-links" id="navLinks">
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">Другое <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/news"><i class="fas fa-newspaper"></i> Новости</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/gallery"><i class="fas fa-images"></i> Галерея</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Контакты</a>
+                            <div class="divider"></div>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/"><i class="fas fa-gavel"></i> Правовые документы</a>
+                        </div>
                     </div>
-                    <h1 id="pageTitle">Новости проекта</h1>
-                    <p id="pageSubtitle">Будьте в курсе последних событий</p>
+                    <div class="dropdown" id="dropdownLinks">
+                        <button id="dropdownLinksBtn">Полезные ссылки <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-content">
+                            <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank"><i class="fas fa-play"></i> Начать играть</a>
+                            <a href="https://kirill12633.github.io/status.metro.new/" target="_blank"><i class="fas fa-chart-line"></i> Статус сервисов</a>
+                        </div>
+                    </div>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a>
                 </div>
-                
-                <div class="card-body" id="contentContainer">
-                    <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка новостей...</p></div>
-                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="news-header">
+            <h1><i class="fas fa-newspaper"></i> Новости проекта</h1>
+            <p>Будьте в курсе последних событий, обновлений и анонсов</p>
+        </div>
+        <div class="news-section">
+            <div class="search-container"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" class="search-input" placeholder="Поиск новостей..."></div>
+            <div class="categories" id="categoriesContainer"></div>
+            <div id="newsGrid" class="news-grid"><div class="loading" style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка...</p></div></div>
+            <div id="paginationContainer" class="pagination"></div>
+        </div>
+    </main>
+
+    <div id="newsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
+            <div id="modalImage" class="modal-image"></div>
+            <div id="modalContent" class="modal-content-text"></div>
+            <div id="modalMeta" style="margin-top:1rem;font-size:0.8rem;color:var(--gray);"></div>
+            <div id="commentsBlock" class="comments-section"></div>
+            <div id="similarNews" class="similar-news"><h4 style="font-size:0.9rem;">📰 Похожие новости</h4><div id="similarList"></div></div>
         </div>
     </div>
-    
-    <!-- ФУТЕР с точными ссылками -->
+
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a>
-                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a>
-                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/">Правила сайта</a>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column"><h3>О нас</h3><ul><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about">О проекте</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff">Наша команда</a></li><li><a href="https://discord.com/invite/WjGZBs3HMX">Discord сообщество</a></li></ul></div>
+                <div class="footer-column"><h3>Информация</h3><ul><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq">FAQ</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki">Wiki</a></li><li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li></ul></div>
+                <div class="footer-column"><h3>Правовые документы</h3><ul><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/">Политика возврата</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/">Правила сайта</a></li></ul></div>
+                <div class="footer-column"><h3>Социальные сети</h3><ul><li><a href="https://discord.com/invite/WjGZBs3HMX">Discord</a></li><li><a href="https://t.me/Metro_New_Official">Telegram</a></li><li><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox">YouTube</a></li></ul></div>
             </div>
-            
-            <div class="social-icons">
-                <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
-                <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram"></i></a>
-                <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i></a>
-            </div>
-            
-            <div class="copyright">
-                © 2026 Метро New. Все права защищены.
-            </div>
+            <div class="footer-bottom"><p class="copyright">© 2026 Метро New. Все права защищены.</p></div>
         </div>
     </footer>
 
     <script>
-        // ===== FIREBASE (ваши настройки) =====
+        // Firebase
         firebase.initializeApp({
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
@@ -422,53 +565,240 @@
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
         });
-
-        try {
-            firebase.appCheck().activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
-        } catch(e) { console.warn(e); }
-
         const db = firebase.firestore();
-        const urlParams = new URLSearchParams(window.location.search);
-        const newsId = urlParams.get('id');
+        
+        let allNews = [];
         let currentCategory = 'all';
         let searchTerm = '';
+        let currentPage = 1;
+        const itemsPerPage = 6;
         
-        // ===== ЗАПРЕЩЕННЫЕ СЛОВА =====
-        const badWords = ['хуй', 'пизда', 'бля', 'ебал', 'мудак', 'пидор', 'сука', 'гандон', 'шлюха', 'уебан', 'долбоеб', 'ебать', 'хуя'];
+        // Возрастное ограничение (13+)
+        let userAge = parseInt(localStorage.getItem('user_age') || '0');
+        let currentNewsId = null;
         
-        function containsBadWords(text) {
-            const lower = text.toLowerCase();
-            return badWords.some(w => lower.includes(w));
+        const categories = [
+            { id: 'all', name: 'Все', icon: 'fa-newspaper' },
+            { id: 'update', name: 'Обновления', icon: 'fa-sync-alt' },
+            { id: 'event', name: 'События', icon: 'fa-calendar-alt' },
+            { id: 'important', name: 'Важное', icon: 'fa-exclamation-triangle' },
+            { id: 'announcement', name: 'Анонсы', icon: 'fa-bullhorn' }
+        ];
+        
+        function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+        function formatDate(timestamp) { if(!timestamp) return 'Дата не указана'; if(timestamp.toDate) return timestamp.toDate().toLocaleDateString('ru-RU'); return timestamp; }
+        
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = categories.map(cat => `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-category="${cat.id}" onclick="filterByCategory('${cat.id}')"><i class="fas ${cat.icon}"></i> ${cat.name}</button>`).join('');
         }
         
-        function containsLinks(text) {
-            return /(https?:\/\/|www\.|[a-z0-9.-]+\.(ru|com|net|org|xyz|club))/i.test(text);
+        async function loadNews() {
+            try {
+                const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
+                allNews = [];
+                snapshot.forEach(doc => { const data = doc.data(); if(data.status === 'published' || !data.status) allNews.push({ id: doc.id, ...data }); });
+                applyFiltersAndRender();
+            } catch(e) { console.error(e); document.getElementById('newsGrid').innerHTML = '<div class="error-message">❌ Ошибка загрузки</div>'; }
         }
         
-        async function canGuestComment() {
-            const today = new Date().toDateString();
-            const count = parseInt(localStorage.getItem(`comments_${today}`) || '0');
-            if (count >= 5) {
-                showToast('⚠️ Гости: до 5 комментариев в день');
-                return false;
+        function applyFiltersAndRender() {
+            let filtered = [...allNews];
+            if(currentCategory !== 'all') filtered = filtered.filter(n => n.category === currentCategory);
+            if(searchTerm) filtered = filtered.filter(n => (n.title || '').toLowerCase().includes(searchTerm) || (n.excerpt || '').toLowerCase().includes(searchTerm));
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = filtered.slice(start, start + itemsPerPage);
+            renderNewsGrid(paginated);
+            renderPagination(totalPages);
+        }
+        
+        function renderNewsGrid(newsList) {
+            const grid = document.getElementById('newsGrid');
+            if(newsList.length === 0) { grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">📭 Новостей не найдено</div>'; return; }
+            
+            const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const likes = JSON.parse(localStorage.getItem('likes') || '{}');
+            const dislikes = JSON.parse(localStorage.getItem('dislikes') || '{}');
+            const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
+            const categoryIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
+            
+            grid.innerHTML = newsList.map(n => {
+                const date = n.createdAt ? formatDate(n.createdAt) : 'Дата не указана';
+                const isFav = favs.includes(n.id);
+                const userLiked = likes[n.id];
+                const userDisliked = dislikes[n.id];
+                const likeCount = n.likeCount || 0;
+                const dislikeCount = n.dislikeCount || 0;
+                const tags = n.tags || [];
+                return `<div class="news-card" onclick="openNews('${n.id}')">
+                    <div class="news-image">
+                        ${n.badge ? `<span class="news-badge">${escapeHtml(n.badge)}</span>` : ''}
+                        <span class="category-badge"><i class="fas ${categoryIcons[n.category] || 'fa-newspaper'}"></i> ${categoryNames[n.category] || 'Новость'}</span>
+                    </div>
+                    <div class="news-content">
+                        <h3 class="news-title">${escapeHtml(n.title)}${n.important ? '<span class="important-badge">Важно!</span>' : ''}</h3>
+                        <p class="news-excerpt">${escapeHtml((n.excerpt || '').substring(0, 100))}...</p>
+                        <div class="tags">${tags.map(t => `<span class="tag" onclick="event.stopPropagation(); searchByTag('${t}')">#${escapeHtml(t)}</span>`).join('')}</div>
+                        <div class="news-stats">
+                            <span class="like-btn ${userLiked ? 'active' : ''}" onclick="event.stopPropagation(); rateNews('${n.id}', 'like')"><i class="fas fa-thumbs-up"></i> ${likeCount}</span>
+                            <span class="dislike-btn ${userDisliked ? 'active' : ''}" onclick="event.stopPropagation(); rateNews('${n.id}', 'dislike')"><i class="fas fa-thumbs-down"></i> ${dislikeCount}</span>
+                            <span><i class="fas fa-comment"></i> ${n.commentsCount || 0}</span>
+                            <span class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${n.id}', '${escapeHtml(n.title).replace(/'/g, "\\'")}')"><i class="fas fa-star"></i></span>
+                        </div>
+                        <div class="news-meta">
+                            <span><i class="far fa-calendar-alt"></i> ${date}</span>
+                            <span><i class="far fa-eye"></i> ${n.views || 0}</span>
+                            <span class="share-btn" onclick="event.stopPropagation(); shareNews('${n.id}', '${escapeHtml(n.title).replace(/'/g, "\\'")}')"><i class="fas fa-share-alt"></i> Поделиться</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationContainer');
+            if(totalPages <= 1) { container.innerHTML = ''; return; }
+            let html = '';
+            for(let i = 1; i <= Math.min(totalPages, 10); i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
             }
-            return true;
+            container.innerHTML = html;
         }
         
-        window.addComment = async function(newsId) {
-            const input = document.getElementById('commentInput');
-            let text = input.value.trim();
-            
-            if (!text) { showToast('Введите текст'); return; }
-            if (text.length > 500) { showToast('Максимум 500 символов'); return; }
-            if (containsBadWords(text)) { showToast('❌ Запрещенные слова'); return; }
-            if (containsLinks(text)) { showToast('❌ Ссылки запрещены'); return; }
-            if (!await canGuestComment()) return;
-            
-            const btn = document.getElementById('commentBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
-            
+        window.goToPage = (page) => { currentPage = page; applyFiltersAndRender(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+        window.filterByCategory = (cat) => { currentCategory = cat; currentPage = 1; applyFiltersAndRender(); renderCategories(); };
+        window.searchByTag = (tag) => { document.getElementById('searchInput').value = tag; searchTerm = tag; currentPage = 1; applyFiltersAndRender(); };
+        document.getElementById('searchInput').addEventListener('input', (e) => { searchTerm = e.target.value.toLowerCase(); currentPage = 1; applyFiltersAndRender(); });
+        
+        window.rateNews = async (id, type) => {
+            let likes = JSON.parse(localStorage.getItem('likes') || '{}');
+            let dislikes = JSON.parse(localStorage.getItem('dislikes') || '{}');
+            const newsRef = db.collection('news').doc(id);
+            if(type === 'like') {
+                if(likes[id]) { showToast('Вы уже оценили'); return; }
+                if(dislikes[id]) { await newsRef.update({ dislikeCount: firebase.firestore.FieldValue.increment(-1) }); delete dislikes[id]; }
+                await newsRef.update({ likeCount: firebase.firestore.FieldValue.increment(1) });
+                likes[id] = true;
+                showToast('👍 Спасибо за оценку!');
+            } else {
+                if(dislikes[id]) { showToast('Вы уже оценили'); return; }
+                if(likes[id]) { await newsRef.update({ likeCount: firebase.firestore.FieldValue.increment(-1) }); delete likes[id]; }
+                await newsRef.update({ dislikeCount: firebase.firestore.FieldValue.increment(1) });
+                dislikes[id] = true;
+                showToast('👎 Спасибо за отзыв!');
+            }
+            localStorage.setItem('likes', JSON.stringify(likes));
+            localStorage.setItem('dislikes', JSON.stringify(dislikes));
+            loadNews();
+        };
+        
+        window.toggleFavorite = (id, title) => {
+            let favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+            if(favs.includes(id)) { favs = favs.filter(f => f !== id); showToast(`❌ "${title}" удалено из избранного`); }
+            else { favs.push(id); showToast(`✅ "${title}" добавлено в избранное`); }
+            localStorage.setItem('favorites', JSON.stringify(favs));
+            applyFiltersAndRender();
+        };
+        
+        window.shareNews = (id, title) => {
+            const url = window.location.href.split('?')[0] + '?id=' + id;
+            if(navigator.share) navigator.share({ title, url });
+            else { navigator.clipboard.writeText(url); showToast('📋 Ссылка скопирована'); }
+        };
+        
+        async function getCommentsCount(newsId) {
+            try {
+                const snapshot = await db.collection('comments').where('newsId', '==', newsId).where('status', '==', 'approved').get();
+                return snapshot.size;
+            } catch(e) { return 0; }
+        }
+        
+        async function loadComments(newsId) {
+            const container = document.getElementById('commentsBlock');
+            if(!container) return;
+            try {
+                const snapshot = await db.collection('comments')
+                    .where('newsId', '==', newsId)
+                    .where('status', '==', 'approved')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                let commentsHtml = `<div class="comments-title"><i class="fas fa-comments"></i> Комментарии (${snapshot.size})</div>`;
+                if(snapshot.empty) {
+                    commentsHtml += `<div class="no-comments">💬 Нет комментариев. Будьте первым!</div>`;
+                } else {
+                    snapshot.forEach(doc => {
+                        const c = doc.data();
+                        const date = c.createdAt?.toDate?.()?.toLocaleString() || 'только что';
+                        commentsHtml += `
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <span class="comment-author"><i class="fas fa-user"></i> ${escapeHtml(c.author || 'Гость')}</span>
+                                    <div class="comment-menu">
+                                        <span class="comment-dots" onclick="toggleCommentMenu(this)"><i class="fas fa-ellipsis-v"></i></span>
+                                        <div class="comment-menu-content">
+                                            <button onclick="reportComment('${doc.id}', '${newsId}')"><i class="fas fa-flag"></i> Пожаловаться</button>
+                                            <button onclick="shareComment('${escapeHtml(c.text).replace(/'/g, "\\'")}')"><i class="fas fa-share"></i> Поделиться</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-text">${escapeHtml(c.text)}</div>
+                                <div class="comment-footer">
+                                    <span><i class="far fa-clock"></i> ${date}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                // Форма добавления комментария (с проверкой возраста)
+                if(userAge >= 13 && userAge > 0) {
+                    commentsHtml += `
+                        <div class="comment-form">
+                            <textarea id="commentText" rows="3" placeholder="Напишите комментарий... (до 500 символов, без мата и ссылок)"></textarea>
+                            <button class="comment-submit" onclick="submitComment('${newsId}')"><i class="fas fa-paper-plane"></i> Отправить</button>
+                        </div>
+                    `;
+                } else if(userAge === 0) {
+                    commentsHtml += `
+                        <div class="age-restricted">
+                            <i class="fas fa-shield-alt"></i> Для комментирования укажите ваш возраст:<br>
+                            <input type="number" id="ageInput" placeholder="Ваш возраст" style="margin-top:10px;padding:8px;border-radius:8px;border:1px solid #ccc;width:120px;">
+                            <button onclick="setAge()" style="margin-left:10px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">Подтвердить</button>
+                        </div>
+                    `;
+                } else if(userAge < 13) {
+                    commentsHtml += `<div class="age-restricted"><i class="fas fa-sad-tear"></i> Упсс... Похоже, вам нет 13 лет! Комментирование недоступно.<br><small>Код ошибки: AGE_RESTRICTED</small></div>`;
+                }
+                container.innerHTML = commentsHtml;
+            } catch(e) { container.innerHTML = '<div class="error-message">Ошибка загрузки комментариев</div>'; }
+        }
+        
+        window.setAge = () => {
+            const age = parseInt(document.getElementById('ageInput')?.value);
+            if(age && age >= 13) {
+                localStorage.setItem('user_age', age);
+                userAge = age;
+                showToast('✅ Возраст подтвержден! Теперь вы можете комментировать.');
+                if(currentNewsId) loadComments(currentNewsId);
+            } else if(age && age < 13) {
+                localStorage.setItem('user_age', age);
+                userAge = age;
+                showToast('😢 Вам нет 13 лет. Комментирование недоступно.');
+                if(currentNewsId) loadComments(currentNewsId);
+            } else {
+                showToast('Введите корректный возраст (число)');
+            }
+        };
+        
+        window.submitComment = async (newsId) => {
+            if(userAge < 13) { showToast('❌ Вам нет 13 лет'); return; }
+            const text = document.getElementById('commentText')?.value.trim();
+            if(!text) { showToast('Введите текст'); return; }
+            if(text.length > 500) { showToast('Максимум 500 символов'); return; }
+            if(/(https?:\/\/|www\.)/i.test(text)) { showToast('❌ Ссылки запрещены'); return; }
+            if(/хуй|пизда|бля|ебал|мудак|пидор|сука|гандон|шлюха|уебан|долбоеб|ебать|хуя/i.test(text)) { showToast('❌ Запрещенные слова'); return; }
             try {
                 await db.collection('comments').add({
                     newsId,
@@ -478,201 +808,85 @@
                     status: 'pending',
                     reports: 0
                 });
-                const today = new Date().toDateString();
-                localStorage.setItem(`comments_${today}`, (parseInt(localStorage.getItem(`comments_${today}`) || '0') + 1).toString());
-                input.value = '';
                 showToast('💬 На модерации (до 24ч)');
+                document.getElementById('commentText').value = '';
                 loadComments(newsId);
+                loadNews();
             } catch(e) { showToast('Ошибка'); }
-            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить'; }
         };
         
-        window.reportComment = async function(commentId) {
+        window.toggleCommentMenu = (btn) => { const menu = btn.nextElementSibling; menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; setTimeout(() => { document.addEventListener('click', function closeMenu(e) { if(!btn.contains(e.target) && !menu.contains(e.target)) { menu.style.display = 'none'; document.removeEventListener('click', closeMenu); } }); }, 10); };
+        
+        window.reportComment = async (commentId, newsId) => {
             try {
                 const comment = await db.collection('comments').doc(commentId).get();
                 const reports = (comment.data()?.reports || 0) + 1;
-                if (reports >= 3) {
-                    await db.collection('comments').doc(commentId).delete();
-                    showToast('🚫 Комментарий удален');
-                } else {
-                    await db.collection('comments').doc(commentId).update({ reports });
-                    showToast('🚩 Жалоба отправлена');
-                }
-                if (newsId) loadComments(newsId);
-            } catch(e) { showToast('Ошибка'); }
-        };
-        
-        async function loadComments(newsId) {
-            const container = document.getElementById('commentsContainer');
-            if (!container) return;
-            try {
-                const snapshot = await db.collection('comments')
-                    .where('newsId', '==', newsId)
-                    .where('status', '==', 'approved')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
-                if (snapshot.empty) {
-                    container.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px;">💬 Нет комментариев. Будьте первым!</p>';
-                    return;
-                }
-                let html = '';
-                snapshot.forEach(doc => {
-                    const c = doc.data();
-                    const date = c.createdAt?.toDate?.()?.toLocaleString() || 'только что';
-                    html += `
-                        <div style="background:white;padding:16px;margin-bottom:12px;border-radius:16px;border-left:3px solid #0066CC;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                            <div style="display:flex;justify-content:space-between;margin-bottom:10px;color:#64748b;font-size:0.8rem;">
-                                <span style="font-weight:600;color:#0066CC;"><i class="fas fa-user"></i> ${escapeHtml(c.author || 'Гость')}</span>
-                                <span><i class="far fa-clock"></i> ${date}</span>
-                            </div>
-                            <div style="line-height:1.5;margin-bottom:12px;">${escapeHtml(c.text)}</div>
-                            <button onclick="reportComment('${doc.id}')" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.75rem;"><i class="fas fa-flag"></i> Пожаловаться</button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch(e) { container.innerHTML = '<p style="color:#d93025;">Ошибка</p>'; }
-        }
-        
-        async function loadNewsList() {
-            const container = document.getElementById('contentContainer');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка...</p></div>';
-            try {
-                let query = db.collection('news').where('status', '==', 'published').orderBy('createdAt', 'desc').limit(12);
-                if (currentCategory !== 'all') query = query.where('category', '==', currentCategory);
-                const snapshot = await query.get();
-                let allNews = [];
-                snapshot.forEach(doc => allNews.push({ id: doc.id, ...doc.data() }));
-                if (searchTerm) allNews = allNews.filter(n => (n.title || '').toLowerCase().includes(searchTerm));
-                const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-                const icons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
-                
-                let html = `
-                    <div class="search-container">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" class="search-input" placeholder="Поиск новостей..." oninput="handleSearch()" value="${escapeHtml(searchTerm)}">
-                    </div>
-                    <div class="categories">
-                        <button class="category-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">Все</button>
-                        <button class="category-btn ${currentCategory === 'update' ? 'active' : ''}" onclick="filterByCategory('update')">Обновления</button>
-                        <button class="category-btn ${currentCategory === 'event' ? 'active' : ''}" onclick="filterByCategory('event')">События</button>
-                        <button class="category-btn ${currentCategory === 'important' ? 'active' : ''}" onclick="filterByCategory('important')">Важное</button>
-                        <button class="category-btn ${currentCategory === 'announcement' ? 'active' : ''}" onclick="filterByCategory('announcement')">Анонсы</button>
-                    </div>
-                    <div class="news-grid">
-                `;
-                
-                allNews.forEach(n => {
-                    const date = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString();
-                    const isFav = favs.includes(n.id);
-                    html += `
-                        <div class="news-card" onclick="location.href='?id=${n.id}'">
-                            <div class="news-image">
-                                ${n.badge ? `<span class="news-badge">${escapeHtml(n.badge)}</span>` : ''}
-                                <span class="category-badge"><i class="fas ${icons[n.category] || 'fa-newspaper'}"></i> ${n.category || 'Новость'}</span>
-                            </div>
-                            <div class="news-content">
-                                <h3 class="news-title">${escapeHtml(n.title)}${n.important ? '<span class="important-badge">Важно!</span>' : ''}</h3>
-                                <p class="news-excerpt">${escapeHtml((n.excerpt || '').substring(0, 120))}${(n.excerpt || '').length > 120 ? '...' : ''}</p>
-                                <div class="news-meta">
-                                    <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                                    <span><i class="far fa-eye"></i> ${n.views || 0}</span>
-                                    <span class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${n.id}', '${escapeHtml(n.title).replace(/'/g, "\\'")}')"><i class="fas fa-star"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-                container.innerHTML = html;
-            } catch(e) { container.innerHTML = '<div class="error-message">❌ Ошибка загрузки</div>'; }
-        }
-        
-        async function loadSingleNews() {
-            const container = document.getElementById('contentContainer');
-            try {
-                const doc = await db.collection('news').doc(newsId).get();
-                if (!doc.exists) throw new Error();
-                const data = doc.data();
-                await db.collection('news').doc(newsId).update({ views: firebase.firestore.FieldValue.increment(1) });
-                const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString();
-                const voted = localStorage.getItem(`rated_${newsId}`);
-                const isFav = JSON.parse(localStorage.getItem('favorites') || '[]').includes(newsId);
-                const clean = DOMPurify.sanitize(data.content || '', { ALLOWED_TAGS: ['b','i','em','strong','a','p','br','ul','ol','li','h1','h2','h3','h4','img'], ALLOWED_ATTR: ['href','target','src','alt'] });
-                const icons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
-                
-                container.innerHTML = `
-                    <div style="background:white;border-radius:20px;padding:25px;">
-                        <div style="height:180px;background:linear-gradient(135deg,#0066CC,#0052a3);border-radius:16px;margin-bottom:20px;position:relative;">
-                            ${data.badge ? `<span style="position:absolute;top:15px;left:15px;background:#FFD700;color:#1a2a3a;padding:6px 18px;border-radius:30px;font-weight:700;">${escapeHtml(data.badge)}</span>` : ''}
-                            <span style="position:absolute;top:15px;right:15px;background:rgba(0,0,0,0.6);color:white;padding:6px 18px;border-radius:30px;"><i class="fas ${icons[data.category] || 'fa-newspaper'}"></i> ${data.category || 'Новость'}</span>
-                        </div>
-                        <h1 style="font-size:1.8rem;color:#0066CC;margin-bottom:15px;">${escapeHtml(data.title)}</h1>
-                        <div style="display:flex;gap:20px;padding:12px 0;border-bottom:1px solid #e2e8f0;margin-bottom:20px;flex-wrap:wrap;">
-                            <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                            <span><i class="far fa-eye"></i> ${data.views || 0} просмотров</span>
-                            <span class="favorite-btn ${isFav ? 'active' : ''}" style="cursor:pointer;" onclick="toggleFavorite('${newsId}', '${escapeHtml(data.title).replace(/'/g, "\\'")}')"><i class="fas fa-star"></i> ${isFav ? 'В избранном' : 'В избранное'}</span>
-                        </div>
-                        <div style="line-height:1.7;">${clean}</div>
-                        <div style="margin:25px 0;padding:20px;background:#f8fafc;border-radius:16px;text-align:center;">
-                            <div style="font-weight:600;margin-bottom:15px;">👍 Была ли новость полезной?</div>
-                            <div style="display:flex;gap:15px;justify-content:center;">
-                                <button onclick="rateNews(1)" ${voted ? 'disabled' : ''} style="padding:10px 30px;border-radius:40px;border:1px solid #e2e8f0;background:white;cursor:pointer;"><i class="fas fa-thumbs-up"></i> Да</button>
-                                <button onclick="rateNews(0)" ${voted ? 'disabled' : ''} style="padding:10px 30px;border-radius:40px;border:1px solid #e2e8f0;background:white;cursor:pointer;"><i class="fas fa-thumbs-down"></i> Нет</button>
-                            </div>
-                        </div>
-                        <div style="margin:25px 0;padding:20px;background:#f8fafc;border-radius:16px;">
-                            <h3><i class="fas fa-comments"></i> Комментарии <span style="font-size:0.7rem;color:#64748b;">(модерация)</span></h3>
-                            <div id="commentsContainer" style="margin-top:15px;"><div class="loading" style="padding:20px;"><i class="fas fa-spinner fa-spin"></i></div></div>
-                            <div style="margin-top:15px;">
-                                <textarea id="commentInput" rows="3" placeholder="Напишите комментарий... (до 500 символов, без мата и ссылок)" style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-family:inherit;"></textarea>
-                                <button id="commentBtn" onclick="addComment('${newsId}')" style="margin-top:10px;background:#0066CC;color:white;padding:10px 24px;border:none;border-radius:40px;cursor:pointer;font-weight:600;"><i class="fas fa-paper-plane"></i> Отправить</button>
-                            </div>
-                        </div>
-                        <div style="text-align:center;"><a href="https://kirill12633.github.io/Metro.New.Official/ru/news/" style="color:#0066CC;text-decoration:none;font-weight:600;">← Вернуться к новостям</a></div>
-                    </div>
-                `;
+                if(reports >= 3) { await db.collection('comments').doc(commentId).delete(); showToast('🚫 Комментарий удален за 3 жалобы'); }
+                else { await db.collection('comments').doc(commentId).update({ reports }); showToast('🚩 Жалоба отправлена'); }
                 loadComments(newsId);
-            } catch(e) { container.innerHTML = '<div class="error-message">Новость не найдена</div>'; }
-        }
-        
-        window.rateNews = async function(value) {
-            if (!newsId || localStorage.getItem(`rated_${newsId}`)) { showToast('Вы уже оценили'); return; }
-            try {
-                await db.collection('news').doc(newsId).update({ ratings: firebase.firestore.FieldValue.arrayUnion({ value, date: new Date().toISOString() }) });
-                localStorage.setItem(`rated_${newsId}`, 'true');
-                showToast('Спасибо за оценку!');
-                loadSingleNews();
+                loadNews();
             } catch(e) { showToast('Ошибка'); }
         };
         
-        window.filterByCategory = (cat) => { currentCategory = cat; loadNewsList(); };
-        window.handleSearch = () => { searchTerm = document.getElementById('searchInput').value.toLowerCase(); loadNewsList(); };
-        window.toggleFavorite = (id, title) => {
-            let favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-            if (favs.includes(id)) { favs = favs.filter(f => f !== id); showToast(`❌ "${title}" удалено`); }
-            else { favs.push(id); showToast(`✅ "${title}" добавлено`); }
-            localStorage.setItem('favorites', JSON.stringify(favs));
-            if (newsId) loadSingleNews(); else loadNewsList();
+        window.shareComment = (text) => { if(navigator.share) navigator.share({ text }); else { navigator.clipboard.writeText(text); showToast('📋 Комментарий скопирован'); } };
+        
+        window.openNews = async function(newsId) {
+            currentNewsId = newsId;
+            const modal = document.getElementById('newsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const modalMeta = document.getElementById('modalMeta');
+            const modalImage = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalTitle.textContent = 'Загрузка...';
+            try {
+                await db.collection('news').doc(newsId).update({ views: firebase.firestore.FieldValue.increment(1) });
+                const doc = await db.collection('news').doc(newsId).get();
+                if(!doc.exists) throw new Error();
+                const news = doc.data();
+                const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
+                const views = (news.views || 0) + 1;
+                const commentsCount = await getCommentsCount(newsId);
+                const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
+                const categoryIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
+                modalTitle.textContent = escapeHtml(news.title);
+                modalImage.innerHTML = `${news.badge ? `<span style="position:absolute;top:15px;left:15px;background:var(--secondary);color:var(--dark);padding:6px 18px;border-radius:30px;font-weight:700;">${escapeHtml(news.badge)}</span>` : ''}<span style="position:absolute;top:15px;right:15px;background:rgba(0,0,0,0.6);color:white;padding:6px 18px;border-radius:30px;"><i class="fas ${categoryIcons[news.category] || 'fa-newspaper'}"></i> ${categoryNames[news.category] || 'Новость'}</span>`;
+                modalImage.style.position = 'relative';
+                modalImage.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
+                modalContent.innerHTML = news.content ? DOMPurify.sanitize(news.content) : '<p>Содержимое отсутствует</p>';
+                modalMeta.innerHTML = `<i class="far fa-calendar-alt"></i> ${date} &nbsp;|&nbsp; <i class="far fa-eye"></i> ${views} &nbsp;|&nbsp; <i class="fas fa-comment"></i> ${commentsCount} комментариев`;
+                await loadComments(newsId);
+                const similar = allNews.filter(n => n.id !== newsId && (n.category === news.category || (n.tags && news.tags && n.tags.some(t => (n.tags || []).includes(t))))).slice(0, 3);
+                const similarList = document.getElementById('similarList');
+                if(similar.length) {
+                    similarList.innerHTML = similar.map(s => `<a class="similar-item" onclick="closeModal(); openNews('${s.id}')">📌 ${escapeHtml(s.title)}</a>`).join('');
+                } else {
+                    similarList.innerHTML = '<p style="color:var(--gray);">Нет похожих новостей</p>';
+                }
+            } catch(e) { modalContent.innerHTML = '<p>Ошибка загрузки</p>'; }
         };
-        window.showFavorites = () => { currentCategory = 'all'; searchTerm = ''; loadNewsList(); showToast('⭐ Все новости'); };
         
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.textContent = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
-        }
+        window.closeModal = () => { document.getElementById('newsModal').style.display = 'none'; currentNewsId = null; };
+        const modal = document.getElementById('newsModal');
+        if(modal) modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
         
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-        }
+        // Навигация
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        if(burger) burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        const dropdownOther = document.getElementById('dropdownOther');
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        const dropdownLinks = document.getElementById('dropdownLinks');
+        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        if(dropdownBtn) dropdownBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); dropdownOther.classList.toggle('open'); });
+        if(dropdownLinksBtn) dropdownLinksBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); dropdownLinks.classList.toggle('open'); });
+        document.addEventListener('click', (e) => {
+            if(dropdownOther && !dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
+            if(dropdownLinks && !dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
+        });
         
-        if (newsId && newsId.length >= 10) loadSingleNews();
-        else loadNewsList();
+        renderCategories();
+        loadNews();
     </script>
 </body>
 </html>
