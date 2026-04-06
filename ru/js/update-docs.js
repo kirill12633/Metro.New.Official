@@ -7,32 +7,32 @@
     // ========== НАСТРОЙКИ ДОКУМЕНТОВ ==========
     const DOCS = {
         privacy: {
-            version: '1.0.0',
+            version: '1.1.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/',
             name: 'Политика конфиденциальности',
             icon: '🔒',
-            lastUpdate: '9 февраля 2026'
+            lastUpdate: '6 апреля 2026 года'
         },
         terms: {
-            version: '1.0.0',
+            version: '1.1.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/',
             name: 'Пользовательское соглашение',
             icon: '📝',
-            lastUpdate: '17 февраля 2026'
+            lastUpdate: '6 апреля 2026 года'
         },
         refund: {
             version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/',
             name: 'Политика возврата',
             icon: '💰',
-            lastUpdate: '—'
+            lastUpdate: '2 февраля 2026 года'
         },
         cookies: {
-            version: '2.0.0',     // ← обновлён
+            version: '1.0.0',     // ← обновлён
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/cookies/',
             name: 'Политика использования cookie',
             icon: '🍪',
-            lastUpdate: '5 апреля 2026'
+            lastUpdate: '6 апреля 2026 года'
         },
         copyright: {
             version: '1.0.0',
@@ -46,14 +46,14 @@
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/community-guidelines/',
             name: 'Правила сообщества Discord',
             icon: '💬',
-            lastUpdate: '—'
+            lastUpdate: '29 января 2025 года'
         },
         site: {
             version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/',
             name: 'Правила использования сайта',
             icon: '🌐',
-            lastUpdate: '9 февраля 2026'
+            lastUpdate: '6 апреля 2026 года'
         }
     };
     
