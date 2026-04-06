@@ -1,259 +1,252 @@
-// update-docs.js - Система обязательного уведомления об обновлении документов
-// Разместить по адресу: https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js
+// update-docs.js - Уведомление об обновлении документов
+// https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js
 
 (function() {
     'use strict';
     
-    console.log('update-docs.js загружен');
-    
     // ========== НАСТРОЙКИ ДОКУМЕНТОВ ==========
-    // ★★★ ПРИ ОБНОВЛЕНИИ - МЕНЯЙТЕ ЗДЕСЬ ★★★
-    const DOCS_CONFIG = {
-        version: '2.0.0',           // Версия обновления (увеличивайте при каждом изменении)
-        date: '15.01.2024',         // Дата обновления
-        title: 'Обновление политики конфиденциальности',
-        
-        // Какие документы обновлены
-        documents: [
-            {
-                name: 'Политика конфиденциальности',
-                url: '/ru/help/privacy-policy/',
-                changes: 'Добавлен раздел о сборе аналитических данных'
-            },
-            {
-                name: 'Пользовательское соглашение',
-                url: '/ru/help/terms-of-service/',
-                changes: 'Обновлены правила поведения в игре'
-            },
-            {
-                name: 'Политика использования cookie',
-                url: '/ru/help/cookies',
-                changes: 'Новые категории cookie и сроки хранения'
-            }
-        ],
-        
-        // Что изменилось (кратко)
-        summary: [
-            '📊 Добавлены аналитические cookie для улучшения работы сайта',
-            '🔒 Усилена защита персональных данных',
-            '📝 Обновлены правила пользования игрой',
-            '🤝 Добавлены новые партнёрские сервисы (Discord, YouTube)'
-        ]
+    // ★ ПРИ ОБНОВЛЕНИИ ДОКУМЕНТА - МЕНЯЙТЕ version ★
+    
+    const DOCS = {
+        privacy: {
+            version: '1.0.0',     // ← меняй при обновлении
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/',
+            name: 'Политика конфиденциальности',
+            icon: '🔒',
+            lastUpdate: '9 февраля 2026'
+        },
+        terms: {
+            version: '1.0.0',     // ← меняй при обновлении
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/',
+            name: 'Пользовательское соглашение',
+            icon: '📝',
+            lastUpdate: '17 февраля 2026'
+        },
+        refund: {
+            version: '1.0.0',     // ← меняй при обновлении
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/',
+            name: 'Политика возврата',
+            icon: '💰',
+            lastUpdate: '—'
+        },
+        cookies: {
+            version: '2.0.0',     // ← УЖЕ ОБНОВЛЁН (05.04.2026)
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/cookies/',
+            name: 'Политика использования cookie',
+            icon: '🍪',
+            lastUpdate: '5 апреля 2026'
+        },
+        copyright: {
+            version: '1.0.0',     // ← меняй при обновлении
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy/',
+            name: 'Политика авторских прав',
+            icon: '©️',
+            lastUpdate: '2 февраля 2026'
+        },
+        community: {
+            version: '1.0.0',     // ← меняй при обновлении
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/community-guidelines/',
+            name: 'Правила сообщества Discord',
+            icon: '💬',
+            lastUpdate: '—'
+        },
+        site: {
+            version: '1.0.0',     // ← меняй при обновлении
+            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/',
+            name: 'Правила использования сайта',
+            icon: '🌐',
+            lastUpdate: '9 февраля 2026'
+        }
     };
     
-    // ========== ПРОВЕРКА НУЖНО ЛИ ПОКАЗЫВАТЬ ==========
+    // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
     
-    function needsUpdate() {
-        try {
-            const acceptedVersion = localStorage.getItem('metro_docs_accepted_version');
-            const acceptedDate = localStorage.getItem('metro_docs_accepted_date');
-            
-            // Если версия не совпадает - показываем
-            if (acceptedVersion !== DOCS_CONFIG.version) {
-                console.log('Новая версия документов, требуется подтверждение');
-                return true;
+    function getUpdatedDocs() {
+        const updated = [];
+        
+        for (const [key, doc] of Object.entries(DOCS)) {
+            const savedVersion = localStorage.getItem(`metro_doc_${key}_v`);
+            if (savedVersion !== doc.version) {
+                updated.push(doc);
             }
-            
-            // Если дата не указана - показываем
-            if (!acceptedDate) {
-                return true;
-            }
-            
-            return false;
-        } catch(e) {
-            console.warn('Ошибка проверки:', e);
-            return true;
         }
+        
+        return updated;
     }
     
     // ========== СОХРАНЕНИЕ ПРИНЯТИЯ ==========
     
-    function acceptUpdate() {
-        try {
-            localStorage.setItem('metro_docs_accepted_version', DOCS_CONFIG.version);
-            localStorage.setItem('metro_docs_accepted_date', new Date().toISOString());
-            localStorage.setItem('metro_docs_accepted_at', Date.now());
-            console.log('Пользователь принял обновление документов');
-            
-            // Удаляем модальное окно
-            const modal = document.getElementById('mandatoryUpdateModal');
-            if (modal) modal.remove();
-            
-            return true;
-        } catch(e) {
-            console.error('Ошибка сохранения:', e);
-            return false;
+    function acceptUpdates(docs) {
+        for (const doc of docs) {
+            const key = Object.keys(DOCS).find(k => DOCS[k].name === doc.name);
+            if (key) {
+                localStorage.setItem(`metro_doc_${key}_v`, doc.version);
+                localStorage.setItem(`metro_doc_${key}_accepted`, new Date().toISOString());
+            }
         }
     }
     
-    // ========== СОЗДАНИЕ МОДАЛЬНОГО ОКНА (НЕЛЬЗЯ ЗАКРЫТЬ) ==========
+    // ========== ПОКАЗАТЬ УВЕДОМЛЕНИЕ ==========
     
-    function createModal() {
-        // Удаляем старый модал если есть
-        const oldModal = document.getElementById('mandatoryUpdateModal');
-        if (oldModal) oldModal.remove();
+    const updatedDocs = getUpdatedDocs();
+    
+    if (updatedDocs.length > 0) {
+        showModal(updatedDocs);
+    }
+    
+    function showModal(docs) {
+        // Блокируем прокрутку
+        document.body.style.overflow = 'hidden';
         
-        // Формируем список документов
-        const documentsList = DOCS_CONFIG.documents.map(doc => `
-            <li style="margin-bottom: 10px;">
-                <a href="${doc.url}" target="_blank" style="color: #FFD700; text-decoration: underline;">
-                    📄 ${doc.name}
+        // Список документов
+        const docsList = docs.map(doc => `
+            <li style="
+                margin-bottom: 12px;
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 10px;
+                border-left: 3px solid #FFD700;
+            ">
+                <a href="${doc.url}" target="_blank" style="
+                    color: #0066CC;
+                    text-decoration: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-weight: 500;
+                ">
+                    <span style="font-size: 20px;">${doc.icon}</span>
+                    <span style="flex: 1;">${doc.name}</span>
+                    <span style="
+                        font-size: 11px;
+                        background: #dc3545;
+                        color: white;
+                        padding: 2px 8px;
+                        border-radius: 20px;
+                    ">обновлён</span>
                 </a>
-                <span style="display: block; font-size: 12px; color: #aaa; margin-top: 3px;">
-                    Изменения: ${doc.changes}
-                </span>
+                ${doc.lastUpdate !== '—' ? `<div style="font-size: 11px; color: #999; margin-top: 5px; margin-left: 35px;">от ${doc.lastUpdate}</div>` : ''}
             </li>
         `).join('');
         
-        // Формируем список изменений
-        const summaryList = DOCS_CONFIG.summary.map(item => `
-            <li style="margin-bottom: 8px;">${item}</li>
-        `).join('');
-        
-        const modalHTML = `
-            <div id="mandatoryUpdateModal" style="
+        // Создаём модальное окно
+        const modal = document.createElement('div');
+        modal.id = 'metroUpdateModal';
+        modal.innerHTML = `
+            <div style="
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.95);
+                background: rgba(0,0,0,0.95);
+                z-index: 9999999;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 9999999;
                 font-family: 'Montserrat', Arial, sans-serif;
-                backdrop-filter: blur(5px);
             ">
                 <div style="
-                    background: linear-gradient(135deg, #1a1a2e, #16213e);
-                    border-radius: 24px;
-                    max-width: 550px;
+                    background: white;
+                    border-radius: 20px;
+                    max-width: 450px;
                     width: 90%;
-                    max-height: 85vh;
-                    overflow-y: auto;
+                    text-align: center;
                     padding: 0;
-                    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-                    border: 1px solid rgba(255,215,0,0.3);
+                    overflow: hidden;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+                    animation: slideUp 0.3s ease;
                 ">
                     <!-- Шапка -->
                     <div style="
-                        background: linear-gradient(135deg, #dc3545, #c82333);
+                        background: linear-gradient(135deg, #0066CC, #0052a3);
                         padding: 25px;
-                        text-align: center;
-                        border-radius: 24px 24px 0 0;
+                        color: white;
                     ">
                         <div style="
-                            width: 70px;
-                            height: 70px;
-                            background: white;
+                            width: 60px;
+                            height: 60px;
+                            background: #FFD700;
                             border-radius: 50%;
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             margin: 0 auto 15px;
                         ">
-                            <i class="fas fa-file-contract" style="font-size: 35px; color: #dc3545;"></i>
+                            <i class="fas fa-file-alt" style="font-size: 28px; color: #0066CC;"></i>
                         </div>
-                        <h2 style="
-                            color: white;
-                            margin: 0;
-                            font-size: 22px;
-                        ">⚠️ ${DOCS_CONFIG.title}</h2>
-                        <p style="
-                            color: rgba(255,255,255,0.9);
-                            margin: 10px 0 0;
-                            font-size: 14px;
-                        ">
-                            Версия ${DOCS_CONFIG.version} от ${DOCS_CONFIG.date}
+                        <h2 style="margin: 0; font-size: 22px;">📢 Обновление документов</h2>
+                        <p style="margin: 8px 0 0; opacity: 0.9; font-size: 13px;">
+                            Пожалуйста, ознакомьтесь с изменениями
                         </p>
                     </div>
                     
-                    <!-- Контент -->
-                    <div style="padding: 25px; color: #eee;">
-                        <p style="margin-bottom: 20px; font-size: 15px; line-height: 1.5;">
-                            <strong>Уважаемый пользователь!</strong><br>
-                            В наши документы внесены важные изменения. Пожалуйста, ознакомьтесь с ними перед продолжением использования сайта.
-                        </p>
-                        
-                        <div style="
-                            background: rgba(0,0,0,0.3);
-                            border-radius: 12px;
-                            padding: 15px;
-                            margin-bottom: 20px;
+                    <!-- Список документов -->
+                    <div style="padding: 20px;">
+                        <ul style="
+                            list-style: none;
+                            margin: 0;
+                            padding: 0;
+                            text-align: left;
                         ">
-                            <h3 style="color: #FFD700; margin: 0 0 10px 0; font-size: 16px;">
-                                📋 Что изменилось:
-                            </h3>
-                            <ul style="margin: 0; padding-left: 20px;">
-                                ${summaryList}
-                            </ul>
-                        </div>
+                            ${docsList}
+                        </ul>
                         
                         <div style="
-                            background: rgba(0,0,0,0.3);
-                            border-radius: 12px;
-                            padding: 15px;
-                            margin-bottom: 20px;
-                        ">
-                            <h3 style="color: #FFD700; margin: 0 0 10px 0; font-size: 16px;">
-                                📄 Обновлённые документы:
-                            </h3>
-                            <ul style="margin: 0; padding-left: 20px;">
-                                ${documentsList}
-                            </ul>
-                        </div>
-                        
-                        <div style="
-                            background: rgba(255,100,100,0.15);
-                            border-left: 3px solid #dc3545;
+                            background: #f0f0f0;
+                            border-radius: 10px;
                             padding: 12px;
-                            border-radius: 8px;
-                            margin-bottom: 25px;
+                            margin: 15px 0;
+                            font-size: 12px;
+                            color: #666;
+                            text-align: left;
                         ">
-                            <p style="margin: 0; font-size: 13px; color: #ffaaaa;">
-                                <i class="fas fa-info-circle"></i> 
-                                Для продолжения использования сайта необходимо принять обновлённые условия.
-                                Вы можете закрыть страницу, если не согласны с изменениями.
-                            </p>
+                            <i class="fas fa-info-circle"></i>
+                            Продолжая использование сайта, вы принимаете обновлённые условия
                         </div>
                         
-                        <!-- Кнопка принятия (только она) -->
-                        <button id="acceptUpdateBtn" style="
-                            background: linear-gradient(135deg, #FFD700, #e6c200);
+                        <button id="acceptUpdatesBtn" style="
+                            background: #FFD700;
                             color: #1a1a2e;
                             border: none;
                             width: 100%;
-                            padding: 16px;
-                            border-radius: 50px;
-                            font-size: 18px;
+                            padding: 14px;
+                            border-radius: 40px;
+                            font-size: 16px;
                             font-weight: bold;
                             cursor: pointer;
                             transition: all 0.3s;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 10px;
+                            margin-top: 10px;
                         ">
-                            <i class="fas fa-check-circle"></i>
-                            Я ознакомился и принимаю изменения
+                            ✅ Принять и продолжить
                         </button>
                         
                         <p style="
-                            text-align: center;
                             font-size: 11px;
-                            color: #888;
+                            color: #999;
                             margin-top: 15px;
                         ">
-                            <i class="fas fa-lock"></i> 
-                            Это обязательное уведомление. Вы не сможете использовать сайт до его принятия.
+                            <i class="fas fa-lock"></i>
+                            Вы можете ознакомиться с документами по ссылкам выше
                         </p>
                     </div>
                 </div>
             </div>
+            <style>
+                @keyframes slideUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            </style>
         `;
         
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        document.body.appendChild(modal);
         
         // Подключаем Font Awesome если нет
         if (!document.querySelector('link[href*="font-awesome"]')) {
@@ -263,124 +256,34 @@
             document.head.appendChild(faLink);
         }
         
-        // Назначаем обработчик
-        const acceptBtn = document.getElementById('acceptUpdateBtn');
-        if (acceptBtn) {
-            acceptBtn.onclick = function() {
-                acceptUpdate();
-            };
-            
-            // Hover эффект
-            acceptBtn.onmouseover = function() {
-                this.style.transform = 'translateY(-3px)';
-                this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
-            };
-            acceptBtn.onmouseout = function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            };
-        }
-        
-        // Блокируем прокрутку страницы
-        document.body.style.overflow = 'hidden';
-        
-        // Добавляем обработчик на ESC (не работает, но можно оставить)
-        document.addEventListener('keydown', function preventEsc(e) {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                // Ничего не делаем - нельзя закрыть!
-            }
-        });
-    }
-    
-    // ========== БЛОКИРОВКА ВСЕХ ДЕЙСТВИЙ НА СТРАНИЦЕ ==========
-    
-    function blockPageInteraction() {
-        // Создаём затемнённый оверлей поверх всего (на всякий случай)
-        const overlay = document.createElement('div');
-        overlay.id = 'blockOverlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 9999998;
-            display: none;
-        `;
-        document.body.appendChild(overlay);
-    }
-    
-    // ========== ЗАПУСК ==========
-    
-    function init() {
-        // Добавляем блокировку фона (на случай если модал не сработает)
-        blockPageInteraction();
-        
-        // Проверяем, нужно ли показать обновление
-        if (needsUpdate()) {
-            console.log('Требуется подтверждение обновления документов');
-            createModal();
-        } else {
-            console.log('Документы актуальны, модальное окно не требуется');
-            // Убираем блокировку если была
-            const overlay = document.getElementById('blockOverlay');
-            if (overlay) overlay.remove();
+        // Кнопка принятия
+        document.getElementById('acceptUpdatesBtn').onclick = function() {
+            acceptUpdates(docs);
+            modal.remove();
             document.body.style.overflow = '';
-        }
+        };
     }
     
-    // Запускаем при загрузке страницы (самый высокий приоритет)
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-    
-    // ========== ПУБЛИЧНЫЙ API ДЛЯ ЛЁГКОГО ОБНОВЛЕНИЯ ==========
-    
+    // ========== ДЛЯ РАЗРАБОТЧИКОВ ==========
     window.MetroUpdateDocs = {
-        // ★★★ ГЛАВНАЯ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ★★★
-        // Когда нужно добавить новое обновление - просто вызовите:
-        // MetroUpdateDocs.setNewVersion('2.1.0', '01.02.2024', 'Новое обновление')
-        
-        setNewVersion: function(version, date, title, documents = null, summary = null) {
-            // Эта функция для разработчиков - обновляет конфиг программно
-            console.log('Обновление версии документов до:', version);
-            
-            // Сохраняем новую версию в отдельный ключ
-            localStorage.setItem('metro_docs_pending_version', version);
-            localStorage.setItem('metro_docs_pending_date', date);
-            localStorage.setItem('metro_docs_pending_title', title);
-            
-            // При следующем заходе покажется новое уведомление
-            if (documents) {
-                localStorage.setItem('metro_docs_pending_documents', JSON.stringify(documents));
-            }
-            if (summary) {
-                localStorage.setItem('metro_docs_pending_summary', JSON.stringify(summary));
-            }
-            
-            // Сбрасываем принятую версию, чтобы показать уведомление
-            localStorage.removeItem('metro_docs_accepted_version');
-            
-            // Перезагружаем страницу
-            location.reload();
-        },
-        
-        // Получить текущую версию
-        getCurrentVersion: function() {
-            return DOCS_CONFIG.version;
-        },
-        
         // Принудительно показать уведомление (для тестов)
         forceShow: function() {
-            localStorage.removeItem('metro_docs_accepted_version');
+            localStorage.clear();
             location.reload();
+        },
+        // Получить текущие версии
+        getVersions: function() {
+            const versions = {};
+            for (const [key, doc] of Object.entries(DOCS)) {
+                versions[key] = {
+                    current: doc.version,
+                    saved: localStorage.getItem(`metro_doc_${key}_v`)
+                };
+            }
+            return versions;
         }
     };
     
-    console.log('update-docs.js готов, версия:', DOCS_CONFIG.version);
+    console.log('update-docs.js загружен, документов:', Object.keys(DOCS).length);
     
 })();
