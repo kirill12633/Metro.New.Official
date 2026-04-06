@@ -5,53 +5,51 @@
     'use strict';
     
     // ========== НАСТРОЙКИ ДОКУМЕНТОВ ==========
-    // ★ ПРИ ОБНОВЛЕНИИ ДОКУМЕНТА - МЕНЯЙТЕ version ★
-    
     const DOCS = {
         privacy: {
-            version: '1.0.0',     // ← меняй при обновлении
+            version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/',
             name: 'Политика конфиденциальности',
             icon: '🔒',
             lastUpdate: '9 февраля 2026'
         },
         terms: {
-            version: '1.0.0',     // ← меняй при обновлении
+            version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/',
             name: 'Пользовательское соглашение',
             icon: '📝',
             lastUpdate: '17 февраля 2026'
         },
         refund: {
-            version: '1.0.0',     // ← меняй при обновлении
+            version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/',
             name: 'Политика возврата',
             icon: '💰',
             lastUpdate: '—'
         },
         cookies: {
-            version: '2.0.0',     // ← УЖЕ ОБНОВЛЁН (05.04.2026)
+            version: '2.0.0',     // ← обновлён
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/cookies/',
             name: 'Политика использования cookie',
             icon: '🍪',
             lastUpdate: '5 апреля 2026'
         },
         copyright: {
-            version: '1.0.0',     // ← меняй при обновлении
+            version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy/',
             name: 'Политика авторских прав',
             icon: '©️',
             lastUpdate: '2 февраля 2026'
         },
         community: {
-            version: '1.0.0',     // ← меняй при обновлении
+            version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/community-guidelines/',
             name: 'Правила сообщества Discord',
             icon: '💬',
             lastUpdate: '—'
         },
         site: {
-            version: '1.0.0',     // ← меняй при обновлении
+            version: '1.0.0',
             url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/',
             name: 'Правила использования сайта',
             icon: '🌐',
@@ -60,22 +58,18 @@
     };
     
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    
     function getUpdatedDocs() {
         const updated = [];
-        
         for (const [key, doc] of Object.entries(DOCS)) {
             const savedVersion = localStorage.getItem(`metro_doc_${key}_v`);
             if (savedVersion !== doc.version) {
                 updated.push(doc);
             }
         }
-        
         return updated;
     }
     
     // ========== СОХРАНЕНИЕ ПРИНЯТИЯ ==========
-    
     function acceptUpdates(docs) {
         for (const doc of docs) {
             const key = Object.keys(DOCS).find(k => DOCS[k].name === doc.name);
@@ -87,14 +81,16 @@
     }
     
     // ========== ПОКАЗАТЬ УВЕДОМЛЕНИЕ ==========
-    
-    const updatedDocs = getUpdatedDocs();
-    
-    if (updatedDocs.length > 0) {
-        showModal(updatedDocs);
-    }
-    
     function showModal(docs) {
+        // Проверяем, что body существует
+        if (!document.body) {
+            console.log('Body ещё не загружен, ждём...');
+            document.addEventListener('DOMContentLoaded', function() {
+                showModal(docs);
+            });
+            return;
+        }
+        
         // Блокируем прокрутку
         document.body.style.overflow = 'hidden';
         
@@ -157,7 +153,6 @@
                     box-shadow: 0 25px 50px rgba(0,0,0,0.3);
                     animation: slideUp 0.3s ease;
                 ">
-                    <!-- Шапка -->
                     <div style="
                         background: linear-gradient(135deg, #0066CC, #0052a3);
                         padding: 25px;
@@ -181,14 +176,8 @@
                         </p>
                     </div>
                     
-                    <!-- Список документов -->
                     <div style="padding: 20px;">
-                        <ul style="
-                            list-style: none;
-                            margin: 0;
-                            padding: 0;
-                            text-align: left;
-                        ">
+                        <ul style="list-style: none; margin: 0; padding: 0; text-align: left;">
                             ${docsList}
                         </ul>
                         
@@ -221,11 +210,7 @@
                             ✅ Принять и продолжить
                         </button>
                         
-                        <p style="
-                            font-size: 11px;
-                            color: #999;
-                            margin-top: 15px;
-                        ">
+                        <p style="font-size: 11px; color: #999; margin-top: 15px;">
                             <i class="fas fa-lock"></i>
                             Вы можете ознакомиться с документами по ссылкам выше
                         </p>
@@ -257,21 +242,44 @@
         }
         
         // Кнопка принятия
-        document.getElementById('acceptUpdatesBtn').onclick = function() {
-            acceptUpdates(docs);
-            modal.remove();
-            document.body.style.overflow = '';
-        };
+        const acceptBtn = document.getElementById('acceptUpdatesBtn');
+        if (acceptBtn) {
+            acceptBtn.onclick = function() {
+                acceptUpdates(docs);
+                modal.remove();
+                document.body.style.overflow = '';
+            };
+        }
+    }
+    
+    // ========== ЗАПУСК ==========
+    // Ждём полной загрузки DOM перед проверкой
+    function init() {
+        const updatedDocs = getUpdatedDocs();
+        if (updatedDocs.length > 0) {
+            console.log('Обновлённые документы:', updatedDocs.map(d => d.name));
+            showModal(updatedDocs);
+        } else {
+            console.log('Все документы актуальны');
+        }
+    }
+    
+    // Запускаем после загрузки DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
     
     // ========== ДЛЯ РАЗРАБОТЧИКОВ ==========
     window.MetroUpdateDocs = {
-        // Принудительно показать уведомление (для тестов)
         forceShow: function() {
-            localStorage.clear();
+            // Сбрасываем все версии
+            for (const [key, doc] of Object.entries(DOCS)) {
+                localStorage.removeItem(`metro_doc_${key}_v`);
+            }
             location.reload();
         },
-        // Получить текущие версии
         getVersions: function() {
             const versions = {};
             for (const [key, doc] of Object.entries(DOCS)) {
