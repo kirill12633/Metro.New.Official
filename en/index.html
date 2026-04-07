@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Metro New - Moscow Metro in Roblox</title>
+    
+    <!-- Site Icons -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script src="https://kirill12633.github.io/Metro.New.Official/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/js/cookies.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Dropdown menu */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown > button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dropdown > button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .dropdown > button i {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.open > button i {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 240px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown.open .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-content a i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 5px 0;
+        }
+        
+        /* Login button */
+        .login-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--secondary-dark);
+        }
+        
+        /* Burger menu */
+        .burger-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(0, 82, 163, 0.8), rgba(0, 102, 204, 0.9)), url('https://placehold.co/1200x600/1a1a1a/FFFFFF?text=Moscow+Metro+in+Roblox') center/cover no-repeat;
+            border-radius: var(--radius-xl);
+            padding: 4rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: var(--dark);
+            border: none;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 0 0.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+        
+        .about-project {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 3rem;
+        }
+        
+        .about-project h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+        
+        .about-project p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            text-align: center;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--gray);
+        }
+        
+        .game-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .game-description {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .game-description h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .game-features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .game-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+        }
+        
+        .game-feature:hover {
+            background-color: var(--light);
+            transform: translateX(5px);
+        }
+        
+        .game-feature i {
+            color: var(--primary);
+            font-size: 1.5rem;
+            min-width: 40px;
+            padding-top: 0.2rem;
+        }
+        
+        .game-feature-content h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .game-feature-content p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        .game-screenshot {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://placehold.co/600x400/2c3e50/FFFFFF?text=Game+Screenshot') center/cover no-repeat;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        
+        .metro-lines {
+            background-color: white;
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 3rem;
+        }
+        
+        .metro-lines h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .lines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .line-card {
+            background-color: #f8f9fa;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .line-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+        
+        .line-color {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .line-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .line-stations {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .community {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .community h2 {
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        
+        .community p {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .social-link {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        /* FOOTER */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-column a i {
+            width: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .burger-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                background: var(--primary-dark);
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-content {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                margin-top: 0;
+                margin-left: 1rem;
+                box-shadow: none;
+            }
+            
+            .dropdown-content a {
+                color: white;
+            }
+            
+            .dropdown-content a i {
+                color: var(--secondary);
+            }
+            
+            .login-btn {
+                align-self: flex-start;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .game-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .lines-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .social-link {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+            
+            .hero {
+                padding: 2rem 1rem;
+            }
+            
+            .btn {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/en/">
+                        <span class="logo-icon">M</span>
+                        <span>Metro New</span>
+                    </a>
+                </div>
+                
+                <button class="burger-menu" id="burgerMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-links" id="navLinks">
+                    <!-- Other (dropdown menu) -->
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            More <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/news">
+                                <i class="fas fa-newspaper"></i> News
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/gallery">
+                                <i class="fas fa-images"></i> Gallery
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/about">
+                                <i class="fas fa-info-circle"></i> About
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/staff">
+                                <i class="fas fa-users"></i> Our Team
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/contact">
+                                <i class="fas fa-envelope"></i> Contact Form
+                            </a>
+                            <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-discord"></i> Discord Community
+                            </a>
+                            
+                            <div class="divider"></div>
+                            
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/help/">
+                                <i class="fas fa-gavel"></i> Legal Documents
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/help/privacy-policy/">
+                                <i class="fas fa-shield-alt"></i> Privacy Policy
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/help/terms-of-service/">
+                                <i class="fas fa-file-contract"></i> Terms of Service
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/help/refund-policy">
+                                <i class="fas fa-money-bill-wave"></i> Refund Policy
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/help/copyright-policy">
+                                <i class="fas fa-copyright"></i> Copyright Policy
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/help/site-guidelines">
+                                <i class="fas fa-globe"></i> Site Guidelines
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Useful Links (dropdown menu) -->
+                    <div class="dropdown" id="dropdownLinks">
+                        <button id="dropdownLinksBtn">
+                            Useful Links <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-play"></i> Play Now
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/wiki">
+                                <i class="fas fa-book"></i> Knowledge Base
+                            </a>
+                            <a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-chart-line"></i> Service Status
+                            </a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/en/faq">
+                                <i class="fas fa-question-circle"></i> FAQ
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Login button -->
+                    <a href="https://kirill12633.github.io/Metro.New.Official/en/auth/signup/" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Metro New - Moscow Metro in Roblox</h1>
+            <p>Immerse yourself in the unique atmosphere of the Moscow Metro, recreated with maximum detail in Roblox. Explore stations, drive trains, and become part of our community!</p>
+            <div>
+                <a href="https://www.roblox.com/communities/34820737/RP-NEW" class="btn" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-play"></i>
+                    Play Now
+                </a>
+                <a href="https://kirill12633.github.io/Metro.New.Official/en/about" class="btn btn-outline">
+                    <i class="fas fa-info-circle"></i>
+                    Learn More
+                </a>
+            </div>
+        </section>
+        
+        <section class="about-project">
+            <h2>About Our Project</h2>
+            <p>Metro New is a large-scale Roblox project dedicated to the Moscow Metro. We lovingly recreate stations, tunnels, and trains to give you the most realistic underground experience possible.</p>
+            <p>Our project is constantly evolving - we add new stations, improve graphics, and expand gameplay features. Join our growing community!</p>
+        </section>
+        
+        <section class="game-info">
+            <div class="game-description">
+                <h2>Game Features</h2>
+                <div class="game-features">
+                    <div class="game-feature">
+                        <i class="fas fa-subway"></i>
+                        <div class="game-feature-content">
+                            <h3>Realistic Trains</h3>
+                            <p>Control various Moscow Metro train models with detailed interiors and controls</p>
+                        </div>
+                    </div>
+                    <div class="game-feature">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <div class="game-feature-content">
+                            <h3>Accurate Stations</h3>
+                            <p>Explore stations recreated with attention to architectural features and details</p>
+                        </div>
+                    </div>
+                    <div class="game-feature">
+                        <i class="fas fa-users"></i>
+                        <div class="game-feature-content">
+                            <h3>Multiplayer Mode</h3>
+                            <p>Play with friends, drive trains together, and create your own routes</p>
+                        </div>
+                    </div>
+                    <div class="game-feature">
+                        <i class="fas fa-hard-hat"></i>
+                        <div class="game-feature-content">
+                            <h3>Development & Updates</h3>
+                            <p>We constantly add new content, improve gameplay, and expand the metro map</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="game-screenshot">
+                Game Screenshot
+            </div>
+        </section>
+        
+        <section class="metro-lines">
+            <h2>Metro Lines in Game</h2>
+            <div class="lines-grid">
+                <div class="line-card">
+                    <div class="line-color" style="background-color: #FF0000;"></div>
+                    <div class="line-name">Sokolnicheskaya</div>
+                    <div class="line-stations">3 stations</div>
+                </div>
+                <div class="line-card">
+                    <div class="line-color" style="background-color: #008000;"></div>
+                    <div class="line-name">Coming Soon...</div>
+                    <div class="line-stations">In Development</div>
+                </div>
+                <div class="line-card">
+                    <div class="line-color" style="background-color: #0000FF;"></div>
+                    <div class="line-name">Coming Soon...</div>
+                    <div class="line-stations">In Development</div>
+                </div>
+                <div class="line-card">
+                    <div class="line-color" style="background-color: #FFA500;"></div>
+                    <div class="line-name">Coming Soon...</div>
+                    <div class="line-stations">In Development</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="community">
+            <h2>Join Our Community</h2>
+            <p>Follow the news, communicate with other players, and participate in discussions about the project's development</p>
+            <div class="social-links">
+                <a href="https://discord.com/invite/WjGZBs3HMX" class="social-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+                <a href="https://t.me/metronewroblox" class="social-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-telegram"></i> Telegram
+                </a>
+                <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" class="social-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-roblox"></i> Roblox
+                </a>
+                <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" class="social-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord Community</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/about"><i class="fas fa-info-circle"></i> About</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/staff"><i class="fas fa-users"></i> Our Team</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Contacts</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord Server</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/contact"><i class="fas fa-envelope"></i> Contact Form</a></li>
+                        <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal Documents</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/help/terms-of-service/"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Refund Policy</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/help/copyright-policy"><i class="fas fa-copyright"></i> Copyright Policy</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/help/site-guidelines"><i class="fas fa-globe"></i> Site Guidelines</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-play"></i> Play Now</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/wiki"><i class="fas fa-book"></i> Knowledge Base</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Service Status</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/en/faq"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Social Media</h3>
+                    <ul>
+                        <li><a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer"><i class="fab fa-roblox"></i> Roblox</a></li>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord</a></li>
+                        <li><a href="https://t.me/metronewroblox" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram"></i> Telegram</a></li>
+                        <li><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i> YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">© <span id="currentYear"></span> Metro New. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Current year
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Burger menu
+            const burger = document.getElementById('burgerMenu');
+            const navLinks = document.getElementById('navLinks');
+            burger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+            
+            // Dropdown "More"
+            const dropdownOther = document.getElementById('dropdownOther');
+            const dropdownBtn = document.getElementById('dropdownBtn');
+            
+            dropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownOther.classList.toggle('open');
+            });
+            
+            // Dropdown "Useful Links"
+            const dropdownLinks = document.getElementById('dropdownLinks');
+            const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+            
+            dropdownLinksBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownLinks.classList.toggle('open');
+            });
+            
+            // Click outside to close dropdowns
+            document.addEventListener('click', function(e) {
+                if (!dropdownOther.contains(e.target)) {
+                    dropdownOther.classList.remove('open');
+                }
+                if (!dropdownLinks.contains(e.target)) {
+                    dropdownLinks.classList.remove('open');
+                }
+            });
+            
+            // For mobile: close menu after clicking a link
+            const allLinks = document.querySelectorAll('.dropdown-content a, .login-btn');
+            allLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 992) {
+                        navLinks.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
