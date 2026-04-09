@@ -8,48 +8,189 @@
     
     // ========== НАСТРОЙКИ ==========
     const CONFIG = {
-        // Discord Webhook (твой)
         discordWebhook: 'https://discord.com/api/webhooks/1491839009020969083/6wS52vIVDWzPr1YhyaC4zNP_ggfEc-wdQR9-JgmiSSYsd50hTTIv0S-zkKVV77xZ0bmC',
-        
-        // Показывать ли уведомления пользователю
         showToUser: true,
-        
-        // Сохранять ли историю в localStorage
         saveToLocal: true,
-        
-        // Максимум ошибок в истории
         maxErrors: 20,
-        
-        // Авто-закрытие уведомления (мс)
         autoCloseDelay: 5000,
-        
-        // Отправлять ли все ошибки в Discord
         sendToDiscord: true,
-        
-        // Не отправлять повторяющиеся ошибки (5 минут)
         deduplicateTime: 5 * 60 * 1000
     };
     
-    // Хранилище
-    let errorHistory = [];
-    let sentErrors = new Map(); // Для защиты от дублей
+    // ========== КАТЕГОРИИ ОШИБОК ==========
+    const ERROR_CATEGORIES = {
+        NETWORK: { name: '🌐 Сеть', icon: '🌐', color: 0xff9800 },
+        SCRIPT: { name: '📜 Скрипт', icon: '📜', color: 0xdc3545 },
+        RESOURCE: { name: '🖼️ Ресурс', icon: '🖼️', color: 0xffc107 },
+        SECURITY: { name: '🔒 Безопасность', icon: '🔒', color: 0xdc3545 },
+        USER: { name: '👤 Действие пользователя', icon: '👤', color: 0x17a2b8 },
+        PROMISE: { name: '⚡ Promise', icon: '⚡', color: 0xfd7e14 },
+        FETCH: { name: '📡 Запрос', icon: '📡', color: 0xff9800 },
+        STORAGE: { name: '💾 Хранилище', icon: '💾', color: 0xffc107 },
+        UNKNOWN: { name: '❓ Неизвестная', icon: '❓', color: 0x6c757d }
+    };
     
-    // ========== ПОКАЗ УВЕДОМЛЕНИЯ ПОЛЬЗОВАТЕЛЮ ==========
-    function showNotification(message, type = 'error') {
+    // ========== УРОВНИ ВАЖНОСТИ ==========
+    const SEVERITY = {
+        CRITICAL: { name: '🔴 КРИТИЧЕСКАЯ', level: 1, emoji: '🔴' },
+        HIGH: { name: '🟠 ВЫСОКАЯ', level: 2, emoji: '🟠' },
+        MEDIUM: { name: '🟡 СРЕДНЯЯ', level: 3, emoji: '🟡' },
+        LOW: { name: '🟢 НИЗКАЯ', level: 4, emoji: '🟢' }
+    };
+    
+    // ========== ОПРЕДЕЛЕНИЕ КАТЕГОРИИ ==========
+    function getErrorCategory(error, context = {}) {
+        const message = (error.message || '').toLowerCase();
+        const stack = (error.stack || '').toLowerCase();
+        
+        // Сетевые ошибки
+        if (message.includes('network') || message.includes('fetch') || 
+            message.includes('xhr') || message.includes('http') ||
+            context.type === 'fetch' || context.type === 'xhr') {
+            return ERROR_CATEGORIES.NETWORK;
+        }
+        
+        // Ошибки безопасности
+        if (message.includes('security') || message.includes('permission') ||
+            message.includes('cors') || message.includes('csrf') ||
+            message.includes('token') || message.includes('auth')) {
+            return ERROR_CATEGORIES.SECURITY;
+        }
+        
+        // Ошибки ресурсов
+        if (context.type === 'resource' || message.includes('load') ||
+            message.includes('image') || message.includes('script') ||
+            message.includes('css')) {
+            return ERROR_CATEGORIES.RESOURCE;
+        }
+        
+        // Ошибки Promise
+        if (context.type === 'unhandledrejection' || message.includes('promise')) {
+            return ERROR_CATEGORIES.PROMISE;
+        }
+        
+        // Ошибки хранилища
+        if (message.includes('localstorage') || message.includes('storage') ||
+            message.includes('quota')) {
+            return ERROR_CATEGORIES.STORAGE;
+        }
+        
+        // Ошибки скриптов (по умолчанию)
+        if (message.includes('typeerror') || message.includes('referenceerror') ||
+            message.includes('syntaxerror') || message.includes('rangeerror')) {
+            return ERROR_CATEGORIES.SCRIPT;
+        }
+        
+        return ERROR_CATEGORIES.UNKNOWN;
+    }
+    
+    // ========== ОПРЕДЕЛЕНИЕ ВАЖНОСТИ ==========
+    function getSeverity(error, category) {
+        const message = (error.message || '').toLowerCase();
+        
+        // Критические ошибки
+        if (message.includes('crash') || message.includes('fatal') ||
+            message.includes('memory') || message.includes('out of memory') ||
+            category === ERROR_CATEGORIES.SECURITY) {
+            return SEVERITY.CRITICAL;
+        }
+        
+        // Высокая важность
+        if (message.includes('undefined') || message.includes('null') ||
+            message.includes('cannot read') || message.includes('is not a function') ||
+            category === ERROR_CATEGORIES.NETWORK) {
+            return SEVERITY.HIGH;
+        }
+        
+        // Средняя важность
+        if (message.includes('timeout') || message.includes('abort') ||
+            category === ERROR_CATEGORIES.RESOURCE) {
+            return SEVERITY.MEDIUM;
+        }
+        
+        // Низкая важность
+        return SEVERITY.LOW;
+    }
+    
+    // ========== СБОР ДАННЫХ О ПОЛЬЗОВАТЕЛЕ ==========
+    function getUserInfo() {
+        const info = {
+            // Язык
+            language: localStorage.getItem('metro_new_language') || 'не выбран',
+            
+            // Cookie согласие
+            cookieConsent: localStorage.getItem('cookie_consent') === 'true' ? '✅ приняты' : '❌ не приняты',
+            cookieType: localStorage.getItem('cookie_consent_type') || 'нет',
+            
+            // Документы (сколько принято)
+            documents: {
+                privacy: localStorage.getItem('metro_doc_privacy_v') || 'не принята',
+                terms: localStorage.getItem('metro_doc_terms_v') || 'не принято',
+                cookies: localStorage.getItem('metro_doc_cookies_v') || 'не принята'
+            },
+            
+            // Настройки
+            theme: localStorage.getItem('metro_theme') || 'светлая',
+            
+            // Статус
+            isLoggedIn: !!localStorage.getItem('roblox_user_id')
+        };
+        
+        // Считаем сколько документов принято
+        let docsAccepted = 0;
+        for (const [key, value] of Object.entries(info.documents)) {
+            if (value !== 'не принята' && value !== 'не принято') docsAccepted++;
+        }
+        info.documentsAccepted = `${docsAccepted}/7`;
+        
+        return info;
+    }
+    
+    // ========== СБОР ДАННЫХ ОБ ОКРУЖЕНИИ ==========
+    function getEnvironmentInfo() {
+        return {
+            // Экран
+            screen: `${screen.width}x${screen.height}`,
+            window: `${window.innerWidth}x${window.innerHeight}`,
+            pixelRatio: devicePixelRatio,
+            colorDepth: screen.colorDepth,
+            
+            // Браузер
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            online: navigator.onLine ? '🟢 онлайн' : '🔴 офлайн',
+            
+            // Производительность
+            memory: performance.memory ? {
+                jsHeapSizeLimit: Math.round(performance.memory.jsHeapSizeLimit / 1048576) + ' MB',
+                totalJSHeapSize: Math.round(performance.memory.totalJSHeapSize / 1048576) + ' MB',
+                usedJSHeapSize: Math.round(performance.memory.usedJSHeapSize / 1048576) + ' MB'
+            } : 'недоступно',
+            
+            // Время
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            localTime: new Date().toLocaleString('ru-RU'),
+            
+            // Сторонние блокировки
+            cookiesEnabled: navigator.cookieEnabled,
+            doNotTrack: navigator.doNotTrack || 'не установлен'
+        };
+    }
+    
+    // ========== ХРАНИЛИЩЕ ==========
+    let errorHistory = [];
+    let sentErrors = new Map();
+    
+    // ========== ПОКАЗ УВЕДОМЛЕНИЯ ==========
+    function showNotification(message, severity = SEVERITY.MEDIUM) {
         if (!CONFIG.showToUser) return;
         
         const colors = {
-            error: '#dc3545',
-            warning: '#ff9800',
-            info: '#0066CC',
-            success: '#4CAF50'
-        };
-        
-        const icons = {
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️',
-            success: '✅'
+            [SEVERITY.CRITICAL.level]: '#dc3545',
+            [SEVERITY.HIGH.level]: '#fd7e14',
+            [SEVERITY.MEDIUM.level]: '#ffc107',
+            [SEVERITY.LOW.level]: '#17a2b8'
         };
         
         const toast = document.createElement('div');
@@ -57,112 +198,123 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: ${colors[type] || colors.error};
-            color: white;
+            background: ${colors[severity.level]};
+            color: ${severity.level === 3 ? '#1a1a2e' : 'white'};
             padding: 12px 20px;
             border-radius: 12px;
             z-index: 99999999;
             font-family: 'Montserrat', Arial, sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             max-width: 350px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
             animation: slideInRight 0.3s ease;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         `;
-        toast.innerHTML = `${icons[type]} ${message.substring(0, 150)}`;
-        
+        toast.innerHTML = `${severity.emoji} ${severity.name}: ${message.substring(0, 100)}`;
         toast.onclick = () => toast.remove();
-        document.body.appendChild(toast);
         
-        setTimeout(() => {
-            if (toast.parentNode) toast.remove();
-        }, CONFIG.autoCloseDelay);
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), CONFIG.autoCloseDelay);
     }
     
     // ========== ОТПРАВКА В DISCORD ==========
     async function sendToDiscord(errorObj) {
         if (!CONFIG.sendToDiscord) return;
         
-        // Проверка на дубликаты
         const errorKey = errorObj.message + errorObj.url;
         const lastSent = sentErrors.get(errorKey);
         if (lastSent && (Date.now() - lastSent) < CONFIG.deduplicateTime) {
-            console.log('Повторная ошибка, не отправляем');
             return;
         }
         sentErrors.set(errorKey, Date.now());
         
-        // Форматируем стек ошибки (обрезаем)
         let stack = errorObj.stack || 'Нет стека';
-        if (stack.length > 1000) stack = stack.substring(0, 1000) + '...';
+        if (stack.length > 800) stack = stack.substring(0, 800) + '...';
         
-        // Создаём embed для Discord
+        // Формируем информацию об окружении
+        const envInfo = errorObj.environment;
+        const userInfo = errorObj.user;
+        
         const embed = {
-            title: '❌ Новая ошибка на сайте',
-            color: 0xdc3545,
+            title: `${errorObj.severity.emoji} ${errorObj.category.icon} ${errorObj.severity.name}`,
+            color: errorObj.category.color,
             timestamp: new Date().toISOString(),
             fields: [
                 {
                     name: '📝 Сообщение',
-                    value: `\`\`\`js\n${errorObj.message.substring(0, 200)}\n\`\`\``,
+                    value: `\`\`\`js\n${errorObj.message.substring(0, 300)}\n\`\`\``,
                     inline: false
                 },
                 {
-                    name: '🔗 Страница',
-                    value: `[${errorObj.url}](${errorObj.url})`,
+                    name: '📂 Категория',
+                    value: errorObj.category.name,
                     inline: true
+                },
+                {
+                    name: '⚠️ Важность',
+                    value: errorObj.severity.name,
+                    inline: true
+                },
+                {
+                    name: '🔗 Страница',
+                    value: `[${errorObj.url.substring(0, 60)}](${errorObj.url})`,
+                    inline: false
                 },
                 {
                     name: '🕐 Время',
                     value: errorObj.time,
                     inline: true
-                },
-                {
-                    name: '🌐 Браузер',
-                    value: errorObj.userAgent?.substring(0, 100) || 'Неизвестно',
-                    inline: false
-                },
-                {
-                    name: '📊 Стек ошибки',
-                    value: `\`\`\`js\n${stack}\n\`\`\``,
-                    inline: false
                 }
             ],
-            footer: {
-                text: `ID: ${errorObj.id}`
-            }
+            footer: { text: `ID: ${errorObj.id}` }
         };
         
-        // Добавляем контекст если есть
-        if (errorObj.context && Object.keys(errorObj.context).length > 0) {
+        // Добавляем информацию о пользователе
+        if (userInfo) {
             embed.fields.push({
-                name: '📦 Контекст',
-                value: `\`\`\`json\n${JSON.stringify(errorObj.context, null, 2).substring(0, 200)}\n\`\`\``,
+                name: '👤 Пользователь',
+                value: `\`\`\`\n🌐 Язык: ${userInfo.language}\n🍪 Cookie: ${userInfo.cookieConsent}\n📄 Документы: ${userInfo.documentsAccepted}\n\`\`\``,
                 inline: false
             });
         }
         
+        // Добавляем информацию об окружении
+        if (envInfo) {
+            embed.fields.push({
+                name: '💻 Окружение',
+                value: `\`\`\`\n🖥️ Экран: ${envInfo.screen}\n🌐 Браузер: ${envInfo.userAgent.substring(0, 80)}\n📡 Статус: ${envInfo.online}\n🕒 Время: ${envInfo.localTime}\n\`\`\``,
+                inline: false
+            });
+        }
+        
+        // Добавляем стек
+        embed.fields.push({
+            name: '📊 Стек ошибки',
+            value: `\`\`\`js\n${stack}\n\`\`\``,
+            inline: false
+        });
+        
         try {
-            const response = await fetch(CONFIG.discordWebhook, {
+            await fetch(CONFIG.discordWebhook, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ embeds: [embed] })
             });
-            
-            if (!response.ok) {
-                console.warn('Не удалось отправить ошибку в Discord:', response.status);
-            }
         } catch(e) {
-            console.warn('Ошибка при отправке в Discord:', e);
+            console.warn('Ошибка отправки в Discord:', e);
         }
     }
     
     // ========== ЛОГИРОВАНИЕ ОШИБКИ ==========
     function logError(error, context = {}) {
-        // Создаём объект ошибки
+        // Определяем категорию и важность
+        const category = getErrorCategory(error, context);
+        const severity = getSeverity(error, category);
+        
+        // Собираем информацию
+        const userInfo = getUserInfo();
+        const envInfo = getEnvironmentInfo();
+        
         const errorObj = {
             id: Date.now() + '_' + Math.random().toString(36).substr(2, 6),
             timestamp: new Date().toISOString(),
@@ -171,29 +323,29 @@
             stack: error.stack,
             name: error.name || 'Error',
             url: window.location.href,
-            userAgent: navigator.userAgent,
-            context: context,
-            page: document.title
+            page: document.title,
+            category: category,
+            severity: severity,
+            user: userInfo,
+            environment: envInfo,
+            context: context
         };
         
-        // Выводим в консоль
-        console.error('[Ошибка]', errorObj);
+        console.error(`[${category.name}] ${severity.name}:`, errorObj);
         
-        // Сохраняем в историю
+        // Сохраняем
         if (CONFIG.saveToLocal) {
             errorHistory.unshift(errorObj);
-            if (errorHistory.length > CONFIG.maxErrors) {
-                errorHistory.pop();
-            }
+            if (errorHistory.length > CONFIG.maxErrors) errorHistory.pop();
             try {
                 localStorage.setItem('metro_error_history', JSON.stringify(errorHistory));
             } catch(e) {}
         }
         
-        // Показываем пользователю
-        let userMessage = error.message || 'Произошла ошибка';
-        if (userMessage.length > 100) userMessage = userMessage.substring(0, 100) + '...';
-        showNotification(userMessage, 'error');
+        // Показываем пользователю (только для HIGH и CRITICAL)
+        if (severity.level <= 2) {
+            showNotification(error.message || 'Произошла ошибка', severity);
+        }
         
         // Отправляем в Discord
         sendToDiscord(errorObj);
@@ -201,7 +353,7 @@
         return errorObj;
     }
     
-    // ========== ПЕРЕХВАТ ГЛОБАЛЬНЫХ ОШИБОК ==========
+    // ========== ПЕРЕХВАТ ОШИБОК ==========
     window.addEventListener('error', function(event) {
         const error = event.error || new Error(event.message);
         logError(error, {
@@ -212,13 +364,12 @@
         });
     });
     
-    // ========== ПЕРЕХВАТ PROMISE ОШИБОК ==========
     window.addEventListener('unhandledrejection', function(event) {
         const error = event.reason || new Error('Unhandled Promise Rejection');
         logError(error, { type: 'unhandledrejection' });
     });
     
-    // ========== ПЕРЕХВАТ ОШИБОК В CONSOLE.ERROR ==========
+    // Перехват console.error
     const originalConsoleError = console.error;
     console.error = function(...args) {
         originalConsoleError.apply(console, args);
@@ -233,26 +384,13 @@
         }
     };
     
-    // ========== ПРОВЕРКА ЗАГРУЗКИ РЕСУРСОВ ==========
-    document.addEventListener('DOMContentLoaded', function() {
-        const resources = document.querySelectorAll('img, script, link');
-        resources.forEach(resource => {
-            resource.addEventListener('error', function(e) {
-                logError(new Error(`Не удалось загрузить: ${resource.src || resource.href}`), {
-                    type: 'resource',
-                    tag: resource.tagName
-                });
-            });
-        });
-    });
-    
-    // ========== ОТСЛЕЖИВАНИЕ AJAX/FETCH ОШИБОК ==========
+    // Перехват fetch
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
         try {
             const response = await originalFetch.apply(this, args);
             if (!response.ok) {
-                logError(new Error(`Fetch failed: ${response.status} ${response.statusText}`), {
+                logError(new Error(`Fetch failed: ${response.status}`), {
                     type: 'fetch',
                     url: args[0],
                     status: response.status
@@ -265,81 +403,39 @@
         }
     };
     
-    // ========== ОТСЛЕЖИВАНИЕ XMLHttpRequest ==========
-    const originalXHROpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-        this.addEventListener('error', function() {
-            logError(new Error(`XHR failed: ${method} ${url}`), {
-                type: 'xhr',
-                method: method,
-                url: url
-            });
-        });
-        this.addEventListener('timeout', function() {
-            logError(new Error(`XHR timeout: ${method} ${url}`), {
-                type: 'xhr_timeout',
-                method: method,
-                url: url
-            });
-        });
-        return originalXHROpen.call(this, method, url, ...rest);
-    };
-    
-    // ========== API ДЛЯ РАЗРАБОТЧИКОВ ==========
+    // ========== API ==========
     window.MetroErrorHandler = {
-        // Поймать ошибку вручную
         capture: logError,
-        
-        // Показать уведомление
         notify: showNotification,
-        
-        // Получить историю ошибок
         getHistory: () => [...errorHistory],
-        
-        // Очистить историю
-        clearHistory: () => {
-            errorHistory = [];
-            localStorage.removeItem('metro_error_history');
-        },
-        
-        // Тестовая ошибка (для проверки)
+        clearHistory: () => { errorHistory = []; localStorage.removeItem('metro_error_history'); },
+        getUserInfo: getUserInfo,
+        getEnvironment: getEnvironmentInfo,
         test: function() {
             try {
-                throw new Error('Тестовая ошибка для проверки Discord');
+                throw new Error('🧪 Тестовая ошибка для проверки системы');
             } catch(e) {
                 logError(e, { type: 'test' });
             }
         },
-        
-        // Настройки
+        categories: ERROR_CATEGORIES,
+        severity: SEVERITY,
         config: CONFIG
     };
     
-    // ========== СТИЛИ ДЛЯ АНИМАЦИЙ ==========
+    // Стили
     const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    `;
+    style.textContent = `@keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`;
     document.head.appendChild(style);
     
-    // ========== ЗАГРУЗКА ИСТОРИИ ==========
+    // Загрузка истории
     try {
         const saved = localStorage.getItem('metro_error_history');
-        if (saved) {
-            errorHistory = JSON.parse(saved);
-        }
+        if (saved) errorHistory = JSON.parse(saved);
     } catch(e) {}
     
     console.log('error-handler.js готов');
-    console.log('✅ Ошибки будут отправляться в Discord');
+    console.log('📂 Категории:', Object.keys(ERROR_CATEGORIES).length);
+    console.log('⚠️ Уровни важности:', Object.keys(SEVERITY).length);
     
 })();
