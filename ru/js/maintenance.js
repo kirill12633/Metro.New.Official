@@ -1,17 +1,136 @@
-// maintenance.js - Страница технического обслуживания
+// maintenance.js - Режим технического обслуживания с проверкой статуса
 // https://kirill12633.github.io/Metro.New.Official/ru/js/maintenance.js
 
 (function() {
     'use strict';
     
     // ========== НАСТРОЙКИ ==========
-    // ★ Меняй здесь: true = сайт закрыт, false = открыт ★
-    const MAINTENANCE_MODE = true;  // ← СЮДА
+    const CONFIG = {
+        // Ссылка на страницу статуса
+        statusPageUrl: 'https://kirill12633.github.io/status.metro.new/',
+        
+        // Режим: 'auto' - автоматический, 'manual' - ручной
+        mode: 'auto',
+        
+        // Ручной режим (если mode = 'manual')
+        manualMaintenance: false,  // ← сюда true чтобы включить вручную
+        
+        // Время открытия при ручном режиме
+        openTime: { hour: 2, minute: 30, second: 46 },
+        
+        // Интервал проверки статуса (мс)
+        checkInterval: 60000, // 1 минута
+        
+        // Discord webhook для уведомлений
+        discordWebhook: 'https://discord.com/api/webhooks/1491839009020969083/6wS52vIVDWzPr1YhyaC4zNP_ggfEc-wdQR9-JgmiSSYsd50hTTIv0S-zkKVV77xZ0bmC'
+    };
     
-    // Время открытия (час, минута)
-    const OPEN_TIME = { hour: 2, minute: 30, second: 46 };
+    // ========== ПЕРЕМЕННЫЕ ==========
+    let isMaintenance = false;
+    let checkTimer = null;
     
-    // ========== ПОКАЗ СТРАНИЦЫ ==========
+    // ========== ПРОВЕРКА СТАТУСА ==========
+    async function checkStatus() {
+        try {
+            // Пытаемся получить страницу статуса
+            const response = await fetch(CONFIG.statusPageUrl, {
+                cache: 'no-store',
+                headers: { 'Cache-Control': 'no-cache' }
+            });
+            
+            if (!response.ok) {
+                console.log('Страница статуса недоступна, использую ручной режим');
+                return checkManualMode();
+            }
+            
+            const html = await response.text();
+            
+            // Проверяем наличие признаков техработ на странице статуса
+            const hasMaintenance = 
+                html.includes('Технические работы') ||
+                html.includes('maintenance') ||
+                html.includes('плановые технические работы') ||
+                html.includes('ведутся работы');
+            
+            // Также проверяем дату плановых работ (17 января)
+            const hasScheduledMaintenance = 
+                html.includes('17 января') && 
+                (html.includes('03:00') || html.includes('3:00'));
+            
+            if (hasMaintenance || hasScheduledMaintenance) {
+                console.log('🔧 Обнаружены технические работы на странице статуса');
+                return true;
+            }
+            
+            // Проверяем, что все системы работают нормально
+            const allWorking = 
+                html.includes('Все системы работают нормально') ||
+                html.includes('штатном режиме');
+            
+            if (allWorking) {
+                console.log('✅ Все системы работают нормально');
+                return false;
+            }
+            
+            return checkManualMode();
+            
+        } catch(error) {
+            console.warn('Ошибка проверки статуса:', error);
+            return checkManualMode();
+        }
+    }
+    
+    function checkManualMode() {
+        if (CONFIG.mode === 'manual') {
+            return CONFIG.manualMaintenance;
+        }
+        
+        // Проверка по расписанию (17 число, 3-5 утра)
+        const now = new Date();
+        const day = now.getDate();
+        const hour = now.getHours();
+        
+        // Плановые работы 17 числа с 3 до 5 утра
+        if (day === 17 && hour >= 3 && hour < 5) {
+            console.log('🔧 Плановые технические работы (17 число, 3-5 утра)');
+            return true;
+        }
+        
+        return false;
+    }
+    
+    // ========== ОТПРАВКА В DISCORD ==========
+    async function sendDiscordNotification(message, type = 'info') {
+        if (!CONFIG.discordWebhook) return;
+        
+        const colors = {
+            info: 0x0066CC,
+            warning: 0xff9800,
+            error: 0xdc3545,
+            success: 0x4CAF50
+        };
+        
+        const embed = {
+            title: type === 'warning' ? '🔧 РЕЖИМ ТЕХОБСЛУЖИВАНИЯ' : 'ℹ️ СТАТУС САЙТА',
+            color: colors[type] || colors.info,
+            timestamp: new Date().toISOString(),
+            description: message,
+            fields: [
+                { name: 'Время', value: new Date().toLocaleString('ru-RU'), inline: true },
+                { name: 'Режим', value: CONFIG.mode, inline: true }
+            ]
+        };
+        
+        try {
+            await fetch(CONFIG.discordWebhook, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ embeds: [embed] })
+            });
+        } catch(e) {}
+    }
+    
+    // ========== ПОКАЗ СТРАНИЦЫ ТЕХРАБОТ ==========
     function showMaintenancePage() {
         if (!document.body) {
             document.addEventListener('DOMContentLoaded', showMaintenancePage);
@@ -28,7 +147,6 @@
         document.body.style.alignItems = 'center';
         document.body.style.justifyContent = 'center';
         document.body.style.position = 'relative';
-        document.body.style.overflow = 'hidden';
         
         // Анимированные круги
         const circles = document.createElement('div');
@@ -86,6 +204,9 @@
                 <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" style="background: #5865F2; color: white; text-decoration: none; padding: 12px 25px; border-radius: 40px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; transition: all 0.3s;">
                     <i class="fab fa-discord"></i> Чат поддержки
                 </a>
+                <button onclick="window.location.href='${CONFIG.statusPageUrl}'" style="background: transparent; border: 2px solid #FFD700; color: #1a1a2e; padding: 12px 25px; border-radius: 40px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; transition: all 0.3s; cursor: pointer;">
+                    <i class="fas fa-chart-line"></i> Статус сервисов
+                </button>
             </div>
             
             <div style="background: rgba(255,215,0,0.1); border-radius: 15px; padding: 15px; border-left: 3px solid #FFD700;">
@@ -94,13 +215,18 @@
             </div>
             
             <div style="margin-top: 30px; font-size: 11px; color: #999;">
+                <a href="${CONFIG.statusPageUrl}" style="color: #0066CC; text-decoration: none;">Проверить статус</a> | 
+                Следующая проверка: <span id="nextCheck">через 1 минуту</span>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 10px; color: #ccc;">
                 © 2026 Метро New. Все права защищены.
             </div>
         `;
         
         document.body.appendChild(card);
         
-        // Стили анимаций
+        // Стили
         const style = document.createElement('style');
         style.textContent = `
             @keyframes fadeInUp {
@@ -130,17 +256,11 @@
             document.head.appendChild(fa);
         }
         
-        // Добавляем hover эффекты на кнопки
-        const btns = document.querySelectorAll('a');
-        btns.forEach(btn => {
-            btn.classList.add('btn-hover');
-        });
-        
         // Таймер
         function updateTimer() {
             const now = new Date();
             const target = new Date();
-            target.setHours(OPEN_TIME.hour, OPEN_TIME.minute, OPEN_TIME.second, 0);
+            target.setHours(CONFIG.openTime.hour, CONFIG.openTime.minute, CONFIG.openTime.second, 0);
             
             if (now > target) {
                 target.setDate(target.getDate() + 1);
@@ -155,41 +275,83 @@
             if (timerElement) {
                 timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
-            
-            // Автообновление через 30 секунд
-            if (diff < 30000 && diff > 0) {
-                setTimeout(() => location.reload(), diff + 1000);
-            }
         }
         
         updateTimer();
         setInterval(updateTimer, 1000);
+        
+        // Обновление информации о следующей проверке
+        let nextCheckSeconds = CONFIG.checkInterval / 1000;
+        setInterval(() => {
+            nextCheckSeconds--;
+            if (nextCheckSeconds <= 0) {
+                nextCheckSeconds = CONFIG.checkInterval / 1000;
+            }
+            const nextCheckSpan = document.getElementById('nextCheck');
+            if (nextCheckSpan) {
+                nextCheckSpan.textContent = `через ${Math.floor(nextCheckSeconds)} сек`;
+            }
+        }, 1000);
     }
     
-    // ========== ПРОВЕРКА РЕЖИМА ==========
-    function checkAndShow() {
-        if (MAINTENANCE_MODE) {
+    // ========== ОСНОВНАЯ ФУНКЦИЯ ==========
+    async function init() {
+        console.log('maintenance.js загружен, режим:', CONFIG.mode);
+        
+        if (CONFIG.mode === 'auto') {
+            // Автоматический режим — проверяем статус
+            isMaintenance = await checkStatus();
+            
+            // Периодическая проверка
+            if (checkTimer) clearInterval(checkTimer);
+            checkTimer = setInterval(async () => {
+                const newStatus = await checkStatus();
+                if (newStatus !== isMaintenance) {
+                    isMaintenance = newStatus;
+                    if (isMaintenance) {
+                        await sendDiscordNotification('🔧 Режим технического обслуживания АКТИВИРОВАН', 'warning');
+                        showMaintenancePage();
+                    } else {
+                        await sendDiscordNotification('✅ Режим технического обслуживания ОТКЛЮЧЁН', 'success');
+                        location.reload();
+                    }
+                }
+            }, CONFIG.checkInterval);
+            
+        } else {
+            // Ручной режим
+            isMaintenance = CONFIG.manualMaintenance;
+        }
+        
+        if (isMaintenance) {
+            await sendDiscordNotification('🔧 Сайт перешёл в режим технического обслуживания', 'warning');
             showMaintenancePage();
         }
     }
     
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAndShow);
-    } else {
-        checkAndShow();
-    }
-    
-    // Для динамического управления
+    // ========== API ДЛЯ УПРАВЛЕНИЯ ==========
     window.MetroMaintenance = {
         enable: () => {
-            localStorage.setItem('metro_maintenance', 'true');
+            CONFIG.mode = 'manual';
+            CONFIG.manualMaintenance = true;
             location.reload();
         },
         disable: () => {
-            localStorage.removeItem('metro_maintenance');
+            CONFIG.mode = 'manual';
+            CONFIG.manualMaintenance = false;
             location.reload();
         },
-        isEnabled: () => MAINTENANCE_MODE || localStorage.getItem('metro_maintenance') === 'true'
+        isEnabled: () => isMaintenance,
+        checkNow: async () => {
+            return await checkStatus();
+        }
     };
+    
+    // Запуск
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
     
 })();
