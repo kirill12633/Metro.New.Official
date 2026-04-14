@@ -1,11 +1,11 @@
-// maintenance.js - Режим технического обслуживания
+// maintenance.js - Режим технического обслуживания (ИСПРАВЛЕННЫЙ)
 // https://kirill12633.github.io/Metro.New.Official/ru/js/maintenance.js
 
 (function() {
     'use strict';
     
     // ========== НАСТРОЙКИ ==========
-    // ★★★ ДЛЯ ВКЛЮЧЕНИЯ РЕЖИМА - ПОМЕНЯТЬ maintenanceMode НА true ★★★
+    // ★★★ ДЛЯ ВКЛЮЧЕНИЯ РЕЖИМА - ПОМЕНЯТЬ MAINTENANCE_MODE НА true ★★★
     const MAINTENANCE_MODE = true;  // ← СЮДА: true = сайт закрыт, false = сайт открыт
     
     const CONFIG = {
@@ -16,32 +16,33 @@
         contactEmail: 'metro.new.help@gmail.com',
         discordLink: 'https://discord.com/invite/WjGZBs3HMX',
         backgroundColor: 'linear-gradient(135deg, #0066CC, #0052a3)',
-        // Фоновая картинка метро (опционально)
         backgroundImage: 'https://placehold.co/1920x1080/1a1a2e/FFFFFF?text=🚇'
     };
     
-    // ========== ПРОВЕРКА РЕЖИМА ==========
-    if (MAINTENANCE_MODE) {
-        showMaintenancePage();
-    }
-    
+    // ========== ФУНКЦИЯ ПОКАЗА СТРАНИЦЫ ==========
     function showMaintenancePage() {
+        // Проверяем, что body существует
+        if (!document.body) {
+            // Если body ещё нет — ждём
+            document.addEventListener('DOMContentLoaded', showMaintenancePage);
+            return;
+        }
+        
         // Очищаем страницу
         document.body.innerHTML = '';
         document.body.style.margin = '0';
         document.body.style.padding = '0';
         document.body.style.fontFamily = "'Montserrat', Arial, sans-serif";
         
-        // Создаём страницу техработ
-        const page = document.createElement('div');
-        page.style.cssText = `
+        // Создаём контейнер
+        const container = document.createElement('div');
+        container.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: ${CONFIG.backgroundColor};
-            background-image: url('${CONFIG.backgroundImage}');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -51,7 +52,7 @@
             font-family: 'Montserrat', Arial, sans-serif;
         `;
         
-        page.innerHTML = `
+        container.innerHTML = `
             <div style="
                 background: rgba(255,255,255,0.95);
                 border-radius: 30px;
@@ -183,25 +184,29 @@
             </style>
         `;
         
-        document.body.appendChild(page);
+        document.body.appendChild(container);
         
-        // Подключаем Font Awesome
+        // Подключаем Font Awesome если нет
         if (!document.querySelector('link[href*="font-awesome"]')) {
             const fa = document.createElement('link');
             fa.rel = 'stylesheet';
             fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
             document.head.appendChild(fa);
         }
-        
-        // Автообновление каждые 30 секунд (проверка, не выключили ли режим)
-        setInterval(() => {
-            fetch(window.location.href, { cache: 'no-store' })
-                .then(() => {
-                    // Если страница загрузилась — возможно режим выключен
-                    window.location.reload();
-                })
-                .catch(() => {});
-        }, 30000);
+    }
+    
+    // ========== ПРОВЕРКА РЕЖИМА ==========
+    function checkAndShow() {
+        if (MAINTENANCE_MODE) {
+            showMaintenancePage();
+        }
+    }
+    
+    // Запускаем ПОСЛЕ загрузки DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndShow);
+    } else {
+        checkAndShow();
     }
     
     // Для динамического управления (через консоль)
@@ -216,5 +221,7 @@
         },
         isEnabled: () => MAINTENANCE_MODE || localStorage.getItem('metro_maintenance') === 'true'
     };
+    
+    console.log('maintenance.js готов');
     
 })();
