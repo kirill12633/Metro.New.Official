@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метро New — Профиль</title>
+
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    
+    <style>
+        /* ========== СТИЛИ МЕТРО NEW ========== */
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --success: #34a853;
+            --warning: #fbbc04;
+            --danger: #ea4335;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            background: #f8f9fa;
+            color: var(--dark);
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        /* Карточка */
+        .card {
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .card-header h1 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .card-header p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        .card-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        /* Навигация */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+        
+        .nav-link:hover {
+            background: var(--gray-light);
+        }
+        
+        /* Профиль */
+        .profile-row {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        
+        .profile-name h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .trust-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .trust-badge.trusted {
+            background: #e6f4ea;
+            color: #137333;
+        }
+        
+        .trust-badge.warning {
+            background: #fef7e0;
+            color: #b06000;
+        }
+        
+        .trust-badge.guest {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+        
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .online-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .online-dot.offline {
+            background: var(--gray);
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* Сетка данных */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .info-item {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+        }
+        
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+        
+        .copy-btn:hover {
+            background: rgba(0,102,204,0.1);
+        }
+        
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--dark);
+        }
+        
+        .tab-button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-pane {
+            display: block;
+        }
+        
+        .tab-pane.hidden {
+            display: none;
+        }
+        
+        /* Безопасность */
+        .security-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+        }
+        
+        .security-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .security-content {
+            flex: 1;
+        }
+        
+        .security-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .security-status {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .security-badge {
+            background: #fef7e0;
+            color: #b06000;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        /* Города */
+        .city-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        
+        .city-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .city-count {
+            background: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        /* История входов */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-border);
+            font-size: 0.9rem;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-date {
+            color: var(--gray);
+        }
+        
+        /* Панель поддержки */
+        .support-panel {
+            background: #fff8e7;
+            border: 1px solid #ffe6b3;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+        }
+        
+        .support-warning {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #b06000;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff1d6;
+            border-radius: var(--radius-sm);
+        }
+        
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .support-btn {
+            padding: 16px;
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .support-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .support-btn i {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        
+        /* Разделитель */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0 20px;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-border);
+        }
+        
+        .divider span {
+            padding: 0 16px;
+            font-weight: 500;
+        }
+        
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Загрузка */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0,102,204,0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: var(--danger);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        /* Тост */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .toast {
+            background: white;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow-lg);
+            padding: 12px 20px;
+            margin-bottom: 8px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s;
+        }
+        
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+        
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        @media (max-width: 600px) {
+            .profile-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-name {
+                justify-content: center;
+            }
+            
+            .security-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .tabs {
+                justify-content: center;
+            }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #e8eaed;
+                --light: #202124;
+                --gray: #9aa0a6;
+                --gray-light: #292a2d;
+                --gray-border: #5f6368;
+            }
+            body {
+                background: #1a1a1a;
+            }
+            .security-icon {
+                background: #292a2d;
+            }
+            .toast {
+                background: #292a2d;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- НАВИГАЦИЯ -->
+        <div class="navigation">
+            <a href="javascript:history.back()" class="nav-link">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+            <a href="#" class="nav-link" onclick="window.location.href='index.html'">
+                <i class="fas fa-users"></i> Все аккаунты
+            </a>
+        </div>
+        
+        <!-- КАРТОЧКА ПРОФИЛЯ -->
+        <div class="card">
+            <div class="card-header">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <div class="logo-text">Метро New</div>
+                </div>
+                <h1 id="pageTitle">Профиль</h1>
+                <p id="pageSubtitle">Загрузка данных...</p>
+            </div>
+            
+            <div class="card-body" id="profileContent">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ФУТЕР -->
+        <div class="card-footer" style="background: var(--light); border-radius: var(--radius-md);">
+            <div id="copyrightYear"></div>
+            <div class="footer-links">
+                <a href="#">Конфиденциальность</a>
+                <a href="#">Условия</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ТОСТЫ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ========== КОНФИГУРАЦИЯ FIREBASE ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Глобальные переменные
+        let currentUser = null;
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function getUidFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('uid');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-check-circle';
+            let color = '#34a853';
+            if (type === 'error') {
+                icon = 'fa-exclamation-circle';
+                color = '#ea4335';
+            } else if (type === 'warning') {
+                icon = 'fa-exclamation-triangle';
+                color = '#fbbc04';
+            }
+            
+            toast.innerHTML = `
+                <i class="fas ${icon}" style="color: ${color};"></i>
+                <span>${message}</span>
+            `;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard?.writeText(text).then(() => {
+                showToast('✅ Скопировано!');
+            }).catch(() => {
+                showToast('❌ Не удалось скопировать', 'error');
+            });
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '—';
+            try {
+                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                if (isNaN(date.getTime())) return '—';
+                return date.toLocaleDateString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch {
+                return '—';
+            }
+        }
+
+        function formatShortDate(timestamp) {
+            if (!timestamp) return '—';
+            try {
+                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                return date.toLocaleDateString('ru-RU');
+            } catch {
+                return '—';
+            }
+        }
+
+        function getAgeWord(age) {
+            if (!age) return '';
+            if (age % 10 === 1 && age % 100 !== 11) return 'год';
+            if ([2, 3, 4].includes(age % 10) && ![12, 13, 14].includes(age % 100)) return 'года';
+            return 'лет';
+        }
+
+        function calculateAge(birthDate) {
+            if (!birthDate?.year) return null;
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.year;
+            const monthDiff = today.getMonth() + 1 - (birthDate.month || 1);
+            const dayDiff = today.getDate() - (birthDate.day || 1);
+            if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
+            return age;
+        }
+
+        function detectProvider(user) {
+            const email = user.email || '';
+            if (email.includes('@gmail.com') || email.includes('@googlemail.com')) return 'google';
+            if (email && !user.isGuest) return 'email';
+            return 'guest';
+        }
+
+        function getDisplayName(user) {
+            return user.displayName || user.firstName || user.username || 
+                   (user.email ? user.email.split('@')[0] : 'Пользователь');
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.charAt(0).toUpperCase();
+        }
+
+        function getAccountAge(createdAt) {
+            if (!createdAt) return '—';
+            try {
+                const created = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+                const now = new Date();
+                const diffDays = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 1) return 'Меньше дня';
+                if (diffDays < 30) return `${diffDays} ${getDayWord(diffDays)}`;
+                
+                const months = Math.floor(diffDays / 30);
+                if (months < 12) return `${months} ${getMonthWord(months)}`;
+                
+                const years = Math.floor(months / 12);
+                return `${years} ${getYearWord(years)}`;
+            } catch {
+                return '—';
+            }
+        }
+
+        function getDayWord(days) {
+            if (days % 10 === 1 && days % 100 !== 11) return 'день';
+            if ([2, 3, 4].includes(days % 10) && ![12, 13, 14].includes(days % 100)) return 'дня';
+            return 'дней';
+        }
+
+        function getMonthWord(months) {
+            if (months % 10 === 1 && months % 100 !== 11) return 'месяц';
+            if ([2, 3, 4].includes(months % 10) && ![12, 13, 14].includes(months % 100)) return 'месяца';
+            return 'месяцев';
+        }
+
+        function getYearWord(years) {
+            if (years % 10 === 1 && years % 100 !== 11) return 'год';
+            if ([2, 3, 4].includes(years % 10) && ![12, 13, 14].includes(years % 100)) return 'года';
+            return 'лет';
+        }
+
+        // ========== ЗАГРУЗКА ПРОФИЛЯ ==========
+        async function loadUserProfile(uid) {
+            if (!uid) {
+                showError('UID не указан в URL');
+                return;
+            }
+            
+            document.getElementById('pageSubtitle').textContent = `Поиск пользователя...`;
+            
+            try {
+                const snapshot = await db.collection('users_public')
+                    .where('uid', '==', uid)
+                    .limit(1)
+                    .get();
+                
+                if (snapshot.empty) {
+                    // Пробуем найти по ID документа
+                    const docSnapshot = await db.collection('users_public').doc(uid).get();
+                    if (docSnapshot.exists) {
+                        currentUser = { id: docSnapshot.id, ...docSnapshot.data() };
+                        renderProfile(currentUser);
+                        return;
+                    }
+                    showError('Пользователь не найден');
+                    return;
+                }
+                
+                const doc = snapshot.docs[0];
+                currentUser = { id: doc.id, ...doc.data() };
+                renderProfile(currentUser);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                showError(`Ошибка загрузки: ${error.message}`);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('profileContent').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 16px;"></i>
+                    <h3>${message}</h3>
+                    <p style="margin-top: 8px; color: var(--gray);">Проверьте правильность UID или вернитесь к списку аккаунтов.</p>
+                    <button class="btn" onclick="window.location.href='index.html'" style="margin-top: 20px;">
+                        <i class="fas fa-users"></i> Все аккаунты
+                    </button>
+                </div>
+            `;
+            document.getElementById('pageSubtitle').textContent = 'Ошибка';
+        }
+
+        function renderProfile(user) {
+            const displayName = getDisplayName(user);
+            const provider = detectProvider(user);
+            const age = user.age || calculateAge(user.birthDate);
+            const accountAge = getAccountAge(user.createdAt);
+            
+            // Заголовок
+            document.getElementById('pageTitle').textContent = displayName;
+            document.getElementById('pageSubtitle').textContent = `UID: ${user.uid}`;
+            
+            // Определение статуса
+            let trustClass = 'warning';
+            let trustText = '⚠️ Требует проверки';
+            if (user.emailVerified) {
+                trustClass = 'trusted';
+                trustText = '✅ Доверенный';
+            } else if (provider === 'guest') {
+                trustClass = 'guest';
+                trustText = '👤 Гость';
+            }
+            
+            // Иконки провайдера
+            const providerIcons = {
+                google: 'fab fa-google',
+                email: 'fas fa-envelope',
+                guest: 'fas fa-user-secret'
+            };
+            const providerNames = {
+                google: 'Google',
+                email: 'Email/Password',
+                guest: 'Гостевой вход'
+            };
+            
+            // Статус онлайн (заглушка)
+            const isOnline = user.updatedAt && (new Date() - (user.updatedAt.toDate?.() || new Date(user.updatedAt))) < 5 * 60 * 1000;
+            
+            // Возраст для отображения
+            let ageText = '—';
+            if (age) {
+                ageText = `${age} ${getAgeWord(age)}`;
+            }
+            
+            // IP адрес
+            const ipText = user.ipAddress || '—';
+            
+            // Рендер основного контента
+            const html = `
+                <!-- ПРОФИЛЬ -->
+                <div class="profile-row">
+                    <div class="avatar">
+                        <span>${getInitials(displayName)}</span>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">
+                            <h2>${displayName}</h2>
+                            <span class="trust-badge ${trustClass}">${trustText}</span>
+                        </div>
+                        <div class="online-status">
+                            <span class="online-dot ${isOnline ? '' : 'offline'}"></span>
+                            <span>${isOnline ? 'Онлайн' : 'Был(а) ' + formatDate(user.updatedAt || user.createdAt)}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- СЕТКА ДАННЫХ -->
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">UID</div>
+                        <div class="info-value">
+                            <span style="font-family: monospace; font-size: 0.85rem;">${user.uid ? user.uid.substring(0, 16) + '...' : '—'}</span>
+                            <button class="copy-btn" onclick="copyToClipboard('${user.uid}')"><i class="far fa-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">
+                            <span>${user.email || '—'}</span>
+                            <span>${user.emailVerified ? '✅' : '⚠️'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Возраст</div>
+                        <div class="info-value">${ageText}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Username</div>
+                        <div class="info-value">${user.username || '—'}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('profileContent').innerHTML = html;
+            
+            // Добавляем вкладки после профиля
+            const tabsHtml = `
+                <div class="tabs" style="margin-top: 24px;">
+                    <button class="tab-button active" data-tab="main"><i class="fas fa-user"></i> Основное</button>
+                    <button class="tab-button" data-tab="security"><i class="fas fa-shield-alt"></i> Безопасность</button>
+                    <button class="tab-button" data-tab="activity"><i class="fas fa-map-marker-alt"></i> Активность</button>
+                </div>
+                
+                <!-- ВКЛАДКА ОСНОВНОЕ -->
+                <div class="tab-pane active" id="tab-main">
+                    <div class="card" style="margin-top: 0;">
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Регистрация</div>
+                                    <div class="info-value"><i class="far fa-calendar-alt" style="color: var(--gray);"></i> ${formatDate(user.createdAt)}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Последнее обновление</div>
+                                    <div class="info-value"><i class="far fa-clock" style="color: var(--gray);"></i> ${formatDate(user.updatedAt)}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Провайдер</div>
+                                    <div class="info-value"><i class="${providerIcons[provider]}" style="color: var(--primary);"></i> ${providerNames[provider]}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Возраст аккаунта</div>
+                                    <div class="info-value">${accountAge}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">IP адрес</div>
+                                    <div class="info-value">
+                                        <span style="font-family: monospace;">${ipText}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${ipText}')"><i class="far fa-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Согласие на рассылку</div>
+                                    <div class="info-value">${user.marketingConsent ? '✅ Да' : '❌ Нет'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ВКЛАДКА БЕЗОПАСНОСТЬ -->
+                <div class="tab-pane hidden" id="tab-security">
+                    <div class="card" style="margin-top: 0;">
+                        <div class="card-body">
+                            <div class="security-item">
+                                <div class="security-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div class="security-content">
+                                    <div class="security-title">Статус аккаунта</div>
+                                    <div class="security-status">${user.status || 'pending_verification'}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="security-item">
+                                <div class="security-icon"><i class="fas fa-envelope"></i></div>
+                                <div class="security-content">
+                                    <div class="security-title">Подтверждение email</div>
+                                    <div class="security-status">${user.emailVerified ? '✅ Подтвержден' : '⚠️ Не подтвержден'}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="security-item">
+                                <div class="security-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="security-content">
+                                    <div class="security-title">Возраст аккаунта</div>
+                                    <div class="security-status">${accountAge}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="divider">
+                                <span>УРОВЕНЬ ДОВЕРИЯ</span>
+                            </div>
+                            
+                            <div style="background: ${user.emailVerified ? '#e8f0fe' : '#fef7e0'}; padding: 15px; border-radius: var(--radius-sm); color: ${user.emailVerified ? 'var(--primary)' : '#b06000'};">
+                                <i class="fas fa-info-circle"></i> 
+                                ${user.emailVerified ? 'Высокий. Email подтвержден.' : 'Средний. Рекомендуем подтвердить email.'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ВКЛАДКА АКТИВНОСТЬ -->
+                <div class="tab-pane hidden" id="tab-activity">
+                    <div class="card" style="margin-top: 0;">
+                        <div class="card-body">
+                            <div class="info-item">
+                                <div class="info-label">IP адрес</div>
+                                <div class="info-value">${ipText}</div>
+                            </div>
+                            
+                            <div class="divider">
+                                <span>ИСТОРИЯ ДЕЙСТВИЙ</span>
+                            </div>
+                            
+                            <div class="history-item">
+                                <span>${formatDate(user.createdAt)}</span>
+                                <span class="history-date"><i class="fas fa-user-plus" style="color: var(--success);"></i> Регистрация</span>
+                            </div>
+                            
+                            ${user.updatedAt ? `
+                            <div class="history-item">
+                                <span>${formatDate(user.updatedAt)}</span>
+                                <span class="history-date"><i class="fas fa-sync-alt" style="color: var(--primary);"></i> Обновление профиля</span>
+                            </div>
+                            ` : ''}
+                            
+                            <div style="text-align: center; padding: 20px; color: var(--gray);">
+                                <i class="fas fa-chart-line"></i> Подробная статистика скоро появится
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('profileContent').innerHTML += tabsHtml;
+            
+            // Инициализация вкладок
+            initTabs();
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.dataset.tab;
+                    
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        if (pane.id === `tab-${tabName}`) {
+                            pane.classList.remove('hidden');
+                        } else {
+                            pane.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} Метро New. Все права защищены.`;
+            
+            const uid = getUidFromUrl();
+            
+            if (uid) {
+                loadUserProfile(uid);
+            } else {
+                // Демо-режим если нет UID
+                showToast('⚠️ Демо-режим. Укажите ?uid=... в URL', 'warning');
+                
+                const demoUser = {
+                    uid: 'demo_12345',
+                    email: 'demo@metro.new',
+                    displayName: 'Демо Пользователь',
+                    username: 'demo_user',
+                    age: 25,
+                    status: 'active',
+                    emailVerified: true,
+                    marketingConsent: true,
+                    ipAddress: '192.168.1.1',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+                
+                currentUser = demoUser;
+                renderProfile(demoUser);
+            }
+        });
+
+        // Глобальные функции
+        window.copyToClipboard = copyToClipboard;
+    </script>
+</body>
+</html>
