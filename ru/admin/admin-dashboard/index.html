@@ -960,70 +960,78 @@
         }
 
         // ========== ЗАГРУЗКА ДАННЫХ ==========
-        function loadUsersFromFirestore() {
-            if (isLoading) return;
-            isLoading = true;
-            
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = `<tr><td colspan="6"><div class="loading-spinner"><div class="spinner"></div></div></td></tr>`;
-            
-            if (unsubscribe) {
-                unsubscribe();
-                unsubscribe = null;
-            }
-            
-            try {
-                unsubscribe = db.collection('users_public')
-                    .onSnapshot((snapshot) => {
-                        allUsers = [];
-                        
-                        snapshot.forEach((doc) => {
-                            const data = doc.data();
-                            const provider = detectProvider(data);
-                            
-                            allUsers.push({
-                                id: doc.id,
-                                uid: data.uid || doc.id,
-                                email: data.email || null,
-                                displayName: data.displayName || null,
-                                firstName: data.firstName || null,
-                                username: data.username || null,
-                                age: data.age || null,
-                                status: data.status || 'pending_verification',
-                                emailVerified: data.emailVerified || false,
-                                marketingConsent: data.marketingConsent || false,
-                                ipAddress: data.ipAddress || null,
-                                createdAt: data.createdAt || null,
-                                provider: provider,
-                                isGuest: provider === 'guest'
-                            });
-                        });
-                        
-                        allUsers.sort((a, b) => {
-                            const timeA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-                            const timeB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-                            return timeB - timeA;
-                        });
-                        
-                        updateStats();
-                        applyFiltersAndRender();
-                        isLoading = false;
-                    }, (error) => {
-                        console.error('Ошибка:', error);
-                        isLoading = false;
-                        tbody.innerHTML = `<tr><td colspan="6">
-                            <div class="error-message">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>Ошибка загрузки: ${error.message}</span>
-                            </div>
-                        </td></tr>`;
-                    });
+        // ========== ЗАГРУЗКА ДАННЫХ ==========
+function loadUsersFromFirestore() {
+    if (isLoading) return;
+    isLoading = true;
+    
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = `<tr><td colspan="6"><div class="loading-spinner"><div class="spinner"></div></div></td></tr>`;
+    
+    if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
+    }
+    
+    try {
+        // Используем ТОЛЬКО односоставную сортировку по createdAt
+        // Firestore автоматически создаёт индекс для каждого поля
+        unsubscribe = db.collection('users_public')
+            .orderBy('createdAt', 'desc')
+            .onSnapshot((snapshot) => {
+                allUsers = [];
                 
-            } catch (error) {
-                console.error('Ошибка:', error);
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const provider = detectProvider(data);
+                    
+                    allUsers.push({
+                        id: doc.id,
+                        uid: data.uid || doc.id,
+                        email: data.email || null,
+                        displayName: data.displayName || null,
+                        firstName: data.firstName || null,
+                        username: data.username || null,
+                        age: data.age || null,
+                        birthDate: data.birthDate || null,
+                        status: data.status || 'pending_verification',
+                        emailVerified: data.emailVerified || false,
+                        marketingConsent: data.marketingConsent || false,
+                        ipAddress: data.ipAddress || null,
+                        createdAt: data.createdAt || null,
+                        updatedAt: data.updatedAt || null,
+                        provider: provider,
+                        isGuest: provider === 'guest'
+                    });
+                });
+                
+                updateStats();
+                applyFiltersAndRender();
                 isLoading = false;
-            }
-        }
+                
+            }, (error) => {
+                console.error('Ошибка загрузки:', error);
+                isLoading = false;
+                
+                tbody.innerHTML = `<tr><td colspan="6">
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>
+                            <strong>Ошибка загрузки</strong><br>
+                            <small>${error.message}</small>
+                        </span>
+                        <button onclick="location.reload()" style="margin-left: auto; padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+                </td></tr>`;
+            });
+        
+    } catch (error) {
+        console.error('Ошибка инициализации:', error);
+        isLoading = false;
+    }
+}
 
         // ========== СТАТИСТИКА ==========
         function updateStats() {
