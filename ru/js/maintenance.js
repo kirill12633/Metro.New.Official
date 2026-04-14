@@ -6,7 +6,7 @@
     
     // ========== НАСТРОЙКИ ==========
     // ★★★ ДЛЯ ВКЛЮЧЕНИЯ РЕЖИМА - ПОМЕНЯТЬ maintenanceMode НА true ★★★
-    const MAINTENANCE_MODE = false;  // ← СЮДА: true = сайт закрыт, false = сайт открыт
+    const MAINTENANCE_MODE = true;  // ← СЮДА: true = сайт закрыт, false = сайт открыт
     
     const CONFIG = {
         title: 'Метро New',
