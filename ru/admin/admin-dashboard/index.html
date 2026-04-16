@@ -34,12 +34,13 @@
             --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
             --radius-sm: 4px;
             --radius-md: 8px;
-            --radius-lg: 12px;
             --line-red: #ee4036;
             --line-blue: #0066CC;
             --line-green: #39b54a;
-            --line-orange: #f7931e;
             --line-purple: #8e5ca8;
+            --success: #34a853;
+            --warning: #fbbc04;
+            --danger: #ea4335;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,6 +54,155 @@
         }
         
         .container { width: 100%; max-width: 1400px; margin: 0 auto; }
+        
+        /* Экран входа */
+        .login-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .login-screen.hidden {
+            display: none;
+        }
+        
+        .login-card {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo {
+            width: 60px; height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0 auto 16px;
+        }
+        
+        .login-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray);
+        }
+        
+        .form-input {
+            padding: 12px 16px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
+        }
+        
+        .login-btn {
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .login-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .login-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 12px;
+        }
+        
+        /* Роль пользователя в шапке */
+        .user-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .user-role-badge.admin {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        
+        .user-role-badge.moderator {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .user-role-badge.support {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        /* Основной контент */
+        .main-content {
+            display: block;
+        }
+        
+        .main-content.hidden {
+            display: none;
+        }
         
         .card {
             background: var(--light);
@@ -114,6 +264,12 @@
         
         .nav-link:hover { background: var(--gray-light); }
         
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
         .search-section { margin-bottom: 24px; }
         
         .search-box { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -127,25 +283,17 @@
             font-size: 0.95rem;
         }
         
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
-        }
-        
         .search-btn {
             padding: 12px 24px;
             background: var(--primary);
             color: white;
             border: none;
             border-radius: var(--radius-sm);
-            font-family: 'Montserrat', sans-serif;
             font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
         }
         
         .search-btn:hover { background: var(--primary-dark); }
@@ -167,7 +315,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s;
         }
         
         .filter-tab.active {
@@ -176,9 +323,6 @@
             border-color: var(--primary);
         }
         
-        .filter-tab:hover:not(.active) { background: var(--gray-light); }
-        
-        /* Быстрые фильтры по времени */
         .quick-filters {
             display: flex;
             gap: 8px;
@@ -196,13 +340,6 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            transition: all 0.2s;
-        }
-        
-        .quick-filter-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
         }
         
         .quick-filter-btn.active {
@@ -231,7 +368,6 @@
             color: var(--gray);
             font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
             border-bottom: 1px solid var(--gray-border);
             white-space: nowrap;
         }
@@ -242,15 +378,9 @@
             vertical-align: middle;
         }
         
-        tbody tr {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
+        tbody tr { cursor: pointer; }
         tbody tr:hover { background: rgba(0,102,204,0.03); }
-        tr:last-child td { border-bottom: none; }
         
-        /* Статусы */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -279,7 +409,6 @@
         .provider-badge.email { background: #e8f5e9; color: #2e7d32; }
         .provider-badge.guest { background: #f3e5f5; color: #6a1b9a; }
         
-        /* Система заметок */
         .notes-indicator {
             display: inline-flex;
             align-items: center;
@@ -289,74 +418,28 @@
             font-size: 0.75rem;
         }
         
-        .notes-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
+        .user-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-        }
-        
-        .notes-modal.active { display: flex; }
-        
-        .notes-modal-content {
-            background: var(--light);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .notes-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .notes-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
-            font-family: 'Montserrat', sans-serif;
+            color: white;
+            font-weight: 600;
             font-size: 0.9rem;
-            resize: vertical;
-            min-height: 120px;
-            margin-bottom: 16px;
-        }
-        
-        .notes-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border-top: 1px solid var(--gray-border);
-            padding-top: 16px;
-        }
-        
-        .note-item {
-            padding: 12px;
-            background: var(--gray-light);
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-        
-        .note-time {
-            font-size: 0.7rem;
-            color: var(--gray);
-            margin-top: 4px;
+            text-transform: uppercase;
         }
         
         .uid-cell {
-            font-family: 'Monaco', 'Menlo', monospace;
+            font-family: monospace;
             font-size: 0.75rem;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
             background: var(--gray-light);
             padding: 4px 8px;
             border-radius: 4px;
@@ -367,51 +450,9 @@
             border: none;
             color: var(--primary);
             cursor: pointer;
-            margin-left: 6px;
             padding: 4px;
             border-radius: var(--radius-sm);
-            font-size: 0.9rem;
         }
-        
-        .copy-btn:hover { background: rgba(0,102,204,0.1); }
-        
-        .found-row {
-            background: rgba(0,102,204,0.05);
-            border-left: 4px solid var(--primary);
-        }
-        
-        .found-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--primary);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--gray);
-        }
-        
-        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
-        
-        .metro-line {
-            display: inline-block;
-            width: 4px; height: 20px;
-            border-radius: 2px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        .line-red { background: var(--line-red); }
-        .line-blue { background: var(--line-blue); }
-        .line-green { background: var(--line-green); }
-        .line-orange { background: var(--line-orange); }
-        .line-purple { background: var(--line-purple); }
         
         .stats-row {
             display: grid;
@@ -440,52 +481,52 @@
             font-size: 1.4rem;
         }
         
-        .stat-content {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .stat-number { font-size: 1.8rem; font-weight: 700; color: var(--dark); line-height: 1.2; }
+        .stat-number { font-size: 1.8rem; font-weight: 700; }
         .stat-label { font-size: 0.8rem; color: var(--gray); }
         
-        /* Информация о пользователях на сайте */
-        .online-info {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-            border-radius: var(--radius-md);
-            padding: 16px 20px;
-            margin-top: 20px;
-            color: white;
-        }
-        
-        .online-info-title {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 8px;
+        /* Метро-загрузка */
+        .metro-loader {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            padding: 60px;
         }
         
-        .online-info-stats {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
+        .metro-train {
+            font-size: 3rem;
+            animation: trainMove 2s infinite;
         }
         
-        .online-stat {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        @keyframes trainMove {
+            0% { transform: translateX(-20px); opacity: 0.5; }
+            50% { transform: translateX(20px); opacity: 1; }
+            100% { transform: translateX(-20px); opacity: 0.5; }
         }
         
-        .online-stat-value {
-            font-size: 1.4rem;
-            font-weight: 700;
+        .metro-track {
+            width: 100px;
+            height: 4px;
+            background: var(--gray-border);
+            border-radius: 2px;
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
         }
         
-        .online-stat-label {
-            font-size: 0.8rem;
-            opacity: 0.9;
+        .metro-track::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: trackLight 1.5s infinite;
+        }
+        
+        @keyframes trackLight {
+            0% { left: -30px; }
+            100% { left: 100%; }
         }
         
         .pagination {
@@ -504,7 +545,6 @@
             border-radius: var(--radius-sm);
             background: white;
             cursor: pointer;
-            padding: 0 12px;
         }
         
         .page-btn.active {
@@ -513,69 +553,55 @@
             border-color: var(--primary);
         }
         
-        .page-btn:hover:not(.active):not(:disabled) { background: var(--gray-light); }
         .page-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
         
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            padding: 40px;
-        }
-        
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(0,102,204,0.2);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .user-info-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            display: flex;
+        /* Модальное окно заметок */
+        .notes-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
             align-items: center;
             justify-content: center;
+            z-index: 1000;
+        }
+        
+        .notes-modal.active { display: flex; }
+        
+        .notes-modal-content {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .notes-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            min-height: 120px;
+            margin: 16px 0;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: var(--primary);
             color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 4px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
         }
         
         @media (max-width: 768px) {
             body { padding: 10px; }
-            .search-box { flex-direction: column; }
-            th, td { padding: 10px 6px; font-size: 0.8rem; }
-            .stats-row { grid-template-columns: 1fr; }
-            .online-info-stats { flex-direction: column; gap: 12px; }
+            .navigation { flex-direction: column; gap: 10px; }
+            .header-info { flex-wrap: wrap; }
         }
         
         @media (prefers-color-scheme: dark) {
@@ -587,220 +613,205 @@
                 --gray-border: #5f6368;
             }
             body { background: #1a1a1a; }
-            .provider-badge { background: #3c3e43; }
-            .uid-cell { background: #1e1e1e; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="navigation">
-            <a href="#" class="nav-link" onclick="history.back()"><i class="fas fa-arrow-left"></i> Назад</a>
-            <div>
-                <a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+    <!-- ЭКРАН ВХОДА -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">M</div>
+                <h2>Метро New</h2>
+                <p>Вход для персонала</p>
             </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <div class="logo">
-                    <div class="logo-icon">M</div>
-                    <div class="logo-text">Метро New</div>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Логин</label>
+                    <input type="text" class="form-input" id="loginUsername" placeholder="Введите логин" required>
                 </div>
-                <h1><i class="fas fa-users" style="margin-right: 8px;"></i>Аккаунты</h1>
-                <p>Управление пассажирами • Google, Email/Password и гостевой вход</p>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Пароль</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Введите пароль" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+                <div class="login-error" id="loginError"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="main-content hidden" id="mainContent">
+        <div class="container">
+            <div class="navigation">
+                <a href="#" class="nav-link" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+                <div class="header-info">
+                    <span class="user-role-badge" id="userRoleBadge">
+                        <i class="fas fa-user-shield"></i>
+                        <span id="userRoleText">Загрузка...</span>
+                    </span>
+                    <span id="userLoginDisplay" style="color: var(--gray);"></span>
+                    <a href="#" class="nav-link" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </a>
+                </div>
             </div>
             
-            <div class="card-body">
-                <!-- ПОИСК -->
-                <div class="search-section">
-                    <div class="search-box">
-                        <input type="text" class="search-input" id="searchInput" placeholder="Поиск по email, имени, username или UID...">
-                        <button class="search-btn" id="searchBtn">
-                            <i class="fas fa-search"></i> Найти
+            <div class="card">
+                <div class="card-header">
+                    <div class="logo">
+                        <div class="logo-icon">M</div>
+                        <div class="logo-text">Метро New</div>
+                    </div>
+                    <h1><i class="fas fa-users" style="margin-right: 8px;"></i>Аккаунты</h1>
+                    <p>Управление пассажирами • Google, Email/Password и гостевой вход</p>
+                </div>
+                
+                <div class="card-body">
+                    <!-- КНОПКИ БЫСТРЫХ ДЕЙСТВИЙ -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn" id="exportCsvBtn" style="background: var(--gray);">
+                            <i class="fas fa-download"></i> Экспорт CSV
                         </button>
-                        <button class="search-btn" id="refreshBtn" style="background: var(--gray);">
-                            <i class="fas fa-sync-alt"></i> Обновить
+                        <button class="btn" id="ipManagerBtn" style="background: var(--primary-dark);">
+                            <i class="fas fa-map-marker-alt"></i> Управление IP
+                        </button>
+                        <button class="btn" id="auditLogBtn" style="background: var(--gray);">
+                            <i class="fas fa-history"></i> История действий
                         </button>
                     </div>
                     
-                    <!-- Быстрые фильтры по времени -->
-                    <div class="quick-filters">
-                        <span class="quick-filter-btn active" data-time="all">
-                            <i class="fas fa-infinity"></i> Всё время
-                        </span>
-                        <span class="quick-filter-btn" data-time="today">
-                            <i class="fas fa-sun"></i> Сегодня
-                        </span>
-                        <span class="quick-filter-btn" data-time="yesterday">
-                            <i class="fas fa-calendar-day"></i> Вчера
-                        </span>
-                        <span class="quick-filter-btn" data-time="week">
-                            <i class="fas fa-calendar-week"></i> 7 дней
-                        </span>
-                        <span class="quick-filter-btn" data-time="month">
-                            <i class="fas fa-calendar-alt"></i> 30 дней
-                        </span>
+                    <!-- ПОИСК -->
+                    <div class="search-section">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Поиск по email, имени, username или UID...">
+                            <button class="search-btn" id="searchBtn">
+                                <i class="fas fa-search"></i> Найти
+                            </button>
+                            <button class="search-btn" id="refreshBtn" style="background: var(--gray);">
+                                <i class="fas fa-sync-alt"></i> Обновить
+                            </button>
+                        </div>
+                        
+                        <div class="quick-filters">
+                            <span class="quick-filter-btn active" data-time="all"><i class="fas fa-infinity"></i> Всё время</span>
+                            <span class="quick-filter-btn" data-time="today"><i class="fas fa-sun"></i> Сегодня</span>
+                            <span class="quick-filter-btn" data-time="yesterday"><i class="fas fa-calendar-day"></i> Вчера</span>
+                            <span class="quick-filter-btn" data-time="week"><i class="fas fa-calendar-week"></i> 7 дней</span>
+                            <span class="quick-filter-btn" data-time="month"><i class="fas fa-calendar-alt"></i> 30 дней</span>
+                        </div>
+                        
+                        <div class="filter-tabs">
+                            <span class="filter-tab active" data-filter="all"><i class="fas fa-subway"></i> Все</span>
+                            <span class="filter-tab" data-filter="google"><span style="width:4px;height:20px;background:#ee4036;border-radius:2px;margin-right:8px;"></span>Google</span>
+                            <span class="filter-tab" data-filter="email"><span style="width:4px;height:20px;background:#39b54a;border-radius:2px;margin-right:8px;"></span>Email</span>
+                            <span class="filter-tab" data-filter="guest"><span style="width:4px;height:20px;background:#8e5ca8;border-radius:2px;margin-right:8px;"></span>Гость</span>
+                            <span class="filter-tab" data-filter="verified"><i class="fas fa-check-circle"></i> Подтверждённые</span>
+                            <span class="filter-tab" data-filter="pending"><i class="fas fa-clock"></i> Ожидают</span>
+                        </div>
                     </div>
                     
-                    <div class="filter-tabs">
-                        <span class="filter-tab active" data-filter="all">
-                            <i class="fas fa-subway"></i> Все
-                        </span>
-                        <span class="filter-tab" data-filter="google">
-                            <span class="metro-line line-red"></span> Google
-                        </span>
-                        <span class="filter-tab" data-filter="email">
-                            <span class="metro-line line-green"></span> Email
-                        </span>
-                        <span class="filter-tab" data-filter="guest">
-                            <span class="metro-line line-purple"></span> Гость
-                        </span>
-                        <span class="filter-tab" data-filter="verified">
-                            <i class="fas fa-check-circle"></i> Подтверждённые
-                        </span>
-                        <span class="filter-tab" data-filter="pending">
-                            <i class="fas fa-clock"></i> Ожидают
-                        </span>
+                    <!-- ТАБЛИЦА -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-user"></i> Аккаунт</th>
+                                    <th><i class="fas fa-ticket-alt"></i> Вход</th>
+                                    <th><i class="fas fa-flag"></i> Статус</th>
+                                    <th><i class="fas fa-calendar-plus"></i> Регистрация</th>
+                                    <th><i class="fas fa-sticky-note"></i> Заметки</th>
+                                    <th><i class="fas fa-id-card"></i> UID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr><td colspan="6">
+                                    <div class="metro-loader">
+                                        <div class="metro-train">🚇</div>
+                                        <div class="metro-track"></div>
+                                        <div style="margin-top: 16px; color: var(--gray);">Загрузка пассажиров...</div>
+                                    </div>
+                                </td></tr>
+                            </tbody>
+                        </table>
                     </div>
+                    
+                    <!-- СТАТИСТИКА -->
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div><div class="stat-number" id="totalUsers">0</div><div class="stat-label">Всего</div></div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fab fa-google"></i></div>
+                            <div><div class="stat-number" id="googleUsers">0</div><div class="stat-label">Google</div></div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+                            <div><div class="stat-number" id="emailUsers">0</div><div class="stat-label">Email</div></div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-user-secret"></i></div>
+                            <div><div class="stat-number" id="guestUsers">0</div><div class="stat-label">Гости</div></div>
+                        </div>
+                    </div>
+                    
+                    <!-- ПАГИНАЦИЯ -->
+                    <div class="pagination" id="pagination"></div>
                 </div>
-                
-                <!-- ТАБЛИЦА -->
-                <div class="table-container" id="tableContainer">
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th><i class="fas fa-user"></i> Аккаунт</th>
-                                <th><i class="fas fa-ticket-alt"></i> Вход</th>
-                                <th><i class="fas fa-flag"></i> Статус</th>
-                                <th><i class="fas fa-calendar-plus"></i> Регистрация</th>
-                                <th><i class="fas fa-sticky-note"></i> Заметки</th>
-                                <th><i class="fas fa-id-card"></i> UID</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <tr><td colspan="6"><div class="loading-spinner"><div class="spinner"></div></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- СТАТИСТИКА -->
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="totalUsers">0</div>
-                            <div class="stat-label">Всего аккаунтов</div>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fab fa-google"></i></div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="googleUsers">0</div>
-                            <div class="stat-label">Google</div>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-envelope"></i></div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="emailUsers">0</div>
-                            <div class="stat-label">Email</div>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-user-secret"></i></div>
-                        <div class="stat-content">
-                            <div class="stat-number" id="guestUsers">0</div>
-                            <div class="stat-label">Гости</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Информация о пользователях на сайте -->
-                <div class="online-info">
-                    <div class="online-info-title">
-                        <i class="fas fa-chart-line"></i>
-                        Активность на сайте
-                    </div>
-                    <div class="online-info-stats">
-                        <div class="online-stat">
-                            <i class="fas fa-user-check"></i>
-                            <div>
-                                <div class="online-stat-value" id="verifiedCount">0</div>
-                                <div class="online-stat-label">Подтверждённых</div>
-                            </div>
-                        </div>
-                        <div class="online-stat">
-                            <i class="fas fa-calendar-week"></i>
-                            <div>
-                                <div class="online-stat-value" id="weekNewCount">0</div>
-                                <div class="online-stat-label">Новых за 7 дней</div>
-                            </div>
-                        </div>
-                        <div class="online-stat">
-                            <i class="fas fa-chart-bar"></i>
-                            <div>
-                                <div class="online-stat-value" id="monthNewCount">0</div>
-                                <div class="online-stat-label">Новых за 30 дней</div>
-                            </div>
-                        </div>
-                        <div class="online-stat">
-                            <i class="fas fa-check-double"></i>
-                            <div>
-                                <div class="online-stat-value" id="marketingCount">0</div>
-                                <div class="online-stat-label">Согласие на рассылку</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ПАГИНАЦИЯ -->
-                <div class="pagination" id="pagination"></div>
+            </div>
+            
+            <div style="text-align: center; padding: 16px; color: var(--gray);">
+                <div id="copyrightYear"></div>
             </div>
         </div>
     </div>
-    
-    <!-- Модальное окно заметок -->
+
+    <!-- МОДАЛЬНОЕ ОКНО ЗАМЕТОК -->
     <div class="notes-modal" id="notesModal">
         <div class="notes-modal-content">
-            <div class="notes-modal-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h3><i class="fas fa-sticky-note"></i> Заметки</h3>
-                <button onclick="closeNotesModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+                <button onclick="closeNotesModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
             </div>
-            <div id="notesUserInfo" style="margin-bottom: 16px; padding: 12px; background: var(--gray-light); border-radius: var(--radius-sm);"></div>
+            <div id="notesUserInfo" style="padding: 12px; background: var(--gray-light); border-radius: var(--radius-sm); margin-bottom: 16px;"></div>
             <textarea class="notes-textarea" id="notesInput" placeholder="Добавьте заметку..."></textarea>
-            <button class="search-btn" onclick="addNote()" style="width: 100%;">
+            <button class="btn" onclick="addNote()" style="width: 100%;">
                 <i class="fas fa-plus"></i> Добавить заметку
             </button>
-            <div class="notes-list" id="notesList"></div>
+            <div id="notesList" style="margin-top: 16px; max-height: 200px; overflow-y: auto;"></div>
         </div>
     </div>
-    
+
     <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;"></div>
 
     <script>
-// ========== КОНФИГУРАЦИЯ FIREBASE ==========
-const firebaseConfig = {
-    apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-    authDomain: "metro-new-85226.firebaseapp.com",
-    databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
-    projectId: "metro-new-85226",
-    storageBucket: "metro-new-85226.firebasestorage.app",
-    messagingSenderId: "905640751733",
-    appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
-};
+        // ========== КОНФИГУРАЦИЯ ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
+            authDomain: "metro-new-85226.firebaseapp.com",
+            databaseURL: "https://metro-new-85226-default-rtdb.firebaseio.com",
+            projectId: "metro-new-85226",
+            storageBucket: "metro-new-85226.firebasestorage.app",
+            messagingSenderId: "905640751733",
+            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
+        };
+        
+        const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1494338825374269441/XmUkgSryxxYYvz_-Inqi9jnjuFb4vST4azDWb7p87Vyxc7vJm6AM3KQgYgXYVa_wMirk';
 
-// Инициализация Firebase
-firebase.initializeApp(firebaseConfig);
-
-// ========== APP CHECK (если используется) ==========
-const appCheck = firebase.appCheck();
-appCheck.activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
+        
+        const auth = firebase.auth();
+        const db = firebase.firestore();
         
         // Глобальные переменные
+        let currentAdmin = null;
         let allUsers = [];
         let filteredUsers = [];
         let currentFilter = 'all';
@@ -808,82 +819,188 @@ const db = firebase.firestore();
         let currentSearch = '';
         let currentPage = 1;
         const rowsPerPage = 10;
-        let isLoading = false;
-        let unsubscribe = null;
-        let currentUserForNotes = null;
         let userNotes = {};
+        let currentUserForNotes = null;
+        let unsubscribe = null;
 
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-        function showToast(message, isError = false) {
+        // ========== УВЕДОМЛЕНИЯ ==========
+        function showToast(message, type = 'success') {
             const toast = document.createElement('div');
+            const colors = { success: '#34a853', error: '#ea4335', warning: '#fbbc04' };
             toast.style.cssText = `
-                background: ${isError ? '#ffebee' : 'white'};
-                border-left: 4px solid ${isError ? '#c62828' : 'var(--primary)'};
+                background: white;
+                border-left: 4px solid ${colors[type] || '#0066CC'};
                 padding: 12px 20px;
-                border-radius: var(--radius-sm);
-                box-shadow: var(--shadow-md);
+                border-radius: 4px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
                 margin-bottom: 8px;
                 animation: slideIn 0.3s;
-                font-family: 'Montserrat', sans-serif;
-                color: ${isError ? '#c62828' : 'var(--dark)'};
-                max-width: 350px;
             `;
             toast.innerHTML = message;
             document.getElementById('toastContainer').appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
-
-        function copyToClipboard(text) {
-            navigator.clipboard?.writeText(text).then(() => {
-                showToast('✅ UID скопирован');
-            });
+        
+        function playNotificationSound() {
+            try {
+                const audio = new Audio('data:audio/wav;base64,U3VwcG9ydCBzb3VuZA==');
+                audio.volume = 0.3;
+                audio.play().catch(() => {});
+            } catch(e) {}
         }
 
-        function formatDate(timestamp) {
-            if (!timestamp) return '—';
+        async function sendDiscordLog(action, details) {
             try {
-                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-                if (isNaN(date.getTime())) return '—';
-                return date.toLocaleDateString('ru-RU', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }).replace(',', '');
-            } catch {
-                return '—';
+                await fetch(DISCORD_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: `🚇 ${action}`,
+                            description: details,
+                            color: 0x0066CC,
+                            timestamp: new Date().toISOString(),
+                            footer: { text: currentAdmin?.login || 'Система' }
+                        }]
+                    })
+                });
+            } catch(e) {}
+        }
+
+        // ========== АВТОРИЗАЦИЯ ==========
+        async function login(username, password) {
+            try {
+                const snapshot = await db.collection('users')
+                    .where('login', '==', username)
+                    .where('password', '==', password)
+                    .limit(1)
+                    .get();
+                
+                if (snapshot.empty) {
+                    throw new Error('Неверный логин или пароль');
+                }
+                
+                const adminDoc = snapshot.docs[0];
+                currentAdmin = {
+                    id: adminDoc.id,
+                    ...adminDoc.data()
+                };
+                
+                // Проверка роли
+                if (!['admin', 'moderator', 'support'].includes(currentAdmin.role)) {
+                    throw new Error('Недостаточно прав');
+                }
+                
+                // Сохраняем сессию
+                localStorage.setItem('metro_admin', JSON.stringify({
+                    id: currentAdmin.id,
+                    login: currentAdmin.login,
+                    role: currentAdmin.role,
+                    timestamp: Date.now()
+                }));
+                
+                // Логируем вход
+                await db.collection('admin_history').add({
+                    adminId: currentAdmin.id,
+                    adminLogin: currentAdmin.login,
+                    action: 'login',
+                    ip: await getIP(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                sendDiscordLog('🔐 Вход в админ-панель', 
+                    `**${currentAdmin.login}** (${currentAdmin.role})\nIP: ${await getIP()}`);
+                
+                playNotificationSound();
+                showToast(`✅ Добро пожаловать, ${currentAdmin.login}!`);
+                
+                hideLoginScreen();
+                loadAllData();
+                
+            } catch (error) {
+                document.getElementById('loginError').textContent = error.message;
+                showToast('❌ ' + error.message, 'error');
             }
         }
 
-        function formatShortDate(timestamp) {
-            if (!timestamp) return '—';
+        async function getIP() {
             try {
-                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-                if (isNaN(date.getTime())) return '—';
-                return date.toLocaleDateString('ru-RU');
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                return data.ip;
             } catch {
-                return '—';
+                return 'unknown';
             }
         }
 
-        function detectProvider(user) {
-            const email = user.email || '';
-            if (email.includes('@gmail.com')) return 'google';
-            if (email && !user.isGuest) return 'email';
-            return 'guest';
+        function hideLoginScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            
+            // Отображаем роль
+            const roleNames = { admin: 'Администратор', moderator: 'Модератор', support: 'Поддержка' };
+            document.getElementById('userRoleText').textContent = roleNames[currentAdmin.role] || currentAdmin.role;
+            document.getElementById('userRoleBadge').classList.add(currentAdmin.role);
+            document.getElementById('userLoginDisplay').textContent = currentAdmin.login;
+            
+            // Показываем кнопки в зависимости от роли
+            const ipManagerBtn = document.getElementById('ipManagerBtn');
+            const auditLogBtn = document.getElementById('auditLogBtn');
+            
+            if (currentAdmin.role === 'support') {
+                if (ipManagerBtn) ipManagerBtn.style.display = 'none';
+            }
         }
 
-        function getInitials(name) {
-            if (!name) return '?';
-            return name.substring(0, 2).toUpperCase();
+        function logout() {
+            if (currentAdmin) {
+                db.collection('admin_history').add({
+                    adminId: currentAdmin.id,
+                    adminLogin: currentAdmin.login,
+                    action: 'logout',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                sendDiscordLog('🔓 Выход из админ-панели', `**${currentAdmin.login}**`);
+            }
+            
+            localStorage.removeItem('metro_admin');
+            currentAdmin = null;
+            
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').textContent = '';
         }
 
-        function getDisplayName(user) {
-            return user.displayName || user.firstName || user.username || (user.email ? user.email.split('@')[0] : 'Аккаунт');
+        async function checkSession() {
+            const saved = localStorage.getItem('metro_admin');
+            if (!saved) return false;
+            
+            try {
+                const session = JSON.parse(saved);
+                if (Date.now() - session.timestamp > 24 * 60 * 60 * 1000) {
+                    localStorage.removeItem('metro_admin');
+                    return false;
+                }
+                
+                const doc = await db.collection('users').doc(session.id).get();
+                if (!doc.exists) return false;
+                
+                currentAdmin = { id: doc.id, ...doc.data() };
+                hideLoginScreen();
+                loadAllData();
+                return true;
+            } catch {
+                return false;
+            }
         }
 
-        // ========== ЗАМЕТКИ ==========
+        // ========== ЗАГРУЗКА ДАННЫХ ==========
+        function loadAllData() {
+            loadNotes();
+            loadUsersFromFirestore();
+        }
+
         function loadNotes() {
             const saved = localStorage.getItem('metro_user_notes');
             if (saved) userNotes = JSON.parse(saved);
@@ -893,28 +1010,225 @@ const db = firebase.firestore();
             localStorage.setItem('metro_user_notes', JSON.stringify(userNotes));
         }
 
-        function openNotesModal(user) {
+        function loadUsersFromFirestore() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `<tr><td colspan="6">
+                <div class="metro-loader">
+                    <div class="metro-train">🚇</div>
+                    <div class="metro-track"></div>
+                    <div>Загрузка...</div>
+                </div>
+            </td></tr>`;
+            
+            if (unsubscribe) unsubscribe();
+            
+            unsubscribe = db.collection('users_public')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    allUsers = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        allUsers.push({
+                            id: doc.id,
+                            uid: data.uid || doc.id,
+                            email: data.email,
+                            displayName: data.displayName,
+                            firstName: data.firstName,
+                            username: data.username,
+                            age: data.age,
+                            status: data.status || 'pending_verification',
+                            emailVerified: data.emailVerified || false,
+                            ipAddress: data.ipAddress,
+                            createdAt: data.createdAt,
+                            provider: detectProvider(data)
+                        });
+                    });
+                    
+                    updateStats();
+                    applyFiltersAndRender();
+                }, error => {
+                    console.error('Ошибка:', error);
+                    tbody.innerHTML = `<tr><td colspan="6"><div style="padding: 40px; text-align: center; color: var(--danger);">Ошибка загрузки</div></td></tr>`;
+                });
+        }
+
+        function detectProvider(user) {
+            const email = user.email || '';
+            if (email.includes('@gmail.com')) return 'google';
+            if (email) return 'email';
+            return 'guest';
+        }
+
+        function getDisplayName(user) {
+            return user.displayName || user.firstName || user.username || (user.email ? user.email.split('@')[0] : 'Аккаунт');
+        }
+
+        function getInitials(name) {
+            return name ? name.substring(0, 2).toUpperCase() : '?';
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '—';
+            try {
+                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch { return '—'; }
+        }
+
+        // ========== СТАТИСТИКА ==========
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            document.getElementById('googleUsers').textContent = allUsers.filter(u => u.provider === 'google').length;
+            document.getElementById('emailUsers').textContent = allUsers.filter(u => u.provider === 'email').length;
+            document.getElementById('guestUsers').textContent = allUsers.filter(u => u.provider === 'guest').length;
+        }
+
+        // ========== ФИЛЬТРАЦИЯ ==========
+        function applyFiltersAndRender() {
+            filteredUsers = [...allUsers];
+            
+            if (currentTimeFilter !== 'all') {
+                const now = new Date();
+                let filterDate = new Date();
+                switch(currentTimeFilter) {
+                    case 'today': filterDate.setHours(0,0,0,0); break;
+                    case 'yesterday': filterDate.setDate(filterDate.getDate()-1); filterDate.setHours(0,0,0,0); break;
+                    case 'week': filterDate.setDate(filterDate.getDate()-7); break;
+                    case 'month': filterDate.setDate(filterDate.getDate()-30); break;
+                }
+                filteredUsers = filteredUsers.filter(u => {
+                    if (!u.createdAt) return false;
+                    const date = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+                    return date >= filterDate;
+                });
+            }
+            
+            if (currentFilter !== 'all') {
+                filteredUsers = filteredUsers.filter(u => {
+                    if (currentFilter === 'verified') return u.emailVerified;
+                    if (currentFilter === 'pending') return u.status === 'pending_verification';
+                    return u.provider === currentFilter;
+                });
+            }
+            
+            if (currentSearch) {
+                const s = currentSearch.toLowerCase();
+                filteredUsers = filteredUsers.filter(u =>
+                    (u.email && u.email.toLowerCase().includes(s)) ||
+                    (u.displayName && u.displayName.toLowerCase().includes(s)) ||
+                    (u.username && u.username.toLowerCase().includes(s)) ||
+                    (u.uid && u.uid.toLowerCase().includes(s))
+                );
+            }
+            
+            currentPage = 1;
+            renderTable();
+        }
+
+        // ========== ОТРИСОВКА ТАБЛИЦЫ ==========
+        function renderTable() {
+            const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+            const start = (currentPage - 1) * rowsPerPage;
+            const paginated = filteredUsers.slice(start, start + rowsPerPage);
+            
+            let html = '';
+            
+            if (filteredUsers.length === 0) {
+                html = `<tr><td colspan="6"><div style="padding: 40px; text-align: center; color: var(--gray);">Аккаунтов не найдено</div></td></tr>`;
+            } else {
+                paginated.forEach(user => {
+                    const displayName = getDisplayName(user);
+                    const notesCount = userNotes[user.uid]?.length || 0;
+                    
+                    let statusClass = user.emailVerified ? 'verified' : (user.provider === 'guest' ? 'guest' : 'pending');
+                    let statusText = user.emailVerified ? 'Подтверждён' : (user.provider === 'guest' ? 'Гость' : 'Ожидает');
+                    
+                    const providerIcons = { google: 'fab fa-google', email: 'fas fa-envelope', guest: 'fas fa-user-secret' };
+                    const providerNames = { google: 'Google', email: 'Email', guest: 'Гость' };
+                    const providerClass = user.provider;
+                    
+                    html += `
+                        <tr onclick="openProfile('${user.uid}')">
+                            <td>
+                                <div class="user-info-cell">
+                                    <div class="user-avatar">${getInitials(displayName)}</div>
+                                    <div>
+                                        <div style="font-weight: 500;">${displayName}</div>
+                                        <div style="font-size: 0.75rem; color: var(--gray);">${user.email || user.username || '—'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                <span class="provider-badge ${providerClass}">
+                                    <i class="${providerIcons[user.provider]}"></i> ${providerNames[user.provider]}
+                                </span>
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                <span class="status-badge ${statusClass}">
+                                    <i class="fas ${user.emailVerified ? 'fa-check-circle' : (user.provider === 'guest' ? 'fa-user' : 'fa-clock')}"></i> ${statusText}
+                                </span>
+                            </td>
+                            <td onclick="event.stopPropagation()">${formatDate(user.createdAt)}</td>
+                            <td onclick="event.stopPropagation()">
+                                <button class="copy-btn" onclick="openNotesModal('${user.uid}')" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-sticky-note"></i>
+                                    ${notesCount > 0 ? `<span class="notes-indicator">${notesCount}</span>` : 'Добавить'}
+                                </button>
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                <span class="uid-cell">${user.uid?.substring(0, 10)}...</span>
+                                <button class="copy-btn" onclick="copyToClipboard('${user.uid}')"><i class="far fa-copy"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            document.getElementById('tableBody').innerHTML = html;
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pag = document.getElementById('pagination');
+            if (totalPages <= 1) { pag.innerHTML = ''; return; }
+            
+            let html = `<button class="page-btn" onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+                    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goToPage(${i})">${i}</button>`;
+                } else if (Math.abs(i - currentPage) === 3) {
+                    html += `<span class="page-btn" style="border:none;">...</span>`;
+                }
+            }
+            
+            html += `<button class="page-btn" onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+            pag.innerHTML = html;
+        }
+
+        // ========== ЗАМЕТКИ ==========
+        function openNotesModal(uid) {
+            const user = allUsers.find(u => u.uid === uid);
+            if (!user) return;
+            
             currentUserForNotes = user;
-            const userInfo = document.getElementById('notesUserInfo');
-            userInfo.innerHTML = `
+            document.getElementById('notesUserInfo').innerHTML = `
                 <strong>${getDisplayName(user)}</strong><br>
                 <small>${user.email || user.uid}</small>
             `;
             
-            const notes = userNotes[user.uid] || [];
-            const notesList = document.getElementById('notesList');
+            const notes = userNotes[uid] || [];
+            const list = document.getElementById('notesList');
             
             if (notes.length === 0) {
-                notesList.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">Нет заметок</div>';
+                list.innerHTML = '<div style="text-align:center;color:var(--gray);padding:16px;">Нет заметок</div>';
             } else {
-                notesList.innerHTML = notes.map((note, i) => `
-                    <div class="note-item">
-                        ${note.text}
-                        <div class="note-time">
-                            ${new Date(note.time).toLocaleString('ru-RU')}
-                            <button onclick="deleteNote('${user.uid}', ${i})" style="float: right; background: none; border: none; color: #c62828; cursor: pointer;">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                list.innerHTML = notes.map((n, i) => `
+                    <div style="padding:8px;background:var(--gray-light);border-radius:4px;margin-bottom:8px;">
+                        ${n.text}
+                        <div style="font-size:0.7rem;color:var(--gray);margin-top:4px;display:flex;justify-content:space-between;">
+                            ${new Date(n.time).toLocaleString('ru-RU')}
+                            <button onclick="deleteNote('${uid}', ${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `).reverse().join('');
@@ -927,7 +1241,6 @@ const db = firebase.firestore();
         function closeNotesModal() {
             document.getElementById('notesModal').classList.remove('active');
             currentUserForNotes = null;
-            renderTable();
         }
 
         function addNote() {
@@ -935,17 +1248,23 @@ const db = firebase.firestore();
             const text = document.getElementById('notesInput').value.trim();
             if (!text) return;
             
-            if (!userNotes[currentUserForNotes.uid]) {
-                userNotes[currentUserForNotes.uid] = [];
-            }
-            
-            userNotes[currentUserForNotes.uid].push({
-                text: text,
-                time: new Date().toISOString()
-            });
+            if (!userNotes[currentUserForNotes.uid]) userNotes[currentUserForNotes.uid] = [];
+            userNotes[currentUserForNotes.uid].push({ text, time: new Date().toISOString() });
             
             saveNotes();
-            openNotesModal(currentUserForNotes);
+            
+            // Логируем
+            if (currentAdmin) {
+                db.collection('admin_history').add({
+                    adminId: currentAdmin.id,
+                    adminLogin: currentAdmin.login,
+                    action: 'add_note',
+                    targetUid: currentUserForNotes.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            openNotesModal(currentUserForNotes.uid);
             showToast('✅ Заметка добавлена');
         }
 
@@ -953,355 +1272,68 @@ const db = firebase.firestore();
             if (userNotes[uid]) {
                 userNotes[uid].splice(index, 1);
                 saveNotes();
-                openNotesModal(currentUserForNotes);
+                openNotesModal(uid);
                 showToast('🗑️ Заметка удалена');
             }
         }
 
-        function hasNotes(uid) {
-            return userNotes[uid] && userNotes[uid].length > 0;
-        }
-
-        function getNotesCount(uid) {
-            return userNotes[uid] ? userNotes[uid].length : 0;
-        }
-
-        // ========== ЗАГРУЗКА ДАННЫХ ==========
-        // ========== ЗАГРУЗКА ДАННЫХ ==========
-function loadUsersFromFirestore() {
-    if (isLoading) return;
-    isLoading = true;
-    
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = `<tr><td colspan="6"><div class="loading-spinner"><div class="spinner"></div></div></td></tr>`;
-    
-    if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-    }
-    
-    try {
-        // Используем ТОЛЬКО односоставную сортировку по createdAt
-        // Firestore автоматически создаёт индекс для каждого поля
-        unsubscribe = db.collection('users_public')
-            .orderBy('createdAt', 'desc')
-            .onSnapshot((snapshot) => {
-                allUsers = [];
-                
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const provider = detectProvider(data);
-                    
-                    allUsers.push({
-                        id: doc.id,
-                        uid: data.uid || doc.id,
-                        email: data.email || null,
-                        displayName: data.displayName || null,
-                        firstName: data.firstName || null,
-                        username: data.username || null,
-                        age: data.age || null,
-                        birthDate: data.birthDate || null,
-                        status: data.status || 'pending_verification',
-                        emailVerified: data.emailVerified || false,
-                        marketingConsent: data.marketingConsent || false,
-                        ipAddress: data.ipAddress || null,
-                        createdAt: data.createdAt || null,
-                        updatedAt: data.updatedAt || null,
-                        provider: provider,
-                        isGuest: provider === 'guest'
-                    });
-                });
-                
-                updateStats();
-                applyFiltersAndRender();
-                isLoading = false;
-                
-            }, (error) => {
-                console.error('Ошибка загрузки:', error);
-                isLoading = false;
-                
-                tbody.innerHTML = `<tr><td colspan="6">
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>
-                            <strong>Ошибка загрузки</strong><br>
-                            <small>${error.message}</small>
-                        </span>
-                        <button onclick="location.reload()" style="margin-left: auto; padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            <i class="fas fa-sync-alt"></i> Обновить
-                        </button>
-                    </div>
-                </td></tr>`;
-            });
-        
-    } catch (error) {
-        console.error('Ошибка инициализации:', error);
-        isLoading = false;
-    }
-}
-
-        // ========== СТАТИСТИКА ==========
-        function updateStats() {
-            const total = allUsers.length;
-            const google = allUsers.filter(u => u.provider === 'google').length;
-            const email = allUsers.filter(u => u.provider === 'email').length;
-            const guest = allUsers.filter(u => u.provider === 'guest').length;
-            const verified = allUsers.filter(u => u.emailVerified).length;
-            const marketing = allUsers.filter(u => u.marketingConsent).length;
-            
-            const now = new Date();
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            
-            const weekNew = allUsers.filter(u => {
-                if (!u.createdAt) return false;
-                const date = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
-                return date > weekAgo;
-            }).length;
-            
-            const monthNew = allUsers.filter(u => {
-                if (!u.createdAt) return false;
-                const date = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
-                return date > monthAgo;
-            }).length;
-            
-            document.getElementById('totalUsers').textContent = total;
-            document.getElementById('googleUsers').textContent = google;
-            document.getElementById('emailUsers').textContent = email;
-            document.getElementById('guestUsers').textContent = guest;
-            document.getElementById('verifiedCount').textContent = verified;
-            document.getElementById('weekNewCount').textContent = weekNew;
-            document.getElementById('monthNewCount').textContent = monthNew;
-            document.getElementById('marketingCount').textContent = marketing;
-        }
-
-        // ========== ФИЛЬТРАЦИЯ ==========
-        function applyFiltersAndRender() {
-            filteredUsers = [...allUsers];
-            
-            // Временной фильтр
-            if (currentTimeFilter !== 'all') {
-                const now = new Date();
-                let filterDate = new Date();
-                
-                switch(currentTimeFilter) {
-                    case 'today':
-                        filterDate.setHours(0, 0, 0, 0);
-                        break;
-                    case 'yesterday':
-                        filterDate.setDate(filterDate.getDate() - 1);
-                        filterDate.setHours(0, 0, 0, 0);
-                        break;
-                    case 'week':
-                        filterDate.setDate(filterDate.getDate() - 7);
-                        break;
-                    case 'month':
-                        filterDate.setDate(filterDate.getDate() - 30);
-                        break;
-                }
-                
-                filteredUsers = filteredUsers.filter(u => {
-                    if (!u.createdAt) return false;
-                    const date = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
-                    
-                    if (currentTimeFilter === 'today' || currentTimeFilter === 'yesterday') {
-                        const endDate = new Date(filterDate);
-                        endDate.setHours(23, 59, 59, 999);
-                        return date >= filterDate && date <= endDate;
-                    }
-                    
-                    return date >= filterDate;
-                });
-            }
-            
-            // Фильтр по типу
-            if (currentFilter !== 'all') {
-                switch(currentFilter) {
-                    case 'google':
-                        filteredUsers = filteredUsers.filter(u => u.provider === 'google');
-                        break;
-                    case 'email':
-                        filteredUsers = filteredUsers.filter(u => u.provider === 'email');
-                        break;
-                    case 'guest':
-                        filteredUsers = filteredUsers.filter(u => u.provider === 'guest');
-                        break;
-                    case 'verified':
-                        filteredUsers = filteredUsers.filter(u => u.emailVerified);
-                        break;
-                    case 'pending':
-                        filteredUsers = filteredUsers.filter(u => u.status === 'pending_verification');
-                        break;
-                }
-            }
-            
-            // Поиск
-            if (currentSearch) {
-                const searchLower = currentSearch.toLowerCase();
-                filteredUsers = filteredUsers.filter(user => 
-                    (user.email && user.email.toLowerCase().includes(searchLower)) ||
-                    (user.displayName && user.displayName.toLowerCase().includes(searchLower)) ||
-                    (user.username && user.username.toLowerCase().includes(searchLower)) ||
-                    (user.uid && user.uid.toLowerCase().includes(searchLower))
-                );
-            }
-            
-            currentPage = 1;
-            renderTable();
-        }
-
-        // ========== ОТРИСОВКА ТАБЛИЦЫ ==========
-        function renderTable() {
-            const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const paginatedUsers = filteredUsers.slice(startIndex, startIndex + rowsPerPage);
-            
-            let html = '';
-            
-            if (filteredUsers.length === 0) {
-                html = `<tr><td colspan="6">
-                    <div class="empty-state">
-                        <i class="fas fa-users-slash"></i>
-                        <h3>Аккаунтов не найдено</h3>
-                        <p style="color: var(--gray); margin-top: 8px;">Измените параметры поиска</p>
-                    </div>
-                </td></tr>`;
-            } else {
-                paginatedUsers.forEach(user => {
-                    const displayName = getDisplayName(user);
-                    
-                    let statusClass = user.emailVerified ? 'verified' : (user.isGuest ? 'guest' : 'pending');
-                    let statusText = user.emailVerified ? 'Подтверждён' : (user.isGuest ? 'Гость' : 'Ожидает');
-                    
-                    let providerIcon, providerName, providerClass;
-                    if (user.provider === 'google') {
-                        providerIcon = 'fab fa-google';
-                        providerName = 'Google';
-                        providerClass = 'google';
-                    } else if (user.provider === 'email') {
-                        providerIcon = 'fas fa-envelope';
-                        providerName = 'Email';
-                        providerClass = 'email';
-                    } else {
-                        providerIcon = 'fas fa-user-secret';
-                        providerName = 'Гость';
-                        providerClass = 'guest';
-                    }
-                    
-                    const notesCount = getNotesCount(user.uid);
-                    
-                    html += `
-                        <tr onclick="openProfile('${user.uid}')" style="cursor: pointer;">
-                            <td onclick="event.stopPropagation(); openProfile('${user.uid}')">
-                                <div class="user-info-cell">
-                                    <div class="user-avatar">${getInitials(displayName)}</div>
-                                    <div>
-                                        <div style="font-weight: 500;">${displayName}</div>
-                                        <div style="font-size: 0.75rem; color: var(--gray);">${user.email || user.username || '—'}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td onclick="event.stopPropagation(); openProfile('${user.uid}')">
-                                <span class="provider-badge ${providerClass}">
-                                    <i class="${providerIcon}"></i>
-                                    ${providerName}
-                                </span>
-                            </td>
-                            <td onclick="event.stopPropagation(); openProfile('${user.uid}')">
-                                <span class="status-badge ${statusClass}">
-                                    <i class="fas ${user.emailVerified ? 'fa-check-circle' : (user.isGuest ? 'fa-user' : 'fa-clock')}"></i>
-                                    ${statusText}
-                                </span>
-                            </td>
-                            <td onclick="event.stopPropagation(); openProfile('${user.uid}')">${formatDate(user.createdAt)}</td>
-                            <td onclick="event.stopPropagation()">
-                                <button class="copy-btn" onclick="openNotesModalForUser('${user.uid}')" style="display: inline-flex; align-items: center; gap: 4px;">
-                                    <i class="fas fa-sticky-note"></i>
-                                    ${notesCount > 0 ? `<span class="notes-indicator">${notesCount}</span>` : 'Добавить'}
-                                </button>
-                            </td>
-                            <td onclick="event.stopPropagation()">
-                                <div class="uid-cell">
-                                    ${user.uid ? user.uid.substring(0, 10) + '...' : '—'}
-                                    <button class="copy-btn" onclick="copyToClipboard('${user.uid}')">
-                                        <i class="far fa-copy"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-            
-            document.getElementById('tableBody').innerHTML = html;
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const pagination = document.getElementById('pagination');
-            if (totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
-            
-            let html = '';
-            
-            html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left"></i>
-            </button>`;
-            
-            const startPage = Math.max(1, currentPage - 2);
-            const endPage = Math.min(totalPages, currentPage + 2);
-            
-            if (startPage > 1) {
-                html += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
-                if (startPage > 2) html += `<span class="page-btn" style="border: none;">...</span>`;
-            }
-            
-            for (let i = startPage; i <= endPage; i++) {
-                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-            }
-            
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) html += `<span class="page-btn" style="border: none;">...</span>`;
-                html += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
-            }
-            
-            html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right"></i>
-            </button>`;
-            
-            pagination.innerHTML = html;
-        }
-
-        window.goToPage = function(page) {
-            const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
-            if (page < 1 || page > totalPages) return;
-            currentPage = page;
-            renderTable();
-        };
-
         // ========== НАВИГАЦИЯ ==========
         function openProfile(uid) {
-            window.location.href = `https://kirill12633.github.io/Metro.New.Official/ru/admin/admin-dashboard/profile?uid=${uid}`;
+            window.location.href = `profile?uid=${uid}`;
         }
 
-        function openNotesModalForUser(uid) {
-            const user = allUsers.find(u => u.uid === uid);
-            if (user) openNotesModal(user);
+        function copyToClipboard(text) {
+            navigator.clipboard?.writeText(text).then(() => showToast('✅ Скопировано'));
         }
 
-        function logout() {
-            auth.signOut().then(() => {
-                showToast('👋 Вы вышли');
-                setTimeout(() => location.reload(), 1000);
-            });
+        function goToPage(page) {
+            const total = Math.ceil(filteredUsers.length / rowsPerPage);
+            if (page < 1 || page > total) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function exportToCSV() {
+            const headers = ['UID', 'Email', 'Имя', 'Провайдер', 'Статус', 'IP', 'Дата регистрации'];
+            const rows = filteredUsers.map(u => [
+                u.uid, u.email || '', getDisplayName(u), u.provider, 
+                u.emailVerified ? 'verified' : 'pending', u.ipAddress || '', formatDate(u.createdAt)
+            ]);
+            
+            const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showToast('📊 Экспортировано в CSV');
         }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        document.addEventListener('DOMContentLoaded', () => {
-            loadNotes();
-            loadUsersFromFirestore();
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} Метро New`;
+            
+            // Проверка сессии
+            const hasSession = await checkSession();
+            if (!hasSession) {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
+            }
+            
+            // Форма входа
+            document.getElementById('loginForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                login(username, password);
+            });
+            
+            // Выход
+            document.getElementById('logoutBtn').addEventListener('click', e => {
+                e.preventDefault();
+                logout();
+            });
             
             // Поиск
             document.getElementById('searchBtn').addEventListener('click', () => {
@@ -1309,7 +1341,7 @@ function loadUsersFromFirestore() {
                 applyFiltersAndRender();
             });
             
-            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            document.getElementById('searchInput').addEventListener('keypress', e => {
                 if (e.key === 'Enter') {
                     currentSearch = e.target.value;
                     applyFiltersAndRender();
@@ -1317,58 +1349,52 @@ function loadUsersFromFirestore() {
             });
             
             document.getElementById('refreshBtn').addEventListener('click', () => {
-                showToast('🔄 Обновление...');
                 loadUsersFromFirestore();
+                showToast('🔄 Обновлено');
             });
             
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            
-            // Фильтры по типу
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    currentFilter = tab.dataset.filter;
+            // Фильтры
+            document.querySelectorAll('.filter-tab').forEach(t => {
+                t.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-tab').forEach(x => x.classList.remove('active'));
+                    t.classList.add('active');
+                    currentFilter = t.dataset.filter;
                     applyFiltersAndRender();
                 });
             });
             
-            // Быстрые фильтры по времени
-            document.querySelectorAll('.quick-filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentTimeFilter = btn.dataset.time;
+            document.querySelectorAll('.quick-filter-btn').forEach(b => {
+                b.addEventListener('click', () => {
+                    document.querySelectorAll('.quick-filter-btn').forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                    currentTimeFilter = b.dataset.time;
                     applyFiltersAndRender();
                 });
             });
             
-            // Клик вне модалки
-            document.getElementById('notesModal').addEventListener('click', (e) => {
+            // Кнопки быстрых действий
+            document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+            document.getElementById('ipManagerBtn').addEventListener('click', () => {
+                window.location.href = 'ip-manager.html';
+            });
+            document.getElementById('auditLogBtn').addEventListener('click', () => {
+                window.location.href = 'audit.html';
+            });
+            
+            // Модалка заметок
+            document.getElementById('notesModal').addEventListener('click', e => {
                 if (e.target.classList.contains('notes-modal')) closeNotesModal();
             });
         });
 
-        window.addEventListener('beforeunload', () => {
-            if (unsubscribe) unsubscribe();
-        });
-
         // Глобальные функции
         window.openProfile = openProfile;
-        window.openNotesModalForUser = openNotesModalForUser;
+        window.openNotesModal = openNotesModal;
         window.closeNotesModal = closeNotesModal;
         window.addNote = addNote;
         window.deleteNote = deleteNote;
         window.copyToClipboard = copyToClipboard;
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
+        window.goToPage = goToPage;
     </script>
 </body>
 </html>
