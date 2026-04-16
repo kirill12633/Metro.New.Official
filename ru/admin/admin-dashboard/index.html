@@ -34,6 +34,7 @@
             --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
             --radius-sm: 4px;
             --radius-md: 8px;
+            --radius-lg: 12px;
             --line-red: #ee4036;
             --line-blue: #0066CC;
             --line-green: #39b54a;
@@ -67,9 +68,7 @@
             backdrop-filter: blur(5px);
         }
         
-        .login-screen.hidden {
-            display: none;
-        }
+        .login-screen.hidden { display: none; }
         
         .login-card {
             background: var(--light);
@@ -158,9 +157,7 @@
             margin-top: 8px;
         }
         
-        .login-btn:hover {
-            background: var(--primary-dark);
-        }
+        .login-btn:hover { background: var(--primary-dark); }
         
         .login-error {
             color: var(--danger);
@@ -169,7 +166,7 @@
             margin-top: 12px;
         }
         
-        /* Роль пользователя в шапке */
+        /* Роль пользователя */
         .user-role-badge {
             display: inline-flex;
             align-items: center;
@@ -180,29 +177,13 @@
             font-weight: 500;
         }
         
-        .user-role-badge.admin {
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-        
-        .user-role-badge.moderator {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .user-role-badge.support {
-            background: #fff3e0;
-            color: #e65100;
-        }
+        .user-role-badge.admin { background: #e8f0fe; color: #1a73e8; }
+        .user-role-badge.moderator { background: #e8f5e9; color: #2e7d32; }
+        .user-role-badge.support { background: #fff3e0; color: #e65100; }
         
         /* Основной контент */
-        .main-content {
-            display: block;
-        }
-        
-        .main-content.hidden {
-            display: none;
-        }
+        .main-content { display: block; }
+        .main-content.hidden { display: none; }
         
         .card {
             background: var(--light);
@@ -388,7 +369,7 @@
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight:500;
         }
         
         .status-badge.pending { background: #fff3e0; color: #e65100; }
@@ -476,7 +457,7 @@
             border-radius: 12px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justifyContent: center;
             color: var(--primary);
             font-size: 1.4rem;
         }
@@ -598,6 +579,12 @@
             cursor: pointer;
         }
         
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
         @media (max-width: 768px) {
             body { padding: 10px; }
             .navigation { flex-direction: column; gap: 10px; }
@@ -672,13 +659,10 @@
                 </div>
                 
                 <div class="card-body">
-                    <!-- КНОПКИ БЫСТРЫХ ДЕЙСТВИЙ -->
+                    <!-- КНОПКИ БЫСТРЫХ ДЕЙСТВИЙ (только экспорт и аудит) -->
                     <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
                         <button class="btn" id="exportCsvBtn" style="background: var(--gray);">
                             <i class="fas fa-download"></i> Экспорт CSV
-                        </button>
-                        <button class="btn" id="ipManagerBtn" style="background: var(--primary-dark);">
-                            <i class="fas fa-map-marker-alt"></i> Управление IP
                         </button>
                         <button class="btn" id="auditLogBtn" style="background: var(--gray);">
                             <i class="fas fa-history"></i> История действий
@@ -724,8 +708,8 @@
                                     <th><i class="fas fa-ticket-alt"></i> Вход</th>
                                     <th><i class="fas fa-flag"></i> Статус</th>
                                     <th><i class="fas fa-calendar-plus"></i> Регистрация</th>
+                                    <th><i class="fas fa-map-marker-alt"></i> IP</th>
                                     <th><i class="fas fa-sticky-note"></i> Заметки</th>
-                                    <th><i class="fas fa-id-card"></i> UID</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
@@ -802,6 +786,7 @@
         };
         
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1494338825374269441/XmUkgSryxxYYvz_-Inqi9jnjuFb4vST4azDWb7p87Vyxc7vJm6AM3KQgYgXYVa_wMirk';
+        const SALT = 'metro_new_secret_salt_2026';
 
         firebase.initializeApp(firebaseConfig);
         const appCheck = firebase.appCheck();
@@ -822,6 +807,16 @@
         let userNotes = {};
         let currentUserForNotes = null;
         let unsubscribe = null;
+
+        // ========== ХЭШИРОВАНИЕ ПАРОЛЯ ==========
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + SALT);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
 
         // ========== УВЕДОМЛЕНИЯ ==========
         function showToast(message, type = 'success') {
@@ -867,12 +862,14 @@
             } catch(e) {}
         }
 
-        // ========== АВТОРИЗАЦИЯ ==========
+        // ========== АВТОРИЗАЦИЯ С ХЭШИРОВАНИЕМ ==========
         async function login(username, password) {
             try {
+                const hashedPassword = await hashPassword(password);
+                
                 const snapshot = await db.collection('users')
                     .where('login', '==', username)
-                    .where('password', '==', password)
+                    .where('password', '==', hashedPassword)
                     .limit(1)
                     .get();
                 
@@ -886,12 +883,16 @@
                     ...adminDoc.data()
                 };
                 
-                // Проверка роли
                 if (!['admin', 'moderator', 'support'].includes(currentAdmin.role)) {
                     throw new Error('Недостаточно прав');
                 }
                 
-                // Сохраняем сессию
+                // Обновляем последний вход
+                await db.collection('users').doc(adminDoc.id).update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastIp: await getIP()
+                });
+                
                 localStorage.setItem('metro_admin', JSON.stringify({
                     id: currentAdmin.id,
                     login: currentAdmin.login,
@@ -899,7 +900,6 @@
                     timestamp: Date.now()
                 }));
                 
-                // Логируем вход
                 await db.collection('admin_history').add({
                     adminId: currentAdmin.id,
                     adminLogin: currentAdmin.login,
@@ -937,18 +937,14 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
             
-            // Отображаем роль
             const roleNames = { admin: 'Администратор', moderator: 'Модератор', support: 'Поддержка' };
             document.getElementById('userRoleText').textContent = roleNames[currentAdmin.role] || currentAdmin.role;
             document.getElementById('userRoleBadge').classList.add(currentAdmin.role);
             document.getElementById('userLoginDisplay').textContent = currentAdmin.login;
             
-            // Показываем кнопки в зависимости от роли
-            const ipManagerBtn = document.getElementById('ipManagerBtn');
-            const auditLogBtn = document.getElementById('auditLogBtn');
-            
+            // Скрываем аудит для поддержки
             if (currentAdmin.role === 'support') {
-                if (ipManagerBtn) ipManagerBtn.style.display = 'none';
+                document.getElementById('auditLogBtn').style.display = 'none';
             }
         }
 
@@ -1117,7 +1113,8 @@
                     (u.email && u.email.toLowerCase().includes(s)) ||
                     (u.displayName && u.displayName.toLowerCase().includes(s)) ||
                     (u.username && u.username.toLowerCase().includes(s)) ||
-                    (u.uid && u.uid.toLowerCase().includes(s))
+                    (u.uid && u.uid.toLowerCase().includes(s)) ||
+                    (u.ipAddress && u.ipAddress.includes(s))
                 );
             }
             
@@ -1169,15 +1166,14 @@
                                 </span>
                             </td>
                             <td onclick="event.stopPropagation()">${formatDate(user.createdAt)}</td>
+                            <td onclick="event.stopPropagation()" style="font-family: monospace; font-size: 0.8rem;">
+                                ${user.ipAddress || '—'}
+                            </td>
                             <td onclick="event.stopPropagation()">
                                 <button class="copy-btn" onclick="openNotesModal('${user.uid}')" style="display: inline-flex; align-items: center; gap: 4px;">
                                     <i class="fas fa-sticky-note"></i>
-                                    ${notesCount > 0 ? `<span class="notes-indicator">${notesCount}</span>` : 'Добавить'}
+                                    ${notesCount > 0 ? `<span class="notes-indicator">${notesCount}</span>` : ''}
                                 </button>
-                            </td>
-                            <td onclick="event.stopPropagation()">
-                                <span class="uid-cell">${user.uid?.substring(0, 10)}...</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${user.uid}')"><i class="far fa-copy"></i></button>
                             </td>
                         </tr>
                     `;
@@ -1253,7 +1249,6 @@
             
             saveNotes();
             
-            // Логируем
             if (currentAdmin) {
                 db.collection('admin_history').add({
                     adminId: currentAdmin.id,
@@ -1308,20 +1303,31 @@
             a.click();
             
             showToast('📊 Экспортировано в CSV');
+            
+            if (currentAdmin) {
+                db.collection('admin_history').add({
+                    adminId: currentAdmin.id,
+                    adminLogin: currentAdmin.login,
+                    action: 'export_csv',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
         }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} Метро New`;
             
-            // Проверка сессии
+            const style = document.createElement('style');
+            style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+            document.head.appendChild(style);
+            
             const hasSession = await checkSession();
             if (!hasSession) {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainContent').classList.add('hidden');
             }
             
-            // Форма входа
             document.getElementById('loginForm').addEventListener('submit', e => {
                 e.preventDefault();
                 const username = document.getElementById('loginUsername').value;
@@ -1329,13 +1335,11 @@
                 login(username, password);
             });
             
-            // Выход
             document.getElementById('logoutBtn').addEventListener('click', e => {
                 e.preventDefault();
                 logout();
             });
             
-            // Поиск
             document.getElementById('searchBtn').addEventListener('click', () => {
                 currentSearch = document.getElementById('searchInput').value;
                 applyFiltersAndRender();
@@ -1353,7 +1357,6 @@
                 showToast('🔄 Обновлено');
             });
             
-            // Фильтры
             document.querySelectorAll('.filter-tab').forEach(t => {
                 t.addEventListener('click', () => {
                     document.querySelectorAll('.filter-tab').forEach(x => x.classList.remove('active'));
@@ -1372,16 +1375,11 @@
                 });
             });
             
-            // Кнопки быстрых действий
             document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
-            document.getElementById('ipManagerBtn').addEventListener('click', () => {
-                window.location.href = 'ip-manager.html';
-            });
             document.getElementById('auditLogBtn').addEventListener('click', () => {
                 window.location.href = 'audit.html';
             });
             
-            // Модалка заметок
             document.getElementById('notesModal').addEventListener('click', e => {
                 if (e.target.classList.contains('notes-modal')) closeNotesModal();
             });
@@ -1395,6 +1393,19 @@
         window.deleteNote = deleteNote;
         window.copyToClipboard = copyToClipboard;
         window.goToPage = goToPage;
+        
+        // Для создания первого админа (выполнить в консоли)
+        window.createAdmin = async function(login, password, role = 'admin') {
+            const hashedPassword = await hashPassword(password);
+            await db.collection('users').add({
+                login,
+                password: hashedPassword,
+                role,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                issuedBy: 'system'
+            });
+            console.log('✅ Админ создан:', login);
+        };
     </script>
 </body>
 </html>
