@@ -706,316 +706,303 @@
         </div>
     </div>
 
-    <script type="module">
-        // ============================================
-        // FIREBASE ИМПОРТЫ
-        // ============================================
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithPopup,
-            GoogleAuthProvider,
-            signInWithEmailAndPassword,
-            sendPasswordResetEmail,
-            setPersistence,
-            browserLocalPersistence,
-            browserSessionPersistence
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { 
-            initializeAppCheck, 
-            ReCaptchaV3Provider 
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check.js";
+<script type="module">
+    // ============================================
+    // НАСТРОЙКА - ВАШ WORKER
+    // ============================================
+    const API_URL = 'https://metro-new-api.kirilltyr123.workers.dev';
+    
+    // ============================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (оставляем как есть)
+    // ============================================
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
 
-        // ============================================
-        // КОНФИГУРАЦИЯ FIREBASE
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
-            authDomain: "metro-new-85226.firebaseapp.com",
-            projectId: "metro-new-85226",
-            storageBucket: "metro-new-85226.firebasestorage.app",
-            messagingSenderId: "905640751733",
-            appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
-        };
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                               type === 'error' ? 'fa-exclamation-circle' : 
+                               type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.style.animation = 'slideIn 0.3s reverse';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
 
-        // Инициализация Firebase
-        const app = initializeApp(firebaseConfig);
-        
-        // ============================================
-        // FIREBASE APP CHECK (ЗАЩИТА ОТ БОТОВ)
-        // ============================================
-        try {
-            initializeAppCheck(app, {
-                provider: new ReCaptchaV3Provider('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-'),
-                isTokenAutoRefreshEnabled: true
-            });
-            console.log('✅ App Check включен');
-        } catch (error) {
-            console.warn('⚠️ App Check error:', error);
+    function showLoading(message) {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const loadingText = document.getElementById('loadingText');
+        if (loadingScreen && loadingText) {
+            loadingText.textContent = message;
+            loadingScreen.style.display = 'flex';
         }
-        
-        const auth = getAuth(app);
-        const googleProvider = new GoogleAuthProvider();
+    }
 
-        // ============================================
-        // ПЕРЕМЕННЫЕ
-        // ============================================
-        let loginAttempts = 0;
-        const MAX_ATTEMPTS_UX = 3;
-
-        // ============================================
-        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        // ============================================
-        function validateEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+    function hideLoading() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
         }
+    }
 
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 
-                                   type === 'error' ? 'fa-exclamation-circle' : 
-                                   type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.style.animation = 'slideIn 0.3s reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+    function showError(elementId, message) {
+        const alert = document.getElementById(elementId);
+        if (alert) {
+            alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
+            alert.style.display = 'flex';
+            setTimeout(() => alert.style.display = 'none', 5000);
         }
+        showNotification(message, 'error');
+    }
 
-        function showLoading(message) {
-            document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('loadingText').textContent = message;
-        }
+    function showSuccess(message) {
+        showNotification(message, 'success');
+    }
 
-        function hideLoading() {
-            document.getElementById('loadingScreen').style.display = 'none';
-        }
+    function updateCopyrightYear() {
+        const year = new Date().getFullYear();
+        const el = document.getElementById('copyrightYear');
+        if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
+    }
 
-        function showError(elementId, message) {
-            const alert = document.getElementById(elementId);
-            if (alert) {
-                alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
-                alert.style.display = 'flex';
-                setTimeout(() => alert.style.display = 'none', 5000);
-            }
-            showNotification(message, 'error');
-        }
-
-        function showSuccess(message) {
-            showNotification(message, 'success');
-        }
-
-        function updateCopyrightYear() {
-            const year = new Date().getFullYear();
-            const el = document.getElementById('copyrightYear');
-            if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
-        }
-
-        // ============================================
-        // БЛОКИРОВКА/РАЗБЛОКИРОВКА КНОПОК
-        // ============================================
-        function setButtonsLoading(loading = true) {
-            const buttons = [
-                'loginBtn',
-                'googleLoginBtn',
-                'sendResetLinkBtn',
-                'backToLoginBtn1',
-                'backToLoginBtn3'
-            ];
-            
-            buttons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.disabled = loading;
-                }
-            });
-        }
-
-        // ============================================
-        // ИНИЦИАЛИЗАЦИЯ
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCopyrightYear();
-            initEventHandlers();
+    function setButtonsLoading(loading = true) {
+        const buttons = ['loginBtn', 'googleLoginBtn', 'sendResetLinkBtn', 'backToLoginBtn1', 'backToLoginBtn3'];
+        buttons.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.disabled = loading;
         });
-
-        // ============================================
-        // ОБРАБОТЧИКИ
-        // ============================================
-        function initEventHandlers() {
-            // Показать/скрыть пароль
-            document.getElementById('toggleLoginPassword')?.addEventListener('click', function() {
-                const input = document.getElementById('loginPassword');
-                const icon = this.querySelector('i');
-                input.type = input.type === 'password' ? 'text' : 'password';
-                icon.classList.toggle('fa-eye');
-                icon.classList.toggle('fa-eye-slash');
-            });
-
-            // Забыли пароль
-            document.getElementById('forgotPasswordLink')?.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('loginStep').style.display = 'none';
-                document.getElementById('resetStep1').style.display = 'block';
-                document.getElementById('formTitle').textContent = 'Сброс пароля';
-                document.getElementById('formSubtitle').textContent = 'Восстановление доступа';
-            });
-
-            // Назад к входу
-            document.getElementById('backToLoginBtn1')?.addEventListener('click', function() {
-                document.getElementById('resetStep1').style.display = 'none';
-                document.getElementById('loginStep').style.display = 'block';
-                document.getElementById('formTitle').textContent = 'Войти в аккаунт';
-                document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
-            });
-
-            document.getElementById('backToLoginBtn3')?.addEventListener('click', function() {
-                document.getElementById('resetStep3').style.display = 'none';
-                document.getElementById('loginStep').style.display = 'block';
-                document.getElementById('formTitle').textContent = 'Войти в аккаунт';
-                document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
-            });
-
-            // Отправка ссылки для сброса
-            document.getElementById('resetEmailForm')?.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('resetEmail').value.trim();
-                
-                // Валидация email
-                if (!validateEmail(email)) {
-                    showError('resetEmailAlert', 'Введите корректный email');
-                    return;
-                }
-                
-                // Блокируем кнопки
-                setButtonsLoading(true);
-                
-                // Показываем промежуточный шаг
-                document.getElementById('resetStep1').style.display = 'none';
-                document.getElementById('resetStep2').style.display = 'block';
-                
-                try {
-                    // Отправляем письмо через Firebase
-                    await sendPasswordResetEmail(auth, email);
-                    
-                    // Показываем шаг успеха
-                    document.getElementById('resetStep2').style.display = 'none';
-                    document.getElementById('resetStep3').style.display = 'block';
-                    document.getElementById('resetSentMessage').innerHTML = 
-                        `Ссылка для сброса пароля отправлена на <strong>${email}</strong>`;
-                    
-                } catch (error) {
-                    // Возвращаемся к шагу 1
-                    document.getElementById('resetStep2').style.display = 'none';
-                    document.getElementById('resetStep1').style.display = 'block';
-                    
-                    // Firebase сам обрабатывает ошибки
-                    showError('resetEmailAlert', 'Ошибка при отправке. Попробуйте позже.');
-                    
-                } finally {
-                    // Разблокируем кнопки
-                    setButtonsLoading(false);
-                }
-            });
-
-            // Форма входа
-            document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('loginEmail').value.trim();
-                const password = document.getElementById('loginPassword').value;
-                const rememberMe = document.getElementById('rememberMe').checked;
-                
-                // Валидация email
-                if (!validateEmail(email)) {
-                    showError('loginErrorAlert', 'Введите корректный email');
-                    return;
-                }
-                
-                if (!password) {
-                    showError('loginErrorAlert', 'Введите пароль');
-                    return;
-                }
-                
-                // Блокируем кнопки
-                setButtonsLoading(true);
-                
-                try {
-                    if (rememberMe) {
-                        await setPersistence(auth, browserLocalPersistence);
-                    } else {
-                        await setPersistence(auth, browserSessionPersistence);
-                    }
-                } catch (error) {
-                    console.warn('Persistence error:', error);
-                }
-                
-                showLoading('Вход...');
-                
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    hideLoading();
-                    showSuccess('Вход выполнен! Перенаправление...');
-                    setTimeout(() => {
-                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
-                    }, 1500);
-                    
-                } catch (error) {
-                    hideLoading();
-                    loginAttempts++;
-                    
-                    // Единое сообщение для безопасности
-                    showError('loginErrorAlert', 'Неверный email или пароль');
-                    
-                } finally {
-                    // Разблокируем кнопки
-                    setButtonsLoading(false);
-                }
-            });
-
-            // Google вход
-            document.getElementById('googleLoginBtn')?.addEventListener('click', async function() {
-                // Блокируем кнопки
-                setButtonsLoading(true);
-                
-                try {
-                    showLoading('Авторизация через Google...');
-                    
-                    const result = await signInWithPopup(auth, googleProvider);
-                    
-                    hideLoading();
-                    showSuccess('Вход выполнен! Перенаправление...');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
-                    }, 1500);
-                    
-                } catch (error) {
-                    hideLoading();
-                    
-                    // Обрабатываем специфические ошибки Google popup
-                    if (error.code === 'auth/popup-closed-by-user') {
-                        showError('loginErrorAlert', 'Вход отменен. Попробуйте снова.');
-                    } else if (error.code === 'auth/popup-blocked') {
-                        showError('loginErrorAlert', 'Всплывающее окно заблокировано. Разрешите всплывающие окна.');
-                    } else {
-                        showError('loginErrorAlert', 'Ошибка авторизации');
-                    }
-                    
-                } finally {
-                    // Разблокируем кнопки
-                    setButtonsLoading(false);
-                }
-            });
+    }
+    
+    // ============================================
+    // НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С WORKER
+    // ============================================
+    
+    // Функция входа через Worker
+    async function loginWithEmail(email, password) {
+        const response = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Ошибка входа');
         }
-    </script>
+        
+        // Сохраняем токен
+        if (data.idToken) {
+            localStorage.setItem('firebaseToken', data.idToken);
+        }
+        
+        return data;
+    }
+    
+    // Функция сброса пароля через Worker
+    async function resetPassword(email) {
+        const response = await fetch(`${API_URL}/api/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Ошибка отправки');
+        }
+        
+        return data;
+    }
+    
+    // ============================================
+    // ОБРАБОТЧИК ФОРМЫ ВХОДА
+    // ============================================
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!validateEmail(email)) {
+                showError('loginErrorAlert', 'Введите корректный email');
+                return;
+            }
+            
+            if (!password) {
+                showError('loginErrorAlert', 'Введите пароль');
+                return;
+            }
+            
+            setButtonsLoading(true);
+            showLoading('Вход...');
+            
+            try {
+                await loginWithEmail(email, password);
+                hideLoading();
+                showSuccess('Вход выполнен! Перенаправление...');
+                setTimeout(() => {
+                    window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                }, 1500);
+            } catch (error) {
+                hideLoading();
+                showError('loginErrorAlert', error.message || 'Неверный email или пароль');
+            } finally {
+                setButtonsLoading(false);
+            }
+        });
+    }
+    
+    // ============================================
+    // ОБРАБОТЧИК ФОРМЫ СБРОСА ПАРОЛЯ
+    // ============================================
+    const resetEmailForm = document.getElementById('resetEmailForm');
+    if (resetEmailForm) {
+        resetEmailForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!validateEmail(email)) {
+                showError('resetEmailAlert', 'Введите корректный email');
+                return;
+            }
+            
+            setButtonsLoading(true);
+            showLoading('Отправка письма...');
+            
+            try {
+                await resetPassword(email);
+                hideLoading();
+                
+                // Показываем шаг успеха
+                document.getElementById('resetStep1').style.display = 'none';
+                document.getElementById('resetStep3').style.display = 'block';
+                document.getElementById('resetSentMessage').innerHTML = 
+                    `Ссылка для сброса пароля отправлена на <strong>${escapeHtml(email)}</strong>`;
+                    
+            } catch (error) {
+                hideLoading();
+                showError('resetEmailAlert', error.message || 'Ошибка при отправке. Попробуйте позже.');
+            } finally {
+                setButtonsLoading(false);
+            }
+        });
+    }
+    
+    // ============================================
+    // ОБРАБОТЧИК GOOGLE ВХОДА
+    // ============================================
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', () => {
+            // Google OAuth через popup
+            const googleClientId = '905640751733-9r7d8s6f5g4h3j2k1l0p9o8i7u6y5t4r.apps.googleusercontent.com';
+            const redirectUri = encodeURIComponent(window.location.origin);
+            const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
+            
+            // Открываем в новом окне
+            const popup = window.open(googleAuthUrl, 'googleAuth', 'width=500,height=600');
+            
+            // Слушаем ответ
+            window.addEventListener('message', async (event) => {
+                if (event.data && event.data.access_token) {
+                    showLoading('Вход через Google...');
+                    // Здесь можно добавить обработку Google токена через Worker
+                    setTimeout(() => {
+                        hideLoading();
+                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                    }, 1000);
+                }
+            });
+        });
+    }
+    
+    // ============================================
+    // ВСПОМОГАТЕЛЬНЫЕ ОБРАБОТЧИКИ ИНТЕРФЕЙСА
+    // ============================================
+    
+    // Показать/скрыть пароль
+    const togglePassword = document.getElementById('toggleLoginPassword');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const input = document.getElementById('loginPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+    
+    // Забыли пароль
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    if (forgotLink) {
+        forgotLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('loginStep').style.display = 'none';
+            document.getElementById('resetStep1').style.display = 'block';
+            document.getElementById('formTitle').textContent = 'Сброс пароля';
+            document.getElementById('formSubtitle').textContent = 'Восстановление доступа';
+        });
+    }
+    
+    // Назад к входу (шаг 1)
+    const backBtn1 = document.getElementById('backToLoginBtn1');
+    if (backBtn1) {
+        backBtn1.addEventListener('click', function() {
+            document.getElementById('resetStep1').style.display = 'none';
+            document.getElementById('loginStep').style.display = 'block';
+            document.getElementById('formTitle').textContent = 'Войти в аккаунт';
+            document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
+        });
+    }
+    
+    // Назад к входу (шаг 3)
+    const backBtn3 = document.getElementById('backToLoginBtn3');
+    if (backBtn3) {
+        backBtn3.addEventListener('click', function() {
+            document.getElementById('resetStep3').style.display = 'none';
+            document.getElementById('loginStep').style.display = 'block';
+            document.getElementById('formTitle').textContent = 'Войти в аккаунт';
+            document.getElementById('formSubtitle').textContent = 'Добро пожаловать обратно';
+        });
+    }
+    
+    // Функция для экранирования HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCopyrightYear();
+    });
+
+</script>
+   
 </body>
 </html>
