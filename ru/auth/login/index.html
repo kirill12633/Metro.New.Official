@@ -902,39 +902,40 @@
         });
     }
     
-   // ============================================
-// ОБРАБОТЧИК GOOGLE ВХОДА (ИСПРАВЛЕННЫЙ)
+// ============================================
+// GOOGLE ВХОД (ПОЛНОСТЬЮ РАБОЧИЙ)
 // ============================================
 const googleLoginBtn = document.getElementById('googleLoginBtn');
 if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', async () => {
-        showLoading('Подготовка входа через Google...');
-        
         const GOOGLE_CLIENT_ID = '905640751733-u6rn36ipg3glusqi692jllqm2nfl2efo.apps.googleusercontent.com';
-        const redirectUri = encodeURIComponent(window.location.origin + '/ru/auth/signin/');
+        const redirectUri = encodeURIComponent(window.location.origin + '/Metro.New.Official/ru/auth/signin/');
         
-        // Открываем окно авторизации Google
-        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile&prompt=select_account`;
+        // Сохраняем текущее окно
+        const currentUrl = window.location.href;
         
-        hideLoading();
+        // Открываем Google авторизацию
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile&prompt=select_account`;
         
         // Открываем в новом окне
-        const popup = window.open(googleAuthUrl, 'GoogleAuth', 'width=500,height=600,left=200,top=100');
+        const popup = window.open(authUrl, 'GoogleSignIn', 'width=500,height=600,left=200,top=100');
         
-        // Слушаем ответ от Google
-        window.addEventListener('message', async (event) => {
+        // Функция для обработки ответа
+        const handleAuthResponse = async (event) => {
+            // Проверяем, что это наш popup
+            if (event.source !== popup) return;
+            
+            // Проверяем, что есть токен
             if (event.data && event.data.access_token) {
+                window.removeEventListener('message', handleAuthResponse);
+                
                 showLoading('Вход через Google...');
                 
-                // Отправляем токен в наш Worker
                 try {
                     const response = await fetch(`${API_URL}/api/google-auth`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            accessToken: event.data.access_token,
-                            email: event.data.email 
-                        })
+                        body: JSON.stringify({ accessToken: event.data.access_token })
                     });
                     
                     const result = await response.json();
@@ -942,25 +943,34 @@ if (googleLoginBtn) {
                     if (result.success) {
                         hideLoading();
                         showSuccess('Вход через Google выполнен!');
+                        
+                        // Сохраняем данные пользователя
+                        localStorage.setItem('firebaseToken', result.idToken);
+                        localStorage.setItem('userEmail', result.email);
+                        if (result.name) localStorage.setItem('userName', result.name);
+                        if (result.picture) localStorage.setItem('userPicture', result.picture);
+                        
                         setTimeout(() => {
                             window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
                         }, 1500);
                     } else {
                         hideLoading();
-                        showError('loginErrorAlert', 'Ошибка входа через Google');
+                        showError('loginErrorAlert', result.error || 'Ошибка входа через Google');
                     }
                 } catch (error) {
                     hideLoading();
-                    showError('loginErrorAlert', 'Ошибка соединения');
+                    showError('loginErrorAlert', 'Ошибка соединения с сервером');
                 }
             }
-        });
+        };
         
-        // Обработка закрытия окна
+        window.addEventListener('message', handleAuthResponse);
+        
+        // Проверяем, не закрыл ли пользователь окно
         const checkPopup = setInterval(() => {
-            if (popup.closed) {
+            if (popup && popup.closed) {
                 clearInterval(checkPopup);
-                hideLoading();
+                window.removeEventListener('message', handleAuthResponse);
             }
         }, 500);
     });
