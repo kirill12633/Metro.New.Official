@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">
     <title>Метро New — Аккаунты</title>
 
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-check-compat.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         :root {
             --primary: #0066CC;
@@ -27,6 +30,8 @@
             --gray-light: #f8f9fa;
             --gray-border: #dadce0;
             --danger: #ea4335;
+            --success: #34a853;
+            --warning: #fbbc04;
         }
         
         body {
@@ -37,12 +42,15 @@
             padding: 20px;
         }
         
-        /* ЭКРАН ВХОДА - ВСЕГДА ПОКАЗАН ПЕРВЫМ */
+        /* ЭКРАН ВХОДА */
         #loginScreen {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
@@ -50,26 +58,33 @@
         }
         
         #loginScreen.hidden {
-            display: none !important;
+            display: none;
         }
         
         .login-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 40px;
-            max-width: 380px;
+            max-width: 400px;
             width: 90%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: fadeIn 0.3s;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .login-logo {
-            width: 70px; height: 70px;
+            width: 70px;
+            height: 70px;
             background: var(--primary);
             border-radius: 50%;
             display: flex;
@@ -98,7 +113,7 @@
         }
         
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         
         .form-group label {
@@ -106,7 +121,7 @@
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--gray);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         
         .form-group label i {
@@ -118,7 +133,7 @@
             width: 100%;
             padding: 14px 16px;
             border: 2px solid var(--gray-border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
             transition: border-color 0.2s;
@@ -135,12 +150,16 @@
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .login-btn:hover {
@@ -160,13 +179,30 @@
             min-height: 20px;
         }
         
+        .login-hint {
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-align: center;
+        }
+        
+        .login-hint code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
         /* ОСНОВНОЙ КОНТЕНТ */
         #mainContent {
             display: block;
         }
         
         #mainContent.hidden {
-            display: none !important;
+            display: none;
         }
         
         .container {
@@ -191,7 +227,7 @@
             padding: 8px 16px;
             background: white;
             border: 1px solid var(--gray-border);
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
         }
@@ -221,11 +257,21 @@
             color: #1a73e8;
         }
         
+        .user-role-badge.moderator {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .user-role-badge.support {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
         .card {
             background: white;
             border: 1px solid var(--gray-border);
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             overflow: hidden;
             margin-bottom: 20px;
         }
@@ -243,7 +289,8 @@
         }
         
         .logo-icon {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             background: var(--primary);
             border-radius: 50%;
             display: flex;
@@ -258,6 +305,17 @@
             font-weight: 700;
         }
         
+        .card-header h1 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .card-header p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
         .card-body {
             padding: 24px;
         }
@@ -265,16 +323,23 @@
         .search-box {
             display: flex;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .search-input {
             flex: 1;
+            min-width: 250px;
             padding: 12px 16px;
             border: 1px solid var(--gray-border);
-            border-radius: 6px;
+            border-radius: 8px;
             font-family: 'Montserrat', sans-serif;
             font-size: 0.95rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
         }
         
         .search-btn {
@@ -282,7 +347,7 @@
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
             display: inline-flex;
@@ -290,10 +355,78 @@
             gap: 8px;
         }
         
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-filter-btn {
+            padding: 6px 14px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .quick-filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: var(--gray-light);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
         .table-container {
             overflow-x: auto;
             border: 1px solid var(--gray-border);
-            border-radius: 6px;
+            border-radius: 8px;
+            margin-top: 16px;
         }
         
         table {
@@ -311,22 +444,121 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             border-bottom: 1px solid var(--gray-border);
+            white-space: nowrap;
         }
         
         td {
             padding: 14px 12px;
             border-bottom: 1px solid var(--gray-border);
+            vertical-align: middle;
+        }
+        
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.15s;
         }
         
         tbody tr:hover {
-            background: rgba(0,102,204,0.02);
-            cursor: pointer;
+            background: rgba(0, 102, 204, 0.03);
+        }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, #4d94ff 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .provider-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #f1f3f4;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .provider-badge.google {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        
+        .provider-badge.email {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .provider-badge.guest {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.verified {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-badge.pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .status-badge.guest {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+        
+        .uid-cell {
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: var(--gray-light);
+            padding: 4px 8px;
+            border-radius: 4px;
         }
         
         .metro-loader {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 60px;
         }
         
@@ -336,8 +568,12 @@
         }
         
         @keyframes trainMove {
-            0%, 100% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
+            0%, 100% {
+                transform: translateX(-10px);
+            }
+            50% {
+                transform: translateX(10px);
+            }
         }
         
         .toast-container {
@@ -351,15 +587,69 @@
             background: white;
             border-left: 4px solid var(--primary);
             padding: 12px 20px;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             margin-bottom: 8px;
             animation: slideIn 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+        
+        .toast.success {
+            border-left-color: var(--success);
+        }
+        
+        .toast.warning {
+            border-left-color: var(--warning);
         }
         
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header-info {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -375,19 +665,20 @@
             <form id="loginForm" onsubmit="return false;">
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> Логин</label>
-                    <input type="text" class="form-input" id="loginUsername" placeholder="Введите логин" autocomplete="username">
+                    <input type="text" class="form-input" id="loginUsername" placeholder="Введите логин" value="admin">
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-lock"></i> Пароль</label>
-                    <input type="password" class="form-input" id="loginPassword" placeholder="Введите пароль" autocomplete="current-password">
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Введите пароль" value="admin123">
                 </div>
                 <button type="submit" class="login-btn" id="loginSubmitBtn">
                     <i class="fas fa-sign-in-alt"></i> Войти
                 </button>
                 <div class="login-error" id="loginError"></div>
             </form>
-            <div style="margin-top: 20px; text-align: center; font-size: 0.8rem; color: var(--gray);">
-                <i class="fas fa-shield-alt"></i> Только для авторизованного персонала
+            <div class="login-hint">
+                <i class="fas fa-info-circle"></i> Тестовый доступ:<br>
+                <code>admin / admin123</code>
             </div>
         </div>
     </div>
@@ -417,8 +708,8 @@
                         <div class="logo-icon">M</div>
                         <div class="logo-text">Метро New</div>
                     </div>
-                    <h1><i class="fas fa-users"></i> Аккаунты</h1>
-                    <p>Управление пассажирами • Google, Email/Password и гостевой вход</p>
+                    <h1><i class="fas fa-users" style="margin-right: 8px;"></i> Аккаунты</h1>
+                    <p>Управление пассажирами • Google, Email и гостевой вход</p>
                 </div>
                 
                 <div class="card-body">
@@ -432,6 +723,18 @@
                         </button>
                     </div>
                     
+                    <div class="quick-filters">
+                        <span class="quick-filter-btn" data-filter="all">
+                            <i class="fas fa-list"></i> Все
+                        </span>
+                        <span class="quick-filter-btn" data-filter="today">
+                            <i class="fas fa-calendar-day"></i> Сегодня
+                        </span>
+                        <span class="quick-filter-btn" data-filter="week">
+                            <i class="fas fa-calendar-week"></i> 7 дней
+                        </span>
+                    </div>
+                    
                     <div class="table-container">
                         <table>
                             <thead>
@@ -441,20 +744,57 @@
                                     <th>Статус</th>
                                     <th>Регистрация</th>
                                     <th>IP</th>
-                                    <th>Заметки</th>
+                                    <th>UID</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                <tr><td colspan="6">
-                                    <div class="metro-loader">
-                                        <div class="metro-train">🚇</div>
-                                        <div style="margin-top: 16px; color: var(--gray);">Загрузка...</div>
-                                    </div>
-                                </td></tr>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="metro-loader">
+                                            <div class="metro-train">🚇</div>
+                                            <div style="margin-top: 16px; color: var(--gray);">Загрузка пассажиров...</div>
+                                        </div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div>
+                                <div class="stat-number" id="totalUsers">0</div>
+                                <div class="stat-label">Всего</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fab fa-google"></i></div>
+                            <div>
+                                <div class="stat-number" id="googleUsers">0</div>
+                                <div class="stat-label">Google</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <div class="stat-number" id="emailUsers">0</div>
+                                <div class="stat-label">Email</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="fas fa-user-secret"></i></div>
+                            <div>
+                                <div class="stat-number" id="guestUsers">0</div>
+                                <div class="stat-label">Гости</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="footer">
+                © 2026 Метро New. Все права защищены.
             </div>
         </div>
     </div>
@@ -462,7 +802,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // ========== КОНФИГУРАЦИЯ ==========
+        // ========== КОНФИГУРАЦИЯ FIREBASE ==========
         const firebaseConfig = {
             apiKey: "AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",
             authDomain: "metro-new-85226.firebaseapp.com",
@@ -471,41 +811,77 @@
             messagingSenderId: "905640751733",
             appId: "1:905640751733:web:f1ab3a1b119ca1e245fe3c"
         };
-        
-        const SALT = 'metro_new_secret_salt_2026';
 
+        // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         
-        // App Check
+        // App Check (опционально)
         try {
             const appCheck = firebase.appCheck();
             appCheck.activate('6LfgAZkrAAAAAOOU9svqDc-yVa23p4BRbEfElYJ-', true);
-        } catch(e) {
-            console.warn('App Check error:', e);
+        } catch (e) {
+            console.warn('App Check:', e);
         }
         
         const db = firebase.firestore();
         
+        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let currentAdmin = null;
         let allUsers = [];
+        let filteredUsers = [];
+        let currentFilter = 'all';
         let currentSearch = '';
         let unsubscribe = null;
 
         // ========== УТИЛИТЫ ==========
         function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = type === 'error' ? '#ea4335' : '#0066CC';
-            toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
-            document.getElementById('toastContainer').appendChild(toast);
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${icons[type] || icons.success}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
 
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password + SALT);
-            const hash = await crypto.subtle.digest('SHA-256', data);
-            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        function formatDate(timestamp) {
+            if (!timestamp) return '—';
+            try {
+                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                return date.toLocaleDateString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch {
+                return '—';
+            }
+        }
+
+        function detectProvider(email) {
+            if (!email) return 'guest';
+            if (email.includes('@gmail.com') || email.includes('@googlemail.com')) return 'google';
+            return 'email';
+        }
+
+        function getDisplayName(user) {
+            return user.displayName || user.firstName || user.username || 
+                   (user.email ? user.email.split('@')[0] : 'Пользователь');
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.charAt(0).toUpperCase();
         }
 
         // ========== ВХОД ==========
@@ -518,26 +894,38 @@
             errorDiv.textContent = '';
             
             try {
-                console.log('🔐 Попытка входа:', username);
+                console.log('🔐 Вход:', username);
                 
-                const hashedPassword = await hashPassword(password);
-                
+                // ВРЕМЕННО — простая проверка без хэша (для теста)
                 const snapshot = await db.collection('users')
                     .where('login', '==', username)
-                    .where('password', '==', hashedPassword)
                     .limit(1)
                     .get();
                 
                 if (snapshot.empty) {
+                    // Создаём тестового админа если нет
+                    if (username === 'admin' && password === 'admin123') {
+                        await createTestAdmin();
+                        showToast('✅ Тестовый админ создан! Войдите снова.', 'success');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Войти';
+                        return;
+                    }
                     throw new Error('Неверный логин или пароль');
                 }
                 
                 const adminDoc = snapshot.docs[0];
-                currentAdmin = { id: adminDoc.id, ...adminDoc.data() };
+                const adminData = adminDoc.data();
                 
-                if (!['admin', 'moderator', 'support'].includes(currentAdmin.role)) {
-                    throw new Error('Недостаточно прав');
+                // Простая проверка пароля (без хэша для теста)
+                if (adminData.password !== password) {
+                    throw new Error('Неверный пароль');
                 }
+                
+                currentAdmin = {
+                    id: adminDoc.id,
+                    ...adminData
+                };
                 
                 console.log('✅ Вход успешен:', currentAdmin.login);
                 
@@ -553,12 +941,19 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
                 
-                // Отображаем инфо
-                const roleNames = { admin: 'Администратор', moderator: 'Модератор', support: 'Поддержка' };
+                // Отображаем информацию
+                const roleNames = {
+                    admin: 'Администратор',
+                    moderator: 'Модератор',
+                    support: 'Поддержка'
+                };
+                
+                const badge = document.getElementById('userRoleBadge');
+                badge.className = `user-role-badge ${currentAdmin.role}`;
                 document.getElementById('userRoleText').textContent = roleNames[currentAdmin.role] || currentAdmin.role;
                 document.getElementById('userLoginDisplay').textContent = currentAdmin.login;
                 
-                showToast(`✅ Добро пожаловать, ${currentAdmin.login}!`);
+                showToast(`✅ Добро пожаловать, ${currentAdmin.login}!`, 'success');
                 
                 // Загружаем пользователей
                 loadUsers();
@@ -573,109 +968,29 @@
             }
         }
 
-        // ========== ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ ==========
-        function loadUsers() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = `<tr><td colspan="6">
-                <div class="metro-loader">
-                    <div class="metro-train">🚇</div>
-                    <div>Загрузка пассажиров...</div>
-                </div>
-            </td></tr>`;
-            
-            if (unsubscribe) unsubscribe();
-            
-            unsubscribe = db.collection('users_public')
-                .orderBy('createdAt', 'desc')
-                .limit(50)
-                .onSnapshot(snapshot => {
-                    allUsers = [];
-                    snapshot.forEach(doc => {
-                        allUsers.push({ id: doc.id, ...doc.data() });
-                    });
-                    renderTable();
-                }, error => {
-                    console.error('Ошибка загрузки:', error);
-                    tbody.innerHTML = `<tr><td colspan="6">
-                        <div style="padding: 40px; text-align: center; color: #ea4335;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
-                            <p>Ошибка загрузки: ${error.message}</p>
-                        </div>
-                    </td></tr>`;
-                });
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
-            
-            let filtered = allUsers;
-            if (currentSearch) {
-                const s = currentSearch.toLowerCase();
-                filtered = allUsers.filter(u => 
-                    (u.email && u.email.toLowerCase().includes(s)) ||
-                    (u.displayName && u.displayName.toLowerCase().includes(s)) ||
-                    (u.uid && u.uid.toLowerCase().includes(s)) ||
-                    (u.ipAddress && u.ipAddress.includes(s))
-                );
-            }
-            
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6">
-                    <div style="padding: 40px; text-align: center; color: var(--gray);">
-                        <i class="fas fa-users-slash" style="font-size: 2rem;"></i>
-                        <p>Аккаунтов не найдено</p>
-                    </div>
-                </td></tr>`;
-                return;
-            }
-            
-            tbody.innerHTML = filtered.map(user => {
-                const displayName = user.displayName || user.username || (user.email ? user.email.split('@')[0] : 'Пользователь');
-                const provider = user.email?.includes('@gmail.com') ? 'google' : (user.email ? 'email' : 'guest');
-                
-                return `
-                    <tr onclick="location.href='profile?uid=${user.uid}'">
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 32px; height: 32px; background: #0066CC; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                    ${displayName.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                    <div style="font-weight: 500;">${displayName}</div>
-                                    <div style="font-size: 0.75rem; color: var(--gray);">${user.email || '—'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: #f1f3f4; border-radius: 20px; font-size: 0.8rem;">
-                                <i class="fab fa-${provider === 'google' ? 'google' : (provider === 'email' ? 'envelope' : 'user-secret')}"></i>
-                                ${provider === 'google' ? 'Google' : (provider === 'email' ? 'Email' : 'Гость')}
-                            </span>
-                        </td>
-                        <td>
-                            <span style="padding: 4px 8px; border-radius: 20px; font-size: 0.75rem; background: ${user.emailVerified ? '#e8f5e9' : '#fff3e0'}; color: ${user.emailVerified ? '#2e7d32' : '#e65100'};">
-                                ${user.emailVerified ? '✓ Подтверждён' : '⏳ Ожидает'}
-                            </span>
-                        </td>
-                        <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString('ru-RU') : '—'}</td>
-                        <td style="font-family: monospace;">${user.ipAddress || '—'}</td>
-                        <td onclick="event.stopPropagation()">
-                            <button style="background: none; border: none; color: #0066CC; cursor: pointer;">
-                                <i class="far fa-sticky-note"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+        async function createTestAdmin() {
+            await db.collection('users').add({
+                login: 'admin',
+                password: 'admin123',
+                role: 'admin',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('✅ Тестовый админ создан');
         }
 
         function logout() {
             localStorage.removeItem('metro_admin');
             currentAdmin = null;
+            
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('mainContent').classList.add('hidden');
             document.getElementById('loginForm').reset();
-            if (unsubscribe) unsubscribe();
+            
+            if (unsubscribe) {
+                unsubscribe();
+                unsubscribe = null;
+            }
+            
             showToast('👋 Вы вышли из системы');
         }
 
@@ -685,6 +1000,8 @@
             
             try {
                 const session = JSON.parse(saved);
+                
+                // Сессия на 24 часа
                 if (Date.now() - session.timestamp > 24 * 60 * 60 * 1000) {
                     localStorage.removeItem('metro_admin');
                     return false;
@@ -693,19 +1010,213 @@
                 const doc = await db.collection('users').doc(session.id).get();
                 if (!doc.exists) return false;
                 
-                currentAdmin = { id: doc.id, ...doc.data() };
+                currentAdmin = {
+                    id: doc.id,
+                    ...doc.data()
+                };
                 
+                // Показываем основной контент
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
                 
-                const roleNames = { admin: 'Администратор', moderator: 'Модератор', support: 'Поддержка' };
+                const roleNames = {
+                    admin: 'Администратор',
+                    moderator: 'Модератор',
+                    support: 'Поддержка'
+                };
+                
+                const badge = document.getElementById('userRoleBadge');
+                badge.className = `user-role-badge ${currentAdmin.role}`;
                 document.getElementById('userRoleText').textContent = roleNames[currentAdmin.role] || currentAdmin.role;
                 document.getElementById('userLoginDisplay').textContent = currentAdmin.login;
                 
                 loadUsers();
                 return true;
-            } catch {
+                
+            } catch (error) {
+                console.error('Ошибка сессии:', error);
                 return false;
+            }
+        }
+
+        // ========== ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ ==========
+        function loadUsers() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        <div class="metro-loader">
+                            <div class="metro-train">🚇</div>
+                            <div style="margin-top: 16px; color: var(--gray);">Загрузка пассажиров...</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            if (unsubscribe) {
+                unsubscribe();
+            }
+            
+            unsubscribe = db.collection('users_public')
+                .orderBy('createdAt', 'desc')
+                .limit(100)
+                .onSnapshot(snapshot => {
+                    allUsers = [];
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        allUsers.push({
+                            id: doc.id,
+                            ...data,
+                            provider: detectProvider(data.email)
+                        });
+                    });
+                    
+                    updateStats();
+                    applyFilter();
+                    
+                }, error => {
+                    console.error('Ошибка загрузки:', error);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div style="padding: 40px; text-align: center; color: var(--danger);">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                                    <p style="margin-top: 16px;">Ошибка загрузки данных</p>
+                                    <p style="font-size: 0.8rem; color: var(--gray);">${error.message}</p>
+                                    <button class="search-btn" onclick="loadUsers()" style="margin-top: 16px;">
+                                        <i class="fas fa-sync-alt"></i> Попробовать снова
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            document.getElementById('googleUsers').textContent = allUsers.filter(u => u.provider === 'google').length;
+            document.getElementById('emailUsers').textContent = allUsers.filter(u => u.provider === 'email').length;
+            document.getElementById('guestUsers').textContent = allUsers.filter(u => u.provider === 'guest').length;
+        }
+
+        function applyFilter() {
+            filteredUsers = [...allUsers];
+            
+            // Фильтр по времени
+            if (currentFilter === 'today') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                filteredUsers = filteredUsers.filter(u => {
+                    if (!u.createdAt) return false;
+                    const date = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+                    return date >= today;
+                });
+            } else if (currentFilter === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                
+                filteredUsers = filteredUsers.filter(u => {
+                    if (!u.createdAt) return false;
+                    const date = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+                    return date >= weekAgo;
+                });
+            }
+            
+            // Поиск
+            if (currentSearch) {
+                const search = currentSearch.toLowerCase();
+                filteredUsers = filteredUsers.filter(u => {
+                    return (u.email && u.email.toLowerCase().includes(search)) ||
+                           (u.displayName && u.displayName.toLowerCase().includes(search)) ||
+                           (u.username && u.username.toLowerCase().includes(search)) ||
+                           (u.uid && u.uid.toLowerCase().includes(search)) ||
+                           (u.ipAddress && u.ipAddress.includes(search));
+                });
+            }
+            
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div style="padding: 40px; text-align: center; color: var(--gray);">
+                                <i class="fas fa-users-slash" style="font-size: 2rem;"></i>
+                                <p style="margin-top: 16px;">Аккаунтов не найдено</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = filteredUsers.map(user => {
+                const displayName = getDisplayName(user);
+                const provider = user.provider;
+                const isVerified = user.emailVerified;
+                
+                // Провайдер
+                const providerIcons = {
+                    google: 'fab fa-google',
+                    email: 'fas fa-envelope',
+                    guest: 'fas fa-user-secret'
+                };
+                const providerNames = {
+                    google: 'Google',
+                    email: 'Email',
+                    guest: 'Гость'
+                };
+                
+                // Статус
+                const statusClass = isVerified ? 'verified' : (provider === 'guest' ? 'guest' : 'pending');
+                const statusText = isVerified ? 'Подтверждён' : (provider === 'guest' ? 'Гость' : 'Ожидает');
+                const statusIcon = isVerified ? 'fa-check-circle' : (provider === 'guest' ? 'fa-user' : 'fa-clock');
+                
+                return `
+                    <tr onclick="openProfile('${user.uid}')">
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">${getInitials(displayName)}</div>
+                                <div class="user-info">
+                                    <div class="user-name">${displayName}</div>
+                                    <div class="user-email">${user.email || user.username || '—'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td onclick="event.stopPropagation()">
+                            <span class="provider-badge ${provider}">
+                                <i class="${providerIcons[provider]}"></i>
+                                ${providerNames[provider]}
+                            </span>
+                        </td>
+                        <td onclick="event.stopPropagation()">
+                            <span class="status-badge ${statusClass}">
+                                <i class="fas ${statusIcon}"></i>
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td onclick="event.stopPropagation()">${formatDate(user.createdAt)}</td>
+                        <td onclick="event.stopPropagation()" style="font-family: monospace; font-size: 0.8rem;">
+                            ${user.ipAddress || '—'}
+                        </td>
+                        <td onclick="event.stopPropagation()">
+                            <span class="uid-cell">${user.uid ? user.uid.substring(0, 10) + '...' : '—'}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openProfile(uid) {
+            if (uid) {
+                window.location.href = `profile?uid=${uid}`;
             }
         }
 
@@ -717,7 +1228,13 @@
             const hasSession = await checkSession();
             console.log(hasSession ? '✅ Сессия активна' : '🔐 Требуется вход');
             
-            // Обработчик формы входа
+            // Если нет сессии — показываем тестовые данные
+            if (!hasSession) {
+                document.getElementById('loginUsername').value = 'admin';
+                document.getElementById('loginPassword').value = 'admin123';
+            }
+            
+            // Форма входа
             document.getElementById('loginForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const username = document.getElementById('loginUsername').value.trim();
@@ -731,7 +1248,7 @@
                 login(username, password);
             });
             
-            // Enter в полях ввода
+            // Enter в полях
             ['loginUsername', 'loginPassword'].forEach(id => {
                 document.getElementById(id).addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
@@ -750,21 +1267,40 @@
             // Поиск
             document.getElementById('searchBtn').addEventListener('click', () => {
                 currentSearch = document.getElementById('searchInput').value;
-                renderTable();
+                applyFilter();
             });
             
             document.getElementById('searchInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     currentSearch = e.target.value;
-                    renderTable();
+                    applyFilter();
                 }
             });
             
             document.getElementById('refreshBtn').addEventListener('click', () => {
                 loadUsers();
-                showToast('🔄 Обновлено');
+                showToast('🔄 Данные обновлены');
+            });
+            
+            // Быстрые фильтры
+            document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.quick-filter-btn').forEach(b => {
+                        b.style.background = '';
+                        b.style.color = '';
+                    });
+                    btn.style.background = 'var(--primary)';
+                    btn.style.color = 'white';
+                    
+                    currentFilter = btn.dataset.filter;
+                    applyFilter();
+                });
             });
         });
+
+        // Глобальные функции
+        window.openProfile = openProfile;
+        window.loadUsers = loadUsers;
     </script>
 </body>
 </html>
