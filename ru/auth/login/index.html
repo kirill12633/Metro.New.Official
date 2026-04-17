@@ -902,33 +902,69 @@
         });
     }
     
-    // ============================================
-    // ОБРАБОТЧИК GOOGLE ВХОДА
-    // ============================================
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    if (googleLoginBtn) {
-        googleLoginBtn.addEventListener('click', () => {
-            // Google OAuth через popup
-            const googleClientId = '905640751733-9r7d8s6f5g4h3j2k1l0p9o8i7u6y5t4r.apps.googleusercontent.com';
-            const redirectUri = encodeURIComponent(window.location.origin);
-            const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
-            
-            // Открываем в новом окне
-            const popup = window.open(googleAuthUrl, 'googleAuth', 'width=500,height=600');
-            
-            // Слушаем ответ
-            window.addEventListener('message', async (event) => {
-                if (event.data && event.data.access_token) {
-                    showLoading('Вход через Google...');
-                    // Здесь можно добавить обработку Google токена через Worker
-                    setTimeout(() => {
+   // ============================================
+// ОБРАБОТЧИК GOOGLE ВХОДА (ИСПРАВЛЕННЫЙ)
+// ============================================
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', async () => {
+        showLoading('Подготовка входа через Google...');
+        
+        const GOOGLE_CLIENT_ID = '905640751733-u6rn36ipg3glusqi692jllqm2nfl2efo.apps.googleusercontent.com';
+        const redirectUri = encodeURIComponent(window.location.origin + '/ru/auth/signin/');
+        
+        // Открываем окно авторизации Google
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile&prompt=select_account`;
+        
+        hideLoading();
+        
+        // Открываем в новом окне
+        const popup = window.open(googleAuthUrl, 'GoogleAuth', 'width=500,height=600,left=200,top=100');
+        
+        // Слушаем ответ от Google
+        window.addEventListener('message', async (event) => {
+            if (event.data && event.data.access_token) {
+                showLoading('Вход через Google...');
+                
+                // Отправляем токен в наш Worker
+                try {
+                    const response = await fetch(`${API_URL}/api/google-auth`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            accessToken: event.data.access_token,
+                            email: event.data.email 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
                         hideLoading();
-                        window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
-                    }, 1000);
+                        showSuccess('Вход через Google выполнен!');
+                        setTimeout(() => {
+                            window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                        }, 1500);
+                    } else {
+                        hideLoading();
+                        showError('loginErrorAlert', 'Ошибка входа через Google');
+                    }
+                } catch (error) {
+                    hideLoading();
+                    showError('loginErrorAlert', 'Ошибка соединения');
                 }
-            });
+            }
         });
-    }
+        
+        // Обработка закрытия окна
+        const checkPopup = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(checkPopup);
+                hideLoading();
+            }
+        }, 500);
+    });
+}
     
     // ============================================
     // ВСПОМОГАТЕЛЬНЫЕ ОБРАБОТЧИКИ ИНТЕРФЕЙСА
