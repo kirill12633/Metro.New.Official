@@ -547,22 +547,6 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        
-        /* Стили для попапа Google */
-        .google-popup-message {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-md);
-            padding: 12px 20px;
-            box-shadow: var(--shadow-md);
-            z-index: 10001;
-            font-size: 0.875rem;
-            color: var(--gray);
-        }
     </style>
 </head>
 <body>
@@ -585,7 +569,7 @@
                             <label class="form-label">Email</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-envelope"></i>
-                                <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required autofocus>
+                                <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com" required>
                             </div>
                         </div>
                         
@@ -600,11 +584,6 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
-                            <!-- Индикатор сложности пароля -->
-                            <div class="password-strength" id="passwordStrength" style="display: none;">
-                                <div class="password-strength-bar" id="strengthBar"></div>
-                            </div>
-                            <div class="strength-text" id="strengthText" style="display: none;"></div>
                         </div>
                         
                         <div class="remember-me">
@@ -616,15 +595,18 @@
                             <a href="#" class="auth-link" id="forgotPasswordLink">Забыли пароль?</a>
                         </div>
                         
-                        <div class="alert alert-error" id="loginErrorAlert" style="display: none;"></div>
+                        <div class="alert" id="loginErrorAlert" style="display: none;"></div>
                         
                         <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
                             <i class="fas fa-sign-in-alt"></i> Войти
                         </button>
                         
                         <!-- ========== ЮРИДИЧЕСКОЕ СОГЛАСИЕ (как у Google) ========== -->
-                        <div class="login-consent" id="legalConsent">
-                            <!-- Заполняется через JS, чтобы не дублировать -->
+                        <div class="login-consent">
+                            Продолжая, вы соглашаетесь с 
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
+                            <i class="fas fa-circle"></i>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
                         </div>
                     </form>
                     
@@ -654,7 +636,7 @@
                             </div>
                         </div>
                         
-                        <div class="alert alert-error" id="resetEmailAlert" style="display: none;"></div>
+                        <div class="alert" id="resetEmailAlert" style="display: none;"></div>
                         
                         <div style="display: flex; gap: 8px; margin-top: 16px;">
                             <button type="button" class="btn btn-secondary" id="backToLoginBtn1" style="flex: 1;">Назад</button>
@@ -663,8 +645,13 @@
                             </button>
                         </div>
                         
-                        <!-- Юридическое согласие для сброса -->
-                        <div class="login-consent" id="legalConsentReset"></div>
+                        <!-- ========== ЮРИДИЧЕСКОЕ СОГЛАСИЕ ДЛЯ СБРОСА ========== -->
+                        <div class="login-consent" style="margin-top: 20px;">
+                            Продолжая, вы соглашаетесь с 
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
+                            <i class="fas fa-circle"></i>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
+                        </div>
                     </form>
                 </div>
                 
@@ -687,8 +674,13 @@
                     </p>
                     <button class="btn btn-primary" id="backToLoginBtn3" style="width: 100%;">Вернуться к входу</button>
                     
-                    <!-- Юридическое согласие -->
-                    <div class="login-consent" id="legalConsentSuccess"></div>
+                    <!-- ========== ЮРИДИЧЕСКОЕ СОГЛАСИЕ (и здесь тоже) ========== -->
+                    <div class="login-consent" style="margin-top: 20px;">
+                        Продолжая, вы соглашаетесь с 
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
+                        <i class="fas fa-circle"></i>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
+                    </div>
                 </div>
             </div>
             
@@ -707,8 +699,8 @@
     </div>
 
     <!-- Экран загрузки -->
-    <div id="loadingScreen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center;">
-        <div class="loading" style="background: var(--light); border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
+    <div id="loadingScreen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="loading">
             <div class="loading-spinner"></div>
             <span id="loadingText">Загрузка...</span>
         </div>
@@ -721,41 +713,14 @@
     const API_URL = 'https://metro-new-api.kirilltyr123.workers.dev';
     
     // ============================================
-    // ЮРИДИЧЕСКИЙ ТЕКСТ (единый источник)
-    // ============================================
-    const legalHtml = `
-        Продолжая, вы соглашаетесь с 
-        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank">Условиями использования</a>
-        <i class="fas fa-circle"></i>
-        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">Политикой конфиденциальности</a>
-    `;
-    
-    // Заполняем все места с юридическим согласием
-    document.getElementById('legalConsent') && (document.getElementById('legalConsent').innerHTML = legalHtml);
-    document.getElementById('legalConsentReset') && (document.getElementById('legalConsentReset').innerHTML = legalHtml);
-    document.getElementById('legalConsentSuccess') && (document.getElementById('legalConsentSuccess').innerHTML = legalHtml);
-    
-    // ============================================
-    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (оставляем как есть)
     // ============================================
     function validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-    
+
     function showNotification(message, type = 'info') {
-        // Экранируем сообщение для безопасности
-        const safeMessage = escapeHtml(message);
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
@@ -763,7 +728,7 @@
                 <i class="fas ${type === 'success' ? 'fa-check-circle' : 
                                type === 'error' ? 'fa-exclamation-circle' : 
                                type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
-                <span>${safeMessage}</span>
+                <span>${message}</span>
             </div>
         `;
         document.body.appendChild(notification);
@@ -792,7 +757,7 @@
     function showError(elementId, message) {
         const alert = document.getElementById(elementId);
         if (alert) {
-            alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${escapeHtml(message)}</span>`;
+            alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>${message}</span>`;
             alert.style.display = 'flex';
             setTimeout(() => alert.style.display = 'none', 5000);
         }
@@ -809,59 +774,19 @@
         if (el) el.textContent = `© ${year} Метро New. Все права защищены.`;
     }
 
-    function setButtonsLoading(loading = true, excludeGoogle = false) {
-        const buttons = ['loginBtn', 'sendResetLinkBtn', 'backToLoginBtn1', 'backToLoginBtn3'];
+    function setButtonsLoading(loading = true) {
+        const buttons = ['loginBtn', 'googleLoginBtn', 'sendResetLinkBtn', 'backToLoginBtn1', 'backToLoginBtn3'];
         buttons.forEach(id => {
             const btn = document.getElementById(id);
             if (btn) btn.disabled = loading;
         });
-        
-        // Отдельно обрабатываем Google кнопку, если не нужно её исключать
-        if (!excludeGoogle) {
-            const googleBtn = document.getElementById('googleLoginBtn');
-            if (googleBtn) googleBtn.disabled = loading;
-        }
-    }
-    
-    // Функция для оценки сложности пароля
-    function checkPasswordStrength(password) {
-        let strength = 0;
-        if (password.length >= 8) strength++;
-        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-        if (password.match(/\d/)) strength++;
-        if (password.match(/[^a-zA-Z\d]/)) strength++;
-        
-        if (password.length === 0) return { level: 0, text: '' };
-        if (strength === 1) return { level: 1, text: 'Слабый пароль' };
-        if (strength === 2) return { level: 2, text: 'Средний пароль' };
-        if (strength === 3) return { level: 3, text: 'Хороший пароль' };
-        return { level: 4, text: 'Отличный пароль!' };
-    }
-    
-    // Функция для сохранения email, если выбран "Запомнить меня"
-    function saveRememberedEmail(email) {
-        if (document.getElementById('rememberMe').checked) {
-            localStorage.setItem('rememberedEmail', email);
-        } else {
-            localStorage.removeItem('rememberedEmail');
-        }
-    }
-    
-    function loadRememberedEmail() {
-        const rememberedEmail = localStorage.getItem('rememberedEmail');
-        if (rememberedEmail) {
-            const emailInput = document.getElementById('loginEmail');
-            if (emailInput) {
-                emailInput.value = rememberedEmail;
-                document.getElementById('rememberMe').checked = true;
-            }
-        }
     }
     
     // ============================================
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С WORKER
+    // НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С WORKER
     // ============================================
     
+    // Функция входа через Worker
     async function loginWithEmail(email, password) {
         const response = await fetch(`${API_URL}/api/login`, {
             method: 'POST',
@@ -872,13 +797,10 @@
         const data = await response.json();
         
         if (!response.ok) {
-            let errorMessage = 'Ошибка входа';
-            if (data.error === 'auth/user-not-found') errorMessage = 'Пользователь не найден';
-            else if (data.error === 'auth/wrong-password') errorMessage = 'Неверный пароль';
-            else if (data.error) errorMessage = data.error;
-            throw new Error(errorMessage);
+            throw new Error(data.error || 'Ошибка входа');
         }
         
+        // Сохраняем токен
         if (data.idToken) {
             localStorage.setItem('firebaseToken', data.idToken);
         }
@@ -886,6 +808,7 @@
         return data;
     }
     
+    // Функция сброса пароля через Worker
     async function resetPassword(email) {
         const response = await fetch(`${API_URL}/api/reset-password`, {
             method: 'POST',
@@ -896,47 +819,10 @@
         const data = await response.json();
         
         if (!response.ok) {
-            let errorMessage = 'Ошибка отправки';
-            if (data.error === 'auth/user-not-found') errorMessage = 'Пользователь с таким email не найден';
-            else if (data.error) errorMessage = data.error;
-            throw new Error(errorMessage);
+            throw new Error(data.error || 'Ошибка отправки');
         }
         
         return data;
-    }
-    
-    // ============================================
-    // ИНДИКАТОР СЛОЖНОСТИ ПАРОЛЯ
-    // ============================================
-    const passwordInput = document.getElementById('loginPassword');
-    const strengthContainer = document.getElementById('passwordStrength');
-    const strengthBar = document.getElementById('strengthBar');
-    const strengthText = document.getElementById('strengthText');
-    
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            const strength = checkPasswordStrength(this.value);
-            
-            if (this.value.length === 0) {
-                strengthContainer.style.display = 'none';
-                strengthText.style.display = 'none';
-                return;
-            }
-            
-            strengthContainer.style.display = 'block';
-            strengthText.style.display = 'block';
-            
-            // Удаляем предыдущие классы
-            strengthBar.className = 'password-strength-bar';
-            // Добавляем новый класс в зависимости от уровня
-            if (strength.level === 1) strengthBar.classList.add('strength-weak');
-            else if (strength.level === 2) strengthBar.classList.add('strength-fair');
-            else if (strength.level === 3) strengthBar.classList.add('strength-good');
-            else if (strength.level === 4) strengthBar.classList.add('strength-strong');
-            
-            strengthText.textContent = strength.text;
-            strengthText.style.color = getComputedStyle(strengthBar).backgroundColor;
-        });
     }
     
     // ============================================
@@ -965,7 +851,6 @@
             
             try {
                 await loginWithEmail(email, password);
-                saveRememberedEmail(email);
                 hideLoading();
                 showSuccess('Вход выполнен! Перенаправление...');
                 setTimeout(() => {
@@ -1002,6 +887,7 @@
                 await resetPassword(email);
                 hideLoading();
                 
+                // Показываем шаг успеха
                 document.getElementById('resetStep1').style.display = 'none';
                 document.getElementById('resetStep3').style.display = 'block';
                 document.getElementById('resetSentMessage').innerHTML = 
@@ -1016,111 +902,82 @@
         });
     }
     
-    // ============================================
-    // GOOGLE ВХОД (УЛУЧШЕННАЯ ВЕРСИЯ)
-    // ============================================
-    let googlePopupWindow = null;
-    let googleInterval = null;
-    
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    if (googleLoginBtn) {
-        googleLoginBtn.addEventListener('click', async () => {
-            // Блокируем кнопку, чтобы избежать множественных окон
-            googleLoginBtn.disabled = true;
+// ============================================
+// GOOGLE ВХОД (ПОЛНОСТЬЮ РАБОЧИЙ)
+// ============================================
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', async () => {
+        const GOOGLE_CLIENT_ID = '905640751733-u6rn36ipg3glusqi692jllqm2nfl2efo.apps.googleusercontent.com';
+        const redirectUri = encodeURIComponent(window.location.origin + '/Metro.New.Official/ru/auth/signin/');
+        
+        // Сохраняем текущее окно
+        const currentUrl = window.location.href;
+        
+        // Открываем Google авторизацию
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile&prompt=select_account`;
+        
+        // Открываем в новом окне
+        const popup = window.open(authUrl, 'GoogleSignIn', 'width=500,height=600,left=200,top=100');
+        
+        // Функция для обработки ответа
+        const handleAuthResponse = async (event) => {
+            // Проверяем, что это наш popup
+            if (event.source !== popup) return;
             
-            const GOOGLE_CLIENT_ID = '905640751733-u6rn36ipg3glusqi692jllqm2nfl2efo.apps.googleusercontent.com';
-            
-            // Создаем промежуточную страницу-обработчик
-            const redirectUri = encodeURIComponent(window.location.origin + '/Metro.New.Official/ru/auth/google-callback.html');
-            
-            // Сохраняем текущее окно для обратной связи
-            const currentWindow = window;
-            
-            // Открываем Google авторизацию
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile&prompt=select_account`;
-            
-            // Открываем в новом окне
-            googlePopupWindow = window.open(authUrl, 'GoogleSignIn', 'width=500,height=600,left=200,top=100');
-            
-            if (!googlePopupWindow) {
-                showNotification('Пожалуйста, разрешите всплывающие окна для этого сайта', 'warning');
-                googleLoginBtn.disabled = false;
-                return;
-            }
-            
-            showNotification('Открыто окно авторизации Google...', 'info');
-            
-            // Функция для обработки ответа из callback страницы
-            const handleGoogleCallback = async (event) => {
-                // Проверяем, что сообщение пришло от нашего popup
-                if (event.source !== googlePopupWindow) return;
+            // Проверяем, что есть токен
+            if (event.data && event.data.access_token) {
+                window.removeEventListener('message', handleAuthResponse);
                 
-                // Проверяем, что есть токен
-                if (event.data && event.data.type === 'GOOGLE_AUTH_RESPONSE') {
-                    window.removeEventListener('message', handleGoogleCallback);
+                showLoading('Вход через Google...');
+                
+                try {
+                    const response = await fetch(`${API_URL}/api/google-auth`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accessToken: event.data.access_token })
+                    });
                     
-                    if (event.data.error) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
                         hideLoading();
-                        showError('loginErrorAlert', event.data.error);
-                        googleLoginBtn.disabled = false;
-                        if (googleInterval) clearInterval(googleInterval);
-                        return;
-                    }
-                    
-                    if (event.data.access_token) {
-                        showLoading('Вход через Google...');
+                        showSuccess('Вход через Google выполнен!');
                         
-                        try {
-                            const response = await fetch(`${API_URL}/api/google-auth`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ accessToken: event.data.access_token })
-                            });
-                            
-                            const result = await response.json();
-                            
-                            if (result.success) {
-                                hideLoading();
-                                showSuccess('Вход через Google выполнен!');
-                                
-                                if (result.idToken) localStorage.setItem('firebaseToken', result.idToken);
-                                if (result.email) localStorage.setItem('userEmail', result.email);
-                                if (result.name) localStorage.setItem('userName', result.name);
-                                if (result.picture) localStorage.setItem('userPicture', result.picture);
-                                
-                                setTimeout(() => {
-                                    window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
-                                }, 1500);
-                            } else {
-                                hideLoading();
-                                showError('loginErrorAlert', result.error || 'Ошибка входа через Google');
-                                googleLoginBtn.disabled = false;
-                            }
-                        } catch (error) {
-                            hideLoading();
-                            showError('loginErrorAlert', 'Ошибка соединения с сервером');
-                            googleLoginBtn.disabled = false;
-                        }
+                        // Сохраняем данные пользователя
+                        localStorage.setItem('firebaseToken', result.idToken);
+                        localStorage.setItem('userEmail', result.email);
+                        if (result.name) localStorage.setItem('userName', result.name);
+                        if (result.picture) localStorage.setItem('userPicture', result.picture);
+                        
+                        setTimeout(() => {
+                            window.location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/';
+                        }, 1500);
+                    } else {
+                        hideLoading();
+                        showError('loginErrorAlert', result.error || 'Ошибка входа через Google');
                     }
+                } catch (error) {
+                    hideLoading();
+                    showError('loginErrorAlert', 'Ошибка соединения с сервером');
                 }
-            };
-            
-            window.addEventListener('message', handleGoogleCallback);
-            
-            // Проверяем, не закрыл ли пользователь окно
-            googleInterval = setInterval(() => {
-                if (googlePopupWindow && googlePopupWindow.closed) {
-                    clearInterval(googleInterval);
-                    window.removeEventListener('message', handleGoogleCallback);
-                    googleLoginBtn.disabled = false;
-                    showNotification('Вход через Google отменён', 'warning');
-                }
-            }, 500);
-        });
-    }
+            }
+        };
+        
+        window.addEventListener('message', handleAuthResponse);
+        
+        // Проверяем, не закрыл ли пользователь окно
+        const checkPopup = setInterval(() => {
+            if (popup && popup.closed) {
+                clearInterval(checkPopup);
+                window.removeEventListener('message', handleAuthResponse);
+            }
+        }, 500);
+    });
+}
     
     // ============================================
-    // ОБРАБОТЧИКИ ИНТЕРФЕЙСА
+    // ВСПОМОГАТЕЛЬНЫЕ ОБРАБОТЧИКИ ИНТЕРФЕЙСА
     // ============================================
     
     // Показать/скрыть пароль
@@ -1175,19 +1032,22 @@
         });
     }
     
+    // Функция для экранирования HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
     // Инициализация
     document.addEventListener('DOMContentLoaded', function() {
         updateCopyrightYear();
-        loadRememberedEmail(); // Загружаем сохраненный email
-        
-        // Устанавливаем фокус на поле email
-        const emailInput = document.getElementById('loginEmail');
-        if (emailInput && !emailInput.value) {
-            emailInput.focus();
-        } else if (emailInput && emailInput.value) {
-            document.getElementById('loginPassword').focus();
-        }
     });
+
 </script>
    
 </body>
