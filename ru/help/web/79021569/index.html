@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Telegram бот | Метро New</title>
+    
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --primary-light: #4d94ff;
+            --secondary: #FFD700;
+            --secondary-dark: #e6c200;
+            --dark: #1A1A1A;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28a745;
+            --warning: #ffc107;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.15);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown > button {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dropdown > button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .dropdown > button i {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.open > button i {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 240px;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown.open .dropdown-content {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-content a i {
+            width: 20px;
+            color: var(--primary);
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 5px 0;
+        }
+        
+        .login-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--secondary-dark);
+        }
+        
+        .burger-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero-bot {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .hero-bot h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hero-bot p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+        
+        .bot-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 14px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .bot-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 1.8rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .cmd-item {
+            background: #f8f9fa;
+            border-radius: var(--radius-lg);
+            padding: 12px 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .cmd-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .cmd-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .cmd-code {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+        }
+        
+        .cmd-desc {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: var(--radius-lg);
+        }
+        
+        .quiz-question p {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+        
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .quiz-option:hover {
+            background: #e9ecef;
+        }
+        
+        .quiz-option input {
+            cursor: pointer;
+        }
+        
+        .quiz-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .quiz-result.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .quiz-result.warning {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        
+        .quiz-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            font-size: 1rem;
+            transition: transform 0.3s;
+        }
+        
+        .quiz-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .faq-item {
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 15px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+        
+        .faq-question i {
+            transition: transform 0.3s;
+            color: var(--primary);
+        }
+        
+        .faq-answer {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: var(--gray);
+        }
+        
+        .faq-answer.show {
+            padding: 15px;
+            max-height: 300px;
+        }
+        
+        .support-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .support-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+        
+        .support-btn.discord {
+            background: #5865F2;
+            color: white;
+        }
+        
+        .support-btn.support-site {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .support-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 2rem;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 992px) {
+            .burger-menu {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--primary-dark);
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-content {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                margin-left: 1rem;
+                box-shadow: none;
+            }
+            
+            .dropdown-content a {
+                color: white;
+            }
+            
+            .dropdown-content a i {
+                color: var(--secondary);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-bot h1 {
+                font-size: 1.8rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">M</span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+                
+                <button class="burger-menu" id="burgerMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="nav-links" id="navLinks">
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Другое <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> FAQ</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/news"><i class="fas fa-newspaper"></i> Новости</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/gallery"><i class="fas fa-images"></i> Галерея</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Контакты</a>
+                            <div class="divider"></div>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/"><i class="fas fa-gavel"></i> Правовые документы</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown" id="dropdownLinks">
+                        <button id="dropdownLinksBtn">
+                            Полезные ссылки <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/support.metro.new/" target="_blank"><i class="fas fa-headset"></i> Поддержка</a>
+                            <a href="https://kirill12633.github.io/status.metro.new/" target="_blank"><i class="fas fa-chart-line"></i> Статус сервисов</a>
+                        </div>
+                    </div>
+                    
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="hero-bot">
+            <h1><i class="fab fa-telegram"></i> Telegram бот</h1>
+            <p>@Metro_New_Security_bot — ваш помощник для безопасного входа</p>
+            <a href="https://t.me/Metro_New_Security_bot" class="bot-link" target="_blank">
+                <i class="fab fa-telegram"></i> Открыть бота в Telegram
+            </a>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2><i class="fas fa-robot"></i> О боте</h2>
+                <p><strong>@Metro_New_Security_bot</strong> — официальный Telegram бот для двухфакторной авторизации (2FA) и привязки устройств.</p>
+                <br>
+                <p><strong>Что делает бот:</strong></p>
+                <ul style="list-style: none; margin-top: 10px;">
+                    <li><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Привязывает Telegram аккаунт</li>
+                    <li><i class="fas fa-key" style="color: var(--primary); margin-right: 10px;"></i> Генерирует 2FA коды для входа</li>
+                    <li><i class="fas fa-bell" style="color: var(--warning); margin-right: 10px;"></i> Уведомления о входе</li>
+                    <li><i class="fas fa-laptop" style="color: var(--primary); margin-right: 10px;"></i> Управление устройствами</li>
+                    <li><i class="fas fa-history" style="color: var(--secondary); margin-right: 10px;"></i> История действий</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-terminal"></i> Команды</h2>
+                <div class="commands-grid">
+                    <div class="cmd-item" onclick="copyCmd('/start')">
+                        <div class="cmd-icon"><i class="fas fa-play"></i></div>
+                        <div>
+                            <div class="cmd-code">/start</div>
+                            <div class="cmd-desc">начать работу</div>
+                        </div>
+                    </div>
+                    <div class="cmd-item" onclick="copyCmd('/2fa')">
+                        <div class="cmd-icon"><i class="fas fa-key"></i></div>
+                        <div>
+                            <div class="cmd-code">/2fa</div>
+                            <div class="cmd-desc">получить 2FA код</div>
+                        </div>
+                    </div>
+                    <div class="cmd-item" onclick="copyCmd('/devices')">
+                        <div class="cmd-icon"><i class="fas fa-laptop"></i></div>
+                        <div>
+                            <div class="cmd-code">/devices</div>
+                            <div class="cmd-desc">мои устройства</div>
+                        </div>
+                    </div>
+                    <div class="cmd-item" onclick="copyCmd('/remove_device ID')">
+                        <div class="cmd-icon"><i class="fas fa-trash-alt"></i></div>
+                        <div>
+                            <div class="cmd-code">/remove_device ID</div>
+                            <div class="cmd-desc">отвязать устройство</div>
+                        </div>
+                    </div>
+                    <div class="cmd-item" onclick="copyCmd('/history')">
+                        <div class="cmd-icon"><i class="fas fa-history"></i></div>
+                        <div>
+                            <div class="cmd-code">/history</div>
+                            <div class="cmd-desc">история действий</div>
+                        </div>
+                    </div>
+                    <div class="cmd-item" onclick="copyCmd('/help')">
+                        <div class="cmd-icon"><i class="fas fa-question-circle"></i></div>
+                        <div>
+                            <div class="cmd-code">/help</div>
+                            <div class="cmd-desc">помощь</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2><i class="fas fa-shield-alt"></i> Тест безопасности</h2>
+                <p>Проверьте, насколько безопасен ваш аккаунт:</p>
+                
+                <div class="quiz-question">
+                    <p>1. Как часто вы меняете пароль?</p>
+                    <label class="quiz-option"><input type="radio" name="q1" value="3"> Раз в месяц</label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="2"> Раз в полгода</label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="1"> Реже раза в год</label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="0"> Никогда не менял</label>
+                </div>
+                
+                <div class="quiz-question">
+                    <p>2. Используете ли вы 2FA?</p>
+                    <label class="quiz-option"><input type="radio" name="q2" value="3"> Да, всегда</label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="1"> Иногда</label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="0"> Нет</label>
+                </div>
+                
+                <div class="quiz-question">
+                    <p>3. Передаёте ли вы кому-то 2FA коды?</p>
+                    <label class="quiz-option"><input type="radio" name="q3" value="3"> Никогда</label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="1"> Редко</label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="0"> Да</label>
+                </div>
+                
+                <button class="quiz-btn" onclick="checkSecurity()">Проверить безопасность</button>
+                <div id="quizResult" class="quiz-result"></div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-question-circle"></i> Часто задаваемые вопросы</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>❓ Как привязать Telegram аккаунт?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Напишите боту <code>/start</code> — он автоматически привяжет ваш аккаунт.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>❓ Как получить 2FA код для входа?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Используйте команду <code>/2fa</code>. Код придёт в Telegram и будет действителен 5 минут.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>❓ Что делать, если пришёл код без моего запроса?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Немедленно смените пароль на сайте и свяжитесь с поддержкой.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>❓ Как отвязать устройство?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Используйте <code>/devices</code> чтобы увидеть список устройств, затем <code>/remove_device ID</code>.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>❓ Бот не отвечает. Что делать?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Подождите минуту и попробуйте снова. Если проблема повторяется, напишите в поддержку.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>❓ Как связаться с поддержкой?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Перейдите на страницу <a href="https://kirill12633.github.io/support.metro.new/" target="_blank">support.metro.new</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i class="fas fa-headset"></i> Поддержка</h2>
+            <p>Если у вас возникли вопросы или проблемы, обратитесь в поддержку:</p>
+            <div class="support-buttons">
+                <a href="https://discord.com/invite/WjGZBs3HMX" class="support-btn discord" target="_blank">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+                <a href="https://kirill12633.github.io/support.metro.new/" class="support-btn support-site" target="_blank">
+                    <i class="fas fa-headset"></i> Страница поддержки
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>О нас</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about">О проекте</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff">Наша команда</a></li>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX">Discord сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Информация</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq">FAQ</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki">Wiki</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/">Статус сервисов</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Правовые документы</h3>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy">Политика возврата</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Социальные сети</h3>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX">Discord</a></li>
+                        <li><a href="https://t.me/metronewroblox">Telegram</a></li>
+                        <li><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox">YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        if (burger) burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        
+        const dropdownOther = document.getElementById('dropdownOther');
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        if (dropdownOther && dropdownBtn) {
+            dropdownBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownOther.classList.toggle('open');
+            });
+        }
+        
+        const dropdownLinks = document.getElementById('dropdownLinks');
+        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        if (dropdownLinks && dropdownLinksBtn) {
+            dropdownLinksBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownLinks.classList.toggle('open');
+            });
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (dropdownOther && !dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
+            if (dropdownLinks && !dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
+        });
+        
+        function copyCmd(cmd) {
+            navigator.clipboard.writeText(cmd);
+            showToast(`✅ Команда ${cmd} скопирована!`);
+        }
+        
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+        
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            answer.classList.toggle('show');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+        
+        function checkSecurity() {
+            let score = 0;
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+            
+            if (q1) score += parseInt(q1.value);
+            if (q2) score += parseInt(q2.value);
+            if (q3) score += parseInt(q3.value);
+            
+            const resultDiv = document.getElementById('quizResult');
+            
+            if (score >= 7) {
+                resultDiv.className = 'quiz-result success';
+                resultDiv.innerHTML = '✅ Отлично! Ваш аккаунт хорошо защищён.';
+            } else if (score >= 4) {
+                resultDiv.className = 'quiz-result warning';
+                resultDiv.innerHTML = '⚠️ Средний уровень защиты. Рекомендуем улучшить безопасность.';
+            } else {
+                resultDiv.className = 'quiz-result warning';
+                resultDiv.innerHTML = '⚠️ У вас есть ошибки в безопасности. Рекомендуем исправить.';
+            }
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
