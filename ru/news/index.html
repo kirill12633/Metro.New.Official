@@ -11,16 +11,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (ОБЯЗАТЕЛЬНО добавить!) -->
+    <!-- Markdown -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/error-handler.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/soft-limiter.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/maintenance.js"></script>
     
     <style>
         :root {
@@ -32,6 +30,8 @@
             --dark: #1A1A1A;
             --light: #F8F9FA;
             --gray: #6C757D;
+            --success: #28a745;
+            --danger: #dc3545;
             --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
             --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
             --radius-md: 8px;
@@ -213,37 +213,128 @@
             border: none;
         }
         
+        /* Кнопки в хедере справа */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .action-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .icon-only {
+            padding: 8px 12px;
+        }
+        
+        /* Поиск */
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: white;
+            border-radius: 50px;
+            padding: 5px 15px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .search-box input {
+            flex: 1;
+            border: none;
+            padding: 12px 0;
+            font-size: 1rem;
+            outline: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .search-box button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding: 0 10px;
+        }
+        
+        .version-badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+        
+        /* Основной контент */
         main {
             padding: 2rem 0;
             min-height: calc(100vh - 150px);
         }
         
+        .main-content {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .news-main {
+            flex: 3;
+        }
+        
+        .sidebar {
+            flex: 1;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .sidebar-widget {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .sidebar-widget h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+        
         .news-header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border-radius: var(--radius-xl);
-            padding: 2.5rem 3rem;
+            padding: 1.5rem 2rem;
             color: white;
             margin-bottom: 2rem;
             text-align: center;
         }
         
         .news-header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .news-header p {
-            font-size: 1rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        
-        .news-section {
-            background: white;
-            border-radius: var(--radius-xl);
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
         }
         
         .categories {
@@ -251,7 +342,6 @@
             gap: 0.8rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
-            justify-content: center;
         }
         
         .category-btn {
@@ -262,51 +352,49 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s;
-            color: var(--dark);
             font-family: 'Montserrat', sans-serif;
             font-size: 0.85rem;
         }
         
-        .category-btn:hover {
-            background: var(--primary-light);
-            color: white;
-        }
-        
-        .category-btn.active {
+        .category-btn:hover, .category-btn.active {
             background: var(--primary);
             border-color: var(--primary);
             color: white;
+            transform: translateY(-2px);
         }
         
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
-            margin-top: 1.5rem;
         }
         
         .news-card {
             background: white;
-            border: 1px solid #e0e0e0;
             border-radius: var(--radius-lg);
             overflow: hidden;
             transition: all 0.3s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
             cursor: pointer;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.5s ease-out;
         }
         
         .news-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .news-image {
             height: 160px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background-size: cover;
+            background-position: center;
             position: relative;
+            background-color: var(--primary-light);
         }
         
         .news-badge {
@@ -325,7 +413,7 @@
             position: absolute;
             top: 12px;
             right: 12px;
-            background: rgba(0,0,0,0.65);
+            background: rgba(0,0,0,0.7);
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -333,21 +421,33 @@
         }
         
         .news-content {
-            padding: 1.2rem;
+            padding: 1rem;
         }
         
         .news-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
         
-        .news-excerpt {
-            font-size: 0.85rem;
+        .news-author {
+            font-size: 0.7rem;
             color: var(--gray);
-            line-height: 1.5;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .author-verified {
+            color: var(--success);
+        }
+        
+        .news-excerpt {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 0.8rem;
         }
         
         .news-meta {
@@ -355,29 +455,11 @@
             justify-content: space-between;
             font-size: 0.7rem;
             color: var(--gray);
+            padding-top: 0.5rem;
             border-top: 1px solid #e0e0e0;
-            padding-top: 0.8rem;
         }
         
-        .important-badge {
-            background: #fbbc04;
-            color: var(--dark);
-            font-size: 0.6rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-left: 8px;
-        }
-        
-        .loading, .error-message {
-            text-align: center;
-            padding: 60px;
-            color: var(--gray);
-        }
-        
-        .error-message {
-            color: #d93025;
-        }
-        
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -412,38 +494,100 @@
         
         .modal-header h2 {
             color: var(--primary);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .modal-actions button:hover {
+            background: #f0f0f0;
         }
         
         .close-modal {
             background: none;
             border: none;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             cursor: pointer;
             color: var(--gray);
         }
         
-        .close-modal:hover {
-            color: var(--dark);
-        }
-        
         .modal-image {
             height: 200px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background-size: cover;
+            background-position: center;
             border-radius: var(--radius-lg);
             margin-bottom: 1rem;
-            position: relative;
+            background-color: var(--primary-light);
         }
         
-        .modal-content-text {
-            line-height: 1.7;
-            color: var(--dark);
+        .share-buttons {
+            display: flex;
+            gap: 8px;
+            margin: 1rem 0;
+            flex-wrap: wrap;
         }
         
+        .share-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .share-btn:hover { transform: translateY(-2px); }
+        .share-telegram { background: #0088cc; color: white; }
+        .share-vk { background: #4a76a8; color: white; }
+        .share-twitter { background: #1da1f2; color: white; }
+        .share-whatsapp { background: #25d366; color: white; }
+        .share-copy { background: var(--gray); color: white; }
+        
+        .similar-news {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .similar-news h4 {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .similar-item {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            margin-bottom: 5px;
+            transition: background 0.3s;
+        }
+        
+        .similar-item:hover {
+            background: #f0f0f0;
+        }
+        
+        /* Footer */
         .footer {
             background-color: var(--dark);
             color: white;
             padding: 3rem 0 2rem;
+            margin-top: 3rem;
         }
         
         .footer-container {
@@ -456,7 +600,8 @@
         .footer-column h3 {
             color: var(--secondary);
             margin-bottom: 1rem;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            font-weight: 600;
         }
         
         .footer-column ul {
@@ -471,9 +616,7 @@
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: color 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 0.9rem;
         }
         
         .footer-column a:hover {
@@ -489,6 +632,23 @@
         .copyright {
             color: var(--gray);
             font-size: 0.9rem;
+        }
+        
+        .notification-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
         
         @media (max-width: 992px) {
@@ -528,6 +688,22 @@
             .dropdown-content a i {
                 color: var(--secondary);
             }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .header-actions span {
+                display: none;
+            }
+            
+            .action-btn {
+                padding: 8px 12px;
+            }
         }
         
         @media (max-width: 768px) {
@@ -535,13 +711,21 @@
                 font-size: 1.6rem;
             }
             
-            .news-header {
-                padding: 1.5rem;
-            }
-            
             .news-grid {
                 grid-template-columns: 1fr;
             }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .highlight {
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 0 2px;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -588,6 +772,21 @@
                         </div>
                     </div>
                     
+                    <div class="header-actions">
+                        <div class="dropdown" id="moreDropdown">
+                            <button class="action-btn icon-only" id="moreBtn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-content" id="moreMenu">
+                                <a href="#" onclick="openSaved()"><i class="fas fa-bookmark"></i> Сохранённые</a>
+                                <a href="#" onclick="openRecommendations()"><i class="fas fa-robot"></i> Подборки</a>
+                                <div class="divider"></div>
+                                <a href="#" onclick="openShareMenu()"><i class="fas fa-share-alt"></i> Поделиться</a>
+                                <a href="#" onclick="openReviewModal()"><i class="fas fa-star"></i> Оставить отзыв</a>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn">
                         <i class="fas fa-sign-in-alt"></i> Войти
                     </a>
@@ -597,28 +796,91 @@
     </header>
 
     <main class="container">
-        <div class="news-header">
-            <h1><i class="fas fa-newspaper"></i> Новости проекта</h1>
-            <p>Будьте в курсе последних событий, обновлений и анонсов</p>
+        <!-- Поиск -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск новостей..." onkeyup="searchNews()">
+                <button onclick="searchNews()"><i class="fas fa-search"></i></button>
+                <button onclick="clearSearch()" style="color:var(--gray);"><i class="fas fa-times"></i></button>
+            </div>
         </div>
         
-        <div class="news-section">
-            <div class="categories" id="categoriesContainer"></div>
-            <div id="newsGrid" class="news-grid">
-                <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка новостей...</p></div>
+        <div class="main-content">
+            <div class="news-main">
+                <div class="news-header">
+                    <h1><i class="fas fa-newspaper"></i> Новости проекта</h1>
+                    <p>Будьте в курсе последних событий, обновлений и анонсов</p>
+                </div>
+                
+                <div class="categories" id="categoriesContainer"></div>
+                <div id="newsGrid" class="news-grid">
+                    <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка новостей...</p></div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="sidebar-widget" id="recommendationsWidget">
+                    <h3><i class="fas fa-robot"></i> AI рекомендации</h3>
+                    <div id="recommendationsList" style="max-height: 400px; overflow-y: auto;">
+                        <div style="color:var(--gray); text-align:center; padding:20px;">Анализируем ваши интересы...</div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-widget">
+                    <h3><i class="fas fa-bookmark"></i> Сохранённые</h3>
+                    <div id="bookmarksList">
+                        <div style="color:var(--gray); text-align:center;">Нет сохранённых новостей</div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
+    <!-- Модалка новости -->
     <div id="newsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle"></h2>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <div class="modal-actions">
+                    <button onclick="toggleBookmarkCurrent()" id="bookmarkBtn" title="Сохранить">
+                        <i class="far fa-bookmark"></i>
+                    </button>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
             </div>
             <div id="modalImage" class="modal-image"></div>
+            <div id="modalAuthor" class="news-author"></div>
+            <div class="share-buttons" id="modalShareButtons"></div>
             <div id="modalContent" class="modal-content-text"></div>
             <div id="modalMeta" style="margin-top:1rem; font-size:0.8rem; color:var(--gray);"></div>
+            <div id="similarNews" class="similar-news"></div>
+        </div>
+    </div>
+
+    <!-- Модалка отзыва -->
+    <div id="reviewModal" class="modal" style="display:none;">
+        <div class="review-content" style="background:white; border-radius:15px; max-width:500px; width:90%; padding:1.5rem;">
+            <h3 style="color:var(--primary); margin-bottom:1rem;">Оставить отзыв</h3>
+            <div style="text-align:center; margin-bottom:1rem;">
+                <span>Как вам страница?</span>
+                <div class="stars" id="starRating" style="display:flex; gap:10px; justify-content:center; margin-top:0.5rem;">
+                    <i class="far fa-star" data-rating="1" style="font-size:1.8rem; cursor:pointer;"></i>
+                    <i class="far fa-star" data-rating="2" style="font-size:1.8rem; cursor:pointer;"></i>
+                    <i class="far fa-star" data-rating="3" style="font-size:1.8rem; cursor:pointer;"></i>
+                    <i class="far fa-star" data-rating="4" style="font-size:1.8rem; cursor:pointer;"></i>
+                    <i class="far fa-star" data-rating="5" style="font-size:1.8rem; cursor:pointer;"></i>
+                </div>
+                <div id="ratingCount" style="font-size:0.8rem; color:var(--gray); margin-top:0.5rem;"></div>
+            </div>
+            <textarea id="reviewText" rows="4" placeholder="Поделитесь впечатлениями..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-family:inherit; margin:1rem 0;"></textarea>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="closeReviewModal()" style="padding:8px 16px; background:#ddd; border:none; border-radius:50px; cursor:pointer;">Отмена</button>
+                <button onclick="submitReview()" style="padding:8px 16px; background:var(--primary); color:white; border:none; border-radius:50px; cursor:pointer;">Отправить</button>
+            </div>
+            <div style="margin-top:1rem; text-align:center; font-size:0.8rem; color:var(--gray);">
+                Также вы можете написать нам на почту:<br>
+                <a href="mailto:metro.new.help@gmail.com" style="color:var(--primary);">metro.new.help@gmail.com</a>
+            </div>
         </div>
     </div>
 
@@ -660,12 +922,15 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p class="copyright">© 2026 Метро New. Все права защищены.</p>
+                <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
     <script>
+        // Текущий год
+        document.getElementById('currentYear').innerText = new Date().getFullYear();
+        
         // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
@@ -676,30 +941,391 @@
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
         };
         
-        // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
         let currentCategory = 'all';
+        let allNews = [];
+        let currentNewsId = null;
+        let bookmarks = JSON.parse(localStorage.getItem('newsBookmarks') || '[]');
+        let readHistory = JSON.parse(localStorage.getItem('readHistory') || '[]');
+        let searchQuery = '';
         
-        const categories = [
-            { id: 'all', name: 'Все', icon: 'fa-newspaper' },
-            { id: 'update', name: 'Обновления', icon: 'fa-sync-alt' },
-            { id: 'event', name: 'События', icon: 'fa-calendar-alt' },
-            { id: 'important', name: 'Важное', icon: 'fa-exclamation-triangle' },
-            { id: 'announcement', name: 'Анонсы', icon: 'fa-bullhorn' }
-        ];
+        // Рейтинг страницы (в модалке)
+        let pageRating = JSON.parse(localStorage.getItem('pageRating') || '{"total":0,"count":0}');
+        document.getElementById('ratingCount').innerText = pageRating.count + ' оценок';
         
-        function renderCategories() {
-            const container = document.getElementById('categoriesContainer');
-            if (!container) return;
-            let html = '';
-            categories.forEach(cat => {
-                html += `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-category="${cat.id}" onclick="filterNews('${cat.id}')">
-                    <i class="fas ${cat.icon}"></i> ${cat.name}
-                </button>`;
+        function setPageRating(rating) {
+            pageRating.total += rating;
+            pageRating.count++;
+            localStorage.setItem('pageRating', JSON.stringify(pageRating));
+            const avg = (pageRating.total / pageRating.count).toFixed(1);
+            document.getElementById('ratingCount').innerText = pageRating.count + ' оценок (среднее ' + avg + ')';
+            showNotification('Спасибо за оценку!');
+            
+            // Подсветка звезд в модалке
+            document.querySelectorAll('#starRating i').forEach((star, i) => {
+                if (i < rating) {
+                    star.classList.add('fas');
+                    star.classList.remove('far');
+                }
             });
-            container.innerHTML = html;
+        }
+        
+        // Поиск новостей
+        function searchNews() {
+            const input = document.getElementById('searchInput');
+            searchQuery = input.value.toLowerCase().trim();
+            
+            if (searchQuery === '') {
+                loadNews();
+                return;
+            }
+            
+            const filtered = allNews.filter(news => {
+                return (news.title || '').toLowerCase().includes(searchQuery) ||
+                       (news.excerpt || '').toLowerCase().includes(searchQuery) ||
+                       (news.content || '').toLowerCase().includes(searchQuery);
+            });
+            
+            displayNews(filtered, searchQuery);
+        }
+        
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            loadNews();
+        }
+        
+        function displayNews(newsList, highlightQuery) {
+            const grid = document.getElementById('newsGrid');
+            if (newsList.length === 0) {
+                grid.innerHTML = '<div style="text-align:center;padding:40px;">🔍 Ничего не найдено</div>';
+                return;
+            }
+            
+            const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
+            const categoryIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
+            
+            let html = '';
+            for (const news of newsList) {
+                const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
+                const views = news.views || 0;
+                const imageUrl = news.imageUrl || '';
+                const author = news.author || 'Метро New';
+                const verified = author === 'Метро New';
+                
+                let title = escapeHtml(news.title || 'Без названия');
+                if (highlightQuery) {
+                    const regex = new RegExp(`(${highlightQuery})`, 'gi');
+                    title = title.replace(regex, '<span class="highlight">$1</span>');
+                }
+                
+                html += `
+                    <div class="news-card" onclick="openNews('${news.id}')">
+                        <div class="news-image" style="${imageUrl ? `background-image: url('${imageUrl}');` : 'background: linear-gradient(135deg, var(--primary), var(--primary-dark));'}">
+                            ${news.badge ? `<span class="news-badge">${escapeHtml(news.badge)}</span>` : ''}
+                            <span class="category-badge"><i class="fas ${categoryIcons[news.category] || 'fa-newspaper'}"></i> ${categoryNames[news.category] || 'Новость'}</span>
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-title">${title}${news.important ? '<span class="version-badge">Важно</span>' : ''}</h3>
+                            <div class="news-author">
+                                <i class="fas fa-user"></i> ${escapeHtml(author)}
+                                ${verified ? '<i class="fas fa-check-circle author-verified" title="Проверенный автор"></i>' : ''}
+                            </div>
+                            <p class="news-excerpt">${escapeHtml((news.excerpt || '').substring(0, 100))}...</p>
+                            <div class="news-meta">
+                                <span><i class="far fa-calendar-alt"></i> ${date}</span>
+                                <span><i class="far fa-eye"></i> ${views}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+        
+        // AI рекомендации
+        function getAIPersonalRecommendations() {
+            if (allNews.length === 0) return [];
+            
+            const categoryPreference = {};
+            const keywordPreference = {};
+            
+            readHistory.forEach(item => {
+                const news = allNews.find(n => n.id === item.id);
+                if (news) {
+                    const cat = news.category || 'announcement';
+                    categoryPreference[cat] = (categoryPreference[cat] || 0) + 1;
+                    
+                    const words = (news.title || '').toLowerCase().split(/\s+/);
+                    words.forEach(word => {
+                        if (word.length > 3) {
+                            keywordPreference[word] = (keywordPreference[word] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            
+            let topCategory = 'all';
+            let maxCount = 0;
+            for (const [cat, count] of Object.entries(categoryPreference)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topCategory = cat;
+                }
+            }
+            
+            const topKeywords = Object.entries(keywordPreference)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(k => k[0]);
+            
+            let recommendations = allNews.filter(news => {
+                if (readHistory.some(h => h.id === news.id)) return false;
+                
+                let score = 0;
+                if (news.category === topCategory && topCategory !== 'all') score += 15;
+                
+                const titleLower = (news.title || '').toLowerCase();
+                topKeywords.forEach(keyword => {
+                    if (titleLower.includes(keyword)) score += 10;
+                });
+                
+                score += Math.min((news.views || 0) / 50, 10);
+                score += (news.important ? 5 : 0);
+                
+                return score > 0;
+            });
+            
+            recommendations.sort((a,b) => {
+                let scoreA = 0, scoreB = 0;
+                if (a.category === topCategory) scoreA += 15;
+                if (b.category === topCategory) scoreB += 15;
+                scoreA += (a.views || 0);
+                scoreB += (b.views || 0);
+                return scoreB - scoreA;
+            });
+            
+            return recommendations.slice(0, 5);
+        }
+        
+        // Похожие новости
+        function getSimilarNews(currentNews) {
+            if (!currentNews || allNews.length === 0) return [];
+            
+            const keywords = (currentNews.title + ' ' + (currentNews.content || '')).toLowerCase().split(/\s+/);
+            const importantKeywords = keywords.filter(w => w.length > 4).slice(0, 10);
+            
+            const similar = allNews.filter(news => {
+                if (news.id === currentNews.id) return false;
+                if (readHistory.some(h => h.id === news.id)) return false;
+                
+                let score = 0;
+                const newsText = (news.title + ' ' + (news.content || '')).toLowerCase();
+                importantKeywords.forEach(keyword => {
+                    if (newsText.includes(keyword)) score += 5;
+                });
+                if (news.category === currentNews.category) score += 10;
+                
+                return score > 5;
+            });
+            
+            similar.sort((a,b) => (b.views || 0) - (a.views || 0));
+            return similar.slice(0, 3);
+        }
+        
+        function renderRecommendations() {
+            const container = document.getElementById('recommendationsList');
+            if (!container) return;
+            
+            const recommendations = getAIPersonalRecommendations();
+            
+            if (recommendations.length === 0) {
+                const popularNews = [...allNews]
+                    .sort((a, b) => (b.views || 0) - (a.views || 0))
+                    .slice(0, 5);
+                
+                if (popularNews.length > 0) {
+                    container.innerHTML = `
+                        <div style="font-size:0.7rem; color:var(--gray); margin-bottom:10px;">
+                            <i class="fas fa-fire"></i> Популярные новости
+                        </div>
+                        ${popularNews.map(news => `
+                            <div class="news-card" style="margin-bottom:10px; cursor:pointer;" onclick="openNews('${news.id}')">
+                                <div class="news-content" style="padding:0.8rem;">
+                                    <div class="news-title" style="font-size:0.85rem;">${escapeHtml(news.title || 'Без названия')}</div>
+                                    <div class="news-meta" style="margin-top:8px;">
+                                        <span><i class="far fa-eye"></i> ${news.views || 0} просмотров</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    container.innerHTML = '<div style="color:var(--gray); text-align:center; padding:20px;">📚 Читайте новости, чтобы получать персональные рекомендации</div>';
+                }
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="font-size:0.7rem; color:var(--gray); margin-bottom:10px;">
+                    <i class="fas fa-robot"></i> Для вас
+                </div>
+                ${recommendations.map(news => `
+                    <div class="news-card" style="margin-bottom:10px; cursor:pointer;" onclick="openNews('${news.id}')">
+                        <div class="news-content" style="padding:0.8rem;">
+                            <div class="news-title" style="font-size:0.85rem;">${escapeHtml(news.title || 'Без названия')}</div>
+                            <div class="news-meta" style="margin-top:8px;">
+                                <span><i class="far fa-eye"></i> ${news.views || 0}</span>
+                                <span><i class="fas fa-robot" style="color:var(--secondary);"></i> AI рекомендует</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        // Закладки
+        function toggleBookmark(newsId, title) {
+            const exists = bookmarks.find(b => b.id === newsId);
+            if (exists) {
+                bookmarks = bookmarks.filter(b => b.id !== newsId);
+                showNotification('Удалено из сохранённых');
+            } else {
+                bookmarks.unshift({ id: newsId, title: title, date: new Date().toLocaleString() });
+                showNotification('Сохранено в закладки');
+            }
+            localStorage.setItem('newsBookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
+            updateBookmarkButton();
+        }
+        
+        function toggleBookmarkCurrent() {
+            if (currentNewsId) {
+                const news = allNews.find(n => n.id === currentNewsId);
+                if (news) toggleBookmark(currentNewsId, news.title);
+            } else {
+                showNotification('Откройте новость, чтобы сохранить');
+            }
+        }
+        
+        function updateBookmarkButton() {
+            const btn = document.getElementById('bookmarkBtn');
+            if (btn && currentNewsId) {
+                const isBookmarked = bookmarks.some(b => b.id === currentNewsId);
+                btn.innerHTML = isBookmarked ? '<i class="fas fa-bookmark"></i>' : '<i class="far fa-bookmark"></i>';
+            }
+        }
+        
+        function renderBookmarks() {
+            const container = document.getElementById('bookmarksList');
+            if (!container) return;
+            if (bookmarks.length === 0) {
+                container.innerHTML = '<div style="color:var(--gray); text-align:center;">Нет сохранённых новостей</div>';
+                return;
+            }
+            container.innerHTML = bookmarks.slice(0, 5).map(b => `
+                <div class="news-card" style="margin-bottom:10px; cursor:pointer;" onclick="openNews('${b.id}')">
+                    <div class="news-content" style="padding:0.8rem;">
+                        <div class="news-title" style="font-size:0.85rem;">${escapeHtml(b.title.substring(0, 35))}${b.title.length > 35 ? '...' : ''}</div>
+                        <div class="news-meta" style="margin-top:8px;">
+                            <span><i class="far fa-clock"></i> ${b.date}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            if (bookmarks.length > 5) {
+                container.innerHTML += '<div style="text-align:center; margin-top:10px;"><small>и ещё ' + (bookmarks.length - 5) + ' сохранённых</small></div>';
+            }
+        }
+        
+        function openSaved() {
+            document.getElementById('bookmarksList').scrollIntoView({ behavior: 'smooth' });
+            showNotification('Ваши сохранённые новости');
+        }
+        
+        function openShareMenu() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent('Метро New - Новости проекта');
+            const shareText = `Поделиться:\nTelegram: https://t.me/share/url?url=${url}&text=${title}\nVK: https://vk.com/share.php?url=${url}&title=${title}`;
+            alert('Поделиться:\nTelegram: https://t.me/share/url?url=' + decodeURIComponent(url) + '\nVK: https://vk.com/share.php?url=' + decodeURIComponent(url));
+        }
+        
+        function openRecommendations() {
+            renderRecommendations();
+            document.getElementById('recommendationsWidget').scrollIntoView({ behavior: 'smooth' });
+            showNotification('AI подобрал для вас рекомендации');
+        }
+        
+        // История
+        function addToHistory(newsId, title) {
+            readHistory = readHistory.filter(h => h.id !== newsId);
+            readHistory.unshift({ id: newsId, title: title, date: new Date().toLocaleString() });
+            if (readHistory.length > 20) readHistory.pop();
+            localStorage.setItem('readHistory', JSON.stringify(readHistory));
+            renderRecommendations();
+        }
+        
+        // Отзывы
+        function openReviewModal() {
+            document.getElementById('reviewModal').style.display = 'flex';
+            // Обновляем счетчик оценок
+            document.getElementById('ratingCount').innerText = pageRating.count + ' оценок';
+        }
+        
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            document.getElementById('reviewText').value = '';
+            document.querySelectorAll('#starRating i').forEach(star => {
+                star.classList.remove('fas');
+                star.classList.add('far');
+            });
+            currentRating = 0;
+        }
+        
+        let currentRating = 0;
+        function setupStarRating() {
+            document.querySelectorAll('#starRating i').forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    currentRating = rating;
+                    setPageRating(rating);
+                });
+            });
+        }
+        
+        function submitReview() {
+            const text = document.getElementById('reviewText').value;
+            if (currentRating === 0) {
+                showNotification('Пожалуйста, поставьте оценку');
+                return;
+            }
+            
+            const reviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
+            reviews.push({
+                rating: currentRating,
+                text: text,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('userReviews', JSON.stringify(reviews));
+            
+            // Отправка на почту
+            const subject = encodeURIComponent('Отзыв о сайте Метро New');
+            const body = encodeURIComponent(`Оценка: ${currentRating} звезд\n\nОтзыв: ${text}\n\n---\nОтправлено с сайта Метро New`);
+            window.location.href = `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
+            
+            showNotification('Спасибо за отзыв!');
+            closeReviewModal();
+        }
+        
+        // Общие функции
+        function showNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'notification-toast';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
         
         function escapeHtml(str) {
@@ -715,6 +1341,25 @@
             return timestamp;
         }
         
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            if (!container) return;
+            const categories = [
+                { id: 'all', name: 'Все', icon: 'fa-newspaper' },
+                { id: 'update', name: 'Обновления', icon: 'fa-sync-alt' },
+                { id: 'event', name: 'События', icon: 'fa-calendar-alt' },
+                { id: 'important', name: 'Важное', icon: 'fa-exclamation-triangle' },
+                { id: 'announcement', name: 'Анонсы', icon: 'fa-bullhorn' }
+            ];
+            let html = '';
+            categories.forEach(cat => {
+                html += `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" onclick="filterNews('${cat.id}')">
+                    <i class="fas ${cat.icon}"></i> ${cat.name}
+                </button>`;
+            });
+            container.innerHTML = html;
+        }
+        
         async function loadNews() {
             const grid = document.getElementById('newsGrid');
             if (!grid) return;
@@ -723,94 +1368,53 @@
             
             try {
                 let query = db.collection('news').orderBy('createdAt', 'desc');
-                
                 if (currentCategory !== 'all') {
                     query = query.where('category', '==', currentCategory);
                 }
                 
                 const snapshot = await query.get();
                 const newsList = [];
-                
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    // Показываем только опубликованные новости (если есть поле status)
                     if (data.status === 'published' || !data.status) {
                         newsList.push({ id: doc.id, ...data });
                     }
                 });
                 
+                allNews = newsList;
+                
                 if (newsList.length === 0) {
-                    grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">📭 Новостей пока нет. Добавьте первую новость в Firebase!</div>';
+                    grid.innerHTML = '<div style="text-align:center;padding:40px;">📭 Новостей пока нет</div>';
                     return;
                 }
                 
-                const categoryNames = {
-                    update: 'Обновление',
-                    event: 'Событие',
-                    important: 'Важное',
-                    announcement: 'Анонс'
-                };
+                displayNews(newsList, '');
+                renderBookmarks();
+                renderRecommendations();
                 
-                const categoryIcons = {
-                    update: 'fa-sync-alt',
-                    event: 'fa-calendar-alt',
-                    important: 'fa-exclamation-triangle',
-                    announcement: 'fa-bullhorn'
-                };
-                
-                let html = '';
-                for (const news of newsList) {
-                    const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
-                    const views = news.views || 0;
-                    const badge = news.badge || '';
-                    const category = news.category || 'announcement';
-                    const important = news.important || false;
-                    const title = news.title || 'Без названия';
-                    const excerpt = news.excerpt || '';
-                    
-                    html += `
-                        <div class="news-card" onclick="openNews('${news.id}')">
-                            <div class="news-image">
-                                ${badge ? `<span class="news-badge">${escapeHtml(badge)}</span>` : ''}
-                                <span class="category-badge"><i class="fas ${categoryIcons[category]}"></i> ${categoryNames[category] || 'Новость'}</span>
-                            </div>
-                            <div class="news-content">
-                                <h3 class="news-title">${escapeHtml(title)}${important ? '<span class="important-badge">Важно!</span>' : ''}</h3>
-                                <p class="news-excerpt">${escapeHtml(excerpt.substring(0, 120))}${excerpt.length > 120 ? '...' : ''}</p>
-                                <div class="news-meta">
-                                    <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                                    <span><i class="far fa-eye"></i> ${views} просмотров</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-                grid.innerHTML = html;
             } catch (error) {
                 console.error('Firebase error:', error);
-                grid.innerHTML = '<div class="error-message">❌ Ошибка подключения к Firebase. Проверьте настройки и разрешения.</div>';
+                grid.innerHTML = '<div class="error-message" style="text-align:center;padding:40px;color:#d93025;">❌ Ошибка подключения к Firebase</div>';
             }
         }
         
         window.openNews = async function(newsId) {
+            currentNewsId = newsId;
             const modal = document.getElementById('newsModal');
             const modalTitle = document.getElementById('modalTitle');
             const modalContent = document.getElementById('modalContent');
             const modalMeta = document.getElementById('modalMeta');
             const modalImage = document.getElementById('modalImage');
+            const modalAuthor = document.getElementById('modalAuthor');
+            const similarContainer = document.getElementById('similarNews');
             
-            if (!modal) return;
             modal.style.display = 'flex';
             modalTitle.textContent = 'Загрузка...';
             modalContent.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
             
             try {
                 const newsRef = db.collection('news').doc(newsId);
-                
-                // Увеличиваем счетчик просмотров
-                await newsRef.update({
-                    views: firebase.firestore.FieldValue.increment(1)
-                });
+                await newsRef.update({ views: firebase.firestore.FieldValue.increment(1) });
                 
                 const doc = await newsRef.get();
                 if (!doc.exists) {
@@ -822,46 +1426,69 @@
                 const news = doc.data();
                 const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
                 const views = (news.views || 0) + 1;
+                const imageUrl = news.imageUrl || '';
+                const author = news.author || 'Метро New';
+                const verified = author === 'Метро New';
                 
-                const categoryNames = {
-                    update: 'Обновление',
-                    event: 'Событие',
-                    important: 'Важное',
-                    announcement: 'Анонс'
-                };
+                modalTitle.textContent = escapeHtml(news.title);
+                modalImage.style.backgroundImage = imageUrl ? `url('${imageUrl}')` : 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
+                modalImage.style.backgroundSize = 'cover';
+                modalImage.style.backgroundPosition = 'center';
                 
-                const categoryIcons = {
-                    update: 'fa-sync-alt',
-                    event: 'fa-calendar-alt',
-                    important: 'fa-exclamation-triangle',
-                    announcement: 'fa-bullhorn'
-                };
-                
-                modalTitle.textContent = escapeHtml(news.title || 'Без названия');
-                modalImage.innerHTML = `
-                    ${news.badge ? `<span style="position:absolute;top:15px;left:15px;background:var(--secondary);color:var(--dark);padding:6px 18px;border-radius:30px;font-weight:700;z-index:2;">${escapeHtml(news.badge)}</span>` : ''}
-                    <span style="position:absolute;top:15px;right:15px;background:rgba(0,0,0,0.6);color:white;padding:6px 18px;border-radius:30px;z-index:2;">
-                        <i class="fas ${categoryIcons[news.category] || 'fa-newspaper'}"></i> 
-                        ${categoryNames[news.category] || 'Новость'}
-                    </span>
+                modalAuthor.innerHTML = `
+                    <i class="fas fa-user"></i> ${escapeHtml(author)}
+                    ${verified ? '<i class="fas fa-check-circle author-verified" style="color:var(--success);"></i>' : ''}
+                    ${news.version ? '<span class="version-badge">Версия ' + news.version + '</span>' : ''}
                 `;
-                modalImage.style.position = 'relative';
-                modalImage.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
                 
-                // Простое отображение HTML контента
-                modalContent.innerHTML = news.content || '<p>Содержимое отсутствует</p>';
+                let content = news.content || '<p>Содержимое отсутствует</p>';
+                if (typeof marked !== 'undefined') {
+                    content = marked.parse(content);
+                }
+                modalContent.innerHTML = content;
+                
+                const shareHtml = `
+                    <button class="share-btn share-telegram" onclick="window.open('https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}', '_blank')"><i class="fab fa-telegram"></i> Telegram</button>
+                    <button class="share-btn share-vk" onclick="window.open('https://vk.com/share.php?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(news.title)}', '_blank')"><i class="fab fa-vk"></i> VK</button>
+                    <button class="share-btn share-twitter" onclick="window.open('https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}', '_blank')"><i class="fab fa-twitter"></i> Twitter</button>
+                    <button class="share-btn share-whatsapp" onclick="window.open('https://wa.me/?text=${encodeURIComponent(news.title)}%20${encodeURIComponent(window.location.href)}', '_blank')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button class="share-btn share-copy" onclick="navigator.clipboard.writeText(window.location.href); showNotification('Ссылка скопирована')"><i class="fas fa-copy"></i> Копировать</button>
+                `;
+                document.getElementById('modalShareButtons').innerHTML = shareHtml;
+                
                 modalMeta.innerHTML = `<i class="far fa-calendar-alt"></i> ${date} &nbsp;|&nbsp; <i class="far fa-eye"></i> ${views} просмотров`;
                 
+                // Похожие новости
+                const similarNews = getSimilarNews(news);
+                if (similarNews.length > 0) {
+                    similarContainer.innerHTML = `
+                        <h4><i class="fas fa-link"></i> Похожие новости</h4>
+                        ${similarNews.map(similar => `
+                            <div class="similar-item" onclick="openNews('${similar.id}'); closeModal();">
+                                <div style="font-weight:500;">${escapeHtml(similar.title)}</div>
+                                <div style="font-size:0.7rem; color:var(--gray);"><i class="far fa-eye"></i> ${similar.views || 0} просмотров</div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    similarContainer.innerHTML = '';
+                }
+                
+                addToHistory(newsId, news.title);
+                updateBookmarkButton();
+                loadNews();
+                renderRecommendations();
+                
             } catch (error) {
-                console.error('Error loading news:', error);
+                console.error('Error:', error);
                 modalTitle.textContent = 'Ошибка';
-                modalContent.innerHTML = 'Не удалось загрузить новость. Пожалуйста, попробуйте позже.';
+                modalContent.innerHTML = 'Не удалось загрузить новость';
             }
         };
         
         window.closeModal = function() {
-            const modal = document.getElementById('newsModal');
-            if (modal) modal.style.display = 'none';
+            document.getElementById('newsModal').style.display = 'none';
+            currentNewsId = null;
         };
         
         window.filterNews = function(category) {
@@ -870,32 +1497,21 @@
             loadNews();
         };
         
-        // Закрытие модалки по клику вне
-        const modal = document.getElementById('newsModal');
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
-        }
-        
-        // Мобильное меню
-        const burger = document.getElementById('burgerMenu');
-        const navLinks = document.getElementById('navLinks');
-        if (burger && navLinks) {
-            burger.addEventListener('click', () => navLinks.classList.toggle('active'));
-        }
-        
         // Дропдауны
         const dropdownOther = document.getElementById('dropdownOther');
         const dropdownBtn = document.getElementById('dropdownBtn');
         const dropdownLinks = document.getElementById('dropdownLinks');
         const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
+        const moreDropdown = document.getElementById('moreDropdown');
+        const moreBtn = document.getElementById('moreBtn');
         
         if (dropdownBtn && dropdownOther) {
             dropdownBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dropdownOther.classList.toggle('open');
+                if (dropdownLinks) dropdownLinks.classList.remove('open');
+                if (moreDropdown) moreDropdown.classList.remove('open');
             });
         }
         
@@ -904,17 +1520,52 @@
                 e.preventDefault();
                 e.stopPropagation();
                 dropdownLinks.classList.toggle('open');
+                if (dropdownOther) dropdownOther.classList.remove('open');
+                if (moreDropdown) moreDropdown.classList.remove('open');
             });
         }
         
-        document.addEventListener('click', (e) => {
-            if (dropdownOther && !dropdownOther.contains(e.target)) dropdownOther.classList.remove('open');
-            if (dropdownLinks && !dropdownLinks.contains(e.target)) dropdownLinks.classList.remove('open');
+        if (moreBtn && moreDropdown) {
+            moreBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moreDropdown.classList.toggle('open');
+                if (dropdownOther) dropdownOther.classList.remove('open');
+                if (dropdownLinks) dropdownLinks.classList.remove('open');
+            });
+        }
+        
+        document.addEventListener('click', () => {
+            if (dropdownOther) dropdownOther.classList.remove('open');
+            if (dropdownLinks) dropdownLinks.classList.remove('open');
+            if (moreDropdown) moreDropdown.classList.remove('open');
         });
+        
+        // Мобильное меню
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        if (burger && navLinks) {
+            burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        }
+        
+        // Закрытие модалок
+        const modal = document.getElementById('newsModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+        }
+        
+        const reviewModalElem = document.getElementById('reviewModal');
+        if (reviewModalElem) {
+            reviewModalElem.addEventListener('click', (e) => {
+                if (e.target === reviewModalElem) closeReviewModal();
+            });
+        }
         
         // Запуск
         renderCategories();
         loadNews();
+        setupStarRating();
     </script>
 </body>
 </html>
