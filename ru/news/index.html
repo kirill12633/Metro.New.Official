@@ -11,6 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase SDK (ОБЯЗАТЕЛЬНО добавить!) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
     <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
     <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
@@ -672,6 +676,7 @@
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
         };
         
+        // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
@@ -687,6 +692,7 @@
         
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
+            if (!container) return;
             let html = '';
             categories.forEach(cat => {
                 html += `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" data-category="${cat.id}" onclick="filterNews('${cat.id}')">
@@ -711,6 +717,8 @@
         
         async function loadNews() {
             const grid = document.getElementById('newsGrid');
+            if (!grid) return;
+            
             grid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка новостей...</p></div>';
             
             try {
@@ -780,7 +788,7 @@
                 grid.innerHTML = html;
             } catch (error) {
                 console.error('Firebase error:', error);
-                grid.innerHTML = '<div class="error-message">❌ Ошибка подключения к Firebase. Проверьте настройки.</div>';
+                grid.innerHTML = '<div class="error-message">❌ Ошибка подключения к Firebase. Проверьте настройки и разрешения.</div>';
             }
         }
         
@@ -791,6 +799,7 @@
             const modalMeta = document.getElementById('modalMeta');
             const modalImage = document.getElementById('modalImage');
             
+            if (!modal) return;
             modal.style.display = 'flex';
             modalTitle.textContent = 'Загрузка...';
             modalContent.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
@@ -839,23 +848,20 @@
                 modalImage.style.position = 'relative';
                 modalImage.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
                 
-                // Используем DOMPurify если есть, иначе просто текст
-                if (typeof DOMPurify !== 'undefined') {
-                    modalContent.innerHTML = news.content ? DOMPurify.sanitize(news.content) : '<p>Содержимое отсутствует</p>';
-                } else {
-                    modalContent.innerHTML = news.content || '<p>Содержимое отсутствует</p>';
-                }
+                // Простое отображение HTML контента
+                modalContent.innerHTML = news.content || '<p>Содержимое отсутствует</p>';
                 modalMeta.innerHTML = `<i class="far fa-calendar-alt"></i> ${date} &nbsp;|&nbsp; <i class="far fa-eye"></i> ${views} просмотров`;
                 
             } catch (error) {
                 console.error('Error loading news:', error);
                 modalTitle.textContent = 'Ошибка';
-                modalContent.innerHTML = 'Не удалось загрузить новость';
+                modalContent.innerHTML = 'Не удалось загрузить новость. Пожалуйста, попробуйте позже.';
             }
         };
         
         window.closeModal = function() {
-            document.getElementById('newsModal').style.display = 'none';
+            const modal = document.getElementById('newsModal');
+            if (modal) modal.style.display = 'none';
         };
         
         window.filterNews = function(category) {
@@ -875,7 +881,7 @@
         // Мобильное меню
         const burger = document.getElementById('burgerMenu');
         const navLinks = document.getElementById('navLinks');
-        if (burger) {
+        if (burger && navLinks) {
             burger.addEventListener('click', () => navLinks.classList.toggle('active'));
         }
         
@@ -885,7 +891,7 @@
         const dropdownLinks = document.getElementById('dropdownLinks');
         const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
         
-        if (dropdownBtn) {
+        if (dropdownBtn && dropdownOther) {
             dropdownBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -893,7 +899,7 @@
             });
         }
         
-        if (dropdownLinksBtn) {
+        if (dropdownLinksBtn && dropdownLinks) {
             dropdownLinksBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
