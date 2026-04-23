@@ -4,433 +4,588 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Новости — Метро New</title>
-    
+
+    <meta property="og:title" content="Новости Метро New">
+    <meta property="og:description" content="Будьте в курсе последних событий и обновлений проекта">
+    <meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#0066CC">
+
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Markdown -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+
     <style>
         :root {
             --primary: #0066CC;
             --primary-dark: #0052a3;
             --primary-light: #4d94ff;
+            --primary-bg: #e8f0fe;
             --secondary: #FFD700;
             --secondary-dark: #e6c200;
             --dark: #1A1A1A;
             --light: #F8F9FA;
             --gray: #6C757D;
+            --gray-light: #e9ecef;
             --success: #28a745;
             --danger: #dc3545;
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
-            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 15px;
+            --warning: #ffc107;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 14px 40px rgba(0, 0, 0, 0.2);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-xs: 0.72rem;
+            --font-sm: 0.82rem;
+            --font-md: 0.92rem;
+            --font-lg: 1.05rem;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--light);
+            background: #f0f2f5;
             color: var(--dark);
-            line-height: 1.6;
+            line-height: 1.55;
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+
+        /* ===== КНОПКА НАВЕРХ (АДАПТИВНАЯ) ===== */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
             color: white;
-            padding: 1rem 0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .scroll-to-top:active {
+            transform: scale(0.92);
+            background: var(--primary-dark);
+        }
+
+        .progress-ring-wrap {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 56px;
+            height: 56px;
+            pointer-events: none;
+        }
+
+        .progress-ring-wrap svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-wrap .bg-circle {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.25);
+            stroke-width: 3;
+        }
+
+        .progress-ring-wrap .progress-circle {
+            fill: none;
+            stroke: var(--secondary);
+            stroke-width: 3;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.15s linear;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-to-top {
+                bottom: 18px;
+                right: 14px;
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+            .progress-ring-wrap {
+                top: -3px;
+                left: -3px;
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .scroll-to-top {
+                bottom: 14px;
+                right: 10px;
+                width: 38px;
+                height: 38px;
+                font-size: 0.9rem;
+            }
+            .progress-ring-wrap {
+                top: -3px;
+                left: -3px;
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        @media (hover: hover) {
+            .scroll-to-top:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-xl);
+            }
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: linear-gradient(135deg, var(--primary), #004b99);
+            color: white;
+            padding: 0.85rem 0;
             box-shadow: var(--shadow-md);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
-        
+
         .container {
-            width: 90%;
+            width: 92%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 15px;
+            padding: 0 10px;
         }
-        
+
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.8rem;
         }
-        
+
         .logo a {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
+            gap: 8px;
+            font-size: 1.35rem;
             font-weight: 700;
             color: white;
             text-decoration: none;
         }
-        
+
         .logo-icon {
-            width: 35px;
-            height: 35px;
-            background-color: var(--secondary);
+            width: 34px;
+            height: 34px;
+            background: var(--secondary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--dark);
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
-        
+
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.8rem;
             flex-wrap: wrap;
         }
-        
+
         .dropdown {
             position: relative;
         }
-        
-        .dropdown > button {
+
+        .dropdown>button {
             background: none;
             border: none;
             color: white;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            transition: all 0.3s ease;
+            padding: 0.45rem 0.9rem;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1rem;
+            font-family: inherit;
+            font-size: var(--font-md);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
+            transition: var(--transition);
         }
-        
-        .dropdown > button:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+
+        .dropdown>button:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
-        
-        .dropdown > button i {
-            font-size: 0.8rem;
-            transition: transform 0.3s;
+
+        .dropdown>button i {
+            font-size: 0.7rem;
+            transition: transform 0.25s;
         }
-        
-        .dropdown.open > button i {
+
+        .dropdown.open>button i {
             transform: rotate(180deg);
         }
-        
+
         .dropdown-content {
             display: none;
             position: absolute;
-            background-color: white;
-            min-width: 240px;
+            background: white;
+            min-width: 230px;
             box-shadow: var(--shadow-lg);
             border-radius: var(--radius-md);
             overflow: hidden;
-            z-index: 100;
+            z-index: 110;
             top: 100%;
             left: 0;
-            margin-top: 10px;
+            margin-top: 8px;
+            animation: dropIn 0.2s ease-out;
         }
-        
+
+        @keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .dropdown.open .dropdown-content {
             display: block;
         }
-        
+
         .dropdown-content a {
             color: var(--dark);
-            padding: 12px 16px;
+            padding: 11px 15px;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
-            transition: background-color 0.3s;
-            font-size: 0.9rem;
+            gap: 8px;
+            font-size: var(--font-sm);
+            transition: background 0.2s;
         }
-        
+
         .dropdown-content a i {
-            width: 20px;
+            width: 18px;
             color: var(--primary);
         }
-        
+
         .dropdown-content a:hover {
-            background-color: #f1f1f1;
+            background: #f5f5f5;
         }
-        
+
         .divider {
             height: 1px;
             background: #e0e0e0;
-            margin: 5px 0;
+            margin: 4px 0;
         }
-        
+
         .login-btn {
-            background-color: var(--secondary);
+            background: var(--secondary);
             color: var(--dark);
-            padding: 0.5rem 1.5rem;
+            padding: 0.45rem 1.4rem;
             border-radius: 50px;
             font-weight: 600;
-            transition: all 0.3s;
+            font-size: var(--font-sm);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            transition: var(--transition);
         }
-        
+
         .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
-            background-color: var(--secondary-dark);
         }
-        
+
         .burger-menu {
             display: none;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
             color: white;
             background: none;
             border: none;
         }
-        
-        /* Кнопки в хедере справа */
+
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.5rem;
         }
-        
+
         .action-btn {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.12);
             border: none;
             color: white;
-            padding: 8px 16px;
+            padding: 7px 14px;
             border-radius: 50px;
             cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
+            font-family: inherit;
+            font-size: var(--font-xs);
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+            gap: 5px;
+            transition: var(--transition);
         }
-        
+
         .action-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.25);
         }
-        
+
         .icon-only {
-            padding: 8px 12px;
+            padding: 7px 10px;
         }
-        
-        /* Поиск */
+
+        /* ===== ПОИСК ===== */
         .search-container {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
-        
+
         .search-box {
             display: flex;
-            gap: 10px;
+            gap: 6px;
             background: white;
             border-radius: 50px;
-            padding: 5px 15px;
-            box-shadow: var(--shadow-md);
+            padding: 5px 14px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
         }
-        
+
+        .search-box:focus-within {
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), var(--shadow-md);
+        }
+
         .search-box input {
             flex: 1;
             border: none;
-            padding: 12px 0;
-            font-size: 1rem;
+            padding: 11px 0;
+            font-size: var(--font-md);
             outline: none;
-            font-family: 'Montserrat', sans-serif;
+            font-family: inherit;
+            min-width: 0;
         }
-        
+
         .search-box button {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--primary);
-            padding: 0 10px;
+            padding: 0 8px;
         }
-        
-        .version-badge {
-            background: var(--success);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            margin-left: 8px;
-        }
-        
-        /* Основной контент */
+
+        /* ===== ОСНОВНОЙ КОНТЕНТ ===== */
         main {
-            padding: 2rem 0;
-            min-height: calc(100vh - 150px);
+            padding: 1.8rem 0 2.5rem;
+            min-height: 70vh;
         }
-        
+
         .main-content {
             display: flex;
             gap: 2rem;
         }
-        
+
         .news-main {
             flex: 3;
+            min-width: 0;
         }
-        
+
         .sidebar {
             flex: 1;
             position: sticky;
-            top: 100px;
+            top: 90px;
             height: fit-content;
+            min-width: 260px;
         }
-        
+
         .sidebar-widget {
             background: white;
             border-radius: var(--radius-lg);
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-md);
+            padding: 1rem 1.1rem;
+            margin-bottom: 1.4rem;
+            box-shadow: var(--shadow-sm);
         }
-        
+
         .sidebar-widget h3 {
             color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            font-size: var(--font-md);
             border-bottom: 2px solid var(--secondary);
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.45rem;
         }
-        
+
         .news-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, #0052a3, #003d7a);
             border-radius: var(--radius-xl);
-            padding: 1.5rem 2rem;
+            padding: 1.4rem 1.8rem;
             color: white;
-            margin-bottom: 2rem;
+            margin-bottom: 1.8rem;
             text-align: center;
+            box-shadow: var(--shadow-md);
         }
-        
+
         .news-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
         }
-        
+
+        .news-header p {
+            opacity: 0.9;
+            font-size: var(--font-sm);
+        }
+
         .categories {
             display: flex;
-            gap: 0.8rem;
-            margin-bottom: 2rem;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
-        
+
         .category-btn {
-            padding: 8px 20px;
+            padding: 7px 17px;
             background: white;
-            border: 2px solid var(--primary-light);
+            border: 2px solid #d0d7e2;
             border-radius: 50px;
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.3s;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
+            font-size: var(--font-xs);
+            font-family: inherit;
+            transition: var(--transition);
         }
-        
-        .category-btn:hover, .category-btn.active {
+
+        .category-btn:hover,
+        .category-btn.active {
             background: var(--primary);
             border-color: var(--primary);
             color: white;
             transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
-        
+
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.3rem;
         }
-        
+
         .news-card {
             background: white;
             border-radius: var(--radius-lg);
             overflow: hidden;
-            transition: all 0.3s;
             cursor: pointer;
-            box-shadow: var(--shadow-md);
-            animation: fadeIn 0.5s ease-out;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: cardIn 0.4s ease-out;
+            position: relative;
         }
-        
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .news-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-lg);
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+
         .news-image {
-            height: 160px;
+            height: 150px;
             background-size: cover;
             background-position: center;
+            background-color: #b0c4de;
             position: relative;
-            background-color: var(--primary-light);
+            transition: transform 0.35s;
         }
-        
+
+        .news-card:hover .news-image {
+            transform: scale(1.04);
+        }
+
         .news-badge {
             position: absolute;
-            top: 12px;
-            left: 12px;
+            top: 10px;
+            left: 10px;
             background: var(--secondary);
             color: var(--dark);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 0.65rem;
             font-weight: 700;
+            z-index: 1;
         }
-        
+
         .category-badge {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.7);
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 0.65rem;
+            z-index: 1;
         }
-        
+
         .news-content {
-            padding: 1rem;
+            padding: 0.9rem 1rem 1rem;
         }
-        
+
         .news-title {
-            font-size: 1rem;
+            font-size: var(--font-md);
             font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.4rem;
+            line-height: 1.3;
         }
-        
+
         .news-author {
             font-size: 0.7rem;
             color: var(--gray);
@@ -439,27 +594,38 @@
             align-items: center;
             gap: 5px;
         }
-        
+
         .author-verified {
             color: var(--success);
         }
-        
+
         .news-excerpt {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-bottom: 0.8rem;
+            font-size: var(--font-xs);
+            color: #555;
+            margin-bottom: 0.7rem;
         }
-        
+
         .news-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--gray);
+            font-size: 0.68rem;
+            color: #888;
             padding-top: 0.5rem;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 4px;
         }
-        
-        /* Модальное окно */
+
+        .version-badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            margin-left: 6px;
+        }
+
+        /* ===== МОДАЛЬНОЕ ОКНО ===== */
         .modal {
             display: none;
             position: fixed;
@@ -467,269 +633,625 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 2000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(4px);
+            padding: 10px;
         }
-        
+
         .modal-content {
             background: white;
             border-radius: var(--radius-xl);
-            max-width: 700px;
-            width: 90%;
-            max-height: 85vh;
+            max-width: 720px;
+            width: 100%;
+            max-height: 88vh;
             overflow-y: auto;
-            padding: 1.5rem;
+            padding: 1.4rem 1.6rem;
+            animation: modalIn 0.3s ease-out;
+            position: relative;
         }
-        
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94) translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--secondary);
         }
-        
+
         .modal-header h2 {
             color: var(--primary);
-            font-size: 1.2rem;
+            font-size: 1.15rem;
+            padding-right: 10px;
         }
-        
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .modal-actions button {
+
+        .modal-close-btn {
             background: none;
             border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background 0.3s;
-        }
-        
-        .modal-actions button:hover {
-            background: #f0f0f0;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
             color: var(--gray);
+            padding: 4px 8px;
+            border-radius: 50%;
+            transition: var(--transition);
         }
-        
+
+        .modal-close-btn:hover {
+            background: #f0f0f0;
+        }
+
         .modal-image {
             height: 200px;
             background-size: cover;
             background-position: center;
             border-radius: var(--radius-lg);
-            margin-bottom: 1rem;
-            background-color: var(--primary-light);
+            margin-bottom: 0.8rem;
+            background-color: #b0c4de;
         }
-        
-        .share-buttons {
+
+        .modal-meta-row {
             display: flex;
-            gap: 8px;
-            margin: 1rem 0;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            font-size: var(--font-xs);
+            color: var(--gray);
+            margin: 0.7rem 0;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-meta-row span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Три точки в модалке */
+        .modal-dots-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .modal-dots-btn {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 4px 8px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .modal-dots-btn:hover {
+            background: #eee;
+        }
+
+        .modal-dots-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            min-width: 200px;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .modal-dots-menu.open .modal-dots-dropdown {
+            display: block;
+        }
+
+        .modal-dots-dropdown a,
+        .modal-dots-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: var(--dark);
+            text-decoration: none;
+            font-size: var(--font-xs);
+            transition: background 0.2s;
+            cursor: pointer;
+            width: 100%;
+            border: none;
+            background: none;
+            font-family: inherit;
+            text-align: left;
+        }
+
+        .modal-dots-dropdown a:hover,
+        .modal-dots-dropdown button:hover {
+            background: #f5f5f5;
+        }
+
+        .modal-dots-dropdown .divider {
+            height: 1px;
+            background: #eee;
+            margin: 4px 0;
+        }
+
+        .modal-dots-dropdown .icon-circle {
+            width: 18px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        /* Реакции */
+        .modal-reactions {
+            display: flex;
+            gap: 10px;
+            margin: 0.8rem 0;
             flex-wrap: wrap;
         }
-        
-        .share-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            transition: transform 0.2s;
-            display: inline-flex;
+
+        .reaction-btn {
+            display: flex;
             align-items: center;
-            gap: 6px;
-        }
-        
-        .share-btn:hover { transform: translateY(-2px); }
-        .share-telegram { background: #0088cc; color: white; }
-        .share-vk { background: #4a76a8; color: white; }
-        .share-twitter { background: #1da1f2; color: white; }
-        .share-whatsapp { background: #25d366; color: white; }
-        .share-copy { background: var(--gray); color: white; }
-        
-        .similar-news {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .similar-news h4 {
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .similar-item {
-            padding: 8px;
+            gap: 5px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 6px 14px;
+            border-radius: 20px;
             cursor: pointer;
-            border-radius: var(--radius-md);
-            margin-bottom: 5px;
-            transition: background 0.3s;
+            font-family: inherit;
+            font-size: var(--font-xs);
+            transition: var(--transition);
         }
-        
-        .similar-item:hover {
+
+        .reaction-btn:hover {
+            background: #e8f0fe;
+            border-color: var(--primary-light);
+        }
+
+        .reaction-btn .emoji {
+            font-size: 1.1rem;
+        }
+
+        .reaction-btn .count {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Оценка */
+        .feedback-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0.6rem 0;
+            font-size: var(--font-xs);
+            color: var(--gray);
+            flex-wrap: wrap;
+        }
+
+        .feedback-row button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 5px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: var(--font-xs);
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .feedback-row button:hover {
             background: #f0f0f0;
         }
-        
-        /* Footer */
+
+        .feedback-row .active-fb-yes {
+            background: #d4edda;
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .feedback-row .active-fb-no {
+            background: #f8d7da;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Комментарии */
+        .comments-section {
+            margin-top: 1.4rem;
+            padding-top: 1rem;
+            border-top: 2px solid #eee;
+        }
+
+        .comments-section h4 {
+            font-size: var(--font-md);
+            margin-bottom: 0.8rem;
+            color: var(--dark);
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: var(--font-xs);
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .comment-form button {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 7px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: var(--font-xs);
+            transition: var(--transition);
+        }
+
+        .comment-form button:hover {
+            background: var(--primary-dark);
+        }
+
+        .comment-item {
+            background: #fafafa;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .comment-text {
+            font-size: var(--font-xs);
+        }
+
+        .comment-dots {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .comment-dots-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 28px;
+            background: white;
+            box-shadow: var(--shadow-md);
+            border-radius: var(--radius-sm);
+            min-width: 150px;
+            z-index: 5;
+            overflow: hidden;
+        }
+
+        .comment-dots-menu.open {
+            display: block;
+        }
+
+        .comment-dots-menu a {
+            display: block;
+            padding: 8px 14px;
+            font-size: var(--font-xs);
+            color: var(--dark);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .comment-dots-menu a:hover {
+            background: #f0f0f0;
+        }
+
+        /* Шеринг */
+        .share-buttons {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 6px 13px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: var(--font-xs);
+            font-family: inherit;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .share-telegram {
+            background: #0088cc;
+        }
+        .share-vk {
+            background: #4a76a8;
+        }
+        .share-twitter {
+            background: #1da1f2;
+        }
+        .share-whatsapp {
+            background: #25d366;
+        }
+        .share-copy {
+            background: #666;
+        }
+
+        .similar-news {
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* ===== FOOTER ===== */
         .footer {
-            background-color: var(--dark);
+            background: #1a1a1a;
             color: white;
             padding: 3rem 0 2rem;
             margin-top: 3rem;
         }
-        
+
         .footer-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
-        
+
         .footer-column h3 {
             color: var(--secondary);
             margin-bottom: 1rem;
-            font-size: 1rem;
+            font-size: var(--font-md);
             font-weight: 600;
         }
-        
+
         .footer-column ul {
             list-style: none;
         }
-        
+
         .footer-column li {
             margin-bottom: 0.5rem;
         }
-        
+
         .footer-column a {
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            transition: color 0.3s;
-            font-size: 0.9rem;
+            font-size: var(--font-sm);
+            transition: color 0.2s;
         }
-        
+
         .footer-column a:hover {
             color: var(--secondary);
         }
-        
+
         .footer-bottom {
             text-align: center;
             padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .copyright {
-            color: var(--gray);
-            font-size: 0.9rem;
+            color: #888;
+            font-size: var(--font-sm);
         }
-        
+
+        /* ===== ТОСТ ===== */
         .notification-toast {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background: var(--primary);
             color: white;
-            padding: 12px 20px;
-            border-radius: var(--radius-md);
-            z-index: 2000;
-            animation: slideIn 0.3s ease-out;
+            padding: 10px 22px;
+            border-radius: 25px;
+            z-index: 2500;
+            animation: toastIn 0.3s ease-out;
+            box-shadow: var(--shadow-lg);
+            font-size: var(--font-xs);
+            white-space: nowrap;
         }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
-        
+
+        /* ===== АДАПТИВ ===== */
         @media (max-width: 992px) {
             .burger-menu {
                 display: block;
             }
-            
             .nav-links {
                 display: none;
                 width: 100%;
                 flex-direction: column;
-                background: var(--primary-dark);
+                background: #004b99;
                 border-radius: var(--radius-md);
-                padding: 1rem;
-                margin-top: 1rem;
+                padding: 0.8rem;
+                margin-top: 0.5rem;
             }
-            
             .nav-links.active {
                 display: flex;
             }
-            
             .dropdown {
                 width: 100%;
             }
-            
             .dropdown-content {
                 position: static;
-                background: rgba(0, 0, 0, 0.2);
-                margin-left: 1rem;
+                background: rgba(0, 0, 0, 0.15);
+                margin-left: 0.8rem;
                 box-shadow: none;
             }
-            
             .dropdown-content a {
                 color: white;
             }
-            
             .dropdown-content a i {
                 color: var(--secondary);
             }
-            
             .main-content {
                 flex-direction: column;
             }
-            
             .sidebar {
                 position: static;
+                min-width: 0;
             }
-            
-            .header-actions span {
-                display: none;
-            }
-            
-            .action-btn {
-                padding: 8px 12px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .news-header h1 {
-                font-size: 1.6rem;
-            }
-            
             .news-grid {
                 grid-template-columns: 1fr;
             }
+            .modal-content {
+                padding: 1rem;
+            }
         }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-        }
-        
-        .highlight {
-            background-color: var(--secondary);
-            color: var(--dark);
-            padding: 0 2px;
-            border-radius: 3px;
+
+        @media (max-width: 480px) {
+            .news-header h1 {
+                font-size: 1.3rem;
+            }
+            .news-header {
+                padding: 1rem;
+            }
+            .modal-image {
+                height: 140px;
+            }
+            .reaction-btn {
+                padding: 5px 10px;
+                font-size: 0.7rem;
+            }
+            .share-buttons {
+                gap: 4px;
+            }
+            .share-btn {
+                padding: 5px 10px;
+                font-size: 0.68rem;
+            }
         }
     </style>
 </head>
 <body>
+<body>
+
+    <!-- 🔴 ПРОВЕРКА БАНА (добавь это) -->
+    <div id="banOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; padding:20px; font-family:'Montserrat',sans-serif;">
+        <div style="background:#1a1a1a; border-radius:20px; padding:40px 30px; max-width:480px; width:100%; border:2px solid #dc3545; box-shadow:0 0 40px rgba(220,53,69,0.3);">
+            <div style="font-size:4rem; margin-bottom:1rem;">🚫</div>
+            <h2 style="color:#dc3545; margin-bottom:0.8rem; font-size:1.4rem; font-weight:700;">Доступ ограничен</h2>
+            <p style="font-size:0.9rem; color:#ccc; margin-bottom:0.3rem;" id="banReason">Вы забанены за нарушение правил</p>
+            <p style="font-size:0.75rem; color:#888; margin-bottom:1.5rem;" id="banExpires"></p>
+            <div style="font-size:0.7rem; color:#666; line-height:1.5;">
+                Если вы считаете это ошибкой, напишите нам:<br>
+                <a href="mailto:metro.new.help@gmail.com" style="color:#0066CC; text-decoration:none; font-weight:500;">metro.new.help@gmail.com</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Проверка бана при загрузке -->
+    <script>
+    (async function checkBanOnLoad() {
+        const fp = navigator.userAgent + '|' + (navigator.language || '') + '|' + screen.width;
+        
+        try {
+            const snap = await firebase.firestore()
+                .collection('bans')
+                .where('fingerprint', '==', fp)
+                .where('status', '==', 'active')
+                .get();
+            
+            if (!snap.empty) {
+                const ban = snap.docs[0].data();
+                
+                // Проверяем срок бана
+                if (ban.expiresAt && new Date(ban.expiresAt) < new Date()) {
+                    // Срок истёк — разбаниваем
+                    await snap.docs[0].ref.update({ status: 'inactive', unbannedAt: new Date().toISOString() });
+                    return; // Пропускаем, бан снят
+                }
+                
+                // Показываем оверлей
+                const overlay = document.getElementById('banOverlay');
+                overlay.style.display = 'flex';
+                
+                // Причина
+                document.getElementById('banReason').textContent = ban.reason || 'Вы забанены за нарушение правил';
+                
+                // Срок
+                if (ban.duration === 'permanent' || !ban.expiresAt) {
+                    document.getElementById('banExpires').textContent = '⏰ Бан навсегда';
+                } else {
+                    const expires = new Date(ban.expiresAt);
+                    document.getElementById('banExpires').textContent = 
+                        '⏰ До разбана: ' + expires.toLocaleDateString('ru-RU', { 
+                            day: 'numeric', month: 'long', year: 'numeric' 
+                        });
+                }
+                
+                // Блокируем скролл страницы
+                document.body.style.overflow = 'hidden';
+            }
+        } catch(e) {
+            console.log('Ошибка проверки бана:', e);
+        }
+    })();
+    </script>
+
+    <!-- Кнопка Наверх -->
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Наверх">
+        <div class="progress-ring-wrap">
+            <svg viewBox="0 0 56 56">
+                <circle class="bg-circle" cx="28" cy="28" r="24"/>
+                <circle class="progress-circle" id="progressCircle" cx="28" cy="28" r="24"
+                stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+            </svg>
+        </div>
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <header>
         <div class="container">
             <nav>
@@ -739,16 +1261,10 @@
                         <span>Метро New</span>
                     </a>
                 </div>
-                
-                <button class="burger-menu" id="burgerMenu">
-                    <i class="fas fa-bars"></i>
-                </button>
-                
+                <button class="burger-menu" id="burgerMenu"><i class="fas fa-bars"></i></button>
                 <div class="nav-links" id="navLinks">
                     <div class="dropdown" id="dropdownOther">
-                        <button id="dropdownBtn">
-                            Другое <i class="fas fa-chevron-down"></i>
-                        </button>
+                        <button id="dropdownBtn">Другое <i class="fas fa-chevron-down"></i></button>
                         <div class="dropdown-content">
                             <a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a>
                             <a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a>
@@ -761,76 +1277,42 @@
                             <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/"><i class="fas fa-gavel"></i> Правовые документы</a>
                         </div>
                     </div>
-                    
                     <div class="dropdown" id="dropdownLinks">
-                        <button id="dropdownLinksBtn">
-                            Полезные ссылки <i class="fas fa-chevron-down"></i>
-                        </button>
+                        <button id="dropdownLinksBtn">Полезные ссылки <i class="fas fa-chevron-down"></i></button>
                         <div class="dropdown-content">
                             <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank"><i class="fas fa-play"></i> Начать играть</a>
                             <a href="https://kirill12633.github.io/status.metro.new/" target="_blank"><i class="fas fa-chart-line"></i> Статус сервисов</a>
                         </div>
                     </div>
-                    
-                    <div class="header-actions">
-                        <div class="dropdown" id="moreDropdown">
-                            <button class="action-btn icon-only" id="moreBtn">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-content" id="moreMenu">
-                                <a href="#" onclick="openSaved()"><i class="fas fa-bookmark"></i> Сохранённые</a>
-                                <a href="#" onclick="openRecommendations()"><i class="fas fa-robot"></i> Подборки</a>
-                                <div class="divider"></div>
-                                <a href="#" onclick="openShareMenu()"><i class="fas fa-share-alt"></i> Поделиться</a>
-                                <a href="#" onclick="openReviewModal()"><i class="fas fa-star"></i> Оставить отзыв</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn">
-                        <i class="fas fa-sign-in-alt"></i> Войти
-                    </a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a>
                 </div>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <!-- Поиск -->
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Поиск новостей..." onkeyup="searchNews()">
+                <input type="text" id="searchInput" placeholder="Поиск новостей..." oninput="debouncedSearch()">
                 <button onclick="searchNews()"><i class="fas fa-search"></i></button>
                 <button onclick="clearSearch()" style="color:var(--gray);"><i class="fas fa-times"></i></button>
             </div>
         </div>
-        
         <div class="main-content">
             <div class="news-main">
                 <div class="news-header">
                     <h1><i class="fas fa-newspaper"></i> Новости проекта</h1>
-                    <p>Будьте в курсе последних событий, обновлений и анонсов</p>
+                    <p>Последние события, обновления и анонсы</p>
                 </div>
-                
                 <div class="categories" id="categoriesContainer"></div>
                 <div id="newsGrid" class="news-grid">
-                    <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка новостей...</p></div>
+                    <div style="text-align:center;padding:40px;">Загрузка...</div>
                 </div>
             </div>
-            
             <div class="sidebar">
-                <div class="sidebar-widget" id="recommendationsWidget">
-                    <h3><i class="fas fa-robot"></i> AI рекомендации</h3>
-                    <div id="recommendationsList" style="max-height: 400px; overflow-y: auto;">
-                        <div style="color:var(--gray); text-align:center; padding:20px;">Анализируем ваши интересы...</div>
-                    </div>
-                </div>
-                
                 <div class="sidebar-widget">
-                    <h3><i class="fas fa-bookmark"></i> Сохранённые</h3>
-                    <div id="bookmarksList">
-                        <div style="color:var(--gray); text-align:center;">Нет сохранённых новостей</div>
-                    </div>
+                    <h3><i class="fas fa-robot"></i> AI рекомендации</h3>
+                    <div id="recommendationsList" style="max-height:350px;overflow-y:auto;"></div>
                 </div>
             </div>
         </div>
@@ -841,45 +1323,94 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle"></h2>
-                <div class="modal-actions">
-                    <button onclick="toggleBookmarkCurrent()" id="bookmarkBtn" title="Сохранить">
-                        <i class="far fa-bookmark"></i>
-                    </button>
-                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <!-- Кнопка "Три точки" -->
+                    <div class="modal-dots-menu" id="modalDotsMenu">
+                        <button class="modal-dots-btn" id="modalDotsBtn" aria-label="Действия">⋮</button>
+                        <div class="modal-dots-dropdown">
+                            <button onclick="saveNews()">
+                                <span class="icon-circle"><i class="far fa-bookmark"></i></span> Сохранить
+                            </button>
+                            <button onclick="openFeedbackModal()">
+                                <span class="icon-circle"><i class="far fa-comment-dots"></i></span> Оставить отзыв
+                            </button>
+                            <button onclick="shareModalNews('telegram')">
+                                <span class="icon-circle"><i class="fab fa-telegram"></i></span> Поделиться
+                            </button>
+                            <div class="divider"></div>
+                            <button onclick="toggleReactions()">
+                                <span class="icon-circle"><i class="far fa-smile"></i></span> Оставить реакцию
+                            </button>
+                            <button onclick="submitNewsFeedback('yes')">
+                                <span class="icon-circle"><i class="far fa-thumbs-up"></i></span> Было полезно
+                            </button>
+                            <button onclick="showMoreLikeThis()">
+                                <span class="icon-circle"><i class="fas fa-redo"></i></span> Показывать больше таких
+                            </button>
+                        </div>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeModal()">&times;</button>
                 </div>
             </div>
             <div id="modalImage" class="modal-image"></div>
             <div id="modalAuthor" class="news-author"></div>
-            <div class="share-buttons" id="modalShareButtons"></div>
-            <div id="modalContent" class="modal-content-text"></div>
-            <div id="modalMeta" style="margin-top:1rem; font-size:0.8rem; color:var(--gray);"></div>
+
+            <div class="modal-reactions" id="modalReactions"></div>
+
+            <div id="modalContent" style="margin:0.5rem 0;"></div>
+
+            <div class="modal-meta-row">
+                <span id="modalDate"></span>
+                <span id="modalViews"></span>
+                <span id="modalFeedbackWidget"></span>
+            </div>
+
+            <!-- Оценка -->
+            <div class="feedback-row" id="feedbackRow">
+                <span>Новость полезна?</span>
+                <button onclick="submitNewsFeedback('yes')" id="fbYesBtn">👍 Да</button>
+                <button onclick="submitNewsFeedback('no')" id="fbNoBtn">👎 Нет</button>
+                <span id="fbCount" style="font-size:0.68rem;color:#aaa;"></span>
+            </div>
+
+            <!-- Комментарии -->
+            <div class="comments-section">
+                <h4>💬 Комментарии</h4>
+                <div class="comment-form">
+                    <textarea id="commentInput" placeholder="Оставьте комментарий..."></textarea>
+                    <button onclick="submitComment()">Отправить</button>
+                </div>
+                <div id="commentsList"></div>
+            </div>
+
             <div id="similarNews" class="similar-news"></div>
         </div>
     </div>
 
     <!-- Модалка отзыва -->
-    <div id="reviewModal" class="modal" style="display:none;">
-        <div class="review-content" style="background:white; border-radius:15px; max-width:500px; width:90%; padding:1.5rem;">
-            <h3 style="color:var(--primary); margin-bottom:1rem;">Оставить отзыв</h3>
-            <div style="text-align:center; margin-bottom:1rem;">
-                <span>Как вам страница?</span>
-                <div class="stars" id="starRating" style="display:flex; gap:10px; justify-content:center; margin-top:0.5rem;">
-                    <i class="far fa-star" data-rating="1" style="font-size:1.8rem; cursor:pointer;"></i>
-                    <i class="far fa-star" data-rating="2" style="font-size:1.8rem; cursor:pointer;"></i>
-                    <i class="far fa-star" data-rating="3" style="font-size:1.8rem; cursor:pointer;"></i>
-                    <i class="far fa-star" data-rating="4" style="font-size:1.8rem; cursor:pointer;"></i>
-                    <i class="far fa-star" data-rating="5" style="font-size:1.8rem; cursor:pointer;"></i>
+    <div id="feedbackModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <h2>Оставить отзыв</h2>
+                <button class="modal-close-btn" onclick="closeFeedbackModal()">&times;</button>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label style="font-size:var(--font-xs);color:var(--gray);">Как вам новость?</label>
+                <div style="display:flex;gap:10px;margin:0.5rem 0;" id="feedbackStars">
+                    <i class="far fa-star" data-rating="1" style="font-size:1.5rem;cursor:pointer;color:#ddd;"></i>
+                    <i class="far fa-star" data-rating="2" style="font-size:1.5rem;cursor:pointer;color:#ddd;"></i>
+                    <i class="far fa-star" data-rating="3" style="font-size:1.5rem;cursor:pointer;color:#ddd;"></i>
+                    <i class="far fa-star" data-rating="4" style="font-size:1.5rem;cursor:pointer;color:#ddd;"></i>
+                    <i class="far fa-star" data-rating="5" style="font-size:1.5rem;cursor:pointer;color:#ddd;"></i>
                 </div>
-                <div id="ratingCount" style="font-size:0.8rem; color:var(--gray); margin-top:0.5rem;"></div>
             </div>
-            <textarea id="reviewText" rows="4" placeholder="Поделитесь впечатлениями..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-family:inherit; margin:1rem 0;"></textarea>
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
-                <button onclick="closeReviewModal()" style="padding:8px 16px; background:#ddd; border:none; border-radius:50px; cursor:pointer;">Отмена</button>
-                <button onclick="submitReview()" style="padding:8px 16px; background:var(--primary); color:white; border:none; border-radius:50px; cursor:pointer;">Отправить</button>
+            <textarea id="feedbackText" rows="4" placeholder="Опишите ваши впечатления..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:var(--radius-sm);font-family:inherit;font-size:var(--font-xs);resize:vertical;"></textarea>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:1rem;">
+                <button onclick="closeFeedbackModal()" style="padding:8px 16px;background:#ddd;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:var(--font-xs);">Отмена</button>
+                <button onclick="submitFeedback()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:var(--font-xs);">Отправить</button>
             </div>
-            <div style="margin-top:1rem; text-align:center; font-size:0.8rem; color:var(--gray);">
-                Также вы можете написать нам на почту:<br>
-                <a href="mailto:metro.new.help@gmail.com" style="color:var(--primary);">metro.new.help@gmail.com</a>
+            <div style="margin-top:0.8rem;text-align:center;font-size:0.65rem;color:var(--gray);">
+                Отзыв будет отправлен на почту
             </div>
         </div>
     </div>
@@ -909,7 +1440,6 @@
                         <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Политика конфиденциальности</a></li>
                         <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Пользовательское соглашение</a></li>
                         <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/">Политика возврата</a></li>
-                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/">Правила сайта</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -928,644 +1458,474 @@
     </footer>
 
     <script>
-        // Текущий год
-        document.getElementById('currentYear').innerText = new Date().getFullYear();
-        
-        // Firebase config
-        const firebaseConfig = {
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Firebase
+        firebase.initializeApp({
             apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
             authDomain: "metro-new-admin.firebaseapp.com",
             projectId: "metro-new-admin",
             storageBucket: "metro-new-admin.firebasestorage.app",
             messagingSenderId: "769002010414",
             appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
+        });
         const db = firebase.firestore();
-        
-        let currentCategory = 'all';
-        let allNews = [];
-        let currentNewsId = null;
-        let bookmarks = JSON.parse(localStorage.getItem('newsBookmarks') || '[]');
-        let readHistory = JSON.parse(localStorage.getItem('readHistory') || '[]');
-        let searchQuery = '';
-        
-        // Рейтинг страницы (в модалке)
-        let pageRating = JSON.parse(localStorage.getItem('pageRating') || '{"total":0,"count":0}');
-        document.getElementById('ratingCount').innerText = pageRating.count + ' оценок';
-        
-        function setPageRating(rating) {
-            pageRating.total += rating;
-            pageRating.count++;
-            localStorage.setItem('pageRating', JSON.stringify(pageRating));
-            const avg = (pageRating.total / pageRating.count).toFixed(1);
-            document.getElementById('ratingCount').innerText = pageRating.count + ' оценок (среднее ' + avg + ')';
-            showNotification('Спасибо за оценку!');
-            
-            // Подсветка звезд в модалке
-            document.querySelectorAll('#starRating i').forEach((star, i) => {
-                if (i < rating) {
-                    star.classList.add('fas');
-                    star.classList.remove('far');
-                }
-            });
-        }
-        
-        // Поиск новостей
-        function searchNews() {
-            const input = document.getElementById('searchInput');
-            searchQuery = input.value.toLowerCase().trim();
-            
-            if (searchQuery === '') {
-                loadNews();
-                return;
+
+        // Состояние
+        let allNews = [],
+            currentNewsId = null,
+            currentNewsData = null,
+            currentCategory = 'all',
+            searchQuery = '',
+            searchTimer = null,
+            feedbackRating = 0;
+        const bookmarks = JSON.parse(localStorage.getItem('newsBookmarks') || '[]');
+        const readHistory = JSON.parse(localStorage.getItem('readHistory') || '[]');
+        const newsFeedback = JSON.parse(localStorage.getItem('newsFeedback') || '{}');
+        const browserFingerprint = navigator.userAgent + '|' + (navigator.language || '') + '|' + screen.width;
+
+        // ===== КНОПКА НАВЕРХ =====
+        const scrollBtn = document.getElementById('scrollToTop');
+        const progressCircle = document.getElementById('progressCircle');
+        const circumference = 150.8;
+
+        function updateScroll() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
+            scrollBtn.classList.toggle('visible', scrollTop > 350);
+            if (progressCircle) {
+                progressCircle.style.strokeDashoffset = circumference - (progress * circumference);
             }
-            
-            const filtered = allNews.filter(news => {
-                return (news.title || '').toLowerCase().includes(searchQuery) ||
-                       (news.excerpt || '').toLowerCase().includes(searchQuery) ||
-                       (news.content || '').toLowerCase().includes(searchQuery);
-            });
-            
+        }
+        scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        window.addEventListener('scroll', updateScroll, { passive: true });
+        updateScroll();
+
+        // ===== ДЕБАУНС ПОИСК =====
+        function debouncedSearch() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(searchNews, 400);
+        }
+
+        function searchNews() {
+            searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!searchQuery) { loadNews(); return; }
+            const filtered = allNews.filter(n =>
+                (n.title || '').toLowerCase().includes(searchQuery) ||
+                (n.excerpt || '').toLowerCase().includes(searchQuery) ||
+                (n.content || '').toLowerCase().includes(searchQuery)
+            );
             displayNews(filtered, searchQuery);
         }
-        
+
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             searchQuery = '';
             loadNews();
         }
-        
-        function displayNews(newsList, highlightQuery) {
+
+        // ===== UTILS =====
+        function esc(str) { return String(str || '').replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[
+                m])); }
+
+        function escReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        function fmtDate(ts) {
+            if (!ts) return '';
+            if (ts.toDate) ts = ts.toDate();
+            return new Date(ts).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit' });
+        }
+
+        function notify(msg) {
+            const t = document.createElement('div');
+            t.className = 'notification-toast';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0';
+                setTimeout(() => t.remove(), 300); }, 2800);
+        }
+
+        // ===== РЕНДЕР КАРТОЧЕК =====
+        function displayNews(list, hl) {
             const grid = document.getElementById('newsGrid');
-            if (newsList.length === 0) {
-                grid.innerHTML = '<div style="text-align:center;padding:40px;">🔍 Ничего не найдено</div>';
-                return;
-            }
-            
-            const categoryNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
-            const categoryIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle', announcement: 'fa-bullhorn' };
-            
-            let html = '';
-            for (const news of newsList) {
-                const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
-                const views = news.views || 0;
-                const imageUrl = news.imageUrl || '';
-                const author = news.author || 'Метро New';
-                const verified = author === 'Метро New';
-                
-                let title = escapeHtml(news.title || 'Без названия');
-                if (highlightQuery) {
-                    const regex = new RegExp(`(${highlightQuery})`, 'gi');
-                    title = title.replace(regex, '<span class="highlight">$1</span>');
-                }
-                
-                html += `
-                    <div class="news-card" onclick="openNews('${news.id}')">
-                        <div class="news-image" style="${imageUrl ? `background-image: url('${imageUrl}');` : 'background: linear-gradient(135deg, var(--primary), var(--primary-dark));'}">
-                            ${news.badge ? `<span class="news-badge">${escapeHtml(news.badge)}</span>` : ''}
-                            <span class="category-badge"><i class="fas ${categoryIcons[news.category] || 'fa-newspaper'}"></i> ${categoryNames[news.category] || 'Новость'}</span>
-                        </div>
-                        <div class="news-content">
-                            <h3 class="news-title">${title}${news.important ? '<span class="version-badge">Важно</span>' : ''}</h3>
-                            <div class="news-author">
-                                <i class="fas fa-user"></i> ${escapeHtml(author)}
-                                ${verified ? '<i class="fas fa-check-circle author-verified" title="Проверенный автор"></i>' : ''}
-                            </div>
-                            <p class="news-excerpt">${escapeHtml((news.excerpt || '').substring(0, 100))}...</p>
-                            <div class="news-meta">
-                                <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                                <span><i class="far fa-eye"></i> ${views}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            grid.innerHTML = html;
-        }
-        
-        // AI рекомендации
-        function getAIPersonalRecommendations() {
-            if (allNews.length === 0) return [];
-            
-            const categoryPreference = {};
-            const keywordPreference = {};
-            
-            readHistory.forEach(item => {
-                const news = allNews.find(n => n.id === item.id);
-                if (news) {
-                    const cat = news.category || 'announcement';
-                    categoryPreference[cat] = (categoryPreference[cat] || 0) + 1;
-                    
-                    const words = (news.title || '').toLowerCase().split(/\s+/);
-                    words.forEach(word => {
-                        if (word.length > 3) {
-                            keywordPreference[word] = (keywordPreference[word] || 0) + 1;
-                        }
-                    });
-                }
-            });
-            
-            let topCategory = 'all';
-            let maxCount = 0;
-            for (const [cat, count] of Object.entries(categoryPreference)) {
-                if (count > maxCount) {
-                    maxCount = count;
-                    topCategory = cat;
-                }
-            }
-            
-            const topKeywords = Object.entries(keywordPreference)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0, 5)
-                .map(k => k[0]);
-            
-            let recommendations = allNews.filter(news => {
-                if (readHistory.some(h => h.id === news.id)) return false;
-                
-                let score = 0;
-                if (news.category === topCategory && topCategory !== 'all') score += 15;
-                
-                const titleLower = (news.title || '').toLowerCase();
-                topKeywords.forEach(keyword => {
-                    if (titleLower.includes(keyword)) score += 10;
-                });
-                
-                score += Math.min((news.views || 0) / 50, 10);
-                score += (news.important ? 5 : 0);
-                
-                return score > 0;
-            });
-            
-            recommendations.sort((a,b) => {
-                let scoreA = 0, scoreB = 0;
-                if (a.category === topCategory) scoreA += 15;
-                if (b.category === topCategory) scoreB += 15;
-                scoreA += (a.views || 0);
-                scoreB += (b.views || 0);
-                return scoreB - scoreA;
-            });
-            
-            return recommendations.slice(0, 5);
-        }
-        
-        // Похожие новости
-        function getSimilarNews(currentNews) {
-            if (!currentNews || allNews.length === 0) return [];
-            
-            const keywords = (currentNews.title + ' ' + (currentNews.content || '')).toLowerCase().split(/\s+/);
-            const importantKeywords = keywords.filter(w => w.length > 4).slice(0, 10);
-            
-            const similar = allNews.filter(news => {
-                if (news.id === currentNews.id) return false;
-                if (readHistory.some(h => h.id === news.id)) return false;
-                
-                let score = 0;
-                const newsText = (news.title + ' ' + (news.content || '')).toLowerCase();
-                importantKeywords.forEach(keyword => {
-                    if (newsText.includes(keyword)) score += 5;
-                });
-                if (news.category === currentNews.category) score += 10;
-                
-                return score > 5;
-            });
-            
-            similar.sort((a,b) => (b.views || 0) - (a.views || 0));
-            return similar.slice(0, 3);
-        }
-        
-        function renderRecommendations() {
-            const container = document.getElementById('recommendationsList');
-            if (!container) return;
-            
-            const recommendations = getAIPersonalRecommendations();
-            
-            if (recommendations.length === 0) {
-                const popularNews = [...allNews]
-                    .sort((a, b) => (b.views || 0) - (a.views || 0))
-                    .slice(0, 5);
-                
-                if (popularNews.length > 0) {
-                    container.innerHTML = `
-                        <div style="font-size:0.7rem; color:var(--gray); margin-bottom:10px;">
-                            <i class="fas fa-fire"></i> Популярные новости
-                        </div>
-                        ${popularNews.map(news => `
-                            <div class="news-card" style="margin-bottom:10px; cursor:pointer;" onclick="openNews('${news.id}')">
-                                <div class="news-content" style="padding:0.8rem;">
-                                    <div class="news-title" style="font-size:0.85rem;">${escapeHtml(news.title || 'Без названия')}</div>
-                                    <div class="news-meta" style="margin-top:8px;">
-                                        <span><i class="far fa-eye"></i> ${news.views || 0} просмотров</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    `;
-                } else {
-                    container.innerHTML = '<div style="color:var(--gray); text-align:center; padding:20px;">📚 Читайте новости, чтобы получать персональные рекомендации</div>';
-                }
-                return;
-            }
-            
-            container.innerHTML = `
-                <div style="font-size:0.7rem; color:var(--gray); margin-bottom:10px;">
-                    <i class="fas fa-robot"></i> Для вас
+            if (!list.length) { grid.innerHTML =
+                    '<div style="text-align:center;padding:40px;">🔍 Ничего не найдено</div>'; return; }
+            const catNames = { update: 'Обновление', event: 'Событие', important: 'Важное', announcement: 'Анонс' };
+            const catIcons = { update: 'fa-sync-alt', event: 'fa-calendar-alt', important: 'fa-exclamation-triangle',
+                announcement: 'fa-bullhorn' };
+            grid.innerHTML = list.map(n => {
+                const date = fmtDate(n.createdAt);
+                const img = n.imageUrl ? `background-image:url('${n.imageUrl}')` :
+                    'background:linear-gradient(135deg,#4d94ff,#0066CC)';
+                let title = esc(n.title || 'Без названия');
+                if (hl) title = title.replace(new RegExp(`(${escReg(hl)})`, 'gi'),
+                    '<span style="background:#FFD700;padding:0 2px;border-radius:2px;">$1</span>');
+                return `
+            <div class="news-card" onclick="openNews('${n.id}')">
+              <div class="news-image" style="${img}">
+                ${n.badge?`<span class="news-badge">${esc(n.badge)}</span>`:''}
+                <span class="category-badge"><i class="fas ${catIcons[n.category]||'fa-newspaper'}"></i> ${catNames[n.category]||'Новость'}</span>
+              </div>
+              <div class="news-content">
+                <div class="news-title">${title}${n.important?'<span class="version-badge">Важно</span>':''}</div>
+                <div class="news-author"><i class="fas fa-user"></i> ${esc(n.author||'Метро New')} <i class="fas fa-check-circle author-verified" title="Проверенный автор"></i></div>
+                <div class="news-excerpt">${esc((n.excerpt||'').substring(0,110))}...</div>
+                <div class="news-meta">
+                  <span><i class="far fa-calendar-alt"></i> ${date}</span>
+                  <span><i class="far fa-eye"></i> ${n.views||0}</span>
                 </div>
-                ${recommendations.map(news => `
-                    <div class="news-card" style="margin-bottom:10px; cursor:pointer;" onclick="openNews('${news.id}')">
-                        <div class="news-content" style="padding:0.8rem;">
-                            <div class="news-title" style="font-size:0.85rem;">${escapeHtml(news.title || 'Без названия')}</div>
-                            <div class="news-meta" style="margin-top:8px;">
-                                <span><i class="far fa-eye"></i> ${news.views || 0}</span>
-                                <span><i class="fas fa-robot" style="color:var(--secondary);"></i> AI рекомендует</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            `;
+              </div>
+            </div>`;
+            }).join('');
         }
-        
-        // Закладки
-        function toggleBookmark(newsId, title) {
-            const exists = bookmarks.find(b => b.id === newsId);
-            if (exists) {
-                bookmarks = bookmarks.filter(b => b.id !== newsId);
-                showNotification('Удалено из сохранённых');
-            } else {
-                bookmarks.unshift({ id: newsId, title: title, date: new Date().toLocaleString() });
-                showNotification('Сохранено в закладки');
-            }
-            localStorage.setItem('newsBookmarks', JSON.stringify(bookmarks));
-            renderBookmarks();
-            updateBookmarkButton();
-        }
-        
-        function toggleBookmarkCurrent() {
-            if (currentNewsId) {
-                const news = allNews.find(n => n.id === currentNewsId);
-                if (news) toggleBookmark(currentNewsId, news.title);
-            } else {
-                showNotification('Откройте новость, чтобы сохранить');
-            }
-        }
-        
-        function updateBookmarkButton() {
-            const btn = document.getElementById('bookmarkBtn');
-            if (btn && currentNewsId) {
-                const isBookmarked = bookmarks.some(b => b.id === currentNewsId);
-                btn.innerHTML = isBookmarked ? '<i class="fas fa-bookmark"></i>' : '<i class="far fa-bookmark"></i>';
-            }
-        }
-        
-        function renderBookmarks() {
-            const container = document.getElementById('bookmarksList');
-            if (!container) return;
-            if (bookmarks.length === 0) {
-                container.innerHTML = '<div style="color:var(--gray); text-align:center;">Нет сохранённых новостей</div>';
-                return;
-            }
-            container.innerHTML = bookmarks.slice(0, 5).map(b => `
-                <div class="news-card" style="margin-bottom:10px; cursor:pointer;" onclick="openNews('${b.id}')">
-                    <div class="news-content" style="padding:0.8rem;">
-                        <div class="news-title" style="font-size:0.85rem;">${escapeHtml(b.title.substring(0, 35))}${b.title.length > 35 ? '...' : ''}</div>
-                        <div class="news-meta" style="margin-top:8px;">
-                            <span><i class="far fa-clock"></i> ${b.date}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            if (bookmarks.length > 5) {
-                container.innerHTML += '<div style="text-align:center; margin-top:10px;"><small>и ещё ' + (bookmarks.length - 5) + ' сохранённых</small></div>';
-            }
-        }
-        
-        function openSaved() {
-            document.getElementById('bookmarksList').scrollIntoView({ behavior: 'smooth' });
-            showNotification('Ваши сохранённые новости');
-        }
-        
-        function openShareMenu() {
-            const url = encodeURIComponent(window.location.href);
-            const title = encodeURIComponent('Метро New - Новости проекта');
-            const shareText = `Поделиться:\nTelegram: https://t.me/share/url?url=${url}&text=${title}\nVK: https://vk.com/share.php?url=${url}&title=${title}`;
-            alert('Поделиться:\nTelegram: https://t.me/share/url?url=' + decodeURIComponent(url) + '\nVK: https://vk.com/share.php?url=' + decodeURIComponent(url));
-        }
-        
-        function openRecommendations() {
-            renderRecommendations();
-            document.getElementById('recommendationsWidget').scrollIntoView({ behavior: 'smooth' });
-            showNotification('AI подобрал для вас рекомендации');
-        }
-        
-        // История
-        function addToHistory(newsId, title) {
-            readHistory = readHistory.filter(h => h.id !== newsId);
-            readHistory.unshift({ id: newsId, title: title, date: new Date().toLocaleString() });
-            if (readHistory.length > 20) readHistory.pop();
-            localStorage.setItem('readHistory', JSON.stringify(readHistory));
-            renderRecommendations();
-        }
-        
-        // Отзывы
-        function openReviewModal() {
-            document.getElementById('reviewModal').style.display = 'flex';
-            // Обновляем счетчик оценок
-            document.getElementById('ratingCount').innerText = pageRating.count + ' оценок';
-        }
-        
-        function closeReviewModal() {
-            document.getElementById('reviewModal').style.display = 'none';
-            document.getElementById('reviewText').value = '';
-            document.querySelectorAll('#starRating i').forEach(star => {
-                star.classList.remove('fas');
-                star.classList.add('far');
-            });
-            currentRating = 0;
-        }
-        
-        let currentRating = 0;
-        function setupStarRating() {
-            document.querySelectorAll('#starRating i').forEach(star => {
-                star.addEventListener('click', () => {
-                    const rating = parseInt(star.dataset.rating);
-                    currentRating = rating;
-                    setPageRating(rating);
-                });
-            });
-        }
-        
-        function submitReview() {
-            const text = document.getElementById('reviewText').value;
-            if (currentRating === 0) {
-                showNotification('Пожалуйста, поставьте оценку');
-                return;
-            }
-            
-            const reviews = JSON.parse(localStorage.getItem('userReviews') || '[]');
-            reviews.push({
-                rating: currentRating,
-                text: text,
-                date: new Date().toISOString()
-            });
-            localStorage.setItem('userReviews', JSON.stringify(reviews));
-            
-            // Отправка на почту
-            const subject = encodeURIComponent('Отзыв о сайте Метро New');
-            const body = encodeURIComponent(`Оценка: ${currentRating} звезд\n\nОтзыв: ${text}\n\n---\nОтправлено с сайта Метро New`);
-            window.location.href = `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
-            
-            showNotification('Спасибо за отзыв!');
-            closeReviewModal();
-        }
-        
-        // Общие функции
-        function showNotification(message) {
-            const toast = document.createElement('div');
-            toast.className = 'notification-toast';
-            toast.innerHTML = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-        }
-        
-        function formatDate(timestamp) {
-            if (!timestamp) return 'Дата не указана';
-            if (timestamp.toDate) {
-                return timestamp.toDate().toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
-            }
-            return timestamp;
-        }
-        
+
+        // ===== КАТЕГОРИИ =====
         function renderCategories() {
-            const container = document.getElementById('categoriesContainer');
-            if (!container) return;
-            const categories = [
-                { id: 'all', name: 'Все', icon: 'fa-newspaper' },
-                { id: 'update', name: 'Обновления', icon: 'fa-sync-alt' },
-                { id: 'event', name: 'События', icon: 'fa-calendar-alt' },
-                { id: 'important', name: 'Важное', icon: 'fa-exclamation-triangle' },
-                { id: 'announcement', name: 'Анонсы', icon: 'fa-bullhorn' }
-            ];
-            let html = '';
-            categories.forEach(cat => {
-                html += `<button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" onclick="filterNews('${cat.id}')">
-                    <i class="fas ${cat.icon}"></i> ${cat.name}
-                </button>`;
-            });
-            container.innerHTML = html;
+            const cats = [{ id: 'all', name: 'Все', icon: 'fa-newspaper' }, { id: 'update', name: 'Обновления',
+                icon: 'fa-sync-alt' }, { id: 'event', name: 'События', icon: 'fa-calendar-alt' }, { id: 'important',
+                name: 'Важное', icon: 'fa-exclamation-triangle' }, { id: 'announcement', name: 'Анонсы',
+                icon: 'fa-bullhorn' }];
+            document.getElementById('categoriesContainer').innerHTML = cats.map(c =>
+                `<button class="category-btn ${currentCategory===c.id?'active':''}" onclick="window.filterNews('${c.id}')"><i class="fas ${c.icon}"></i> ${c.name}</button>`
+                ).join('');
         }
-        
+
+        // ===== ЗАГРУЗКА НОВОСТЕЙ =====
         async function loadNews() {
             const grid = document.getElementById('newsGrid');
-            if (!grid) return;
-            
-            grid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Загрузка новостей...</p></div>';
-            
+            grid.innerHTML = '<div style="text-align:center;padding:40px;">Загрузка...</div>';
             try {
-                let query = db.collection('news').orderBy('createdAt', 'desc');
-                if (currentCategory !== 'all') {
-                    query = query.where('category', '==', currentCategory);
-                }
-                
-                const snapshot = await query.get();
-                const newsList = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.status === 'published' || !data.status) {
-                        newsList.push({ id: doc.id, ...data });
-                    }
-                });
-                
-                allNews = newsList;
-                
-                if (newsList.length === 0) {
-                    grid.innerHTML = '<div style="text-align:center;padding:40px;">📭 Новостей пока нет</div>';
-                    return;
-                }
-                
-                displayNews(newsList, '');
-                renderBookmarks();
+                let q = db.collection('news').orderBy('createdAt', 'desc');
+                if (currentCategory !== 'all') q = q.where('category', '==', currentCategory);
+                const snap = await q.get();
+                allNews = [];
+                snap.forEach(d => { const data = d.data(); if (!data.status || data.status === 'published') allNews
+                        .push({ id: d.id, ...data }); });
+                let list = allNews;
+                if (searchQuery) list = list.filter(n => (n.title || '').toLowerCase().includes(searchQuery) || (n
+                    .excerpt || '').toLowerCase().includes(searchQuery));
+                displayNews(list, searchQuery);
                 renderRecommendations();
-                
-            } catch (error) {
-                console.error('Firebase error:', error);
-                grid.innerHTML = '<div class="error-message" style="text-align:center;padding:40px;color:#d93025;">❌ Ошибка подключения к Firebase</div>';
-            }
+            } catch (e) { grid.innerHTML =
+                    '<div style="text-align:center;padding:40px;color:#d93025;">Ошибка загрузки</div>'; }
         }
-        
-        window.openNews = async function(newsId) {
-            currentNewsId = newsId;
-            const modal = document.getElementById('newsModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalContent = document.getElementById('modalContent');
-            const modalMeta = document.getElementById('modalMeta');
-            const modalImage = document.getElementById('modalImage');
-            const modalAuthor = document.getElementById('modalAuthor');
-            const similarContainer = document.getElementById('similarNews');
-            
-            modal.style.display = 'flex';
-            modalTitle.textContent = 'Загрузка...';
-            modalContent.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
-            
-            try {
-                const newsRef = db.collection('news').doc(newsId);
-                await newsRef.update({ views: firebase.firestore.FieldValue.increment(1) });
-                
-                const doc = await newsRef.get();
-                if (!doc.exists) {
-                    modalTitle.textContent = 'Ошибка';
-                    modalContent.innerHTML = 'Новость не найдена';
-                    return;
-                }
-                
-                const news = doc.data();
-                const date = news.createdAt ? formatDate(news.createdAt) : 'Дата не указана';
-                const views = (news.views || 0) + 1;
-                const imageUrl = news.imageUrl || '';
-                const author = news.author || 'Метро New';
-                const verified = author === 'Метро New';
-                
-                modalTitle.textContent = escapeHtml(news.title);
-                modalImage.style.backgroundImage = imageUrl ? `url('${imageUrl}')` : 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
-                modalImage.style.backgroundSize = 'cover';
-                modalImage.style.backgroundPosition = 'center';
-                
-                modalAuthor.innerHTML = `
-                    <i class="fas fa-user"></i> ${escapeHtml(author)}
-                    ${verified ? '<i class="fas fa-check-circle author-verified" style="color:var(--success);"></i>' : ''}
-                    ${news.version ? '<span class="version-badge">Версия ' + news.version + '</span>' : ''}
-                `;
-                
-                let content = news.content || '<p>Содержимое отсутствует</p>';
-                if (typeof marked !== 'undefined') {
-                    content = marked.parse(content);
-                }
-                modalContent.innerHTML = content;
-                
-                const shareHtml = `
-                    <button class="share-btn share-telegram" onclick="window.open('https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}', '_blank')"><i class="fab fa-telegram"></i> Telegram</button>
-                    <button class="share-btn share-vk" onclick="window.open('https://vk.com/share.php?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(news.title)}', '_blank')"><i class="fab fa-vk"></i> VK</button>
-                    <button class="share-btn share-twitter" onclick="window.open('https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}', '_blank')"><i class="fab fa-twitter"></i> Twitter</button>
-                    <button class="share-btn share-whatsapp" onclick="window.open('https://wa.me/?text=${encodeURIComponent(news.title)}%20${encodeURIComponent(window.location.href)}', '_blank')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-                    <button class="share-btn share-copy" onclick="navigator.clipboard.writeText(window.location.href); showNotification('Ссылка скопирована')"><i class="fas fa-copy"></i> Копировать</button>
-                `;
-                document.getElementById('modalShareButtons').innerHTML = shareHtml;
-                
-                modalMeta.innerHTML = `<i class="far fa-calendar-alt"></i> ${date} &nbsp;|&nbsp; <i class="far fa-eye"></i> ${views} просмотров`;
-                
-                // Похожие новости
-                const similarNews = getSimilarNews(news);
-                if (similarNews.length > 0) {
-                    similarContainer.innerHTML = `
-                        <h4><i class="fas fa-link"></i> Похожие новости</h4>
-                        ${similarNews.map(similar => `
-                            <div class="similar-item" onclick="openNews('${similar.id}'); closeModal();">
-                                <div style="font-weight:500;">${escapeHtml(similar.title)}</div>
-                                <div style="font-size:0.7rem; color:var(--gray);"><i class="far fa-eye"></i> ${similar.views || 0} просмотров</div>
-                            </div>
-                        `).join('')}
-                    `;
-                } else {
-                    similarContainer.innerHTML = '';
-                }
-                
-                addToHistory(newsId, news.title);
-                updateBookmarkButton();
-                loadNews();
-                renderRecommendations();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                modalTitle.textContent = 'Ошибка';
-                modalContent.innerHTML = 'Не удалось загрузить новость';
-            }
-        };
-        
-        window.closeModal = function() {
-            document.getElementById('newsModal').style.display = 'none';
-            currentNewsId = null;
-        };
-        
-        window.filterNews = function(category) {
-            currentCategory = category;
+        window.filterNews = function(cat) { currentCategory = cat;
             renderCategories();
-            loadNews();
+            loadNews(); };
+
+        // ===== РЕКОМЕНДАЦИИ =====
+        function renderRecommendations() {
+            const c = document.getElementById('recommendationsList');
+            const recs = allNews.filter(n => !readHistory.some(h => h.id === n.id)).sort((a, b) => (b.views || 0) - (a
+                .views || 0)).slice(0, 5);
+            if (!recs.length) { c.innerHTML =
+                    '<span style="color:#888;font-size:0.7rem;">Читайте новости для подборок</span>'; return; }
+            c.innerHTML = recs.map(n => `
+            <div style="cursor:pointer;padding:6px 0;border-bottom:1px solid #f0f0f0;" onclick="openNews('${n.id}')">
+              <div style="font-weight:600;font-size:0.78rem;">${esc(n.title||'')}</div>
+              <div style="font-size:0.65rem;color:#999;"><i class="far fa-eye"></i> ${n.views||0}</div>
+            </div>`).join('');
+        }
+
+        // ===== МОДАЛКА =====
+        window.openNews = async function(id) {
+            currentNewsId = id;
+            const modal = document.getElementById('newsModal');
+            modal.style.display = 'flex';
+            document.getElementById('modalTitle').textContent = 'Загрузка...';
+            document.getElementById('modalContent').innerHTML = '';
+            document.getElementById('commentsList').innerHTML = '';
+            document.getElementById('commentInput').value = '';
+            document.getElementById('fbYesBtn').classList.remove('active-fb-yes');
+            document.getElementById('fbNoBtn').classList.remove('active-fb-no');
+            document.getElementById('fbCount').textContent = '';
+            try {
+                const ref = db.collection('news').doc(id);
+                await ref.update({ views: firebase.firestore.FieldValue.increment(1) });
+                const doc = await ref.get();
+                if (!doc.exists) return;
+                const n = doc.data();
+                currentNewsData = n;
+                document.getElementById('modalTitle').textContent = n.title || '';
+                document.getElementById('modalImage').style.backgroundImage = n.imageUrl ? `url('${n.imageUrl}')` :
+                    'linear-gradient(135deg,#4d94ff,#0066CC)';
+                document.getElementById('modalAuthor').innerHTML =
+                    `<i class="fas fa-user"></i> ${esc(n.author||'Метро New')} <i class="fas fa-check-circle author-verified"></i>`;
+                document.getElementById('modalDate').innerHTML =
+                    `<i class="far fa-calendar-alt"></i> ${fmtDate(n.createdAt)}`;
+                document.getElementById('modalViews').innerHTML =
+                    `<i class="far fa-eye"></i> ${(n.views||0)+1} просмотров`;
+                document.getElementById('modalContent').innerHTML = typeof marked !== 'undefined' ? marked.parse(n
+                    .content || '') : esc(n.content || '');
+                // Реакции
+                const reactions = n.reactions || {};
+                const rtypes = ['like', 'heart', 'fire', 'wow', 'sad'];
+                const remoji = { like: '👍', heart: '❤️', fire: '🔥', wow: '😮', sad: '😢' };
+                const rlabels = { like: 'Нравится', heart: 'Важно', fire: 'Топ', wow: 'Ого', sad: 'Печаль' };
+                document.getElementById('modalReactions').innerHTML = rtypes.map(t =>
+                    `<button class="reaction-btn" onclick="addReaction('${t}')"><span class="emoji">${remoji[t]}</span> ${rlabels[t]} <span class="count">${reactions[t]||0}</span></button>`
+                    ).join('');
+                // Оценка
+                const fb = newsFeedback[id] || { yes: 0, no: 0 };
+                document.getElementById('fbCount').textContent =
+                    `(${fb.yes||0} 👍 / ${fb.no||0} 👎)`;
+                // Комментарии
+                loadComments(id);
+                // Похожие
+                const sim = allNews.filter(x => x.id !== id && x.category === n.category).slice(0, 3);
+                document.getElementById('similarNews').innerHTML = sim.length ?
+                    `<h4 style="font-size:0.85rem;">Похожие новости</h4>` + sim.map(s =>
+                        `<div style="cursor:pointer;padding:4px 0;" onclick="openNews('${s.id}')">• ${esc(s.title||'')}</div>`
+                        ).join('') : '';
+                // История
+                readHistory.unshift({ id, title: n.title, date: new Date().toISOString() });
+                if (readHistory.length > 20) readHistory.pop();
+                localStorage.setItem('readHistory', JSON.stringify(readHistory));
+            } catch (e) { console.error(e); }
         };
-        
-        // Дропдауны
-        const dropdownOther = document.getElementById('dropdownOther');
-        const dropdownBtn = document.getElementById('dropdownBtn');
-        const dropdownLinks = document.getElementById('dropdownLinks');
-        const dropdownLinksBtn = document.getElementById('dropdownLinksBtn');
-        const moreDropdown = document.getElementById('moreDropdown');
-        const moreBtn = document.getElementById('moreBtn');
-        
-        if (dropdownBtn && dropdownOther) {
-            dropdownBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownOther.classList.toggle('open');
-                if (dropdownLinks) dropdownLinks.classList.remove('open');
-                if (moreDropdown) moreDropdown.classList.remove('open');
-            });
-        }
-        
-        if (dropdownLinksBtn && dropdownLinks) {
-            dropdownLinksBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownLinks.classList.toggle('open');
-                if (dropdownOther) dropdownOther.classList.remove('open');
-                if (moreDropdown) moreDropdown.classList.remove('open');
-            });
-        }
-        
-        if (moreBtn && moreDropdown) {
-            moreBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                moreDropdown.classList.toggle('open');
-                if (dropdownOther) dropdownOther.classList.remove('open');
-                if (dropdownLinks) dropdownLinks.classList.remove('open');
-            });
-        }
-        
-        document.addEventListener('click', () => {
-            if (dropdownOther) dropdownOther.classList.remove('open');
-            if (dropdownLinks) dropdownLinks.classList.remove('open');
-            if (moreDropdown) moreDropdown.classList.remove('open');
+
+        window.closeModal = function() { document.getElementById('newsModal').style.display = 'none';
+            currentNewsId = null;
+            currentNewsData = null; };
+
+        // Три точки в модалке
+        document.getElementById('modalDotsBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('modalDotsMenu').classList.toggle('open');
         });
-        
-        // Мобильное меню
-        const burger = document.getElementById('burgerMenu');
-        const navLinks = document.getElementById('navLinks');
-        if (burger && navLinks) {
-            burger.addEventListener('click', () => navLinks.classList.toggle('active'));
+        document.addEventListener('click', () => document.getElementById('modalDotsMenu').classList.remove('open'));
+
+        // Сохранить
+        function saveNews() {
+            if (!currentNewsId || !currentNewsData) return;
+            const exists = bookmarks.find(b => b.id === currentNewsId);
+            if (exists) {
+                const idx = bookmarks.findIndex(b => b.id === currentNewsId);
+                bookmarks.splice(idx, 1);
+                notify('Удалено из сохранённых');
+            } else {
+                bookmarks.unshift({ id: currentNewsId, title: currentNewsData.title, date: new Date()
+                        .toLocaleString() });
+                notify('Сохранено! 📌');
+            }
+            localStorage.setItem('newsBookmarks', JSON.stringify(bookmarks));
         }
-        
+        window.saveNews = saveNews;
+
+        // Показать больше таких
+        function showMoreLikeThis() {
+            if (!currentNewsData) return;
+            const cat = currentNewsData.category;
+            window.filterNews(cat);
+            closeModal();
+            notify(`Показаны новости категории "${cat}"`);
+        }
+        window.showMoreLikeThis = showMoreLikeThis;
+
+        // ===== ОТЗЫВ (МОДАЛКА) =====
+        function openFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'flex';
+            feedbackRating = 0;
+            document.querySelectorAll('#feedbackStars i').forEach(s => { s.classList.remove('fas');
+                s.classList.add('far');
+                s.style.color = '#ddd'; });
+            document.getElementById('feedbackText').value = '';
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'none';
+        }
+        window.openFeedbackModal = openFeedbackModal;
+        window.closeFeedbackModal = closeFeedbackModal;
+
+        // Звёзды
+        document.getElementById('feedbackStars').addEventListener('click', function(e) {
+            if (e.target.dataset.rating) {
+                feedbackRating = parseInt(e.target.dataset.rating);
+                document.querySelectorAll('#feedbackStars i').forEach((s, i) => {
+                    if (i < feedbackRating) { s.classList.add('fas');
+                        s.classList.remove('far');
+                        s.style.color = '#FFD700'; } else { s.classList.remove('fas');
+                        s.classList.add('far');
+                        s.style.color = '#ddd'; }
+                });
+            }
+        });
+
+        function submitFeedback() {
+            if (feedbackRating === 0) { notify('Поставьте оценку звёздами ⭐'); return; }
+            const text = document.getElementById('feedbackText').value;
+            const newsTitle = currentNewsData?.title || 'Неизвестная новость';
+            const subject = encodeURIComponent(`Отзыв о новости: ${newsTitle}`);
+            const body = encodeURIComponent(
+                `Оценка: ${feedbackRating}/5 звёзд\n\n` +
+                `Новость: ${newsTitle}\n` +
+                `Отзыв: ${text}\n\n` +
+                `---\nОтправлено через сайт Метро New\n` +
+                `Браузер: ${navigator.userAgent}`
+            );
+            window.location.href = `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
+            notify('Отзыв отправляется... 📧');
+            closeFeedbackModal();
+        }
+        window.submitFeedback = submitFeedback;
+
+        // ===== РЕАКЦИИ =====
+        async function addReaction(type) {
+            if (!currentNewsId) return;
+            await db.collection('news').doc(currentNewsId).update({
+                [`reactions.${type}`]: firebase.firestore.FieldValue.increment(1)
+            });
+            if (currentNewsData) {
+                if (!currentNewsData.reactions) currentNewsData.reactions = {};
+                currentNewsData.reactions[type] = (currentNewsData.reactions[type] || 0) + 1;
+            }
+            const rtypes = ['like', 'heart', 'fire', 'wow', 'sad'];
+            const btns = document.querySelectorAll('#modalReactions .reaction-btn');
+            rtypes.forEach((t, i) => {
+                if (btns[i]) {
+                    const cnt = btns[i].querySelector('.count');
+                    if (cnt) cnt.textContent = (currentNewsData?.reactions?.[t] || 0);
+                }
+            });
+            notify('Реакция учтена! 🎉');
+        }
+        window.addReaction = addReaction;
+
+        function toggleReactions() {
+            document.getElementById('modalReactions').scrollIntoView({ behavior: 'smooth' });
+        }
+        window.toggleReactions = toggleReactions;
+
+        // ===== ОЦЕНКА ПОЛЕЗНОСТИ =====
+        function submitNewsFeedback(type) {
+            if (!currentNewsId) return;
+            if (!newsFeedback[currentNewsId]) newsFeedback[currentNewsId] = { yes: 0, no: 0 };
+            newsFeedback[currentNewsId][type] = (newsFeedback[currentNewsId][type] || 0) + 1;
+            localStorage.setItem('newsFeedback', JSON.stringify(newsFeedback));
+            const fb = newsFeedback[currentNewsId];
+            document.getElementById('fbCount').textContent = `(${fb.yes||0} 👍 / ${fb.no||0} 👎)`;
+            document.getElementById('fbYesBtn').classList.toggle('active-fb-yes', type === 'yes');
+            document.getElementById('fbNoBtn').classList.toggle('active-fb-no', type === 'no');
+            notify('Спасибо за оценку!');
+        }
+        window.submitNewsFeedback = submitNewsFeedback;
+
+        // ===== КОММЕНТАРИИ =====
+        async function submitComment() {
+            if (!currentNewsId) return;
+            const text = document.getElementById('commentInput').value.trim();
+            if (!text) return notify('Напишите комментарий');
+            const comment = {
+                text,
+                fingerprint: browserFingerprint.substring(0, 40),
+                date: new Date().toISOString(),
+                moderated: false,
+            };
+            await db.collection('news').doc(currentNewsId).collection('comments').add(comment);
+            document.getElementById('commentInput').value = '';
+            notify('Комментарий отправлен на модерацию');
+            loadComments(currentNewsId);
+        }
+
+        async function loadComments(newsId) {
+            const list = document.getElementById('commentsList');
+            list.innerHTML = 'Загрузка...';
+            const snap = await db.collection('news').doc(newsId).collection('comments').orderBy('date', 'desc').get();
+            const comments = [];
+            snap.forEach(d => comments.push({ id: d.id, ...d.data() }));
+            if (!comments.length) { list.innerHTML =
+                    '<span style="color:#999;font-size:0.7rem;">Нет комментариев</span>'; return; }
+            list.innerHTML = comments.map(c => `
+            <div class="comment-item" id="comment-${c.id}">
+              <div class="comment-header">
+                <span>Аноним ${c.moderated ? '✓' : '(на модерации)'}</span>
+                <span>${new Date(c.date).toLocaleString('ru-RU')}</span>
+              </div>
+              <div class="comment-text">${esc(c.text)}</div>
+              <div class="comment-dots" onclick="toggleCommentMenu(event,'${c.id}')">⋮</div>
+              <div class="comment-dots-menu" id="commentMenu-${c.id}">
+                <a onclick="shareComment('${c.id}')"><i class="fas fa-share-alt"></i> Поделиться</a>
+                <a onclick="reportComment('${c.id}')"><i class="fas fa-flag"></i> Пожаловаться</a>
+              </div>
+            </div>`).join('');
+        }
+
+        function toggleCommentMenu(e, id) {
+            e.stopPropagation();
+            document.querySelectorAll('.comment-dots-menu').forEach(m => m.classList.remove('open'));
+            document.getElementById('commentMenu-' + id)?.classList.toggle('open');
+        }
+        document.addEventListener('click', () => document.querySelectorAll('.comment-dots-menu').forEach(m => m.classList
+            .remove('open')));
+
+        function shareComment(id) {
+            const el = document.getElementById('comment-' + id);
+            if (el) {
+                const text = el.querySelector('.comment-text')?.textContent || '';
+                const url = window.location.href + '#comment-' + id;
+                if (navigator.share) navigator.share({ title: 'Комментарий', text, url }).catch(() => {});
+                else { navigator.clipboard.writeText(url);
+                    notify('Ссылка скопирована'); }
+            }
+        }
+
+        function reportComment(id) {
+            if (confirm('Пожаловаться на комментарий? Модератор проверит его.')) {
+                // Отправка жалобы
+                const subject = encodeURIComponent('Жалоба на комментарий');
+                const body = encodeURIComponent(`ID комментария: ${id}\nНовость: ${currentNewsData?.title||''}\n\nПрошу проверить комментарий.`);
+                window.location.href = `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
+                notify('Жалоба отправлена');
+            }
+        }
+        window.submitComment = submitComment;
+        window.toggleCommentMenu = toggleCommentMenu;
+        window.shareComment = shareComment;
+        window.reportComment = reportComment;
+
+        // ===== ШЕРИНГ =====
+        function shareModalNews(platform) {
+            if (!currentNewsData) return;
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(currentNewsData.title || 'Новость');
+            const maps = {
+                telegram: `https://t.me/share/url?url=${url}&text=${title}`,
+                vk: `https://vk.com/share.php?url=${url}&title=${title}`,
+            };
+            window.open(maps[platform] || maps.telegram, '_blank');
+        }
+        window.shareModalNews = shareModalNews;
+
+        // ===== ДРОПДАУНЫ ХЕДЕРА =====
+        ['dropdownOther', 'dropdownLinks'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const btn = el.querySelector('button');
+            btn?.addEventListener('click', e => { e.stopPropagation();
+                el.classList.toggle('open'); });
+        });
+        document.addEventListener('click', () => document.querySelectorAll('.dropdown').forEach(d => d.classList
+        .remove('open')));
+        document.getElementById('burgerMenu')?.addEventListener('click', () => document.getElementById('navLinks')
+            .classList.toggle('active'));
+
         // Закрытие модалок
-        const modal = document.getElementById('newsModal');
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
-        }
-        
-        const reviewModalElem = document.getElementById('reviewModal');
-        if (reviewModalElem) {
-            reviewModalElem.addEventListener('click', (e) => {
-                if (e.target === reviewModalElem) closeReviewModal();
-            });
-        }
-        
-        // Запуск
+        document.getElementById('newsModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+        document.getElementById('feedbackModal').addEventListener('click', function(e) { if (e.target === this)
+            closeFeedbackModal(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('feedbackModal').style.display === 'flex') closeFeedbackModal();
+                else if (document.getElementById('newsModal').style.display === 'flex') closeModal();
+            }
+        });
+
+        // Старт
         renderCategories();
         loadNews();
-        setupStarRating();
     </script>
 </body>
 </html>
