@@ -436,30 +436,49 @@ class SecurityManager {
     // ============================================
     // ЛОГИРОВАНИЕ ОШИБОК
     // ============================================
-    logError(error, context = {}) {
-        const errorLog = {
-            timestamp: new Date().toISOString(),
-            message: error.message || String(error),
-            stack: error.stack || '',
-            url: window.location.href,
-            userAgent: navigator.userAgent,
-            context: context
-        };
-        
-        console.error('❌ Ошибка:', errorLog);
-        
-        // Сохранение в localStorage для отладки
-        try {
-            const errors = JSON.parse(localStorage.getItem('errorLog') || '[]');
-            errors.push(errorLog);
-            if (errors.length > 50) errors.shift();
-            localStorage.setItem('errorLog', JSON.stringify(errors));
-        } catch (e) {
-            console.warn('Не удалось сохранить лог ошибки');
-        }
+    // В security.js найди функцию logError и замени:
+logError(error, context = {}) {
+    // Игнорируем ожидаемые ошибки
+    const ignoredErrors = [
+        'email-already-in-use',
+        'user-not-found',
+        'wrong-password',
+        'EMAIL_NOT_VERIFIED'
+    ];
+    
+    const errorMessage = error.message || String(error);
+    
+    // Проверяем нужно ли логировать
+    const shouldIgnore = ignoredErrors.some(ignored => 
+        errorMessage.includes(ignored)
+    );
+    
+    if (shouldIgnore) {
+        console.log('ℹ️ Ожидаемая ошибка:', errorMessage);
+        return;
+    }
+    
+    const errorLog = {
+        timestamp: new Date().toISOString(),
+        message: errorMessage,
+        stack: error.stack || '',
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        context: context
+    };
+    
+    console.error('❌ Ошибка:', errorLog);
+    
+    // Сохранение в localStorage для отладки
+    try {
+        const errors = JSON.parse(localStorage.getItem('errorLog') || '[]');
+        errors.push(errorLog);
+        if (errors.length > 50) errors.shift();
+        localStorage.setItem('errorLog', JSON.stringify(errors));
+    } catch (e) {
+        console.warn('Не удалось сохранить лог ошибки');
     }
 }
-
 // ============================================
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 // ============================================
