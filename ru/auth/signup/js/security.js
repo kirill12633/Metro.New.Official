@@ -440,7 +440,7 @@ class SecurityManager {
         const errorLog = {
             timestamp: new Date().toISOString(),
             message: error.message || String(error),
-            stack: error.stack,
+            stack: error.stack || '',
             url: window.location.href,
             userAgent: navigator.userAgent,
             context: context
@@ -460,7 +460,41 @@ class SecurityManager {
     }
 }
 
+// ============================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================
+
+// Маскировка email
+function maskEmail(email) {
+    if (!email || !email.includes('@')) return '***@***.***';
+    
+    const [localPart, domain] = email.split('@');
+    
+    if (localPart.length <= 2) {
+        return localPart[0] + '***@' + domain;
+    } else if (localPart.length <= 4) {
+        return localPart[0] + '***' + localPart[localPart.length - 1] + '@' + domain;
+    }
+    
+    return localPart.substring(0, 3) + '***' + localPart.substring(localPart.length - 1) + '@' + domain;
+}
+
+// Маскировка IP
+function maskIP(ip) {
+    if (!ip || ip === '0.0.0.0') return '*.*.*.*';
+    
+    const parts = ip.split('.');
+    if (parts.length !== 4) return '*.*.*.*';
+    
+    return parts[0] + '.*.*.' + parts[3];
+}
+
 // Создание глобального экземпляра
 const security = new SecurityManager();
 
 console.log('🔒 Модуль безопасности загружен');
+console.log('   - Валидация email: ✅');
+console.log('   - Валидация пароля: ✅');
+console.log('   - Валидация никнейма: ✅');
+console.log('   - Защита от брутфорса: ✅');
+console.log('   - Маскировка данных: ✅');
