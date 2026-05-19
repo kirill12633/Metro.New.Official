@@ -10,9 +10,7 @@ class SecurityManager {
         this.registrationLocks = new Map();
     }
     
-    // ============================================
-    // ПРОВЕРКА EMAIL
-    // ============================================
+    // Проверка email
     validateEmail(email) {
         if (!email || !email.includes('@')) {
             return { valid: false, code: 'INVALID_FORMAT', message: 'Неверный формат email' };
@@ -20,222 +18,136 @@ class SecurityManager {
         
         const [localPart, domain] = email.split('@');
         
-        // Проверка локальной части
         if (localPart.length < 1 || localPart.length > 64) {
             return { valid: false, code: 'INVALID_LOCAL', message: 'Неверная локальная часть email' };
         }
         
-        // Проверка домена
         if (domain.length < 3 || domain.length > 255) {
             return { valid: false, code: 'INVALID_DOMAIN', message: 'Неверный домен email' };
         }
         
-        // Проверка на точку в начале/конце
         if (localPart.startsWith('.') || localPart.endsWith('.')) {
             return { valid: false, code: 'DOT_POSITION', message: 'Точка не может быть в начале или конце' };
         }
         
-        // Нормализация домена
         const normalizedDomain = domain.toLowerCase();
         
-        // Проверка по чёрному списку
         if (EMAIL_WHITELIST.blocked.includes(normalizedDomain)) {
-            return { 
-                valid: false, 
-                code: 'BLACKLISTED', 
-                message: 'Временные почтовые ящики запрещены' 
-            };
+            return { valid: false, code: 'BLACKLISTED', message: 'Временные почтовые ящики запрещены' };
         }
         
-        // Проверка на подозрительные ключевые слова
         for (const keyword of EMAIL_WHITELIST.suspiciousKeywords) {
             if (normalizedDomain.includes(keyword)) {
-                return { 
-                    valid: false, 
-                    code: 'SUSPICIOUS', 
-                    message: 'Подозрительный почтовый домен' 
-                };
+                return { valid: false, code: 'SUSPICIOUS', message: 'Подозрительный почтовый домен' };
             }
         }
         
-        // Проверка по белому списку
         if (!EMAIL_WHITELIST.allowed.includes(normalizedDomain)) {
-            return { 
-                valid: false, 
-                code: 'NOT_ALLOWED', 
-                message: 'Регистрация с этим доменом недоступна' 
-            };
+            return { valid: false, code: 'NOT_ALLOWED', message: 'Регистрация с этим доменом недоступна' };
         }
         
         return { valid: true, code: 'OK', message: '', domain: normalizedDomain };
     }
     
-    // ============================================
-    // ПРОВЕРКА ИМЕНИ ПОЛЬЗОВАТЕЛЯ
-    // ============================================
+    // Проверка имени пользователя
     validateUsername(username) {
         if (!username) {
             return { valid: false, code: 'EMPTY', message: 'Введите имя пользователя' };
         }
         
         if (username.length < CONFIG.usernameMinLength) {
-            return { 
-                valid: false, 
-                code: 'TOO_SHORT', 
-                message: `Минимум ${CONFIG.usernameMinLength} символа` 
-            };
+            return { valid: false, code: 'TOO_SHORT', message: `Минимум ${CONFIG.usernameMinLength} символа` };
         }
         
         if (username.length > CONFIG.usernameMaxLength) {
-            return { 
-                valid: false, 
-                code: 'TOO_LONG', 
-                message: `Максимум ${CONFIG.usernameMaxLength} символов` 
-            };
+            return { valid: false, code: 'TOO_LONG', message: `Максимум ${CONFIG.usernameMaxLength} символов` };
         }
         
-        // Проверка формата (только буквы, цифры, подчёркивание, дефис)
         const validPattern = /^[a-zA-Z0-9_-]+$/;
         if (!validPattern.test(username)) {
-            return { 
-                valid: false, 
-                code: 'INVALID_CHARS', 
-                message: 'Только буквы, цифры, дефис и подчёркивание' 
-            };
+            return { valid: false, code: 'INVALID_CHARS', message: 'Только буквы, цифры, дефис и подчёркивание' };
         }
         
-        // Проверка на начало с цифры
         if (/^[0-9]/.test(username)) {
-            return { 
-                valid: false, 
-                code: 'STARTS_WITH_NUMBER', 
-                message: 'Имя не может начинаться с цифры' 
-            };
+            return { valid: false, code: 'STARTS_WITH_NUMBER', message: 'Имя не может начинаться с цифры' };
         }
         
-        // Проверка по чёрному списку
         const lowerUsername = username.toLowerCase();
         for (const blocked of USERNAME_BLACKLIST) {
             if (lowerUsername === blocked || lowerUsername.includes(blocked)) {
-                return { 
-                    valid: false, 
-                    code: 'BLACKLISTED', 
-                    message: 'Это имя пользователя недоступно' 
-                };
+                return { valid: false, code: 'BLACKLISTED', message: 'Это имя пользователя недоступно' };
             }
         }
         
         return { valid: true, code: 'OK', message: '' };
     }
     
-    // ============================================
-    // ПРОВЕРКА ИМЕНИ
-    // ============================================
+    // Проверка имени
     validateName(name) {
         if (!name) {
             return { valid: false, code: 'EMPTY', message: 'Введите имя' };
         }
         
         if (name.length < CONFIG.nameMinLength) {
-            return { 
-                valid: false, 
-                code: 'TOO_SHORT', 
-                message: `Минимум ${CONFIG.nameMinLength} символа` 
-            };
+            return { valid: false, code: 'TOO_SHORT', message: `Минимум ${CONFIG.nameMinLength} символа` };
         }
         
         if (name.length > CONFIG.nameMaxLength) {
-            return { 
-                valid: false, 
-                code: 'TOO_LONG', 
-                message: `Максимум ${CONFIG.nameMaxLength} символов` 
-            };
+            return { valid: false, code: 'TOO_LONG', message: `Максимум ${CONFIG.nameMaxLength} символов` };
         }
         
-        // Проверка на буквы и пробелы
         const validPattern = /^[a-zA-Zа-яА-ЯёЁ\s-]+$/;
         if (!validPattern.test(name)) {
-            return { 
-                valid: false, 
-                code: 'INVALID_CHARS', 
-                message: 'Имя может содержать только буквы' 
-            };
+            return { valid: false, code: 'INVALID_CHARS', message: 'Имя может содержать только буквы' };
         }
         
-        // Проверка по чёрному списку
         const lowerName = name.toLowerCase();
         for (const blocked of NAME_BLACKLIST) {
             if (lowerName.includes(blocked)) {
-                return { 
-                    valid: false, 
-                    code: 'BLACKLISTED', 
-                    message: 'Это имя недоступно' 
-                };
+                return { valid: false, code: 'BLACKLISTED', message: 'Это имя недоступно' };
             }
         }
         
         return { valid: true, code: 'OK', message: '' };
     }
     
-    // ============================================
-    // ПРОВЕРКА ПАРОЛЯ
-    // ============================================
+    // Проверка пароля
     validatePassword(password) {
         if (!password) {
-            return { 
-                valid: false, 
-                score: 0, 
-                code: 'EMPTY', 
-                message: 'Введите пароль',
-                requirements: [] 
-            };
+            return { valid: false, score: 0, code: 'EMPTY', message: 'Введите пароль', requirements: [] };
         }
         
         let score = 0;
         const requirements = [];
         
-        // Длина
         if (password.length >= CONFIG.passwordMinLength) {
             score++;
         } else {
             requirements.push(`минимум ${CONFIG.passwordMinLength} символов`);
         }
         
-        // Заглавные буквы
         if (/[A-Z]/.test(password)) {
             score++;
         } else {
             requirements.push('заглавные буквы (A-Z)');
         }
         
-        // Цифры
         if (/[0-9]/.test(password)) {
             score++;
         } else {
             requirements.push('цифры (0-9)');
         }
         
-        // Спецсимволы
         if (/[^A-Za-z0-9]/.test(password)) {
             score++;
         } else {
             requirements.push('спецсимволы (!@#$%...)');
         }
         
-        // Проверка на простые пароли
-        const commonPasswords = [
-            'password', '12345678', 'qwerty123', 'admin123',
-            'password123', '123456789', 'qwertyuiop'
-        ];
+        const commonPasswords = ['password', '12345678', 'qwerty123', 'admin123', 'password123', '123456789', 'qwertyuiop'];
         
         if (commonPasswords.includes(password.toLowerCase())) {
-            return { 
-                valid: false, 
-                score: 0, 
-                code: 'COMMON', 
-                message: 'Слишком простой пароль',
-                requirements: ['используйте уникальный пароль'] 
-            };
+            return { valid: false, score: 0, code: 'COMMON', message: 'Слишком простой пароль', requirements: ['используйте уникальный пароль'] };
         }
         
         const strengthLabels = ['', 'Слабый', 'Средний', 'Хороший', 'Отличный'];
@@ -249,9 +161,7 @@ class SecurityManager {
         };
     }
     
-    // ============================================
-    // ПРОВЕРКА ВОЗРАСТА
-    // ============================================
+    // Проверка возраста
     calculateAge(day, month, year) {
         const birthDay = parseInt(day);
         const birthMonth = parseInt(month);
@@ -270,7 +180,6 @@ class SecurityManager {
             age--;
         }
         
-        // Определение возрастной группы
         let group;
         if (age < 13) group = '<13';
         else if (age < 16) group = '13+';
@@ -286,22 +195,13 @@ class SecurityManager {
         else if (age < 100) group = '90+';
         else group = '100+';
         
-        return {
-            valid: age >= CONFIG.minAge,
-            age: age,
-            group: group,
-            canRegister: age >= CONFIG.minAge
-        };
+        return { valid: age >= CONFIG.minAge, age: age, group: group, canRegister: age >= CONFIG.minAge };
     }
     
-    // ============================================
-    // RATE LIMITING
-    // ============================================
+    // Rate limiting
     checkRateLimit(key) {
         const now = Date.now();
         const attempts = this.rateLimits.get(key) || [];
-        
-        // Очистка старых попыток
         const recentAttempts = attempts.filter(time => now - time < CONFIG.rateLimitWindow);
         this.rateLimits.set(key, recentAttempts);
         
@@ -316,47 +216,32 @@ class SecurityManager {
         return { limited: false };
     }
     
-    // ============================================
-    // БЛОКИРОВКА IP
-    // ============================================
+    // Блокировка IP
     checkIPBlock(ip) {
         const blockData = this.blockedIPs.get(ip);
-        
         if (blockData) {
             const timeLeft = blockData.until - Date.now();
-            
             if (timeLeft > 0) {
-                return { 
-                    blocked: true, 
-                    timeLeft: Math.ceil(timeLeft / 1000),
-                    reason: blockData.reason 
-                };
+                return { blocked: true, timeLeft: Math.ceil(timeLeft / 1000), reason: blockData.reason };
             } else {
                 this.blockedIPs.delete(ip);
             }
         }
-        
         return { blocked: false };
     }
     
     blockIP(ip, reason = 'Превышен лимит попыток') {
         const until = Date.now() + CONFIG.blockDuration;
         this.blockedIPs.set(ip, { until, reason });
-        
         console.warn(`🚫 IP заблокирован: ${maskIP(ip)} на ${CONFIG.blockDuration / 60000} минут`);
     }
     
-    // ============================================
-    // БЛОКИРОВКА РЕГИСТРАЦИИ
-    // ============================================
+    // Блокировка регистрации
     async acquireRegistrationLock(email) {
         if (this.registrationLocks.has(email)) {
             const lockTime = this.registrationLocks.get(email);
-            if (Date.now() - lockTime < 10000) {
-                return false;
-            }
+            if (Date.now() - lockTime < 10000) return false;
         }
-        
         this.registrationLocks.set(email, Date.now());
         return true;
     }
@@ -365,28 +250,23 @@ class SecurityManager {
         this.registrationLocks.delete(email);
     }
     
-    // ============================================
-    // ПОЛУЧЕНИЕ ИНФОРМАЦИИ ОБ УСТРОЙСТВЕ
-    // ============================================
+    // Информация об устройстве
     getDeviceInfo() {
         const ua = navigator.userAgent;
         let deviceType = 'desktop';
         let os = 'Unknown';
         let browser = 'Unknown';
         
-        // Определение устройства
         if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
             deviceType = /iPad|Tablet/i.test(ua) ? 'tablet' : 'mobile';
         }
         
-        // Определение ОС
         if (/Windows/i.test(ua)) os = 'Windows';
         else if (/Mac/i.test(ua)) os = 'macOS';
         else if (/Linux/i.test(ua)) os = 'Linux';
         else if (/Android/i.test(ua)) os = 'Android';
         else if (/iOS|iPhone|iPad/i.test(ua)) os = 'iOS';
         
-        // Определение браузера
         if (/Chrome/i.test(ua) && !/Edge/i.test(ua)) browser = 'Chrome';
         else if (/Firefox/i.test(ua)) browser = 'Firefox';
         else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
@@ -397,19 +277,15 @@ class SecurityManager {
             userAgent: ua,
             platform: navigator.platform,
             language: navigator.language,
-            languages: navigator.languages,
             screenResolution: `${window.screen.width}x${window.screen.height}`,
             deviceType: deviceType,
             os: os,
             browser: browser,
-            cookiesEnabled: navigator.cookieEnabled,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         };
     }
     
-    // ============================================
-    // ХЕШИРОВАНИЕ EMAIL (для хранения)
-    // ============================================
+    // Хеширование email
     async hashEmail(email) {
         const encoder = new TextEncoder();
         const data = encoder.encode(email.toLowerCase().trim());
@@ -418,116 +294,69 @@ class SecurityManager {
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
     
-    // ============================================
-    // САНИТАЙЗИНГ (очистка ввода)
-    // ============================================
+    // Очистка ввода
     sanitizeInput(input) {
         if (!input) return '';
+        return input.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').trim();
+    }
+    
+    // Логирование ошибок
+    logError(error, context = {}) {
+        const errorMessage = error.message || String(error);
         
-        return input
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;')
-            .replace(/\//g, '&#x2F;')
-            .trim();
-    }
-    
-    // ============================================
-    // ЛОГИРОВАНИЕ ОШИБОК
-    // ============================================
-    // ============================================
-// ЛОГИРОВАНИЕ ОШИБОК (ОБНОВЛЁННАЯ ВЕРСИЯ)
-// ============================================
-logError(error, context = {}) {
-    const errorMessage = error.message || String(error);
-    
-    // Список ОЖИДАЕМЫХ ошибок (не логируем как красные)
-    const expectedErrors = [
-        'email-already-in-use',
-        'user-not-found', 
-        'wrong-password',
-        'invalid-credential',
-        'EMAIL_NOT_VERIFIED',
-        'username-taken',
-        'popup-closed-by-user',
-        'cancelled-popup-request',
-        'Missing or insufficient permissions',
-        'слишком много попыток',
-        'заблокирован',
-        'занято',
-        'слабый',
-        'не совпадают'
-    ];
-    
-    // Проверяем это ожидаемая ошибка или критическая
-    const isExpected = expectedErrors.some(pattern => 
-        errorMessage.toLowerCase().includes(pattern.toLowerCase())
-    );
-    
-    if (isExpected) {
-        // Ожидаемая ошибка - выводим в консоль как предупреждение
-        console.warn('ℹ️ Ожидаемая ситуация:', errorMessage);
-        return;
-    }
-    
-    // Это критическая ошибка - логируем
-    const errorLog = {
-        timestamp: new Date().toISOString(),
-        message: errorMessage,
-        stack: error.stack || '',
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        context: context
-    };
-    
-    console.error('❌ Критическая ошибка:', errorLog);
-    
-    // Сохранение в localStorage для отладки
-    try {
-        const errors = JSON.parse(localStorage.getItem('errorLog') || '[]');
-        errors.push(errorLog);
-        if (errors.length > 50) errors.shift();
-        localStorage.setItem('errorLog', JSON.stringify(errors));
-    } catch (e) {
-        console.warn('Не удалось сохранить лог ошибки');
+        const expectedErrors = [
+            'email-already-in-use', 'user-not-found', 'wrong-password',
+            'invalid-credential', 'EMAIL_NOT_VERIFIED', 'username-taken',
+            'popup-closed-by-user', 'Missing or insufficient permissions',
+            'слишком много попыток', 'заблокирован', 'занято', 'слабый', 'не совпадают'
+        ];
+        
+        const isExpected = expectedErrors.some(pattern => 
+            errorMessage.toLowerCase().includes(pattern.toLowerCase())
+        );
+        
+        if (isExpected) {
+            console.warn('ℹ️ ' + errorMessage);
+            return;
+        }
+        
+        const errorLog = {
+            timestamp: new Date().toISOString(),
+            message: errorMessage,
+            stack: error.stack || '',
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+            context: context
+        };
+        
+        console.error('❌ Ошибка:', errorLog);
+        
+        try {
+            const errors = JSON.parse(localStorage.getItem('errorLog') || '[]');
+            errors.push(errorLog);
+            if (errors.length > 50) errors.shift();
+            localStorage.setItem('errorLog', JSON.stringify(errors));
+        } catch (e) {}
     }
 }
-// ============================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ============================================
 
-// Маскировка email
+// Вспомогательные функции
 function maskEmail(email) {
     if (!email || !email.includes('@')) return '***@***.***';
-    
     const [localPart, domain] = email.split('@');
-    
-    if (localPart.length <= 2) {
-        return localPart[0] + '***@' + domain;
-    } else if (localPart.length <= 4) {
-        return localPart[0] + '***' + localPart[localPart.length - 1] + '@' + domain;
-    }
-    
+    if (localPart.length <= 2) return localPart[0] + '***@' + domain;
+    if (localPart.length <= 4) return localPart[0] + '***' + localPart[localPart.length - 1] + '@' + domain;
     return localPart.substring(0, 3) + '***' + localPart.substring(localPart.length - 1) + '@' + domain;
 }
 
-// Маскировка IP
 function maskIP(ip) {
     if (!ip || ip === '0.0.0.0') return '*.*.*.*';
-    
     const parts = ip.split('.');
     if (parts.length !== 4) return '*.*.*.*';
-    
     return parts[0] + '.*.*.' + parts[3];
 }
 
-// Создание глобального экземпляра
+// Создание экземпляра
 const security = new SecurityManager();
 
 console.log('🔒 Модуль безопасности загружен');
-console.log('   - Валидация email: ✅');
-console.log('   - Валидация пароля: ✅');
-console.log('   - Валидация никнейма: ✅');
-console.log('   - Защита от брутфорса: ✅');
-console.log('   - Маскировка данных: ✅');
