@@ -31,18 +31,21 @@ async function initFirebase() {
             sendPasswordResetEmail,
             signOut
         } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js");
-        const { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            serverTimestamp,
-            collection,
-            query,
-            where,
-            getDocs,
-            runTransaction,
-            addDoc
-        } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+const { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc,
+    updateDoc,
+    serverTimestamp,
+    collection,
+    query,
+    where,
+    getDocs,
+    runTransaction,
+    addDoc,
+    arrayUnion
+} = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
         
         // Инициализация
         app = initializeApp(firebaseConfig);
@@ -85,18 +88,21 @@ async function initFirebase() {
             signOut
         };
         
-        window.firebaseDB = {
-            db,
-            doc,
-            setDoc,
-            serverTimestamp,
-            collection,
-            query,
-            where,
-            getDocs,
-            runTransaction,
-            addDoc
-        };
+window.firebaseDB = {
+    db,
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc,
+    serverTimestamp,
+    collection,
+    query,
+    where,
+    getDocs,
+    runTransaction,
+    addDoc,
+    arrayUnion
+};
         
         return true;
         
