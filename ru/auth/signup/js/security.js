@@ -436,28 +436,42 @@ class SecurityManager {
     // ============================================
     // ЛОГИРОВАНИЕ ОШИБОК
     // ============================================
-    // В security.js найди функцию logError и замени:
+    // ============================================
+// ЛОГИРОВАНИЕ ОШИБОК (ОБНОВЛЁННАЯ ВЕРСИЯ)
+// ============================================
 logError(error, context = {}) {
-    // Игнорируем ожидаемые ошибки
-    const ignoredErrors = [
-        'email-already-in-use',
-        'user-not-found',
-        'wrong-password',
-        'EMAIL_NOT_VERIFIED'
-    ];
-    
     const errorMessage = error.message || String(error);
     
-    // Проверяем нужно ли логировать
-    const shouldIgnore = ignoredErrors.some(ignored => 
-        errorMessage.includes(ignored)
+    // Список ОЖИДАЕМЫХ ошибок (не логируем как красные)
+    const expectedErrors = [
+        'email-already-in-use',
+        'user-not-found', 
+        'wrong-password',
+        'invalid-credential',
+        'EMAIL_NOT_VERIFIED',
+        'username-taken',
+        'popup-closed-by-user',
+        'cancelled-popup-request',
+        'Missing or insufficient permissions',
+        'слишком много попыток',
+        'заблокирован',
+        'занято',
+        'слабый',
+        'не совпадают'
+    ];
+    
+    // Проверяем это ожидаемая ошибка или критическая
+    const isExpected = expectedErrors.some(pattern => 
+        errorMessage.toLowerCase().includes(pattern.toLowerCase())
     );
     
-    if (shouldIgnore) {
-        console.log('ℹ️ Ожидаемая ошибка:', errorMessage);
+    if (isExpected) {
+        // Ожидаемая ошибка - выводим в консоль как предупреждение
+        console.warn('ℹ️ Ожидаемая ситуация:', errorMessage);
         return;
     }
     
+    // Это критическая ошибка - логируем
     const errorLog = {
         timestamp: new Date().toISOString(),
         message: errorMessage,
@@ -467,7 +481,7 @@ logError(error, context = {}) {
         context: context
     };
     
-    console.error('❌ Ошибка:', errorLog);
+    console.error('❌ Критическая ошибка:', errorLog);
     
     // Сохранение в localStorage для отладки
     try {
