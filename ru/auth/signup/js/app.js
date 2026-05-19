@@ -956,7 +956,21 @@ function initEventHandlers() {
             if (window.firebaseDB?.db) {
                 try {
                     const { db, doc, getDoc } = window.firebaseDB;
-                    const usernameDoc = await getDoc(doc(db, 'usernames', username.toLowerCase()));
+                    if (window.firebaseDB?.db) {
+    try {
+        const { db, doc, getDoc } = window.firebaseDB;  // <-- ДОЛЖЕН БЫТЬ getDoc
+        const usernameDoc = await getDoc(doc(db, 'usernames', username.toLowerCase()));
+        
+        if (usernameDoc.exists()) {
+            statusEl.innerHTML = '<i class="fas fa-times"></i>';
+            statusEl.className = 'username-status taken';
+            ui.showFieldError('username', 'Это имя уже занято');
+            return;
+        }
+    } catch (error) {
+        console.warn('Не удалось проверить никнейм в базе:', error.message);
+    }
+}
                     
                     if (usernameDoc.exists()) {
                         statusEl.innerHTML = '<i class="fas fa-times"></i>';
