@@ -735,54 +735,32 @@ function initEventHandlers() {
             
             ui.showNotification(result.message, 'success');
             
-        } catch (error) {
-            console.error('Ошибка регистрации:', error);
-            
-            let errorMessage = 'Произошла ошибка при регистрации';
-            
-            if (error.message.includes('email уже используется')) {
-                errorMessage = 'Этот email уже зарегистрирован';
-            } else if (error.message.includes('занято')) {
-                errorMessage = error.message;
-            } else if (error.message.includes('пароль')) {
-                errorMessage = error.message;
-            } else if (error.message.includes('permissions')) {
-                errorMessage = 'Сервис временно недоступен. Попробуйте позже.';
-            }
-            
-            ui.showAlert(errorMessage, 'error');
-            ui.showNotification(errorMessage, 'error');
-            
-        } finally {
-            ui.hideLoading();
-            ui.enableButton('submitRegistration');
-        }
+       } catch (error) {
+    // Определяем понятное сообщение
+    let userMessage = 'Произошла ошибка при регистрации';
+    
+    if (error.code === 'auth/email-already-in-use') {
+        userMessage = 'Этот email уже зарегистрирован. Войдите или используйте другой email.';
+    } else if (error.code === 'auth/weak-password') {
+        userMessage = 'Пароль слишком слабый. Используйте минимум 8 символов с цифрами и буквами.';
+    } else if (error.code === 'auth/invalid-email') {
+        userMessage = 'Неверный формат email. Проверьте правильность ввода.';
+    } else if (error.code === 'auth/too-many-requests') {
+        userMessage = 'Слишком много попыток. Подождите минуту и попробуйте снова.';
+    } else if (error.message.includes('permissions')) {
+        userMessage = 'Сервис временно недоступен. Попробуйте позже.';
+    }
+    
+    // Логируем только НЕожиданные ошибки
+    security.logError(error, { 
+        module: 'auth', 
+        action: 'register', 
+        email: maskEmail(email),
+        errorCode: error.code 
     });
     
-    // ========== ПЕРЕКЛЮЧЕНИЕ ФОРМ ==========
-    document.getElementById('showLoginLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        ui.showForm('login');
-    });
-    
-    document.getElementById('showRegisterLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        ui.showForm('register');
-    });
-    
-    document.getElementById('forgotPasswordLink')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        ui.showForm('reset');
-    });
-    
-    document.getElementById('cancelResetBtn')?.addEventListener('click', function() {
-        ui.showForm('login');
-    });
-    
-    document.getElementById('backFromAgeRestriction')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        ui.showForm('register');
-    });
+    throw new Error(userMessage);
+}
     
     // ========== ВХОД ==========
     document.getElementById('loginFormElement')?.addEventListener('submit', async function(e) {
