@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Метро New</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #0066CC;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --danger: #d93025;
+            --success: #1e8e3e;
+            --radius: 8px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f2f5;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        /* Экран входа */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-card h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .login-card p {
+            color: var(--gray);
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-primary:hover { background: #0052a3; }
+        
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--gray-border); }
+        
+        .error-message {
+            background: #fce8e6;
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        /* Админ-панель */
+        .admin-panel {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background: var(--light);
+            border-bottom: 1px solid var(--gray-border);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .admin-header h2 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .admin-content {
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .items-table {
+            width: 100%;
+            background: var(--light);
+            border-radius: var(--radius);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 100px 80px;
+            padding: 15px 20px;
+            background: var(--gray-light);
+            font-weight: 600;
+            font-size: 0.85rem;
+            gap: 10px;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 100px 80px;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            align-items: center;
+            font-size: 0.9rem;
+            gap: 10px;
+        }
+        
+        .table-row:hover { background: #fafafa; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-articles { background: #e3f2fd; color: #0066CC; }
+        .badge-news { background: #fff8e1; color: #f5a623; }
+        .badge-videos { background: #ffebee; color: #d93025; }
+        .badge-legal { background: #f3e5f5; color: #7b1fa2; }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal {
+            background: var(--light);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .modal h3 { margin-bottom: 20px; }
+        
+        @media (max-width: 768px) {
+            .table-header, .table-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            .admin-content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Экран входа -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <h2><i class="fas fa-lock"></i> Вход для администратора</h2>
+            <p>Доступ только для авторизованных пользователей</p>
+            <div class="error-message" id="loginError">Неверный email или пароль</div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@example.com">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Войти
+            </button>
+        </div>
+    </div>
+    
+    <!-- Админ-панель -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2><i class="fas fa-cog"></i> Админ-панель | Метро New</h2>
+            <div class="user-info">
+                <span id="adminEmail"></span>
+                <button class="btn btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+        </div>
+        
+        <div class="admin-content">
+            <div class="section-title">
+                <i class="fas fa-list"></i> Управление материалами
+                <button class="btn btn-primary" onclick="openAddModal()" style="margin-left: auto;">
+                    <i class="fas fa-plus"></i> Добавить
+                </button>
+            </div>
+            
+            <div class="items-table">
+                <div class="table-header">
+                    <span>Название</span>
+                    <span>Категория</span>
+                    <span>Дата</span>
+                    <span>Просмотры</span>
+                    <span></span>
+                </div>
+                <div id="itemsList">
+                    <div style="padding:40px;text-align:center;color:var(--gray);">Загрузка...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3 id="modalTitle">Добавить материал</h3>
+            <div class="form-group">
+                <label>Категория</label>
+                <select id="modalCategory">
+                    <option value="articles">Статьи</option>
+                    <option value="news">Новости</option>
+                    <option value="videos">Видео</option>
+                    <option value="legal">Юридическое</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Заголовок</label>
+                <input type="text" id="modalTitleInput" placeholder="Заголовок материала">
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <input type="text" id="modalDescription" placeholder="Краткое описание">
+            </div>
+            <div class="form-group">
+                <label>Содержание (HTML)</label>
+                <textarea id="modalContent" rows="8" placeholder="<p>Текст статьи...</p>"></textarea>
+            </div>
+            <div class="form-group" id="videoIdGroup" style="display:none;">
+                <label>YouTube Video ID</label>
+                <input type="text" id="modalVideoId" placeholder="dQw4w9WgXcQ">
+            </div>
+            <div class="form-group">
+                <label>Теги (через запятую)</label>
+                <input type="text" id="modalTags" placeholder="безопасность, дети, советы">
+            </div>
+            <div class="form-group">
+                <label>Возрастной рейтинг</label>
+                <select id="modalAgeRating">
+                    <option value="">Без ограничений</option>
+                    <option value="6">6+</option>
+                    <option value="12">12+</option>
+                    <option value="16">16+</option>
+                    <option value="18">18+</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="modalImportant"> Важный материал
+                </label>
+            </div>
+            <input type="hidden" id="modalEditId">
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button class="btn btn-primary" onclick="saveItem()">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+                <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-danger" id="modalDeleteBtn" style="display:none;margin-left:auto;" onclick="deleteItem()">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, doc, getDoc, 
+            addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { 
+            getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // Проверка авторизации
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Проверяем, есть ли email в коллекции admins
+                const adminsSnap = await getDocs(query(collection(db, 'admins'), where('email', '==', user.email)));
+                if (!adminsSnap.empty) {
+                    showAdminPanel(user);
+                } else {
+                    await signOut(auth);
+                    showLoginError('У вас нет прав администратора');
+                }
+            } else {
+                showLoginScreen();
+            }
+        });
+        
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+        
+        function showAdminPanel(user) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminEmail').textContent = user.email;
+            loadItems();
+        }
+        
+        function showLoginError(msg) {
+            const error = document.getElementById('loginError');
+            error.textContent = msg;
+            error.style.display = 'block';
+        }
+        
+        // Вход
+        window.login = async function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showLoginError('Заполните все поля');
+                return;
+            }
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showLoginError('Неверный email или пароль');
+            }
+        };
+        
+        // Выход
+        window.logout = async function() {
+            await signOut(auth);
+        };
+        
+        // Загрузка списка
+        async function loadItems() {
+            const container = document.getElementById('itemsList');
+            try {
+                const snapshot = await getDocs(query(collection(db, 'parents_info'), orderBy('createdAt', 'desc')));
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--gray);">Нет материалов</div>';
+                    return;
+                }
+                
+                let html = '';
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const date = data.createdAt?.toDate?.()?.toLocaleDateString('ru-RU') || '—';
+                    const categoryBadge = `badge-${data.category || 'articles'}`;
+                    
+                    html += `
+                        <div class="table-row">
+                            <span style="font-weight:500;">${data.title || 'Без названия'}</span>
+                            <span><span class="badge ${categoryBadge}">${data.category || 'articles'}</span></span>
+                            <span>${date}</span>
+                            <span>${data.views || 0}</span>
+                            <span>
+                                <button class="btn btn-outline" style="padding:6px 12px;font-size:0.8rem;" onclick="editItem('${docSnap.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </span>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--danger);">Ошибка загрузки</div>';
+            }
+        }
+        
+        // Открыть модалку для добавления
+        window.openAddModal = function() {
+            document.getElementById('modalTitle').textContent = 'Добавить материал';
+            document.getElementById('modalCategory').value = 'articles';
+            document.getElementById('modalTitleInput').value = '';
+            document.getElementById('modalDescription').value = '';
+            document.getElementById('modalContent').value = '';
+            document.getElementById('modalVideoId').value = '';
+            document.getElementById('modalTags').value = '';
+            document.getElementById('modalAgeRating').value = '';
+            document.getElementById('modalImportant').checked = false;
+            document.getElementById('modalEditId').value = '';
+            document.getElementById('modalDeleteBtn').style.display = 'none';
+            document.getElementById('videoIdGroup').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'flex';
+        };
+        
+        // Редактировать
+        window.editItem = async function(id) {
+            const docSnap = await getDoc(doc(db, 'parents_info', id));
+            if (!docSnap.exists()) return;
+            
+            const data = docSnap.data();
+            document.getElementById('modalTitle').textContent = 'Редактировать материал';
+            document.getElementById('modalCategory').value = data.category || 'articles';
+            document.getElementById('modalTitleInput').value = data.title || '';
+            document.getElementById('modalDescription').value = data.description || '';
+            document.getElementById('modalContent').value = data.content || '';
+            document.getElementById('modalVideoId').value = data.videoId || '';
+            document.getElementById('modalTags').value = (data.tags || []).join(', ');
+            document.getElementById('modalAgeRating').value = data.ageRating || '';
+            document.getElementById('modalImportant').checked = data.important || false;
+            document.getElementById('modalEditId').value = id;
+            document.getElementById('modalDeleteBtn').style.display = 'block';
+            document.getElementById('videoIdGroup').style.display = data.category === 'videos' ? 'block' : 'none';
+            document.getElementById('modalOverlay').style.display = 'flex';
+        };
+        
+        // Закрыть модалку
+        window.closeModal = function() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        };
+        
+        // Показать/скрыть поле videoId
+        document.getElementById('modalCategory').addEventListener('change', function() {
+            document.getElementById('videoIdGroup').style.display = this.value === 'videos' ? 'block' : 'none';
+        });
+        
+        // Сохранить
+        window.saveItem = async function() {
+            const data = {
+                category: document.getElementById('modalCategory').value,
+                title: document.getElementById('modalTitleInput').value,
+                description: document.getElementById('modalDescription').value,
+                content: document.getElementById('modalContent').value,
+                tags: document.getElementById('modalTags').value.split(',').map(t => t.trim()).filter(Boolean),
+                ageRating: document.getElementById('modalAgeRating').value || null,
+                important: document.getElementById('modalImportant').checked,
+                updatedAt: serverTimestamp()
+            };
+            
+            if (data.category === 'videos') {
+                data.videoId = document.getElementById('modalVideoId').value;
+            }
+            
+            const editId = document.getElementById('modalEditId').value;
+            
+            try {
+                if (editId) {
+                    await updateDoc(doc(db, 'parents_info', editId), data);
+                } else {
+                    data.createdAt = serverTimestamp();
+                    data.views = 0;
+                    data.ratings = [];
+                    await addDoc(collection(db, 'parents_info'), data);
+                }
+                closeModal();
+                loadItems();
+            } catch (error) {
+                alert('Ошибка сохранения: ' + error.message);
+            }
+        };
+        
+        // Удалить
+        window.deleteItem = async function() {
+            const editId = document.getElementById('modalEditId').value;
+            if (!editId) return;
+            
+            if (!confirm('Удалить этот материал?')) return;
+            
+            try {
+                await deleteDoc(doc(db, 'parents_info', editId));
+                closeModal();
+                loadItems();
+            } catch (error) {
+                alert('Ошибка удаления');
+            }
+        };
+    </script>
+</body>
+</html>
