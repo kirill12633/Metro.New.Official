@@ -7,7 +7,7 @@
     // ========== НАСТРОЙКИ ДОКУМЕНТОВ ==========
     // ★ ПРИ ОБНОВЛЕНИИ ДОКУМЕНТА - МЕНЯЙТЕ version ★
     const DOCS = {
-        privacy: { version: '1.32.0', url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/', name: 'Политика конфиденциальности', icon: '🔒', lastUpdate: '21 апреля 2026 года' },
+        privacy: { version: '1.4.0', url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/', name: 'Политика конфиденциальности', icon: '🔒', lastUpdate: '21 апреля 2026 года' },
         terms: { version: '1.1.0', url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/', name: 'Пользовательское соглашение', icon: '📝', lastUpdate: '6 апреля 2026 года' },
         refund: { version: '1.4.0', url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/', name: 'Политика возврата', icon: '💰', lastUpdate: '4 мая 2026 года' },
         cookies: { version: '1.0.0', url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/cookies/', name: 'Политика использования cookie', icon: '🍪', lastUpdate: '6 апреля 2026 года' },
