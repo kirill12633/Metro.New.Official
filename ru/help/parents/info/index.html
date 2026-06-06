@@ -8,9 +8,21 @@
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
+    <meta property="og:title" content="Метро New — Информация для родителей">
+    <meta property="og:description" content="Статьи, новости, видео и юридическая информация">
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+        <!-- Иконки сайта -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/error-handler.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/soft-limiter.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/maintenance.js"></script>
     <style>
         :root {
             --primary: #0066CC;
@@ -25,7 +37,34 @@
             --radius-md: 8px;
             --success: #1e8e3e;
             --warning: #ffc107;
+            --danger: #d93025;
+            --new-badge: #ff6d00;
+            --favorite-color: #ff5722;
         }
+        
+        :root.dark-theme {
+            --primary: #4d94ff;
+            --dark: #e8eaed;
+            --light: #1e1e1e;
+            --gray: #9aa0a6;
+            --gray-light: #2d2d2d;
+            --gray-border: #444444;
+        }
+        :root.dark-theme body { background: #121212; }
+        :root.dark-theme .item-card.important { background: #2d2610; }
+        
+        :root.accessibility-mode {
+            --primary: #0000FF;
+            --dark: #000000;
+            --light: #FFFFFF;
+            --gray: #333333;
+            --gray-light: #F0F0F0;
+            --gray-border: #000000;
+            font-size: 20px;
+        }
+        :root.accessibility-mode body { background: #FFFFFF; letter-spacing: 0.5px; word-spacing: 2px; }
+        :root.accessibility-mode .item-card { border: 2px solid #000; }
+        :root.accessibility-mode .btn, :root.accessibility-mode .tab-btn { border: 2px solid #000; font-weight: 700; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -33,123 +72,24 @@
             font-family: 'Montserrat', sans-serif;
             background: #f8f9fa;
             color: var(--dark);
-            padding: 0;
+            padding: 20px;
+            transition: all 0.3s;
         }
         
-        /* Прогресс-бар чтения */
-        .reading-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: var(--primary);
-            z-index: 9999;
-            transition: width 0.1s ease;
-            width: 0%;
-        }
+        .container { max-width: 800px; margin: 0 auto; }
         
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        
-        /* Поиск */
-        .search-container {
-            margin-bottom: 15px;
-            position: relative;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-md);
-            font-family: inherit;
-            font-size: 0.95rem;
-            background: var(--light);
-            color: var(--dark);
-            transition: all 0.2s;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .search-clear {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--gray);
-            display: none;
-        }
-        
-        .search-clear.visible { display: block; }
-        
-        /* Фильтры */
-        .filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 0.85rem;
-            background: var(--light);
-            color: var(--dark);
-            cursor: pointer;
-        }
-        
-        .filter-chip {
-            padding: 8px 16px;
-            border: 1px solid var(--gray-border);
-            border-radius: 20px;
-            background: var(--light);
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .filter-chip.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .filter-chip:hover { border-color: var(--primary); }
-        
-        .results-count {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-left: auto;
-        }
-        
-        /* Навигация */
+        /* НАВИГАЦИЯ */
         .navigation {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 10px;
         }
+        
+        .nav-left { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-right { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         
         .nav-link {
             display: inline-flex;
@@ -162,11 +102,120 @@
             background: var(--light);
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
         }
-        
         .nav-link:hover { background: var(--gray-light); }
         
-        /* Карточка */
+        .nav-link.icon-only {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--light);
+            animation: pulse-dot 2s infinite;
+            display: none;
+        }
+        .notification-dot.active { display: block; }
+        
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            padding: 0 4px;
+        }
+        
+        /* ВЫПАДАЮЩЕЕ ОКНО УВЕДОМЛЕНИЙ */
+        .notification-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: var(--light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 9999;
+            display: none;
+        }
+        .notification-dropdown.active { display: block; }
+        
+        .notification-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--gray-border);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--gray-light);
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .notification-item:hover { background: var(--gray-light); }
+        .notification-item.unread { background: rgba(0,102,204,0.05); }
+        
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+        .notification-icon.new { background: rgba(255,109,0,0.1); color: var(--new-badge); }
+        .notification-icon.important { background: rgba(255,193,7,0.1); color: #f5a623; }
+        
+        .notification-text h4 { font-size: 0.85rem; margin-bottom: 3px; }
+        .notification-text p { font-size: 0.75rem; color: var(--gray); }
+        .notification-text .time { font-size: 0.7rem; color: var(--gray); margin-top: 3px; }
+        
+        .notification-empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        /* КАРТОЧКА */
         .card {
             background: var(--light);
             border: 1px solid var(--gray-border);
@@ -202,14 +251,33 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
-        
         .logo-text { font-size: 1.5rem; font-weight: 700; color: var(--dark); }
-        
         .card-header h1 { font-size: 1.4rem; font-weight: 500; margin-bottom: 8px; }
         .card-header p { font-size: 0.9rem; color: var(--gray); }
         .card-body { padding: 24px; }
         
-        /* Табы */
+        /* ПОИСК */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: var(--light);
+            color: var(--dark);
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .search-clear { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--gray); display: none; }
+        .search-clear.visible { display: block; }
+        
+        /* ТАБЫ */
         .tabs {
             display: flex;
             gap: 0;
@@ -219,12 +287,12 @@
         }
         
         .tab-btn {
-            padding: 12px 20px;
+            padding: 12px 15px;
             border: none;
             background: transparent;
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--gray);
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
@@ -232,40 +300,36 @@
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
-        
         .tab-btn:hover { color: var(--primary); }
-        
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-            font-weight: 600;
-        }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
         
         .tab-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.85rem;
         }
-        
         .tab-icon.articles { background: rgba(0,102,204,0.1); color: var(--primary); }
         .tab-icon.news { background: rgba(255,193,7,0.1); color: #f5a623; }
         .tab-icon.videos { background: rgba(255,0,0,0.1); color: #ff0000; }
         .tab-icon.legal { background: rgba(108,117,125,0.1); color: #6c757d; }
-        .tab-icon.favorites { background: rgba(255,87,34,0.1); color: #ff5722; }
-        .tab-icon.history { background: rgba(156,39,176,0.1); color: #9c27b0; }
+        .tab-icon.documents { background: rgba(30,142,62,0.1); color: var(--success); }
         
-        /* Список */
-        .items-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .tab-count {
+            background: var(--gray-light);
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
+        
+        /* СПИСОК */
+        .items-list { display: flex; flex-direction: column; gap: 12px; }
         
         .item-card {
             padding: 18px;
@@ -275,32 +339,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            opacity: 0;
-            transform: translateY(20px);
             animation: fadeInUp 0.3s forwards;
+            opacity: 0;
         }
-        
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .item-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .item-card.important {
-            border-left: 4px solid var(--warning);
-            background: #fff9e6;
-        }
-        
-        .item-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 6px;
-            padding-right: 60px;
-        }
-        
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .item-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .item-card.important { border-left: 4px solid var(--warning); background: #fff9e6; }
+        .item-card h3 { font-size: 1.1rem; margin-bottom: 6px; padding-right: 100px; }
         .item-card p { color: var(--gray); font-size: 0.9rem; margin-bottom: 8px; }
         
         .item-meta {
@@ -310,125 +355,124 @@
             font-size: 0.8rem;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: space-between;
         }
+        .item-meta-left { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        .item-actions { display: flex; gap: 6px; }
         
-        .item-tags {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-        
-        .item-tag {
-            padding: 3px 8px;
-            background: var(--gray-light);
-            border-radius: 12px;
-            font-size: 0.7rem;
-            color: var(--gray);
-        }
-        
-        .important-badge {
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            background: var(--warning);
-            color: #000;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        
-        .bookmark-btn {
-            position: absolute;
-            top: 18px;
-            right: 18px;
+        .favorite-btn {
             background: none;
             border: none;
             cursor: pointer;
+            font-size: 1.1rem;
             color: var(--gray);
-            font-size: 1.2rem;
             transition: all 0.2s;
-            z-index: 2;
+            padding: 5px;
+        }
+        .favorite-btn:hover { transform: scale(1.2); }
+        .favorite-btn.active { color: var(--favorite-color); }
+        
+        .share-mini-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--gray-border);
+            background: var(--light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+            color: var(--gray);
+        }
+        .share-mini-btn:hover { transform: scale(1.15); color: white; }
+        .share-mini-btn.telegram:hover { background: #0088cc; border-color: #0088cc; }
+        .share-mini-btn.copy:hover { background: var(--gray); border-color: var(--gray); }
+        
+        /* Бейджи */
+        .badges {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            z-index: 1;
+        }
+        .badge-new {
+            background: var(--new-badge);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        .badge-important {
+            background: var(--warning);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        .badge-doc {
+            background: var(--success);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
         }
         
-        .bookmark-btn:hover { transform: scale(1.2); }
-        .bookmark-btn.active { color: #ff5722; }
-        
-        .reading-time {
+        .reading-time-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             background: var(--gray-light);
             padding: 3px 8px;
             border-radius: 12px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--gray);
         }
         
-        /* Скелетон */
-        .skeleton {
-            background: linear-gradient(90deg, 
-                var(--gray-light) 25%, 
-                var(--gray-border) 50%, 
-                var(--gray-light) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+        .video-thumb {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
             border-radius: var(--radius-sm);
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        
-        .skeleton-card {
-            padding: 18px;
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
-            margin-bottom: 12px;
-        }
-        
-        .skeleton-title {
-            height: 20px;
-            width: 70%;
             margin-bottom: 10px;
+            background: #000;
+        }
+        .video-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255,0,0,0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
         }
         
-        .skeleton-text {
-            height: 14px;
-            width: 90%;
-            margin-bottom: 8px;
-        }
+        .empty-state { text-align: center; padding: 40px; color: var(--gray); }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.3; }
         
-        .skeleton-meta {
-            height: 12px;
-            width: 40%;
-        }
-        
-        /* Детальный просмотр */
+        /* ДЕТАЛЬНЫЙ ПРОСМОТР */
         .detail-view { display: none; }
         .detail-view.active { display: block; }
         .list-view.active { display: block; }
         .list-view { display: none; }
         
         .back-btn { margin-bottom: 20px; }
-        
-        .item-content {
-            line-height: 1.8;
-            padding: 20px 0;
-        }
-        
-        .item-content h2 {
-            margin: 25px 0 15px;
-            font-size: 1.3rem;
-            scroll-margin-top: 20px;
-        }
-        
-        .item-content h3 {
-            margin: 20px 0 10px;
-            scroll-margin-top: 20px;
-        }
+        .item-content { line-height: 1.8; padding: 20px 0; }
         
         .meta-info {
             display: flex;
@@ -448,7 +492,6 @@
             height: 0;
             margin: 20px 0;
         }
-        
         .video-embed iframe {
             position: absolute;
             top: 0;
@@ -458,145 +501,14 @@
             border-radius: var(--radius-sm);
         }
         
-        /* Оглавление */
-        .table-of-contents {
-            position: sticky;
-            top: 20px;
-            background: var(--light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .toc-title {
-            font-weight: 600;
-            margin-bottom: 15px;
-            font-size: 1rem;
-        }
-        
-        .toc-list {
-            list-style: none;
-        }
-        
-        .toc-item {
-            padding: 8px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        
-        .toc-link {
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: color 0.2s;
-            cursor: pointer;
-        }
-        
-        .toc-link:hover, .toc-link.active { color: var(--primary); }
-        .toc-link.h2 { padding-left: 0; font-weight: 500; }
-        .toc-link.h3 { padding-left: 15px; font-size: 0.8rem; }
-        
-        /* Рейтинг */
-        .rating-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: var(--gray-light);
+        .document-iframe {
+            width: 100%;
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-sm);
-            text-align: center;
-        }
-        
-        .rating-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        
-        .rating-btn {
-            padding: 12px 30px;
-            border: 1px solid var(--gray-border);
-            border-radius: 30px;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            font-family: inherit;
-            font-size: 0.9rem;
-        }
-        
-        .rating-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .rating-btn.like:hover:not(:disabled) { background: #1e8e3e; color: white; border-color: #1e8e3e; }
-        .rating-btn.dislike:hover:not(:disabled) { background: #d93025; color: white; border-color: #d93025; }
-        
-        /* Шеринг и печать */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
             margin: 20px 0;
         }
         
-        .share-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: var(--gray-light);
-            border: 1px solid var(--gray-border);
-            border-radius: var(--radius-sm);
-            text-align: center;
-        }
-        
-        .share-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .share-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.2rem;
-        }
-        
-        .share-btn:hover { transform: translateY(-3px) scale(1.1); }
-        .share-btn.telegram { background: #0088cc; }
-        .share-btn.whatsapp { background: #25D366; }
-        .share-btn.vk { background: #4a76a8; }
-        .share-btn.copy { background: var(--gray); }
-        
-        .copy-message {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--success);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
-        }
-        
-        @keyframes slideUp {
-            from { transform: translate(-50%, 100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
-        
-        /* Связанные материалы */
+        /* ПОХОЖИЕ МАТЕРИАЛЫ */
         .related-section {
             margin: 30px 0;
             padding: 20px;
@@ -604,29 +516,140 @@
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-sm);
         }
-        
-        .related-title {
-            font-weight: 600;
+        .related-section h4 {
             margin-bottom: 15px;
-        }
-        
-        .related-list {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
         }
+        .related-list { display: flex; flex-direction: column; gap: 8px; }
         
         .related-item {
-            padding: 12px;
+            padding: 12px 15px;
             background: var(--light);
+            border: 1px solid var(--gray-border);
             border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .related-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+            box-shadow: var(--shadow-md);
+        }
+        .related-item i { color: var(--primary); font-size: 0.9rem; }
+        .related-item .rel-info { flex: 1; }
+        .related-item .rel-title { font-weight: 500; font-size: 0.9rem; }
+        .related-item .rel-meta { font-size: 0.75rem; color: var(--gray); }
+        .related-item .rel-badge {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: var(--gray-light);
+            color: var(--gray);
         }
         
-        .related-item:hover { border-color: var(--primary); transform: translateX(5px); }
+        /* МОДАЛКИ */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
         
-        /* Кнопки */
+        .modal {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        .modal h3 { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .settings-group {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        .settings-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .settings-group h4 { font-size: 0.9rem; margin-bottom: 12px; color: var(--gray); }
+        
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            gap: 15px;
+        }
+        .settings-row span { font-size: 0.9rem; }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 28px;
+            background: var(--gray-border);
+            border-radius: 14px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .toggle-switch.active { background: var(--primary); }
+        .toggle-switch::after {
+            content: '';
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: left 0.3s;
+        }
+        .toggle-switch.active::after { left: 25px; }
+        
+        .font-size-controls { display: flex; gap: 10px; align-items: center; }
+        .font-size-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--gray-border);
+            background: var(--light);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+        }
+        .font-size-btn:hover { border-color: var(--primary); }
+        .font-size-label { font-size: 0.85rem; color: var(--gray); min-width: 30px; text-align: center; }
+        
+        .settings-input, .settings-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: var(--light);
+            color: var(--dark);
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .settings-textarea { resize: vertical; min-height: 100px; }
+        
+        /* КНОПКИ */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -640,21 +663,31 @@
             cursor: pointer;
             font-family: inherit;
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-        
+        .btn:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary); color: white; }
+        .btn-speak { background: var(--success); }
+        .btn-speak:hover { background: #166b30; }
+        .btn-speak.speaking { background: var(--danger); animation: pulse-btn 1s infinite; }
+        @keyframes pulse-btn { 0%,100%{box-shadow:0 0 0 0 rgba(217,48,37,0.4)} 50%{box-shadow:0 0 0 10px rgba(217,48,37,0)} }
         
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray);
+        .loading { text-align: center; padding: 40px; color: var(--gray); }
+        
+        .copy-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
         }
+        @keyframes slideUp { from{transform:translate(-50%,100%);opacity:0} to{transform:translate(-50%,0);opacity:1} }
         
         .card-footer {
             padding: 16px 24px;
@@ -663,71 +696,72 @@
             font-size: 0.75rem;
             color: var(--gray);
         }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        
+        .footer-links { display: flex; justify-content: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
         .footer-links a { color: var(--gray); text-decoration: none; }
         .footer-links a:hover { color: var(--primary); }
         
-        /* Печать */
-        @media print {
-            .navigation, .tabs, .search-container, .filters, 
-            .rating-section, .share-section, .action-buttons,
-            .card-footer, .back-btn, .bookmark-btn, .reading-progress,
-            .related-section, .table-of-contents { display: none !important; }
-            
-            body { background: white; padding: 0; }
-            .container { max-width: 100%; padding: 0; }
-            .card { border: none; box-shadow: none; }
-            .item-content { font-size: 12pt; line-height: 1.6; }
-        }
+        mark { background: #fff3cd; padding: 0 2px; border-radius: 2px; }
         
         @media (max-width: 600px) {
             .tabs { gap: 0; }
-            .tab-btn { padding: 12px 10px; font-size: 0.75rem; }
-            .rating-buttons { flex-direction: column; align-items: center; }
-            .share-buttons { gap: 5px; }
-            .share-btn { width: 40px; height: 40px; }
-            .filters { flex-direction: column; }
-            .filter-select { width: 100%; }
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --dark: #e8eaed;
-                --light: #202124;
-                --gray: #9aa0a6;
-                --gray-light: #292a2d;
-                --gray-border: #5f6368;
-            }
-            body { background: #1a1a1a; }
-            .item-card.important { background: #332e1a; border-left-color: var(--warning); }
-            .rating-btn { background: #292a2d; color: var(--dark); }
-            .search-input { background: #292a2d; }
+            .tab-btn { padding: 10px 6px; font-size: 0.65rem; }
+            .document-iframe { height: 400px; }
+            .notification-dropdown { width: 280px; right: -50px; }
+            .nav-link { font-size: 0.8rem; padding: 6px 10px; }
         }
     </style>
 </head>
 <body>
-    <!-- Прогресс-бар чтения -->
-    <div class="reading-progress" id="readingProgress"></div>
-    
     <div class="container">
+        <!-- НАВИГАЦИЯ -->
         <div class="navigation">
-            <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/" class="nav-link">
-                <i class="fas fa-arrow-left"></i> Назад к родителям
-            </a>
-            <div style="display:flex;gap:10px;">
-                <a href="admin/" class="nav-link">
-                    <i class="fas fa-lock"></i> Админ
+            <div class="nav-left">
+                <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/parents/" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Назад
                 </a>
+            </div>
+            <div class="nav-right">
+                <!-- Уведомления -->
+                <div style="position:relative;">
+                    <button class="nav-link icon-only" onclick="toggleNotifications()" title="Уведомления">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot" id="notificationDot"></span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <span><i class="fas fa-bell"></i> Новые материалы</span>
+                            <button class="btn btn-outline" style="padding:4px 10px;font-size:0.7rem;" onclick="markAllRead()">Прочитано</button>
+                        </div>
+                        <div id="notificationList">
+                            <div class="notification-empty">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Избранное -->
+                <button class="nav-link icon-only" onclick="switchTab('favorites')" title="Избранное">
+                    <i class="fas fa-bookmark"></i>
+                    <span class="badge-count" id="favBadge" style="display:none;">0</span>
+                </button>
+                <!-- История -->
+                <button class="nav-link icon-only" onclick="switchTab('history')" title="История">
+                    <i class="fas fa-history"></i>
+                </button>
+                <!-- Настройки -->
+                <button class="nav-link icon-only" onclick="openSettings()" title="Настройки">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+                <!-- Обратная связь -->
+                <button class="nav-link icon-only" onclick="openFeedback()" title="Сообщить о проблеме">
+                    <i class="fas fa-bug"></i>
+                </button>
+                <!-- Админ -->
+                <a href="admin/" class="nav-link">
+                    <i class="fas fa-lock"></i>
+                </a>
+                <!-- Поддержка -->
                 <a href="https://kirill12633.github.io/support.metro.new/" class="nav-link">
-                    <i class="fas fa-headset"></i> Поддержка
+                    <i class="fas fa-headset"></i>
                 </a>
             </div>
         </div>
@@ -750,51 +784,35 @@
                     <i class="fas fa-search search-icon"></i>
                 </div>
                 
-                <!-- Фильтры -->
-                <div class="filters">
-                    <select class="filter-select" id="sortSelect" onchange="applyFilters()">
-                        <option value="newest">Сначала новые</option>
-                        <option value="oldest">Сначала старые</option>
-                        <option value="popular">По популярности</option>
-                        <option value="rated">По рейтингу</option>
-                    </select>
-                    <button class="filter-chip" id="importantFilter" onclick="toggleImportantFilter()">
-                        <i class="fas fa-star"></i> Только важные
-                    </button>
-                    <span class="results-count" id="resultsCount"></span>
-                </div>
-                
                 <!-- Табы -->
-                <div class="tabs" id="tabsContainer">
+                <div class="tabs">
                     <button class="tab-btn active" data-category="articles">
                         <span class="tab-icon articles"><i class="fas fa-newspaper"></i></span>
-                        Статьи
+                        Статьи <span class="tab-count" id="count-articles">0</span>
                     </button>
                     <button class="tab-btn" data-category="news">
                         <span class="tab-icon news"><i class="fas fa-bullhorn"></i></span>
-                        Новости
+                        Новости <span class="tab-count" id="count-news">0</span>
                     </button>
                     <button class="tab-btn" data-category="videos">
                         <span class="tab-icon videos"><i class="fab fa-youtube"></i></span>
-                        Видео
+                        Видео <span class="tab-count" id="count-videos">0</span>
                     </button>
                     <button class="tab-btn" data-category="legal">
                         <span class="tab-icon legal"><i class="fas fa-gavel"></i></span>
-                        Юридическое
+                        Юридическое <span class="tab-count" id="count-legal">0</span>
                     </button>
-                    <button class="tab-btn" data-category="favorites">
-                        <span class="tab-icon favorites"><i class="fas fa-bookmark"></i></span>
-                        Избранное
-                    </button>
-                    <button class="tab-btn" data-category="history">
-                        <span class="tab-icon history"><i class="fas fa-history"></i></span>
-                        Недавние
+                    <button class="tab-btn" data-category="document">
+                        <span class="tab-icon documents"><i class="fas fa-file-alt"></i></span>
+                        Документы <span class="tab-count" id="count-document">0</span>
                     </button>
                 </div>
                 
                 <!-- Список -->
                 <div id="listView" class="list-view active">
-                    <div id="itemsContainer"></div>
+                    <div id="itemsContainer">
+                        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>
+                    </div>
                 </div>
                 
                 <!-- Детальный просмотр -->
@@ -811,8 +829,86 @@
                 <div class="footer-links">
                     <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/">Конфиденциальность</a>
                     <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/">Условия</a>
+                    <a href="#" onclick="openFeedback(); return false;">Сообщить о проблеме</a>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <h3><i class="fas fa-sliders-h"></i> Настройки</h3>
+            
+            <div class="settings-group">
+                <h4>Оформление</h4>
+                <div class="settings-row">
+                    <span><i class="fas fa-moon"></i> Тёмная тема</span>
+                    <div class="toggle-switch" id="toggleTheme" onclick="toggleTheme()"></div>
+                </div>
+                <div class="settings-row">
+                    <span><i class="fas fa-eye"></i> Высокий контраст</span>
+                    <div class="toggle-switch" id="toggleContrast" onclick="toggleAccessibility()"></div>
+                </div>
+                <div class="settings-row">
+                    <span><i class="fas fa-font"></i> Размер шрифта</span>
+                    <div class="font-size-controls">
+                        <button class="font-size-btn" onclick="changeFontSize(-1)">A⁻</button>
+                        <span class="font-size-label" id="fontSizeLabel">100%</span>
+                        <button class="font-size-btn" onclick="changeFontSize(1)">A⁺</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h4>Мои данные</h4>
+                <div class="settings-row">
+                    <span><i class="fas fa-bookmark"></i> Избранное</span>
+                    <span style="color:var(--gray);" id="settingsFavCount">0 материалов</span>
+                </div>
+                <div class="settings-row">
+                    <span><i class="fas fa-history"></i> История просмотров</span>
+                    <span style="color:var(--gray);" id="settingsHistoryCount">0 записей</span>
+                </div>
+                <button class="btn btn-outline" onclick="clearHistory()" style="width:100%;margin-top:5px;">
+                    <i class="fas fa-trash"></i> Очистить историю
+                </button>
+            </div>
+            
+            <div class="settings-group">
+                <h4>Обратная связь</h4>
+                <button class="btn" onclick="closeSettings(); openFeedback();" style="width:100%;">
+                    <i class="fas fa-bug"></i> Сообщить о проблеме
+                </button>
+                <p style="text-align:center;margin-top:10px;font-size:0.8rem;color:var(--gray);">
+                    <i class="fas fa-envelope"></i> metro.new.help@gmail.com
+                </p>
+            </div>
+            
+            <button class="btn btn-outline" onclick="closeSettings()" style="width:100%;margin-top:15px;">Закрыть</button>
+        </div>
+    </div>
+    
+    <!-- МОДАЛЬНОЕ ОКНО ОБРАТНОЙ СВЯЗИ -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal">
+            <h3><i class="fas fa-bug"></i> Сообщить о проблеме</h3>
+            <input type="text" class="settings-input" id="feedbackName" placeholder="Ваше имя (необязательно)">
+            <input type="email" class="settings-input" id="feedbackEmail" placeholder="Email для ответа *">
+            <select class="settings-input" id="feedbackType">
+                <option value="problem">🐛 Проблема</option>
+                <option value="suggestion">💡 Предложение</option>
+                <option value="question">❓ Вопрос</option>
+                <option value="other">📋 Другое</option>
+            </select>
+            <textarea class="settings-textarea" id="feedbackMessage" placeholder="Опишите проблему..."></textarea>
+            <div style="display:flex;gap:10px;">
+                <button class="btn" onclick="sendFeedback()"><i class="fas fa-paper-plane"></i> Отправить</button>
+                <button class="btn btn-outline" onclick="closeFeedback()">Отмена</button>
+            </div>
+            <p style="text-align:center;margin-top:15px;font-size:0.8rem;color:var(--gray);">
+                <i class="fas fa-envelope"></i> <b>metro.new.help@gmail.com</b>
+            </p>
         </div>
     </div>
 
@@ -820,7 +916,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { 
             getFirestore, collection, getDocs, doc, getDoc, 
-            updateDoc, increment, query, orderBy, arrayUnion 
+            updateDoc, increment, query, orderBy
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -839,49 +935,264 @@
         
         let currentCategory = 'articles';
         let currentItemId = null;
-        let allData = {}; // Кеш всех данных
-        let showOnlyImportant = false;
-        let sortBy = 'newest';
+        let allItems = [];
+        let isSpeaking = false;
         let searchQuery = '';
+        let readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
         
-        // Инициализация
-        loadAllData();
+        // ============ НАСТРОЙКИ ============
+        let darkTheme = localStorage.getItem('darkTheme') === 'true';
+        let accessibilityMode = localStorage.getItem('a11y') === 'true';
+        let fontSizeLevel = parseInt(localStorage.getItem('fontSize') || '0');
         
-        // Поиск
-        document.getElementById('searchInput').addEventListener('input', debounce(function(e) {
-            searchQuery = e.target.value.toLowerCase();
-            document.getElementById('searchClear').classList.toggle('visible', searchQuery.length > 0);
-            loadList();
-        }, 300));
+        function applyAllSettings() {
+            const themeToggle = document.getElementById('toggleTheme');
+            if (darkTheme) {
+                document.documentElement.classList.add('dark-theme');
+                themeToggle?.classList.add('active');
+            } else {
+                document.documentElement.classList.remove('dark-theme');
+                themeToggle?.classList.remove('active');
+            }
+            
+            const contrastToggle = document.getElementById('toggleContrast');
+            if (accessibilityMode) {
+                document.documentElement.classList.add('accessibility-mode');
+                contrastToggle?.classList.add('active');
+            } else {
+                document.documentElement.classList.remove('accessibility-mode');
+                contrastToggle?.classList.remove('active');
+            }
+            
+            document.documentElement.style.fontSize = (16 + fontSizeLevel * 2) + 'px';
+            const label = document.getElementById('fontSizeLabel');
+            if (label) label.textContent = (100 + fontSizeLevel * 12) + '%';
+            
+            updateAllCounts();
+        }
         
-        window.clearSearch = function() {
-            document.getElementById('searchInput').value = '';
-            searchQuery = '';
-            document.getElementById('searchClear').classList.remove('visible');
-            loadList();
+        function updateAllCounts() {
+            const favCount = getFavorites().length;
+            const histCount = getHistory().length;
+            
+            const favBadge = document.getElementById('favBadge');
+            if (favBadge) {
+                favBadge.textContent = favCount;
+                favBadge.style.display = favCount > 0 ? 'flex' : 'none';
+            }
+            
+            const settingsFav = document.getElementById('settingsFavCount');
+            if (settingsFav) settingsFav.textContent = favCount + ' материалов';
+            
+            const settingsHist = document.getElementById('settingsHistoryCount');
+            if (settingsHist) settingsHist.textContent = histCount + ' записей';
+            
+            updateNotificationDot();
+        }
+        
+        applyAllSettings();
+        
+        window.openSettings = () => { updateAllCounts(); document.getElementById('settingsModal').classList.add('active'); };
+        window.closeSettings = () => document.getElementById('settingsModal').classList.remove('active');
+        window.toggleTheme = () => { darkTheme = !darkTheme; localStorage.setItem('darkTheme', darkTheme); applyAllSettings(); };
+        window.toggleAccessibility = () => { accessibilityMode = !accessibilityMode; localStorage.setItem('a11y', accessibilityMode); applyAllSettings(); };
+        window.changeFontSize = (d) => { fontSizeLevel = Math.max(-3, Math.min(5, fontSizeLevel + d)); localStorage.setItem('fontSize', fontSizeLevel); applyAllSettings(); };
+        window.clearHistory = () => { if(confirm('Очистить историю?')) { localStorage.removeItem('viewHistory'); updateAllCounts(); if(currentCategory==='history') filterAndDisplay(); showToast('История очищена'); } };
+        
+        // ============ УВЕДОМЛЕНИЯ ============
+        function getNewItems() {
+            const now = new Date();
+            const threeDaysAgo = new Date(now.getTime() - 3*24*60*60*1000);
+            return allItems.filter(item => {
+                let d = null;
+                if (item.createdAt?.toDate) d = item.createdAt.toDate();
+                else if (item.createdAt?.seconds) d = new Date(item.createdAt.seconds * 1000);
+                return d && d > threeDaysAgo;
+            });
+        }
+        
+        function updateNotificationDot() {
+            const newItems = getNewItems();
+            const unreadCount = newItems.filter(item => !readNotifications.includes(item.id)).length;
+            const dot = document.getElementById('notificationDot');
+            if (dot) {
+                dot.classList.toggle('active', unreadCount > 0);
+            }
+        }
+        
+        window.toggleNotifications = function() {
+            const dropdown = document.getElementById('notificationDropdown');
+            const isActive = dropdown.classList.contains('active');
+            
+            if (isActive) {
+                dropdown.classList.remove('active');
+                return;
+            }
+            
+            // Закрываем другие выпадающие
+            dropdown.classList.add('active');
+            
+            const newItems = getNewItems();
+            const list = document.getElementById('notificationList');
+            
+            if (newItems.length === 0) {
+                list.innerHTML = '<div class="notification-empty"><i class="fas fa-inbox" style="font-size:2rem;opacity:0.3;"></i><p>Нет новых материалов</p></div>';
+                return;
+            }
+            
+            let html = '';
+            newItems.slice(0, 10).forEach(item => {
+                const unread = !readNotifications.includes(item.id);
+                const catNames = { articles: 'Статья', news: 'Новость', videos: 'Видео', legal: 'Юридическое', document: 'Документ' };
+                
+                let d = null;
+                if (item.createdAt?.toDate) d = item.createdAt.toDate();
+                else if (item.createdAt?.seconds) d = new Date(item.createdAt.seconds * 1000);
+                const timeAgo = d ? getTimeAgo(d) : '';
+                
+                html += `
+                    <div class="notification-item ${unread ? 'unread' : ''}" onclick="openItem('${item.id}','${item.category}'); document.getElementById('notificationDropdown').classList.remove('active');">
+                        <div class="notification-icon ${item.important ? 'important' : 'new'}">
+                            <i class="fas ${item.important ? 'fa-star' : 'fa-circle'}"></i>
+                        </div>
+                        <div class="notification-text">
+                            <h4>${item.title || 'Без названия'}</h4>
+                            <p>${catNames[item.category] || 'Материал'}${item.important ? ' • Важное' : ''}</p>
+                            <div class="time">${timeAgo}</div>
+                        </div>
+                    </div>`;
+            });
+            list.innerHTML = html;
         };
         
-        // Табы
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentCategory = btn.dataset.category;
-                currentItemId = null;
-                showList();
+        window.markAllRead = function() {
+            const newItems = getNewItems();
+            newItems.forEach(item => {
+                if (!readNotifications.includes(item.id)) {
+                    readNotifications.push(item.id);
+                }
             });
+            localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+            updateNotificationDot();
+            document.getElementById('notificationDropdown').classList.remove('active');
+            showToast('Все уведомления прочитаны');
+        };
+        
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'только что';
+            if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+            if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+            return Math.floor(diff/86400) + ' дн назад';
+        }
+        
+        // Клик вне уведомлений
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bell = e.target.closest('[onclick="toggleNotifications()"]');
+            if (dropdown.classList.contains('active') && !bell && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
         });
         
-        // Фильтры
-        window.toggleImportantFilter = function() {
-            showOnlyImportant = !showOnlyImportant;
-            document.getElementById('importantFilter').classList.toggle('active', showOnlyImportant);
-            loadList();
+        // ============ ОБРАТНАЯ СВЯЗЬ ============
+        window.openFeedback = () => document.getElementById('feedbackModal').classList.add('active');
+        window.closeFeedback = () => document.getElementById('feedbackModal').classList.remove('active');
+        window.sendFeedback = function() {
+            const name = document.getElementById('feedbackName').value.trim();
+            const email = document.getElementById('feedbackEmail').value.trim();
+            const type = document.getElementById('feedbackType').value;
+            const message = document.getElementById('feedbackMessage').value.trim();
+            if (!message) { alert('Опишите проблему'); return; }
+            if (!email) { alert('Укажите email'); return; }
+            
+            const subject = `[${type}] Обратная связь от ${name || 'пользователя'}`;
+            const body = `Имя: ${name || 'Не указано'}\nEmail: ${email}\nТип: ${type}\n\n${message}\n\n---\n${window.location.href}`;
+            window.location.href = `mailto:metro.new.help@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            document.getElementById('feedbackName').value = '';
+            document.getElementById('feedbackEmail').value = '';
+            document.getElementById('feedbackMessage').value = '';
+            closeFeedback();
+            showToast('✅ Открываем почтовый клиент...');
         };
         
-        window.applyFilters = function() {
-            sortBy = document.getElementById('sortSelect').value;
-            loadList();
+        document.getElementById('settingsModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeSettings(); });
+        document.getElementById('feedbackModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeFeedback(); });
+        
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'copy-message';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // ============ ИЗБРАННОЕ И ИСТОРИЯ ============
+        function getFavorites() { return JSON.parse(localStorage.getItem('favorites') || '[]'); }
+        function isFavorite(id) { return getFavorites().includes(id); }
+        
+        window.toggleFavorite = function(id, event) {
+            if (event) event.stopPropagation();
+            let favs = getFavorites();
+            if (favs.includes(id)) { favs = favs.filter(f => f !== id); showToast('Удалено из избранного'); }
+            else { favs.push(id); showToast('⭐ Добавлено в избранное'); }
+            localStorage.setItem('favorites', JSON.stringify(favs));
+            updateAllCounts();
+            filterAndDisplay();
+        };
+        
+        function getHistory() { return JSON.parse(localStorage.getItem('viewHistory') || '[]'); }
+        
+        function addToHistory(id, title, category) {
+            let history = getHistory();
+            history = history.filter(h => h.id !== id);
+            history.unshift({ id, title, category, viewedAt: new Date().toISOString() });
+            history = history.slice(0, 20);
+            localStorage.setItem('viewHistory', JSON.stringify(history));
+            updateAllCounts();
+        }
+        
+        // ============ ОЗВУЧКА ============
+        window.speakText = function(text) {
+            if (!('speechSynthesis' in window)) { alert('Браузер не поддерживает'); return; }
+            const btn = document.getElementById('speakBtn');
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                if(btn) { btn.classList.remove('speaking'); btn.innerHTML = '<i class="fas fa-volume-up"></i> Прослушать'; }
+                return;
+            }
+            const div = document.createElement('div'); div.innerHTML = text;
+            const utterance = new SpeechSynthesisUtterance(div.textContent || '');
+            utterance.lang = 'ru-RU'; utterance.rate = 0.9;
+            utterance.onstart = () => { isSpeaking = true; if(btn) { btn.classList.add('speaking'); btn.innerHTML = '<i class="fas fa-stop"></i> Остановить'; } };
+            utterance.onend = utterance.onerror = () => { isSpeaking = false; if(btn) { btn.classList.remove('speaking'); btn.innerHTML = '<i class="fas fa-volume-up"></i> Прослушать'; } };
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        };
+        
+        // ============ ПОИСК ============
+        document.getElementById('searchInput').addEventListener('input', function() {
+            searchQuery = this.value.toLowerCase();
+            document.getElementById('searchClear').classList.toggle('visible', searchQuery.length > 0);
+            filterAndDisplay();
+        });
+        window.clearSearch = () => { document.getElementById('searchInput').value = ''; searchQuery = ''; document.getElementById('searchClear').classList.remove('visible'); filterAndDisplay(); };
+        
+        // ============ ТАБЫ ============
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() { switchTab(this.dataset.category); });
+        });
+        
+        window.switchTab = function(cat) {
+            currentCategory = cat;
+            currentItemId = null;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const tb = document.querySelector(`.tab-btn[data-category="${cat}"]`);
+            if(tb) tb.classList.add('active');
+            showList();
         };
         
         function showList() {
@@ -889,8 +1200,8 @@
             document.getElementById('detailView').classList.remove('active');
             document.getElementById('mainTitle').textContent = 'Информация для родителей';
             document.getElementById('mainSubtitle').textContent = 'Выберите категорию и материал';
-            document.getElementById('readingProgress').style.width = '0%';
-            loadList();
+            if(isSpeaking) { window.speechSynthesis.cancel(); isSpeaking = false; }
+            filterAndDisplay();
         }
         
         function showDetail() {
@@ -899,153 +1210,116 @@
             window.scrollTo(0, 0);
         }
         
-        // Загрузка всех данных
+        // ============ ЗАГРУЗКА ============
         async function loadAllData() {
-            const categories = ['articles', 'news', 'videos', 'legal'];
-            for (const cat of categories) {
-                try {
-                    const q = query(collection(db, 'parents_info'), orderBy('category'), orderBy('createdAt', 'desc'));
-                    const snapshot = await getDocs(q);
-                    allData[cat] = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        if (data.category === cat) {
-                            allData[cat].push({ id: doc.id, ...data });
-                        }
-                    });
-                } catch (e) {
-                    allData[cat] = [];
-                }
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>';
+            try {
+                const q = query(collection(db, 'parents_info'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                allItems = [];
+                snapshot.forEach(doc => allItems.push({ id: doc.id, ...doc.data() }));
+                updateAllCounts();
+                updateTabCounts();
+                filterAndDisplay();
+            } catch(e) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Ошибка загрузки</p></div>';
             }
-            loadList();
         }
         
-        function getFilteredItems() {
+        function updateTabCounts() {
+            ['articles','news','videos','legal','document'].forEach(cat => {
+                const count = allItems.filter(i => i.category === cat).length;
+                const el = document.getElementById(`count-${cat}`);
+                if(el) el.textContent = count;
+            });
+        }
+        
+        // ============ ФИЛЬТРАЦИЯ ============
+        function filterAndDisplay() {
+            const container = document.getElementById('itemsContainer');
             let items = [];
             
             if (currentCategory === 'favorites') {
-                const favIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-                Object.values(allData).forEach(catItems => {
-                    catItems.forEach(item => {
-                        if (favIds.includes(item.id)) items.push({ ...item, _category: item.category });
-                    });
-                });
+                items = allItems.filter(i => getFavorites().includes(i.id));
             } else if (currentCategory === 'history') {
-                const historyItems = JSON.parse(localStorage.getItem('viewHistory') || '[]');
-                Object.values(allData).forEach(catItems => {
-                    catItems.forEach(item => {
-                        const historyEntry = historyItems.find(h => h.id === item.id);
-                        if (historyEntry) items.push({ ...item, _category: item.category, _viewedAt: historyEntry.viewedAt });
-                    });
+                getHistory().forEach(h => {
+                    const found = allItems.find(i => i.id === h.id);
+                    if(found) items.push({...found, _viewedAt: h.viewedAt});
                 });
-                items.sort((a, b) => new Date(b._viewedAt) - new Date(a._viewedAt));
-                return items.slice(0, 20);
+                items.sort((a,b) => new Date(b._viewedAt) - new Date(a._viewedAt));
             } else {
-                items = [...(allData[currentCategory] || [])];
-                items.forEach(item => item._category = currentCategory);
+                items = allItems.filter(i => i.category === currentCategory);
             }
             
-            // Поиск
-            if (searchQuery) {
-                items = items.filter(item => 
-                    (item.title || '').toLowerCase().includes(searchQuery) ||
-                    (item.description || '').toLowerCase().includes(searchQuery) ||
-                    (item.content || '').toLowerCase().includes(searchQuery) ||
-                    (item.tags || []).some(tag => tag.toLowerCase().includes(searchQuery))
+            if(searchQuery) {
+                items = items.filter(i => 
+                    (i.title||'').toLowerCase().includes(searchQuery) ||
+                    (i.description||'').toLowerCase().includes(searchQuery)
                 );
             }
             
-            // Фильтр "Только важные"
-            if (showOnlyImportant) {
-                items = items.filter(item => item.important);
-            }
+            updateTabCounts();
             
-            // Сортировка
-            switch(sortBy) {
-                case 'oldest':
-                    items.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
-                    break;
-                case 'popular':
-                    items.sort((a, b) => (b.views || 0) - (a.views || 0));
-                    break;
-                case 'rated':
-                    items.sort((a, b) => (b.ratings?.length || 0) - (a.ratings?.length || 0));
-                    break;
-                default: // newest
-                    items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            }
-            
-            return items;
-        }
-        
-        // Загрузка списка
-        function loadList() {
-            const container = document.getElementById('itemsContainer');
-            const items = getFilteredItems();
-            
-            document.getElementById('resultsCount').textContent = `Найдено: ${items.length}`;
-            
-            if (items.length === 0) {
-                const emptyMessages = {
-                    favorites: 'Нет избранных материалов',
-                    history: 'Нет истории просмотров',
+            if(items.length === 0) {
+                const msgs = {
+                    favorites: { icon:'fa-bookmark', text:'Нет избранных материалов' },
+                    history: { icon:'fa-history', text:'Нет истории просмотров' },
+                    document: { icon:'fa-file-alt', text:'Нет документов' }
                 };
-                container.innerHTML = `
-                    <div class="empty-state" style="text-align:center;padding:40px;color:var(--gray);">
-                        <i class="fas fa-${currentCategory === 'favorites' ? 'bookmark' : currentCategory === 'history' ? 'history' : 'search'}" style="font-size:3rem;opacity:0.3;margin-bottom:15px;"></i>
-                        <p>${emptyMessages[currentCategory] || 'Ничего не найдено'}</p>
-                    </div>`;
+                const icons = { articles:'fa-newspaper', news:'fa-bullhorn', videos:'fa-youtube', legal:'fa-gavel', document:'fa-file-alt' };
+                const m = msgs[currentCategory] || { icon: icons[currentCategory]||'fa-inbox', text: 'Пока нет материалов' };
+                container.innerHTML = `<div class="empty-state"><i class="fas ${m.icon}"></i><p>${m.text}</p></div>`;
                 return;
             }
             
+            const now = new Date();
+            const threeDaysAgo = new Date(now.getTime() - 3*24*60*60*1000);
+            
             let html = '<div class="items-list">';
-            items.forEach((data, index) => {
-                const date = data.createdAt?.toDate ? 
-                    data.createdAt.toDate().toLocaleDateString('ru-RU') : '';
+            items.forEach((data, i) => {
+                let d = null;
+                if(data.createdAt?.toDate) d = data.createdAt.toDate();
+                else if(data.createdAt?.seconds) d = new Date(data.createdAt.seconds * 1000);
                 
-                const importantClass = data.important ? 'important' : '';
-                const importantBadge = data.important ? '<span class="important-badge">Важно</span>' : '';
-                const isBookmarked = isFavorite(data.id);
-                const category = data._category || currentCategory;
+                const dateStr = d?.toLocaleDateString('ru-RU') || '';
+                const isNew = d && d > threeDaysAgo;
+                const fav = isFavorite(data.id);
+                const wc = (data.content||'').split(/\s+/).length;
+                const readTime = Math.max(1, Math.ceil(wc / 200));
+                const cat = data.category || currentCategory;
                 
-                // Время чтения
-                const wordCount = (data.content || '').split(/\s+/).length;
-                const readTime = Math.max(1, Math.ceil(wordCount / 200));
-                
-                // Видео превью
-                let videoThumb = '';
-                if (category === 'videos' && data.videoId) {
-                    videoThumb = `
-                        <div style="position: relative;">
-                            <img class="video-thumb" src="https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg" alt="${data.title}" style="width:100%;height:180px;object-fit:cover;border-radius:4px;margin-bottom:10px;">
-                            <div class="video-badge" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;background:rgba(255,0,0,0.8);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;"><i class="fas fa-play"></i></div>
-                        </div>`;
+                let badgesHtml = '';
+                if(isNew || data.important || cat === 'document') {
+                    badgesHtml = '<div class="badges">';
+                    if(isNew) badgesHtml += '<span class="badge-new">Новое</span>';
+                    if(data.important) badgesHtml += '<span class="badge-important">Важно</span>';
+                    if(cat === 'document') badgesHtml += '<span class="badge-doc">Документ</span>';
+                    badgesHtml += '</div>';
                 }
                 
-                // Теги
-                let tagsHtml = '';
-                if (data.tags && data.tags.length > 0) {
-                    tagsHtml = '<div class="item-tags">' + 
-                        data.tags.map(tag => `<span class="item-tag">${tag}</span>`).join('') + 
-                        '</div>';
+                let thumb = '';
+                if(cat === 'videos' && data.videoId) {
+                    thumb = `<div style="position:relative;"><img class="video-thumb" src="https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg" onerror="this.style.display='none'" loading="lazy"><div class="video-badge"><i class="fas fa-play"></i></div></div>`;
                 }
                 
                 html += `
-                    <div class="item-card ${importantClass}" style="animation-delay:${index * 0.05}s" onclick="openItem('${data.id}', '${category}')">
-                        <button class="bookmark-btn ${isBookmarked ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${data.id}')">
-                            <i class="fas fa-bookmark"></i>
-                        </button>
-                        ${videoThumb}
-                        ${importantBadge}
-                        <h3>${highlightText(data.title)}</h3>
-                        <p>${highlightText(data.description || '')}</p>
+                    <div class="item-card ${data.important?'important':''}" style="animation-delay:${i*0.03}s" onclick="openItem('${data.id}','${cat}')">
+                        ${badgesHtml}${thumb}
+                        <h3>${highlightText(data.title||'Без названия')}</h3>
+                        <p>${highlightText(data.description||'')}</p>
                         <div class="item-meta">
-                            ${date ? `<span><i class="far fa-calendar-alt"></i> ${date}</span>` : ''}
-                            <span><i class="far fa-eye"></i> ${data.views || 0}</span>
-                            ${data.ratings ? `<span><i class="fas fa-star" style="color:#ffc107;"></i> ${data.ratings.length}</span>` : ''}
-                            <span class="reading-time"><i class="far fa-clock"></i> ~${readTime} мин</span>
+                            <div class="item-meta-left">
+                                ${dateStr?`<span><i class="far fa-calendar-alt"></i> ${dateStr}</span>`:''}
+                                <span><i class="far fa-eye"></i> ${data.views||0}</span>
+                                ${cat!=='document'?`<span class="reading-time-badge"><i class="far fa-clock"></i> ~${readTime} мин</span>`:''}
+                            </div>
+                            <div class="item-actions">
+                                <button class="favorite-btn ${fav?'active':''}" onclick="toggleFavorite('${data.id}',event)"><i class="fas ${fav?'fa-bookmark':'fa-bookmark'}"></i></button>
+                                <button class="share-mini-btn telegram" onclick="event.stopPropagation();shareItem('telegram','${data.id}','${esc(data.title||'')}')"><i class="fab fa-telegram-plane"></i></button>
+                                <button class="share-mini-btn copy" onclick="event.stopPropagation();shareItem('copy','${data.id}','${esc(data.title||'')}')"><i class="fas fa-link"></i></button>
+                            </div>
                         </div>
-                        ${tagsHtml}
                     </div>`;
             });
             html += '</div>';
@@ -1053,323 +1327,152 @@
         }
         
         function highlightText(text) {
-            if (!searchQuery || !text) return text;
-            const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return text.replace(regex, '<mark style="background:#fff3cd;padding:0 2px;">$1</mark>');
+            if(!searchQuery||!text) return text;
+            return text.replace(new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'), '<mark>$1</mark>');
         }
+        function esc(t) { return t.replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
         
-        // Избранное
-        function getFavorites() {
-            return JSON.parse(localStorage.getItem('favorites') || '[]');
-        }
-        
-        function isFavorite(id) {
-            return getFavorites().includes(id);
-        }
-        
-        window.toggleFavorite = function(id) {
-            let favs = getFavorites();
-            if (favs.includes(id)) {
-                favs = favs.filter(f => f !== id);
-            } else {
-                favs.push(id);
-            }
-            localStorage.setItem('favorites', JSON.stringify(favs));
-            loadList();
-        };
-        
-        // История просмотров
-        function addToHistory(id, title, category) {
-            let history = JSON.parse(localStorage.getItem('viewHistory') || '[]');
-            history = history.filter(h => h.id !== id);
-            history.unshift({ id, title, category, viewedAt: new Date().toISOString() });
-            history = history.slice(0, 20);
-            localStorage.setItem('viewHistory', JSON.stringify(history));
-        }
-        
-        // Открыть элемент
+        // ============ ОТКРЫТЬ ============
         window.openItem = async function(id, category) {
             currentItemId = id;
-            const cat = category || currentCategory;
-            currentCategory = cat;
+            currentCategory = category || currentCategory;
             
-            // Обновляем активный таб
+            // Отмечаем как прочитанное
+            if(!readNotifications.includes(id)) {
+                readNotifications.push(id);
+                localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+                updateNotificationDot();
+            }
+            
             document.querySelectorAll('.tab-btn').forEach(b => {
                 b.classList.remove('active');
-                if (b.dataset.category === cat) b.classList.add('active');
+                if(b.dataset.category === currentCategory) b.classList.add('active');
             });
             
+            addToHistory(id, '', currentCategory);
             showDetail();
+            if(isSpeaking) { window.speechSynthesis.cancel(); isSpeaking = false; }
             
             const container = document.getElementById('detailContent');
-            container.innerHTML = `
-                <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-meta"></div></div>`;
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>';
             
             try {
-                const docRef = doc(db, 'parents_info', id);
-                const docSnap = await getDoc(docRef);
-                
-                if (!docSnap.exists()) {
-                    container.innerHTML = '<p style="text-align:center;">Материал не найден</p>';
-                    return;
-                }
+                const docSnap = await getDoc(doc(db, 'parents_info', id));
+                if(!docSnap.exists()) { container.innerHTML = '<p style="text-align:center;">Не найдено</p>'; return; }
                 
                 const data = docSnap.data();
-                addToHistory(id, data.title, cat);
+                try { await updateDoc(doc(db, 'parents_info', id), { views: increment(1) }); } catch(e) {}
                 
-                // Увеличиваем просмотры
-                await updateDoc(docRef, { views: increment(1) });
+                let d = null;
+                if(data.createdAt?.toDate) d = data.createdAt.toDate();
+                else if(data.createdAt?.seconds) d = new Date(data.createdAt.seconds * 1000);
+                const dateStr = d?.toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' }) || '';
                 
-                const date = data.createdAt?.toDate ? 
-                    data.createdAt.toDate().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+                const wc = (data.content||'').split(/\s+/).length;
+                const readTime = Math.max(1, Math.ceil(wc / 200));
+                const fav = isFavorite(id);
                 
-                const wordCount = (data.content || '').split(/\s+/).length;
-                const readTime = Math.max(1, Math.ceil(wordCount / 200));
-                
-                // Рейтинг
-                let ratingText = 'Нет оценок';
-                if (data.ratings && data.ratings.length > 0) {
-                    const likes = data.ratings.filter(r => r.value === 1).length;
-                    const total = data.ratings.length;
-                    const percent = Math.round((likes / total) * 100);
-                    ratingText = `👍 ${likes} (${percent}%) из ${total}`;
+                let mediaEmbed = '';
+                if(data.category === 'videos' && data.videoId) {
+                    mediaEmbed = `<div class="video-embed"><iframe src="https://www.youtube.com/embed/${data.videoId}" allowfullscreen></iframe></div>`;
+                } else if(data.category === 'document' && data.documentUrl) {
+                    mediaEmbed = `<iframe src="${data.documentUrl}" class="document-iframe" style="height:${data.iframeHeight||600}px;"></iframe>`;
                 }
-                
-                const voted = localStorage.getItem(`rated_${id}`);
-                const isBookmarked = isFavorite(id);
-                
-                // Видео
-                let videoEmbed = '';
-                if (cat === 'videos' && data.videoId) {
-                    videoEmbed = `
-                        <div class="video-embed">
-                            <iframe src="https://www.youtube.com/embed/${data.videoId}" frameborder="0" allowfullscreen></iframe>
-                        </div>`;
-                }
-                
-                // Оглавление
-                const toc = generateTOC(data.content || '');
                 
                 document.getElementById('mainTitle').textContent = data.title;
                 document.getElementById('mainSubtitle').textContent = data.description || '';
                 
+                // Похожие материалы
+                const related = getRelatedItems(data, id);
+                let relatedHtml = '';
+                if(related.length > 0) {
+                    relatedHtml = `
+                        <div class="related-section">
+                            <h4><i class="fas fa-link"></i> Читайте также</h4>
+                            <div class="related-list">
+                                ${related.map(r => `
+                                    <div class="related-item" onclick="openItem('${r.id}','${r.category}')">
+                                        <i class="fas fa-arrow-right"></i>
+                                        <div class="rel-info">
+                                            <div class="rel-title">${r.title}</div>
+                                            <div class="rel-meta">${r.category==='document'?'Документ':r.category}</div>
+                                        </div>
+                                        <span class="rel-badge">${r.category==='document'?'PDF':r.category}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+                
                 container.innerHTML = `
                     <div class="meta-info">
-                        ${date ? `<span><i class="far fa-calendar-alt"></i> ${date}</span>` : ''}
-                        <span><i class="far fa-eye"></i> ${(data.views || 0) + 1} просмотров</span>
-                        <span class="reading-time"><i class="far fa-clock"></i> ~${readTime} мин чтения</span>
-                        ${data.ageRating ? `<span><i class="fas fa-child"></i> ${data.ageRating}+</span>` : ''}
-                        ${data.important ? '<span><i class="fas fa-star" style="color:#ffc107;"></i> Важное</span>' : ''}
+                        ${dateStr?`<span><i class="far fa-calendar-alt"></i> ${dateStr}</span>`:''}
+                        <span><i class="far fa-eye"></i> ${(data.views||0)+1} просмотров</span>
+                        ${data.category!=='document'?`<span class="reading-time-badge"><i class="far fa-clock"></i> ~${readTime} мин</span>`:''}
+                        ${data.important?'<span><i class="fas fa-star" style="color:#ffc107;"></i> Важное</span>':''}
                     </div>
-                    
-                    ${toc ? `
-                    <div class="table-of-contents">
-                        <div class="toc-title"><i class="fas fa-list"></i> Содержание</div>
-                        <ul class="toc-list">${toc}</ul>
-                    </div>` : ''}
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-outline" onclick="toggleFavorite('${id}')">
-                            <i class="fas fa-bookmark"></i> ${isBookmarked ? 'В избранном' : 'В избранное'}
-                        </button>
-                        <button class="btn btn-outline" onclick="window.print()">
-                            <i class="fas fa-print"></i> Печать
-                        </button>
+                    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+                        ${data.category!=='document'?`<button class="btn btn-speak" id="speakBtn" onclick="speakText(document.getElementById('contentBlock').innerHTML)"><i class="fas fa-volume-up"></i> Прослушать</button>`:''}
+                        <button class="btn btn-outline" onclick="toggleFavorite('${id}')"><i class="fas ${fav?'fa-bookmark':''} "></i> ${fav?'В избранном':'В избранное'}</button>
+                        ${data.category!=='document'?`<button class="btn btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Печать</button>`:''}
+                        <button class="btn btn-outline" onclick="shareItem('telegram','${id}','${esc(data.title||'')}')"><i class="fab fa-telegram-plane"></i> Поделиться</button>
                     </div>
-                    
-                    ${videoEmbed}
-                    
-                    <div class="item-content" id="articleContent">${data.content || 'Описание отсутствует'}</div>
-                    
-                    ${data.tags && data.tags.length > 0 ? `
+                    ${mediaEmbed}
+                    ${data.category!=='document'?`<div class="item-content" id="contentBlock">${data.content||'<p>Описание отсутствует</p>'}</div>`:''}
+                    ${data.tags&&data.tags.length>0?`
                     <div style="margin:20px 0;">
-                        ${data.tags.map(tag => `<span class="item-tag" style="cursor:pointer;margin:3px;" onclick="searchByTag('${tag}')">${tag}</span>`).join('')}
-                    </div>` : ''}
-                    
-                    <div class="rating-section">
-                        <p style="margin-bottom:10px;font-weight:500;">Был ли материал полезным?</p>
-                        <div class="rating-buttons">
-                            <button class="rating-btn like" onclick="rateItem(1)" ${voted ? 'disabled' : ''}>
-                                <i class="fas fa-thumbs-up"></i> Да
-                            </button>
-                            <button class="rating-btn dislike" onclick="rateItem(0)" ${voted ? 'disabled' : ''}>
-                                <i class="fas fa-thumbs-down"></i> Нет
-                            </button>
-                        </div>
-                        <p style="color:var(--gray);"><i class="fas fa-star" style="color:#ffc107;"></i> ${ratingText}</p>
-                    </div>
-                    
-                    <div class="share-section">
-                        <p style="font-weight:500;">Поделиться</p>
-                        <div class="share-buttons">
-                            <button class="share-btn telegram" onclick="shareItem('telegram')"><i class="fab fa-telegram-plane"></i></button>
-                            <button class="share-btn whatsapp" onclick="shareItem('whatsapp')"><i class="fab fa-whatsapp"></i></button>
-                            <button class="share-btn vk" onclick="shareItem('vk')"><i class="fab fa-vk"></i></button>
-                            <button class="share-btn copy" onclick="shareItem('copy')"><i class="fas fa-link"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="related-section" id="relatedSection">
-                        <div class="related-title">Похожие материалы</div>
-                        <div class="related-list" id="relatedList">Загрузка...</div>
-                    </div>
-                `;
-                
-                // Связанные материалы
-                loadRelated(data.tags || [], id);
-                
-                // Скролл прогресс
-                setupReadingProgress();
-                
-            } catch (error) {
-                console.error('Ошибка:', error);
-                container.innerHTML = '<p style="text-align:center;color:#d93025;">Ошибка загрузки</p>';
+                        ${data.tags.map(t=>`<span style="display:inline-block;padding:6px 12px;background:var(--gray-light);border-radius:20px;font-size:0.8rem;margin:3px;">#${t}</span>`).join('')}
+                    </div>`:''}
+                    ${relatedHtml}
+                    <div style="text-align:center;margin-top:30px;">
+                        <button class="btn btn-outline" onclick="goBack()"><i class="fas fa-arrow-left"></i> Назад к списку</button>
+                    </div>`;
+            } catch(e) {
+                container.innerHTML = '<p style="text-align:center;color:var(--danger);">Ошибка загрузки</p>';
             }
         };
         
-        // Оглавление
-        function generateTOC(content) {
-            const div = document.createElement('div');
-            div.innerHTML = content;
-            const headings = div.querySelectorAll('h2, h3');
-            if (headings.length < 2) return '';
-            
-            let html = '';
-            headings.forEach((h, i) => {
-                const id = `heading-${i}`;
-                h.id = id;
-                html += `<li class="toc-item"><a class="toc-link ${h.tagName.toLowerCase()}" onclick="document.getElementById('${id}').scrollIntoView({behavior:'smooth'})">${h.textContent}</a></li>`;
-            });
-            return html;
+        // Похожие материалы
+        function getRelatedItems(currentItem, currentId) {
+            const tags = currentItem.tags || [];
+            return allItems
+                .filter(item => {
+                    if(item.id === currentId) return false;
+                    if(tags.length === 0) return item.category === currentItem.category && item.id !== currentId;
+                    return (item.tags||[]).some(t => tags.includes(t));
+                })
+                .sort((a,b) => {
+                    if(tags.length === 0) return 0;
+                    const aCommon = (a.tags||[]).filter(t => tags.includes(t)).length;
+                    const bCommon = (b.tags||[]).filter(t => tags.includes(t)).length;
+                    return bCommon - aCommon;
+                })
+                .slice(0, 5);
         }
         
-        // Связанные материалы
-        async function loadRelated(tags, currentId) {
-            const container = document.getElementById('relatedList');
-            if (!tags || tags.length === 0) {
-                container.innerHTML = '<p style="color:var(--gray);">Нет похожих материалов</p>';
-                return;
-            }
-            
-            let related = [];
-            Object.values(allData).forEach(catItems => {
-                catItems.forEach(item => {
-                    if (item.id !== currentId && item.tags) {
-                        const commonTags = item.tags.filter(t => tags.includes(t));
-                        if (commonTags.length > 0) {
-                            related.push({ ...item, _relevance: commonTags.length });
-                        }
-                    }
-                });
-            });
-            
-            related.sort((a, b) => b._relevance - a._relevance);
-            related = related.slice(0, 5);
-            
-            if (related.length === 0) {
-                container.innerHTML = '<p style="color:var(--gray);">Нет похожих материалов</p>';
-                return;
-            }
-            
-            container.innerHTML = related.map(item => `
-                <div class="related-item" onclick="openItem('${item.id}', '${item.category}')">
-                    <strong>${item.title}</strong>
-                    <p style="font-size:0.8rem;color:var(--gray);">${item.description || ''}</p>
-                </div>
-            `).join('');
-        }
-        
-        // Поиск по тегу
-        window.searchByTag = function(tag) {
-            document.getElementById('searchInput').value = tag;
-            searchQuery = tag;
-            document.getElementById('searchClear').classList.add('visible');
-            showList();
-        };
-        
-        // Прогресс чтения
-        function setupReadingProgress() {
-            const progressBar = document.getElementById('readingProgress');
-            window.addEventListener('scroll', () => {
-                const scrollTop = window.scrollY;
-                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-                progressBar.style.width = Math.min(progress, 100) + '%';
-            });
-        }
-        
-        // Рейтинг
-        window.rateItem = async function(value) {
-            if (!currentItemId) return;
-            if (localStorage.getItem(`rated_${currentItemId}`)) {
-                alert('Вы уже оценили этот материал');
-                return;
-            }
-            try {
-                const docRef = doc(db, 'parents_info', currentItemId);
-                await updateDoc(docRef, {
-                    ratings: arrayUnion({ value, date: new Date().toISOString() })
-                });
-                localStorage.setItem(`rated_${currentItemId}`, 'true');
-                alert('Спасибо за оценку!');
-                openItem(currentItemId, currentCategory);
-            } catch (error) {
-                alert('Ошибка при сохранении оценки');
-            }
-        };
-        
-        // Шеринг
-        window.shareItem = function(platform) {
-            const url = window.location.href.split('?')[0] + '?category=' + currentCategory + '&id=' + currentItemId;
-            const title = document.getElementById('mainTitle').textContent;
-            
-            let shareUrl = '';
+        window.shareItem = function(platform, id, title) {
+            const url = window.location.href.split('?')[0] + '?category=' + currentCategory + '&id=' + id;
             switch(platform) {
-                case 'telegram': shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`; break;
-                case 'whatsapp': shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`; break;
-                case 'vk': shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`; break;
-                case 'copy':
-                    navigator.clipboard.writeText(url).then(() => {
-                        const msg = document.createElement('div');
-                        msg.className = 'copy-message';
-                        msg.textContent = '✅ Ссылка скопирована!';
-                        document.body.appendChild(msg);
-                        setTimeout(() => msg.remove(), 2000);
-                    });
-                    return;
+                case 'telegram': window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,'_blank'); break;
+                case 'whatsapp': window.open(`https://wa.me/?text=${encodeURIComponent(title+' '+url)}`,'_blank'); break;
+                case 'vk': window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`,'_blank'); break;
+                case 'copy': navigator.clipboard.writeText(url).then(()=>showToast('✅ Ссылка скопирована!')); break;
             }
-            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
         };
         
         window.goBack = function() {
             currentItemId = null;
+            if(isSpeaking) { window.speechSynthesis.cancel(); isSpeaking = false; }
             showList();
         };
         
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
+        loadAllData();
         
-        // URL параметры
         const urlParams = new URLSearchParams(window.location.search);
-        const urlCategory = urlParams.get('category');
         const urlId = urlParams.get('id');
-        
-        if (urlCategory && ['articles', 'news', 'videos', 'legal'].includes(urlCategory)) {
-            currentCategory = urlCategory;
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('active');
-                if (b.dataset.category === urlCategory) b.classList.add('active');
-            });
-        }
-        
-        if (urlId) {
-            openItem(urlId, urlCategory || 'articles');
-        }
+        const urlCat = urlParams.get('category');
+        if(urlCat) switchTab(urlCat);
+        if(urlId) setTimeout(() => openItem(urlId, urlCat||'articles'), 500);
     </script>
 </body>
 </html>
