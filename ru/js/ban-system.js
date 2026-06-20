@@ -1,392 +1,486 @@
-// soft-limiter.js - Мягкая система ограничений
-// https://kirill12633.github.io/Metro.New.Official/ru/js/soft-limiter.js
+// ban-system.js - Система банов по отпечатку браузера
+// Добавьте этот код в ваш soft-limiter.js или подключите отдельно
 
 (function() {
     'use strict';
     
-    console.log('soft-limiter.js загружен');
+    console.log('🛡️ Система банов по отпечатку загружена');
     
     // ========== НАСТРОЙКИ ==========
-    const CONFIG = {
-        // Время ожидания при подозрении
-        SUSPECT_WAIT: 5000,        // 5 секунд
-        SUSPECT_MESSAGE: '🕵️ Упс! Подождите 5 секунд, мы проверяем...',
+    const BAN_CONFIG = {
+        // Хранилище банов
+        storageKey: 'metro_banned_fingerprints',
         
-        // Лимиты
-        SUSPECT_LIMIT: 3,           // 3 подозрения за час → блокировка
-        BLOCK_DURATION: 10 * 60 * 1000, // 10 минут блокировки
+        // Автоматически банить при достижении лимита подозрений
+        autoBanOnSuspectLimit: true,
         
-        // Discord webhook
-        discordWebhook: 'https://discord.com/api/webhooks/1491839009020969083/6wS52vIVDWzPr1YhyaC4zNP_ggfEc-wdQR9-JgmiSSYsd50hTTIv0S-zkKVV77xZ0bmC'
+        // Длительность бана (в миллисекундах)
+        // 0 = перманентный бан
+        banDuration: 30 * 24 * 60 * 60 * 1000, // 30 дней
+        
+        // Причина бана по умолчанию
+        defaultBanReason: 'Нарушение правил использования',
+        
+        // Webhook для уведомлений о бане
+        banWebhook: 'https://discord.com/api/webhooks/1491839009020969083/6wS52vIVDWzPr1YhyaC4zNP_ggfEc-wdQR9-JgmiSSYsd50hTTIv0S-zkKVV77xZ0bmC', // Свой webhook для банов
+        
+        // Разрешить снятие бана через админ-панель
+        allowUnban: true
     };
     
-    // ========== ХРАНИЛИЩЕ ==========
-    let suspectCount = 0;
-    let isBlocked = false;
-    let blockEndTime = 0;
-    let activeTimer = null;
-    let overlay = null;
+    // ========== УПРАВЛЕНИЕ БАНАМИ ==========
     
-    // ========== ПОКАЗ УВЕДОМЛЕНИЯ ==========
-    function showSuspendMessage(message, type = 'wait') {
-        // Удаляем старый оверлей
-        if (overlay) overlay.remove();
-        if (activeTimer) clearTimeout(activeTimer);
-        
-        overlay = document.createElement('div');
-        overlay.id = 'softLimiterOverlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 99999999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Montserrat', Arial, sans-serif;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        let content = '';
-        if (type === 'wait') {
-            content = `
-                <div style="background: white; border-radius: 20px; max-width: 350px; width: 90%; padding: 35px; text-align: center;">
-                    <div style="font-size: 60px; margin-bottom: 15px;">🕵️</div>
-                    <h2 style="color: #ff9800; margin-bottom: 10px;">Упс!</h2>
-                    <p style="color: #666; margin-bottom: 20px;">${message}</p>
-                    <div class="loader" style="
-                        width: 40px;
-                        height: 40px;
-                        border: 4px solid #f3f3f3;
-                        border-top: 4px solid #ff9800;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                        margin: 0 auto;
-                    "></div>
-                    <p style="color: #999; font-size: 12px; margin-top: 20px;">Пожалуйста, не обновляйте страницу</p>
-                </div>
-            `;
-        } else if (type === 'block') {
-            const remainingMs = blockEndTime - Date.now();
-            const remainingMin = Math.ceil(remainingMs / 60000);
-            content = `
-                <div style="background: white; border-radius: 20px; max-width: 350px; width: 90%; padding: 35px; text-align: center;">
-                    <div style="font-size: 60px; margin-bottom: 15px;">⛔</div>
-                    <h2 style="color: #dc3545; margin-bottom: 10px;">Доступ ограничен</h2>
-                    <p style="color: #666; margin-bottom: 20px;">${message}</p>
-                    <div style="background: #f0f0f0; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
-                        <span style="font-size: 30px; font-weight: bold; color: #dc3545;" id="countdownTimer">${remainingMin}:00</span>
-                        <p style="margin: 5px 0 0; font-size: 12px;">до снятия ограничения</p>
-                    </div>
-                    <button onclick="location.reload()" style="
-                        background: #0066CC;
-                        color: white;
-                        border: none;
-                        padding: 10px 25px;
-                        border-radius: 25px;
-                        cursor: pointer;
-                    ">Попробовать снова</button>
-                </div>
-            `;
-        }
-        
-        overlay.innerHTML = content;
-        document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        // Добавляем анимации
-        if (!document.querySelector('#softLimiterStyles')) {
-            const style = document.createElement('style');
-            style.id = 'softLimiterStyles';
-            style.textContent = `
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        if (type === 'wait') {
-            // Автоматическое снятие через 5 секунд
-            activeTimer = setTimeout(() => {
-                removeOverlay();
-            }, CONFIG.SUSPECT_WAIT);
-        } else if (type === 'block') {
-            // Запускаем обратный отсчёт
-            startCountdown();
+    // Получить список забаненных отпечатков
+    function getBannedList() {
+        try {
+            const data = localStorage.getItem(BAN_CONFIG.storageKey);
+            return data ? JSON.parse(data) : {};
+        } catch(e) {
+            return {};
         }
     }
     
-    function startCountdown() {
-        const timerElement = document.getElementById('countdownTimer');
-        if (!timerElement) return;
+    // Сохранить список банов
+    function saveBannedList(banned) {
+        try {
+            localStorage.setItem(BAN_CONFIG.storageKey, JSON.stringify(banned));
+        } catch(e) {
+            console.error('❌ Не удалось сохранить список банов:', e);
+        }
+    }
+    
+    // Проверить, забанен ли отпечаток
+    function isFingerprintBanned(fingerprint) {
+        if (!fingerprint) return false;
         
-        const interval = setInterval(() => {
-            const remaining = blockEndTime - Date.now();
-            if (remaining <= 0) {
-                clearInterval(interval);
-                removeOverlay();
-                location.reload();
-            } else {
-                const minutes = Math.floor(remaining / 60000);
-                const seconds = Math.floor((remaining % 60000) / 1000);
-                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        const banned = getBannedList();
+        const banData = banned[fingerprint];
+        
+        if (!banData) return false;
+        
+        // Проверяем, не истек ли бан
+        if (banData.expiresAt && banData.expiresAt > 0) {
+            if (Date.now() > banData.expiresAt) {
+                // Бан истек - удаляем
+                delete banned[fingerprint];
+                saveBannedList(banned);
+                return false;
             }
-        }, 1000);
-    }
-    
-    function removeOverlay() {
-        if (overlay) {
-            overlay.remove();
-            overlay = null;
         }
-        document.body.style.overflow = '';
-        if (activeTimer) {
-            clearTimeout(activeTimer);
-            activeTimer = null;
-        }
-    }
-    
-    // ========== ПРОВЕРКА И ОГРАНИЧЕНИЯ ==========
-    function isBlockedNow() {
-        if (!isBlocked) return false;
-        if (Date.now() > blockEndTime) {
-            // Блокировка истекла
-            isBlocked = false;
-            suspectCount = 0;
-            blockEndTime = 0;
-            return false;
-        }
+        
         return true;
     }
     
-    function checkSuspicion() {
-        // Если уже заблокирован
-        if (isBlockedNow()) {
-            const remaining = Math.ceil((blockEndTime - Date.now()) / 60000);
-            showSuspendMessage(`Слишком много подозрительных действий. Попробуйте через ${remaining} минут.`, 'block');
+    // Добавить отпечаток в бан-лист
+    function banFingerprint(fingerprint, reason = BAN_CONFIG.defaultBanReason, duration = BAN_CONFIG.banDuration) {
+        if (!fingerprint) {
+            console.error('❌ Не указан отпечаток для бана');
+            return false;
+        }
+        
+        const banned = getBannedList();
+        
+        // Проверяем, не забанен ли уже
+        if (banned[fingerprint]) {
+            console.log(`⚠️ Отпечаток ${fingerprint.substring(0, 16)}... уже в бане`);
+            return false;
+        }
+        
+        // Создаем запись о бане
+        const banData = {
+            fingerprint: fingerprint,
+            reason: reason,
+            bannedAt: Date.now(),
+            expiresAt: duration > 0 ? Date.now() + duration : 0, // 0 = перманентный
+            duration: duration,
+            userAgent: navigator.userAgent,
+            ip: 'скрыто', // Для приватности
+            page: window.location.href
+        };
+        
+        banned[fingerprint] = banData;
+        saveBannedList(banned);
+        
+        // Отправляем уведомление о бане
+        sendBanNotification(banData);
+        
+        console.log(`🔨 Выдан бан для отпечатка: ${fingerprint.substring(0, 16)}...`);
+        console.log(`📝 Причина: ${reason}`);
+        console.log(`⏱️ Длительность: ${duration > 0 ? Math.floor(duration / 86400000) + ' дней' : 'Перманентный'}`);
+        
+        return true;
+    }
+    
+    // Снять бан с отпечатка
+    function unbanFingerprint(fingerprint) {
+        if (!fingerprint) return false;
+        
+        const banned = getBannedList();
+        
+        if (!banned[fingerprint]) {
+            console.log(`⚠️ Отпечаток ${fingerprint.substring(0, 16)}... не в бане`);
+            return false;
+        }
+        
+        delete banned[fingerprint];
+        saveBannedList(banned);
+        
+        console.log(`✅ Бан снят с отпечатка: ${fingerprint.substring(0, 16)}...`);
+        return true;
+    }
+    
+    // Получить информацию о бане
+    function getBanInfo(fingerprint) {
+        if (!fingerprint) return null;
+        
+        const banned = getBannedList();
+        return banned[fingerprint] || null;
+    }
+    
+    // Получить оставшееся время бана
+    function getRemainingBanTime(fingerprint) {
+        const banInfo = getBanInfo(fingerprint);
+        if (!banInfo) return 0;
+        
+        if (banInfo.expiresAt === 0) return -1; // Перманентный
+        
+        const remaining = banInfo.expiresAt - Date.now();
+        return remaining > 0 ? remaining : 0;
+    }
+    
+    // ========== ОТПРАВКА УВЕДОМЛЕНИЙ ==========
+    
+    async function sendBanNotification(banData) {
+        if (!BAN_CONFIG.banWebhook) {
+            console.log('ℹ️ Webhook для банов не настроен');
+            return;
+        }
+        
+        const isPermanent = banData.expiresAt === 0;
+        const durationStr = isPermanent ? '🔒 ПЕРМАНЕНТНЫЙ' : `${Math.floor(banData.duration / 86400000)} дней`;
+        const expiresStr = isPermanent ? 'Никогда' : new Date(banData.expiresAt).toLocaleString('ru-RU');
+        
+        const embed = {
+            title: '🔨 НОВЫЙ БАН',
+            color: 0xff0000,
+            timestamp: new Date(banData.bannedAt).toISOString(),
+            fields: [
+                { name: '🆔 Отпечаток', value: `\`${banData.fingerprint}\``, inline: false },
+                { name: '📝 Причина', value: banData.reason, inline: false },
+                { name: '⏱️ Длительность', value: durationStr, inline: true },
+                { name: '📅 Истекает', value: expiresStr, inline: true },
+                { name: '💻 User-Agent', value: banData.userAgent?.substring(0, 100) || 'неизвестно', inline: false },
+                { name: '📄 Страница', value: banData.page || 'неизвестно', inline: false }
+            ],
+            footer: {
+                text: 'Metro Ban System • Действие необратимо',
+                icon_url: 'https://cdn.discordapp.com/emojis/123456789.png'
+            }
+        };
+        
+        try {
+            await fetch(BAN_CONFIG.banWebhook, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ embeds: [embed] })
+            });
+            console.log('✅ Уведомление о бане отправлено в Discord');
+        } catch(e) {
+            console.warn('❌ Не удалось отправить уведомление:', e);
+        }
+    }
+    
+    // ========== ИНТЕГРАЦИЯ С SOFT-LIMITER ==========
+    
+    // Автоматический бан при достижении лимита подозрений
+    function checkAndBanOnSuspectLimit() {
+        if (!BAN_CONFIG.autoBanOnSuspectLimit) return false;
+        
+        const state = JSON.parse(localStorage.getItem('metro_soft_limiter') || '{}');
+        const suspectCount = state.suspectCount || 0;
+        const limit = 3; // Лимит из CONFIG.SUSPECT_LIMIT
+        
+        if (suspectCount >= limit) {
+            const fingerprint = getFingerprint();
+            
+            // Проверяем, не забанен ли уже
+            if (!isFingerprintBanned(fingerprint)) {
+                const reason = `Автоматический бан: ${suspectCount} подозрений за час`;
+                banFingerprint(fingerprint, reason);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // Проверка при загрузке страницы
+    function checkBanOnLoad() {
+        const fingerprint = getFingerprint();
+        
+        if (isFingerprintBanned(fingerprint)) {
+            const banInfo = getBanInfo(fingerprint);
+            showBanScreen(banInfo);
             return true;
         }
         
         return false;
     }
     
-    function recordSuspicion(reason) {
-        if (isBlockedNow()) return false;
+    // ========== ЭКРАН БАНА ==========
+    
+    function showBanScreen(banInfo) {
+        // Удаляем старый overlay если есть
+        const oldOverlay = document.getElementById('banOverlay');
+        if (oldOverlay) oldOverlay.remove();
         
-        suspectCount++;
-        console.log(`⚠️ Подозрение #${suspectCount}: ${reason}`);
+        const isPermanent = banInfo.expiresAt === 0;
+        const remaining = isPermanent ? -1 : getRemainingBanTime(banInfo.fingerprint);
         
-        // Отправляем в Discord
-        sendToDiscord(reason);
+        let timeStr = '🔒 ПЕРМАНЕНТНО';
+        if (!isPermanent && remaining > 0) {
+            const days = Math.floor(remaining / 86400000);
+            const hours = Math.floor((remaining % 86400000) / 3600000);
+            const minutes = Math.floor((remaining % 3600000) / 60000);
+            timeStr = `${days}д ${hours}ч ${minutes}м`;
+        } else if (!isPermanent && remaining <= 0) {
+            // Бан истек - разбаниваем автоматически
+            unbanFingerprint(banInfo.fingerprint);
+            return;
+        }
         
-        if (suspectCount >= CONFIG.SUSPECT_LIMIT) {
-            // Блокировка
-            isBlocked = true;
-            blockEndTime = Date.now() + CONFIG.BLOCK_DURATION;
-            showSuspendMessage(`Сайт временно недоступен. Попробуйте зайти через 10 минут.`, 'block');
-            sendToDiscord(`🔒 БЛОКИРОВКА: ${suspectCount} подозрений за час`, 'block');
-            return true;
-        } else {
-            // Показываем ожидание
-            showSuspendMessage(CONFIG.SUSPECT_MESSAGE, 'wait');
-            return false;
+        const overlay = document.createElement('div');
+        overlay.id = 'banOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.97);
+            z-index: 999999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', Arial, sans-serif;
+            animation: fadeIn 0.5s ease;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: linear-gradient(145deg, #1a0a0a, #2a0a0a); border-radius: 30px; max-width: 450px; width: 90%; padding: 50px 35px; text-align: center; border: 2px solid #ff2222; box-shadow: 0 0 80px rgba(255,0,0,0.1);">
+                <div style="font-size: 80px; margin-bottom: 20px;">🚫</div>
+                <h1 style="color: #ff2222; font-size: 32px; margin-bottom: 10px;">ДОСТУП ЗАПРЕЩЁН</h1>
+                <div style="width: 60px; height: 3px; background: #ff2222; margin: 15px auto;"></div>
+                <p style="color: #ff6666; font-size: 16px; margin-bottom: 25px; line-height: 1.6;">
+                    ${banInfo.reason || 'Нарушение правил использования'}
+                </p>
+                
+                <div style="background: rgba(255,0,0,0.05); border-radius: 15px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">⏱️ Длительность</span>
+                        <span style="color: #ff6666; font-size: 14px; font-weight: 600;">${timeStr}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">🆔 Ваш ID</span>
+                        <span style="color: rgba(255,255,255,0.3); font-size: 11px; font-family: monospace;">${banInfo.fingerprint.substring(0, 20)}...</span>
+                    </div>
+                    ${!isPermanent ? `
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <div style="color: rgba(255,255,255,0.3); font-size: 12px;">Осталось до разблокировки</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #ff4444; font-family: monospace;" id="banCountdown">${timeStr}</div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div style="color: rgba(255,255,255,0.2); font-size: 12px; line-height: 1.6;">
+                    <p>⚠️ Обновление страницы или смена IP не помогут</p>
+                    <p>📧 Для вопросов: support@example.com</p>
+                    <p style="margin-top: 10px; font-size: 11px;">Бан выдан автоматически системой защиты</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        // Добавляем стили
+        addBanStyles();
+        
+        // Запускаем таймер для не-перманентных банов
+        if (!isPermanent && remaining > 0) {
+            startBanCountdown(banInfo.fingerprint);
         }
     }
     
-    async function sendToDiscord(reason, type = 'suspect') {
-        if (!CONFIG.discordWebhook) return;
+    function startBanCountdown(fingerprint) {
+        const countdownEl = document.getElementById('banCountdown');
+        if (!countdownEl) return;
         
-        const embed = {
-            title: type === 'suspect' ? '⚠️ ПОДОЗРИТЕЛЬНАЯ АКТИВНОСТЬ' : '🔒 БЛОКИРОВКА ДОСТУПА',
-            color: type === 'suspect' ? 0xff9800 : 0xdc3545,
-            timestamp: new Date().toISOString(),
-            fields: [
-                { name: 'Причина', value: reason, inline: false },
-                { name: 'Подозрений за час', value: `${suspectCount}/${CONFIG.SUSPECT_LIMIT}`, inline: true },
-                { name: 'User-Agent', value: navigator.userAgent.substring(0, 100), inline: false }
-            ]
+        setInterval(() => {
+            const remaining = getRemainingBanTime(fingerprint);
+            
+            if (remaining <= 0) {
+                // Бан истек
+                unbanFingerprint(fingerprint);
+                const overlay = document.getElementById('banOverlay');
+                if (overlay) overlay.remove();
+                document.body.style.overflow = '';
+                location.reload();
+                return;
+            }
+            
+            const days = Math.floor(remaining / 86400000);
+            const hours = Math.floor((remaining % 86400000) / 3600000);
+            const minutes = Math.floor((remaining % 3600000) / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            countdownEl.textContent = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
+        }, 1000);
+    }
+    
+    function addBanStyles() {
+        if (!document.querySelector('#banStyles')) {
+            const style = document.createElement('style');
+            style.id = 'banStyles';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+    
+    // ========== ПОЛУЧЕНИЕ ОТПЕЧАТКА ==========
+    
+    function getFingerprint() {
+        let fingerprint = localStorage.getItem('metro_fingerprint');
+        
+        if (!fingerprint) {
+            // Создаем новый отпечаток, если его нет
+            const components = [
+                navigator.userAgent,
+                navigator.language,
+                navigator.platform,
+                screen.width + 'x' + screen.height,
+                screen.colorDepth,
+                navigator.hardwareConcurrency || 'unknown',
+                navigator.deviceMemory || 'unknown',
+                new Date().getTimezoneOffset()
+            ];
+            
+            fingerprint = btoa(components.join('|||')).substring(0, 64);
+            localStorage.setItem('metro_fingerprint', fingerprint);
+        }
+        
+        return fingerprint;
+    }
+    
+    // ========== АДМИН-ФУНКЦИИ ==========
+    
+    // Получить список всех банов
+    function getAllBans() {
+        return getBannedList();
+    }
+    
+    // Экспорт банов в JSON
+    function exportBans() {
+        const bans = getAllBans();
+        const data = {
+            exportedAt: new Date().toISOString(),
+            totalBans: Object.keys(bans).length,
+            bans: bans
         };
         
-        try {
-            await fetch(CONFIG.discordWebhook, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ embeds: [embed] })
-            });
-        } catch(e) {}
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `bans_export_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
     }
     
-    // ========== ПЕРЕХВАТ ДЕЙСТВИЙ ==========
-    
-    // 1. Перехват быстрых кликов
-    let clickCount = 0;
-    let clickTimer = null;
-    
-    document.addEventListener('click', function(e) {
-        if (checkSuspicion()) return;
-        
-        clickCount++;
-        
-        if (clickTimer) clearTimeout(clickTimer);
-        clickTimer = setTimeout(() => {
-            if (clickCount > 10) {
-                recordSuspicion(`Слишком много кликов за секунду (${clickCount})`);
+    // Импорт банов из JSON
+    function importBans(jsonData) {
+        try {
+            const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+            const bans = data.bans || data;
+            
+            if (typeof bans !== 'object') {
+                throw new Error('Неверный формат данных');
             }
-            clickCount = 0;
-        }, 1000);
-    });
-    
-    // 2. Перехват быстрых отправок форм
-    let submitCount = 0;
-    let submitTimer = null;
-    
-    document.addEventListener('submit', function(e) {
-        if (checkSuspicion()) {
-            e.preventDefault();
+            
+            saveBannedList(bans);
+            console.log(`✅ Импортировано ${Object.keys(bans).length} банов`);
+            return true;
+        } catch(e) {
+            console.error('❌ Ошибка импорта банов:', e);
             return false;
         }
-        
-        submitCount++;
-        
-        if (submitTimer) clearTimeout(submitTimer);
-        submitTimer = setTimeout(() => {
-            if (submitCount > 5) {
-                recordSuspicion(`Слишком много отправок форм (${submitCount})`);
-                e.preventDefault();
-            }
-            submitCount = 0;
-        }, 5000);
-    });
+    }
     
-    // 3. Перехват fetch запросов
-    const originalFetch = window.fetch;
-    window.fetch = async function(...args) {
-        if (checkSuspicion()) {
-            throw new Error('Доступ временно ограничен');
+    // Очистка истекших банов
+    function cleanExpiredBans() {
+        const banned = getBannedList();
+        let cleaned = 0;
+        
+        for (const [fingerprint, data] of Object.entries(banned)) {
+            if (data.expiresAt > 0 && Date.now() > data.expiresAt) {
+                delete banned[fingerprint];
+                cleaned++;
+            }
         }
         
-        // Считаем запросы
-        const fetchKey = args[0];
-        const fetchCount = (window._fetchCount || 0) + 1;
-        window._fetchCount = fetchCount;
-        
-        setTimeout(() => {
-            window._fetchCount = Math.max(0, (window._fetchCount || 0) - 1);
-        }, 1000);
-        
-        if (fetchCount > 15) {
-            recordSuspicion(`Слишком много запросов (${fetchCount} в секунду)`);
+        if (cleaned > 0) {
+            saveBannedList(banned);
+            console.log(`🧹 Очищено ${cleaned} истекших банов`);
         }
         
-        return originalFetch.apply(this, args);
+        return cleaned;
+    }
+    
+    // ========== API ==========
+    window.MetroBanSystem = {
+        // Основные функции
+        isBanned: isFingerprintBanned,
+        ban: banFingerprint,
+        unban: unbanFingerprint,
+        getBanInfo: getBanInfo,
+        getRemainingTime: getRemainingBanTime,
+        
+        // Управление
+        getAllBans: getAllBans,
+        cleanExpired: cleanExpiredBans,
+        exportBans: exportBans,
+        importBans: importBans,
+        
+        // Настройки
+        config: BAN_CONFIG,
+        
+        // Проверка при загрузке
+        checkOnLoad: checkBanOnLoad
     };
     
-    // 4. Перехват console.error (ошибки)
-    let errorCount = 0;
-    let errorTimer = null;
+    // ========== АВТОМАТИЧЕСКИЙ ЗАПУСК ==========
     
-    const originalError = console.error;
-    console.error = function(...args) {
-        originalError.apply(console, args);
-        
-        if (checkSuspicion()) return;
-        
-        errorCount++;
-        
-        if (errorTimer) clearTimeout(errorTimer);
-        errorTimer = setTimeout(() => {
-            if (errorCount > 10) {
-                recordSuspicion(`Слишком много ошибок в консоли (${errorCount})`);
-            }
-            errorCount = 0;
-        }, 1000);
-    };
+    // Проверяем бан при загрузке
+    const isBanned = checkBanOnLoad();
     
-    // 5. Перехват клавиш (быстрый ввод)
-    let keyCount = 0;
-    let keyTimer = null;
+    if (!isBanned) {
+        // Проверяем, не пора ли забанить по лимиту подозрений
+        checkAndBanOnSuspectLimit();
+    }
     
-    document.addEventListener('keydown', function(e) {
-        if (checkSuspicion()) return;
-        
-        keyCount++;
-        
-        if (keyTimer) clearTimeout(keyTimer);
-        keyTimer = setTimeout(() => {
-            if (keyCount > 30) {
-                recordSuspicion(`Слишком быстрый ввод (${keyCount} клавиш за секунду) — возможно бот`);
-            }
-            keyCount = 0;
-        }, 1000);
-    });
+    // Периодическая очистка истекших банов (раз в час)
+    setInterval(cleanExpiredBans, 60 * 60 * 1000);
     
-    // ========== СБРОС ПОДОЗРЕНИЙ КАЖДЫЙ ЧАС ==========
-    setInterval(() => {
-        if (!isBlocked) {
-            suspectCount = 0;
-            console.log('🔄 Счётчик подозрений сброшен');
-        }
-    }, 60 * 60 * 1000);
-    
-    // ========== API ДЛЯ РАЗРАБОТЧИКОВ ==========
-    window.MetroSoftLimiter = {
-        // Проверка статуса
-        isBlocked: () => isBlockedNow(),
-        getSuspectCount: () => suspectCount,
-        
-        // Ручная запись подозрения
-        record: (reason) => recordSuspicion(reason),
-        
-        // Сброс
-        reset: () => {
-            suspectCount = 0;
-            isBlocked = false;
-            blockEndTime = 0;
-            removeOverlay();
-            console.log('✅ Лимитер сброшен');
-        },
-        
-        // Тест
-        test: () => {
-            console.log('🧪 Тестирование мягкого лимитера...');
-            recordSuspicion('Тестовое подозрение');
-        },
-        
-        // Конфиг
-        config: CONFIG
-    };
-    
-    // ========== ИНИЦИАЛИЗАЦИЯ ==========
-    // Восстанавливаем блокировку после перезагрузки
-    try {
-        const savedBlock = localStorage.getItem('metro_block_until');
-        if (savedBlock && parseInt(savedBlock) > Date.now()) {
-            isBlocked = true;
-            blockEndTime = parseInt(savedBlock);
-            showSuspendMessage(`Сайт временно недоступен. Попробуйте зайти через ${Math.ceil((blockEndTime - Date.now()) / 60000)} минут.`, 'block');
-        }
-    } catch(e) {}
-    
-    // Сохраняем блокировку
-    const originalBlockEnd = blockEndTime;
-    Object.defineProperty(window, 'blockEndTime', {
-        set: function(val) {
-            blockEndTime = val;
-            localStorage.setItem('metro_block_until', val);
-        },
-        get: function() { return blockEndTime; }
-    });
-    
-    console.log('soft-limiter.js готов');
-    console.log('🛡️ При подозрении будет показано "Упс! Подождите 5 секунд"');
-    console.log('⚠️ После 3 подозрений за час — блокировка на 10 минут');
+    console.log('✅ Система банов по отпечатку готова');
+    console.log(`📊 Всего банов: ${Object.keys(getAllBans()).length}`);
     
 })();
