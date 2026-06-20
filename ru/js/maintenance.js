@@ -7,7 +7,7 @@
     console.log('maintenance-banner.js загружен');
     
     // ========== НАСТРОЙКИ ==========
-    const MAINTENANCE_ACTIVE = false;  // ← true = показывать баннер, false = не показывать
+    const MAINTENANCE_ACTIVE = true;  // ← true = показывать баннер, false = не показывать
     
     const BANNER_CONFIG = {
         title: '🛠️ Технические работы',
