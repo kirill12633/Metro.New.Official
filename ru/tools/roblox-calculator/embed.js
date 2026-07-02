@@ -15,7 +15,6 @@
 
     // Конфигурация
     const CONFIG = {
-        apiBase: 'https://kirill12633.github.io/Metro.New.Official/api/earnings',
         containerId: 'roblox-calculator',
         version: '1.0.0'
     };
@@ -25,7 +24,7 @@
         <style>
             .mn-calculator {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                max-width: 800px;
+                max-width: 700px;
                 margin: 20px auto;
                 padding: 25px;
                 background: #ffffff;
