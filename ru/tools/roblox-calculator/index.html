@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Калькулятор дохода разработчика Roblox — Метро New</title>
     
+    <meta name="description" content="Рассчитайте доход разработчика Roblox по формулам Premium выплат и Game Pass. Интерактивный калькулятор, перевод в USD, примеры и советы по монетизации.">
+    
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
     
@@ -1028,6 +1030,9 @@
                     <i class="fas fa-chart-simple"></i> Rolimons — статистика игр
                 </a>
             </div>
+            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem; text-align: center;">
+                <i class="fas fa-info-circle"></i> Информация основана на видео-уроках и официальной документации Roblox
+            </div>
         </div>
 
         <!-- Формулы -->
@@ -1179,6 +1184,9 @@
                     <button class="test-btn" data-test="compare">
                         <i class="fas fa-play"></i> Сравнение
                     </button>
+                    <button class="test-btn" data-test="all">
+                        <i class="fas fa-play"></i> Все сразу
+                    </button>
                 </div>
                 
                 <div class="response" id="apiResponse">
@@ -1238,6 +1246,9 @@
             
             <div class="footer-bottom">
                 <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+                <p style="font-size: 0.8rem; color: var(--gray); margin-top: 0.3rem;">
+                    Формулы основаны на видео-уроках и официальной документации Roblox
+                </p>
             </div>
         </div>
     </footer>
@@ -1356,39 +1367,45 @@
                         let data = {};
                         let label = '';
 
-                        switch(test) {
-                            case 'premium':
-                                data = { robux: 100, usd: 0.35 };
-                                label = 'Premium выплаты';
-                                break;
-                            case 'gamepass':
-                                data = { robux: 7000, usd: 24.5 };
-                                label = 'Game Pass';
-                                break;
-                            case 'players':
-                                data = { 
-                                    needed: 100000, 
-                                    perDay: 3333, 
-                                    perHour: 139 
-                                };
-                                label = 'Сколько нужно игроков';
-                                break;
-                            case 'compare':
-                                data = {
-                                    premium: { robux: 100, usd: 0.35 },
-                                    gamepass: { robux: 7000, usd: 24.5 },
-                                    winner: 'Game Pass',
-                                    diff: 6900
-                                };
-                                label = 'Сравнение';
-                                break;
+                        if (test === 'all') {
+                            data = {
+                                premium: { robux: 100, usd: 0.35 },
+                                gamepass: { robux: 7000, usd: 24.5 },
+                                players: { needed: 100000, perDay: 3333, perHour: 139 },
+                                compare: { winner: 'Game Pass', diff: 6900 }
+                            };
+                            label = 'Все API endpoints';
+                        } else {
+                            switch(test) {
+                                case 'premium':
+                                    data = { robux: 100, usd: 0.35 };
+                                    label = 'Premium выплаты';
+                                    break;
+                                case 'gamepass':
+                                    data = { robux: 7000, usd: 24.5 };
+                                    label = 'Game Pass';
+                                    break;
+                                case 'players':
+                                    data = { needed: 100000, perDay: 3333, perHour: 139 };
+                                    label = 'Сколько нужно игроков';
+                                    break;
+                                case 'compare':
+                                    data = {
+                                        premium: { robux: 100, usd: 0.35 },
+                                        gamepass: { robux: 7000, usd: 24.5 },
+                                        winner: 'Game Pass',
+                                        diff: 6900
+                                    };
+                                    label = 'Сравнение';
+                                    break;
+                            }
                         }
 
                         let html = `<span style="color: #6c757d;">// ${label}</span><br>`;
                         html += `<span style="color: #ffd700;">{</span><br>`;
                         
                         for (let key in data) {
-                            if (typeof data[key] === 'object') {
+                            if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
                                 html += `<span style="padding-left: 20px; color: #ffd700;">"${key}"</span>: <span style="color: #ffd700;">{</span><br>`;
                                 for (let subKey in data[key]) {
                                     html += `<span style="padding-left: 40px; color: #ffd700;">"${subKey}"</span>: <span style="color: #e74c3c;">${data[key][subKey]}</span>,<br>`;
@@ -1401,6 +1418,7 @@
                         
                         html += `<span style="color: #ffd700;">}</span>`;
                         html += `<br><br><span style="color: #2ecc71;">✅ API работает!</span>`;
+                        html += `<br><span style="color: #6c757d;">// URL: https://kirill12633.github.io/Metro.New.Official/api/earnings/</span>`;
                         
                         contentDiv.innerHTML = html;
                     }, 800);
