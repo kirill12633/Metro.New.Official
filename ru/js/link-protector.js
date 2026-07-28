@@ -1,511 +1,489 @@
-// link-protector.js - Защита от перехода по внешним ссылкам (с управлением)
-// https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js
+// external-link-protection.js - Защита от внешних ссылок
+// Версия: 2.0.0
+// https://kirill12633.github.io/Metro.New.Official/ru/js/external-link-protection.js
 
 (function() {
     'use strict';
-    
-    console.log('link-protector.js загружен');
-    
-    // ========== НАСТРОЙКИ ==========
-    const CONFIG = {
-        // Какие ссылки считать внешними (regex)
-        externalPattern: /^(https?:\/\/)?(?!kirill12633\.github\.io)(?!localhost)(?!127\.0\.0\.1)[a-z0-9.-]+\.[a-z]{2,}/i,
-        
-        // Домены, которые считаются своими (без предупреждения)
-        whitelist: [
-            'kirill12633.github.io',
-            'localhost',
-            '127.0.0.1',
-            'metro_new.betteruptime.com'
-        ],
-        
-        // Задержка перед переходом (мс)
-        delay: 500,
-        
-        // Ключ в localStorage
-        storageKey: 'metro_link_protector_enabled'
+
+    // ========== ОПРЕДЕЛЕНИЕ СРЕДЫ ==========
+    const isProduction = window.location.hostname !== 'localhost' &&
+                        !window.location.hostname.includes('127.0.0.1') &&
+                        !window.location.hostname.includes('github.io');
+
+    // ========== ЛОГГЕР ==========
+    const logger = {
+        log: function() {
+            if (!isProduction) console.log.apply(console, arguments);
+        },
+        warn: function() {
+            if (!isProduction) console.warn.apply(console, arguments);
+        },
+        error: function() {
+            if (!isProduction) console.error.apply(console, arguments);
+        }
     };
-    
-    // ========== СОСТОЯНИЕ ==========
-    let isEnabled = true;
-    let pendingUrl = null;
-    let timeoutId = null;
-    let modalOverlay = null;
-    
-    // ========== ЗАГРУЗКА СОСТОЯНИЯ ==========
-    function loadState() {
-        try {
-            const saved = localStorage.getItem(CONFIG.storageKey);
-            if (saved !== null) {
-                isEnabled = saved === 'true';
-            } else {
-                // По умолчанию включено
-                isEnabled = true;
-                localStorage.setItem(CONFIG.storageKey, 'true');
+
+    logger.log('🛡️ External Link Protection загружен');
+
+    // ========== КОНФИГУРАЦИЯ ==========
+    const CONFIG = {
+        // Разрешённые домены (свои)
+        allowedDomains: [
+            'kirill12633.github.io',
+            'metro-new.com',
+            'support.metro.new',
+            'status.metro.new'
+        ],
+        // Разрешённые протоколы
+        allowedProtocols: ['http:', 'https:'],
+        // Исключения (ссылки, которые не нужно проверять)
+        exceptions: [
+            '#',
+            'javascript:void(0)',
+            'mailto:',
+            'tel:',
+            'whatsapp:',
+            'tg://'
+        ],
+        // Whois API для проверки доменов
+        whoisApiUrl: 'https://api.metro.new/whois'
+    };
+
+    // ========== ПРОВЕРКА ССЫЛОК ==========
+
+    /**
+     * Проверка, является ли ссылка внешней
+     */
+    function isExternalLink(href) {
+        if (!href || typeof href !== 'string') return false;
+
+        // Проверяем исключения
+        for (const exception of CONFIG.exceptions) {
+            if (href.startsWith(exception) || href === exception) {
+                return false;
             }
-        } catch(e) {
-            isEnabled = true;
         }
-        console.log(`Link protector: ${isEnabled ? 'ВКЛЮЧЁН' : 'ВЫКЛЮЧЁН'}`);
-    }
-    
-    function saveState() {
+
+        // Проверяем протокол
+        const protocol = href.split(':')[0] + ':';
+        if (!CONFIG.allowedProtocols.includes(protocol)) {
+            return false;
+        }
+
         try {
-            localStorage.setItem(CONFIG.storageKey, isEnabled.toString());
-        } catch(e) {}
-    }
-    
-    // ========== ВКЛЮЧЕНИЕ/ВЫКЛЮЧЕНИЕ ==========
-    function enable() {
-        isEnabled = true;
-        saveState();
-        updateToggleButton();
-        console.log('Link protector включён');
-    }
-    
-    function disable() {
-        isEnabled = false;
-        saveState();
-        updateToggleButton();
-        console.log('Link protector выключён');
-    }
-    
-    function toggle() {
-        if (isEnabled) {
-            disable();
-        } else {
-            enable();
-        }
-    }
-    
-    // ========== ПАНЕЛЬ УПРАВЛЕНИЯ В ФУТЕРЕ ==========
-    function addControlPanel() {
-        // Ждём загрузки футера
-        setTimeout(() => {
-            const footer = document.querySelector('footer');
-            if (!footer) {
-                console.log('Футер не найден, панель не добавлена');
-                return;
-            }
-            
-            // Проверяем, не добавлена ли уже
-            if (document.getElementById('linkProtectorPanel')) return;
-            
-            const panelHTML = `
-                <div id="linkProtectorPanel" style="
-                    margin-top: 20px;
-                    padding: 15px;
-                    background: rgba(255,255,255,0.05);
-                    border-radius: 10px;
-                    text-align: center;
-                ">
-                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-shield-alt" style="color: #FFD700;"></i>
-                            <span style="font-size: 13px;">Защита от внешних ссылок</span>
-                        </div>
-                        <label id="linkProtectorToggle" style="
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 12px;
-                            cursor: pointer;
-                        ">
-                            <span style="font-size: 13px;" id="linkProtectorStatus">Включена</span>
-                            <div class="toggle-switch" style="
-                                position: relative;
-                                display: inline-block;
-                                width: 50px;
-                                height: 24px;
-                            ">
-                                <input type="checkbox" id="linkProtectorCheckbox" style="
-                                    opacity: 0;
-                                    width: 0;
-                                    height: 0;
-                                " ${isEnabled ? 'checked' : ''}>
-                                <span class="toggle-slider" style="
-                                    position: absolute;
-                                    cursor: pointer;
-                                    top: 0;
-                                    left: 0;
-                                    right: 0;
-                                    bottom: 0;
-                                    background-color: ${isEnabled ? '#FFD700' : '#ccc'};
-                                    transition: 0.3s;
-                                    border-radius: 24px;
-                                ">
-                                    <span class="toggle-knob" style="
-                                        position: absolute;
-                                        content: '';
-                                        height: 18px;
-                                        width: 18px;
-                                        left: 3px;
-                                        bottom: 3px;
-                                        background-color: white;
-                                        transition: 0.3s;
-                                        border-radius: 50%;
-                                        transform: ${isEnabled ? 'translateX(26px)' : 'translateX(0)'};
-                                    "></span>
-                                </span>
-                            </div>
-                        </label>
-                    </div>
-                    <p style="font-size: 11px; margin-top: 10px; opacity: 0.6;">
-                        Включите, чтобы при переходе на внешние сайты показывалось предупреждение
-                    </p>
-                </div>
-            `;
-            
-            footer.insertAdjacentHTML('beforeend', panelHTML);
-            
-            // Добавляем обработчик
-            const checkbox = document.getElementById('linkProtectorCheckbox');
-            if (checkbox) {
-                checkbox.addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        enable();
-                    } else {
-                        disable();
-                    }
-                });
-            }
-            
-        }, 1000);
-    }
-    
-    function updateToggleButton() {
-        const checkbox = document.getElementById('linkProtectorCheckbox');
-        const statusSpan = document.getElementById('linkProtectorStatus');
-        const slider = document.querySelector('#linkProtectorToggle .toggle-slider');
-        const knob = document.querySelector('#linkProtectorToggle .toggle-knob');
-        
-        if (checkbox) {
-            checkbox.checked = isEnabled;
-        }
-        
-        if (statusSpan) {
-            statusSpan.textContent = isEnabled ? 'Включена' : 'Выключена';
-        }
-        
-        if (slider) {
-            slider.style.backgroundColor = isEnabled ? '#FFD700' : '#ccc';
-        }
-        
-        if (knob) {
-            knob.style.transform = isEnabled ? 'translateX(26px)' : 'translateX(0)';
-        }
-    }
-    
-    // ========== ПРОВЕРКА, ВНЕШНЯЯ ЛИ ССЫЛКА ==========
-    function isExternalLink(url) {
-        if (!url) return false;
-        if (url.startsWith('#')) return false;
-        if (url.toLowerCase().startsWith('javascript:')) return true;
-        if (url.startsWith('mailto:') || url.startsWith('tel:')) return false;
-        
-        try {
-            const linkUrl = new URL(url, window.location.href);
-            const currentHost = window.location.hostname;
-            const linkHost = linkUrl.hostname;
-            
-            if (linkHost === '') return false;
-            
-            for (const allowed of CONFIG.whitelist) {
-                if (linkHost === allowed || linkHost.endsWith('.' + allowed)) {
-                    return false;
-                }
-                if (allowed.includes('/') && url.includes(allowed)) {
+            const url = new URL(href);
+            const hostname = url.hostname.toLowerCase();
+
+            // Проверяем разрешённые домены
+            for (const domain of CONFIG.allowedDomains) {
+                if (hostname === domain || hostname.endsWith('.' + domain)) {
                     return false;
                 }
             }
-            
-            if (linkHost === currentHost) return false;
+
+            // Если это тот же домен
+            if (hostname === window.location.hostname) {
+                return false;
+            }
+
             return true;
         } catch(e) {
+            // Если не удалось разобрать URL, считаем внутренней
             return false;
         }
     }
-    
-    // ========== МОДАЛЬНОЕ ОКНО ==========
-    function createModal(url, target) {
-        if (modalOverlay) {
-            modalOverlay.remove();
-            if (timeoutId) clearTimeout(timeoutId);
+
+    /**
+     * Получить имя домена для отображения
+     */
+    function getDomainName(href) {
+        try {
+            const url = new URL(href);
+            return url.hostname.replace(/^www\./, '');
+        } catch(e) {
+            return href.split('/')[2] || href;
         }
-        
-        modalOverlay = document.createElement('div');
-        modalOverlay.className = 'link-protector-modal';
-        modalOverlay.setAttribute('role', 'dialog');
-        modalOverlay.setAttribute('aria-modal', 'true');
-        
-        modalOverlay.style.cssText = `
+    }
+
+    /**
+     * Проверить безопасность домена (проверка через whois API)
+     */
+    async function checkDomainSafety(domain) {
+        // Список известных безопасных доменов (кэш)
+        const safeDomains = [
+            'google.com', 'youtube.com', 'roblox.com',
+            'discord.com', 'telegram.org', 't.me',
+            'github.com', 'gitlab.com', 'bitbucket.org',
+            'wikipedia.org', 'wikimedia.org'
+        ];
+
+        if (safeDomains.includes(domain)) {
+            return { safe: true, reason: 'Известный безопасный домен' };
+        }
+
+        // Проверка через whois API (если доступно)
+        try {
+            const response = await fetch(CONFIG.whoisApiUrl + '?domain=' + encodeURIComponent(domain));
+            if (response.ok) {
+                const data = await response.json();
+                return {
+                    safe: data.safe !== false,
+                    reason: data.reason || 'Проверка через whois'
+                };
+            }
+        } catch(e) {
+            logger.warn('⚠️ Не удалось проверить домен через whois:', domain);
+        }
+
+        // Если не удалось проверить, считаем безопасным с предупреждением
+        return { safe: true, reason: 'Не удалось проверить, переходите на свой страх и риск' };
+    }
+
+    // ========== ПОКАЗ ПРЕДУПРЕЖДЕНИЯ ==========
+
+    function showWarning(href) {
+        const domain = getDomainName(href);
+
+        // Удаляем старые модалки
+        const oldModal = document.getElementById('externalLinkModal');
+        if (oldModal) oldModal.remove();
+
+        // Блокируем скролл
+        document.body.style.overflow = 'hidden';
+
+        // Создаём оверлей
+        const overlay = document.createElement('div');
+        overlay.id = 'externalLinkModal';
+        overlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(13, 21, 38, 0.95);
+            z-index: 9999999;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999999;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            padding: 16px;
+            box-sizing: border-box;
+            backdrop-filter: blur(8px);
+            animation: fadeInOverlay 0.3s ease;
+        `;
+
+        // Модальное окно
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            background: linear-gradient(145deg, #182444, #0d1526);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 24px;
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 28px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            animation: slideUpModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        `;
+
+        // Иконка
+        const iconWrapper = document.createElement('div');
+        iconWrapper.style.cssText = `
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 215, 0, 0.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+        `;
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-external-link-alt';
+        icon.style.cssText = 'font-size: 28px; color: #FFD700;';
+        iconWrapper.appendChild(icon);
+
+        // Заголовок
+        const title = document.createElement('h2');
+        title.style.cssText = 'color: #f2f4fa; font-size: 22px; font-weight: 700; margin-bottom: 8px;';
+        title.textContent = '⚠️ Внешняя ссылка';
+
+        // Подзаголовок
+        const subtitle = document.createElement('p');
+        subtitle.style.cssText = 'color: #a6b0cc; font-size: 14px; margin-bottom: 6px;';
+        subtitle.textContent = 'Вы переходите на сайт:';
+
+        // Домен
+        const domainDisplay = document.createElement('div');
+        domainDisplay.style.cssText = `
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 12px 0 16px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        `;
+        const domainLink = document.createElement('a');
+        domainLink.href = href;
+        domainLink.target = '_blank';
+        domainLink.rel = 'noopener noreferrer';
+        domainLink.style.cssText = 'color: #FFD700; font-size: 18px; font-weight: 600; text-decoration: none; word-break: break-all;';
+        domainLink.textContent = domain;
+        domainDisplay.appendChild(domainLink);
+
+        // Предупреждение
+        const warningText = document.createElement('p');
+        warningText.style.cssText = 'color: #77819e; font-size: 13px; line-height: 1.6; margin-bottom: 20px;';
+        warningText.innerHTML = `
+            <i class="fas fa-shield-alt" style="color: #FFD700; margin-right: 6px;"></i>
+            Мы не несём ответственности за содержимое внешних сайтов.
+            <br>Пожалуйста, будьте осторожны.
+        `;
+
+        // Кнопки
+        const btnGroup = document.createElement('div');
+        btnGroup.style.cssText = 'display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;';
+
+        // Кнопка "Перейти"
+        const goBtn = document.createElement('button');
+        goBtn.textContent = '🔗 Перейти на сайт';
+        goBtn.style.cssText = `
+            background: linear-gradient(135deg, #FFD700, #e6c200);
+            color: #0d1526;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
             font-family: 'Montserrat', Arial, sans-serif;
-            animation: fadeIn 0.2s ease;
+            flex: 1;
+            min-width: 140px;
         `;
-        
-        let displayDomain = url;
-        try {
-            const urlObj = new URL(url);
-            displayDomain = urlObj.hostname;
-        } catch(e) {}
-        
-        modalOverlay.innerHTML = `
-            <div class="link-protector-modal-content" style="
-                background: white;
-                border-radius: 32px;
-                max-width: 400px;
-                width: 90%;
-                padding: 35px 30px;
-                text-align: center;
-                animation: slideUp 0.3s ease;
-                box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            ">
-                <div style="
-                    width: 70px;
-                    height: 70px;
-                    background: #FFD700;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 20px;
-                ">
-                    <i class="fas fa-external-link-alt" style="font-size: 32px; color: #1a1a2e;"></i>
-                </div>
-                
-                <h2 style="font-size: 24px; color: #1a1a2e; margin-bottom: 10px;">
-                    Вы покидаете наш сайт
-                </h2>
-                
-                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-                    Вы переходите на внешний сайт:
-                </p>
-                
-                <div style="
-                    background: #f8f9fa;
-                    border-radius: 16px;
-                    padding: 12px;
-                    margin-bottom: 20px;
-                    word-break: break-all;
-                ">
-                    <span style="font-size: 13px; color: #0066CC; font-family: monospace;">
-                        ${escapeHtml(displayDomain)}
-                    </span>
-                </div>
-                
-                <div style="
-                    background: #fff3cd;
-                    border-left: 4px solid #ffc107;
-                    padding: 12px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    text-align: left;
-                    font-size: 12px;
-                    color: #856404;
-                ">
-                    <i class="fas fa-shield-alt"></i>
-                    <strong>Мы не отвечаем за содержимое внешних сайтов.</strong>
-                    <span style="display: block; margin-top: 5px;">Пожалуйста, будьте осторожны!</span>
-                </div>
-                
-                <div style="display: flex; gap: 12px; justify-content: center;">
-                    <button id="linkProtectorCancel" style="
-                        background: transparent;
-                        border: 2px solid #ddd;
-                        color: #666;
-                        padding: 12px 25px;
-                        border-radius: 40px;
-                        font-weight: 600;
-                        font-size: 14px;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                    ">
-                        Отмена
-                    </button>
-                    <button id="linkProtectorConfirm" style="
-                        background: linear-gradient(135deg, #FFD700, #e6c200);
-                        color: #1a1a2e;
-                        border: none;
-                        padding: 12px 25px;
-                        border-radius: 40px;
-                        font-weight: 600;
-                        font-size: 14px;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                    ">
-                        Перейти на сайт
-                    </button>
-                </div>
-                
-                <div style="margin-top: 15px; font-size: 11px; color: #999;">
-                    <span id="timerSeconds">${Math.ceil(CONFIG.delay / 1000)}</span> секунд до автоматического перехода
-                </div>
-            </div>
+        goBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 8px 25px rgba(255,215,0,0.3)';
+        });
+        goBtn.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '';
+        });
+        goBtn.addEventListener('click', function() {
+            window.open(href, '_blank', 'noopener,noreferrer');
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+
+        // Кнопка "Отмена"
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '✖️ Отмена';
+        cancelBtn.style.cssText = `
+            background: transparent;
+            color: #a6b0cc;
+            border: 1px solid rgba(37, 52, 96, 0.4);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', Arial, sans-serif;
+            flex: 1;
+            min-width: 140px;
         `;
-        
-        document.body.appendChild(modalOverlay);
-        document.body.style.overflow = 'hidden';
-        
-        if (!document.querySelector('#linkProtectorStyles')) {
-            const style = document.createElement('style');
-            style.id = 'linkProtectorStyles';
-            style.textContent = `
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes slideUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        const cancelBtn = document.getElementById('linkProtectorCancel');
-        const confirmBtn = document.getElementById('linkProtectorConfirm');
-        
-        if (cancelBtn) {
-            cancelBtn.onclick = () => {
-                if (timeoutId) clearTimeout(timeoutId);
-                removeModal();
-                pendingUrl = null;
-            };
-        }
-        
-        if (confirmBtn) {
-            confirmBtn.onclick = () => {
-                if (timeoutId) clearTimeout(timeoutId);
-                removeModal();
-                executeRedirect(url, target);
-            };
-        }
-        
-        let secondsLeft = Math.ceil(CONFIG.delay / 1000);
-        const timerSpan = document.getElementById('timerSeconds');
-        
-        timeoutId = setTimeout(() => {
-            removeModal();
-            executeRedirect(url, target);
-        }, CONFIG.delay);
-        
-        const timerInterval = setInterval(() => {
-            secondsLeft--;
-            if (timerSpan) timerSpan.textContent = secondsLeft;
-            if (secondsLeft <= 0) clearInterval(timerInterval);
-        }, 1000);
-        
-        modalOverlay._timerInterval = timerInterval;
-    }
-    
-    function removeModal() {
-        if (modalOverlay) {
-            if (modalOverlay._timerInterval) clearInterval(modalOverlay._timerInterval);
-            modalOverlay.remove();
-            modalOverlay = null;
-        }
-        document.body.style.overflow = '';
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
-    }
-    
-    function executeRedirect(url, target) {
-        pendingUrl = null;
-        if (target === '_blank') {
-            window.open(url, '_blank');
-        } else {
-            window.location.href = url;
-        }
-    }
-    
-    // ========== ОБРАБОТЧИК КЛИКОВ ==========
-    function handleLinkClick(event) {
-        if (!isEnabled) return;
-        
-        let target = event.currentTarget;
-        while (target && target.tagName !== 'A') {
-            target = target.parentElement;
-        }
-        
-        if (!target || target.tagName !== 'A') return;
-        
-        const url = target.getAttribute('href');
-        if (!url) return;
-        
-        if (!isExternalLink(url)) return;
-        if (target.hasAttribute('data-protected')) return;
-        
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const linkTarget = target.getAttribute('target') || '_self';
-        createModal(url, linkTarget);
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-    
-    // ========== ИНИЦИАЛИЗАЦИЯ ==========
-    function init() {
-        loadState();
-        
-        const allLinks = document.querySelectorAll('a[href]');
-        allLinks.forEach(link => {
-            if (link.hasAttribute('data-protected')) return;
-            link.setAttribute('data-protected', 'true');
-            link.addEventListener('click', handleLinkClick);
-            
-            if (isExternalLink(link.getAttribute('href'))) {
-                const icon = document.createElement('span');
-                icon.className = 'external-link-icon';
-                icon.textContent = ' ↗';
-                icon.style.fontSize = '10px';
-                icon.style.opacity = '0.6';
-                link.appendChild(icon);
+        cancelBtn.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#FFD700';
+            this.style.color = '#f2f4fa';
+        });
+        cancelBtn.addEventListener('mouseleave', function() {
+            this.style.borderColor = 'rgba(37, 52, 96, 0.4)';
+            this.style.color = '#a6b0cc';
+        });
+        cancelBtn.addEventListener('click', function() {
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+
+        btnGroup.appendChild(goBtn);
+        btnGroup.appendChild(cancelBtn);
+
+        // Сборка модалки
+        modal.appendChild(iconWrapper);
+        modal.appendChild(title);
+        modal.appendChild(subtitle);
+        modal.appendChild(domainDisplay);
+        modal.appendChild(warningText);
+        modal.appendChild(btnGroup);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Закрытие по клику вне модалки
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.remove();
+                document.body.style.overflow = '';
             }
         });
-        
-        addControlPanel();
-        console.log(`link-protector: обработано ${allLinks.length} ссылок, режим: ${isEnabled ? 'ВКЛ' : 'ВЫКЛ'}`);
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', function handler(e) {
+            if (e.key === 'Escape') {
+                const modalEl = document.getElementById('externalLinkModal');
+                if (modalEl) {
+                    modalEl.remove();
+                    document.body.style.overflow = '';
+                    document.removeEventListener('keydown', handler);
+                }
+            }
+        });
+
+        // Подключаем Font Awesome
+        if (!document.querySelector('link[href*="font-awesome"]')) {
+            const faLink = document.createElement('link');
+            faLink.rel = 'stylesheet';
+            faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+            document.head.appendChild(faLink);
+        }
+
+        // Стили анимаций
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOverlay {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUpModal {
+                from {
+                    opacity: 0;
+                    transform: scale(0.92) translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        logger.log('🛡️ Показано предупреждение для:', domain);
     }
-    
-    // ========== API ==========
-    window.MetroLinkProtector = {
-        enable: enable,
-        disable: disable,
-        toggle: toggle,
-        isEnabled: () => isEnabled,
-        checkUrl: (url) => isExternalLink(url)
+
+    // ========== ПЕРЕХВАТ ССЫЛОК ==========
+
+    function handleLinkClick(event) {
+        const target = event.target.closest('a');
+        if (!target) return;
+
+        const href = target.getAttribute('href');
+        if (!href) return;
+
+        // Проверяем, нужно ли обрабатывать
+        if (target.getAttribute('data-no-protection') === 'true') {
+            return;
+        }
+
+        // Проверяем, внешняя ли ссылка
+        if (isExternalLink(href)) {
+            event.preventDefault();
+            event.stopPropagation();
+            showWarning(href);
+            logger.log('🛡️ Защита сработала для:', href);
+        }
+    }
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+
+    function init() {
+        // Слушаем клики на всём документе
+        document.addEventListener('click', handleLinkClick);
+
+        // Обрабатываем уже существующие ссылки
+        document.querySelectorAll('a[href]').forEach(function(link) {
+            const href = link.getAttribute('href');
+            if (href && isExternalLink(href)) {
+                link.setAttribute('data-external', 'true');
+            }
+        });
+
+        // Добавляем визуальный индикатор для внешних ссылок
+        const style = document.createElement('style');
+        style.textContent = `
+            a[data-external="true"]::after {
+                content: '↗';
+                display: inline-block;
+                margin-left: 4px;
+                font-size: 0.8em;
+                opacity: 0.5;
+                transition: opacity 0.3s;
+            }
+            a[data-external="true"]:hover::after {
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(style);
+
+        logger.log('🛡️ Защита от внешних ссылок активирована');
+    }
+
+    // ========== ПУБЛИЧНЫЙ API ==========
+
+    window.MetroExternalProtection = {
+        /**
+         * Проверить, является ли ссылка внешней
+         */
+        isExternal: isExternalLink,
+
+        /**
+         * Получить домен из ссылки
+         */
+        getDomain: getDomainName,
+
+        /**
+         * Показать предупреждение вручную
+         */
+        showWarning: showWarning,
+
+        /**
+         * Проверить безопасность домена
+         */
+        checkDomain: checkDomainSafety,
+
+        /**
+         * Добавить домен в белый список
+         */
+        addAllowedDomain: function(domain) {
+            if (domain && !CONFIG.allowedDomains.includes(domain)) {
+                CONFIG.allowedDomains.push(domain);
+                logger.log('➕ Добавлен домен в белый список:', domain);
+                return true;
+            }
+            return false;
+        },
+
+        /**
+         * Получить список разрешённых доменов
+         */
+        getAllowedDomains: function() {
+            return [...CONFIG.allowedDomains];
+        },
+
+        /**
+         * Конфигурация
+         */
+        config: CONFIG
     };
-    
+
+    // ========== ЗАПУСК ==========
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
-    
+
+    logger.log('🛡️ MetroExternalProtection API доступен');
+    logger.log('📌 Разрешённые домены:', CONFIG.allowedDomains);
+
 })();
