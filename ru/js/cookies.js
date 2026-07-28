@@ -1,37 +1,51 @@
 // cookies.js - Управление cookie (Метро New)
-// Версия: 2.0.0
+// Версия: 3.0.0
 // Совместимость: GDPR, 152-ФЗ (РФ), ePrivacy Directive
 
 (function() {
     'use strict';
 
-    console.log('🍪 cookies.js (Метро New) загружен');
+    // ========== ОПРЕДЕЛЕНИЕ СРЕДЫ ==========
+    const isProduction = window.location.hostname !== 'localhost' &&
+                        !window.location.hostname.includes('127.0.0.1') &&
+                        !window.location.hostname.includes('github.io');
+
+    // ========== ЛОГГЕР (отключается в production) ==========
+    const logger = {
+        log: function() {
+            if (!isProduction) console.log.apply(console, arguments);
+        },
+        warn: function() {
+            if (!isProduction) console.warn.apply(console, arguments);
+        },
+        error: function() {
+            if (!isProduction) console.error.apply(console, arguments);
+        }
+    };
+
+    logger.log('🍪 cookies.js (Метро New) загружен');
+    if (isProduction) {
+        logger.log('🔒 Production режим: логи отключены');
+    }
 
     // ========== КОНФИГУРАЦИЯ ==========
     const CONFIG = {
-        // Срок жизни cookie (дней)
         cookieLifetime: 365,
-        // Автозакрытие баннера (секунд)
-        autoCloseBannerSeconds: 30,
-        // Домен для cookie (автоопределение)
-        domain: window.location.hostname,
-        // Безопасные cookie
-        secure: window.location.protocol === 'https:',
-        sameSite: 'Lax'
+        sameSite: 'Lax',
+        secure: window.location.protocol === 'https:'
     };
-
-    let bannerTimer = null;
 
     // ========== БЕЗОПАСНЫЕ ФУНКЦИИ COOKIE ==========
 
     /**
      * Установка cookie с защитой
+     * Без Domain, только Path, SameSite, Secure
      */
     function setCookie(name, value, days = CONFIG.cookieLifetime) {
         try {
             // Валидация имени cookie
             if (!/^[a-zA-Z0-9_\-]+$/.test(name)) {
-                console.warn('⚠️ Некорректное имя cookie:', name);
+                logger.warn('⚠️ Некорректное имя cookie:', name);
                 return false;
             }
 
@@ -42,80 +56,82 @@
                 '; expires=' + expires.toUTCString() +
                 '; path=/';
 
-            // Добавляем SameSite
             if (CONFIG.sameSite) {
                 cookieString += '; SameSite=' + CONFIG.sameSite;
             }
 
-            // Добавляем Secure если HTTPS
             if (CONFIG.secure) {
                 cookieString += '; Secure';
-            }
-
-            // Добавляем Domain (только для продакшена)
-            if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1')) {
-                cookieString += '; Domain=' + CONFIG.domain;
             }
 
             document.cookie = cookieString;
 
             // Проверка успешности
             if (getCookie(name) === value) {
-                console.log('✅ Cookie установлен:', name);
+                logger.log('✅ Cookie установлен:', name);
                 return true;
             } else {
-                console.warn('⚠️ Не удалось установить cookie:', name);
+                logger.warn('⚠️ Не удалось установить cookie:', name);
                 return false;
             }
         } catch(e) {
-            console.error('❌ Ошибка установки cookie:', e);
+            logger.error('❌ Ошибка установки cookie:', e);
             return false;
         }
     }
 
     /**
-     * Получение cookie с защитой от XSS
+     * Получение cookie с безопасным декодированием
+     * Без ложной "защиты" replace(/[<>]/g,'')
      */
     function getCookie(name) {
         try {
             if (!/^[a-zA-Z0-9_\-]+$/.test(name)) {
-                console.warn('⚠️ Некорректное имя cookie:', name);
+                logger.warn('⚠️ Некорректное имя cookie:', name);
                 return null;
             }
 
             const value = '; ' + document.cookie;
             const parts = value.split('; ' + name + '=');
             if (parts.length === 2) {
-                const decoded = decodeURIComponent(parts.pop().split(';').shift());
-                // Защита от XSS - удаляем потенциально опасные символы
-                return decoded.replace(/[<>]/g, '');
+                return decodeURIComponent(parts.pop().split(';').shift());
             }
             return null;
         } catch(e) {
-            console.error('❌ Ошибка получения cookie:', e);
+            logger.error('❌ Ошибка получения cookie:', e);
             return null;
         }
     }
 
     /**
-     * Удаление cookie
+     * Удаление cookie с теми же атрибутами (Path, SameSite, Secure)
+     * Это гарантирует правильное удаление
      */
     function deleteCookie(name) {
         try {
-            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            if (window.location.hostname !== 'localhost') {
-                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Domain=' + CONFIG.domain;
+            let cookieString = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+
+            if (CONFIG.sameSite) {
+                cookieString += '; SameSite=' + CONFIG.sameSite;
             }
-            console.log('🗑️ Cookie удалён:', name);
+
+            if (CONFIG.secure) {
+                cookieString += '; Secure';
+            }
+
+            document.cookie = cookieString;
+
+            logger.log('🗑️ Cookie удалён:', name);
             return true;
         } catch(e) {
-            console.error('❌ Ошибка удаления cookie:', e);
+            logger.error('❌ Ошибка удаления cookie:', e);
             return false;
         }
     }
 
     /**
      * Удаление всех cookie (кроме необходимых)
+     * Без Domain
      */
     function deleteAllCookies() {
         const necessary = ['cookie_consent', 'cookie_consent_type', 'cookie_preferences'];
@@ -127,34 +143,21 @@
                 deleteCookie(name);
             }
         }
-        console.log('🗑️ Все необязательные cookie удалены');
+        logger.log('🗑️ Все необязательные cookie удалены');
     }
 
-    // ========== СОГЛАСИЕ НА COOKIE (СООТВЕТСТВИЕ ЗАКОНАМ) ==========
+    // ========== СОГЛАСИЕ НА COOKIE ==========
 
-    /**
-     * Проверка наличия согласия
-     * Соответствует GDPR, 152-ФЗ
-     */
     function hasConsent() {
         const consent = getCookie('cookie_consent');
         return consent === 'true';
     }
 
-    /**
-     * Сохранение согласия с категориями
-     */
     function saveConsent(consentType) {
-        // Основное согласие
         setCookie('cookie_consent', 'true', CONFIG.cookieLifetime);
-
-        // Тип согласия
         setCookie('cookie_consent_type', consentType, CONFIG.cookieLifetime);
-
-        // Дата согласия (для аудита)
         setCookie('cookie_consent_date', new Date().toISOString(), CONFIG.cookieLifetime);
 
-        // Предпочтения
         const preferences = {
             necessary: true,
             functional: consentType === 'all',
@@ -163,55 +166,59 @@
         };
         setCookie('cookie_preferences', JSON.stringify(preferences), CONFIG.cookieLifetime);
 
-        console.log('📝 Согласие сохранено:', consentType);
+        logger.log('📝 Согласие сохранено:', consentType);
     }
 
-    /**
-     * Принять все cookie
-     */
+    // ========== СОГЛАСИЕ БЕЗ АВТОМАТИЧЕСКОГО ПРИНЯТИЯ ==========
+
     function acceptAllCookies() {
-        if (bannerTimer) clearTimeout(bannerTimer);
+        if (bannerTimer) {
+            clearTimeout(bannerTimer);
+            bannerTimer = null;
+        }
         saveConsent('all');
         syncLanguageToCookie();
         removeBanner();
         showMessage('✅ Вы приняли все cookie', 'success');
     }
 
-    /**
-     * Принять только необходимые cookie
-     */
     function acceptNecessaryCookies() {
-        if (bannerTimer) clearTimeout(bannerTimer);
+        if (bannerTimer) {
+            clearTimeout(bannerTimer);
+            bannerTimer = null;
+        }
         saveConsent('necessary');
         syncLanguageToCookie();
         removeBanner();
         showMessage('⚙️ Используются только необходимые cookie', 'info');
     }
 
-    /**
-     * Сброс всех настроек
-     */
+    // ========== СБРОС НАСТРОЕК (БЕЗ localStorage.clear()) ==========
+
     function resetAllSettings() {
         if (!confirm('⚠️ Вы уверены, что хотите сбросить все настройки?\n\n' +
                 'Это удалит:\n' +
-                '• Все cookie\n' +
+                '• Все cookie (кроме необходимых)\n' +
                 '• Сохранённый язык\n' +
-                '• Настройки темы\n' +
-                '• Прочие пользовательские настройки')) {
+                '• Настройки темы')) {
             return;
         }
 
-        // Удаляем все cookie
-        const allCookies = document.cookie.split(';');
-        for (let cookie of allCookies) {
-            const name = cookie.split('=')[0].trim();
-            deleteCookie(name);
-        }
+        // Удаляем все необязательные cookie
+        deleteAllCookies();
 
-        // Очищаем localStorage
-        localStorage.clear();
+        // Удаляем только специфичные ключи из localStorage
+        const keysToRemove = ['metro_new_language', 'metro_new_language_selected', 'metro_new_theme'];
+        keysToRemove.forEach(key => {
+            try {
+                localStorage.removeItem(key);
+                logger.log('🗑️ Удалён ключ localStorage:', key);
+            } catch(e) {
+                logger.warn('⚠️ Не удалось удалить ключ:', key);
+            }
+        });
 
-        showMessage('✅ Все настройки сброшены. Страница перезагрузится.', 'success');
+        showMessage('✅ Настройки сброшены. Страница перезагрузится.', 'success');
 
         setTimeout(() => {
             window.location.reload();
@@ -226,28 +233,27 @@
             if (savedLang) {
                 setCookie('metro_new_language', savedLang, CONFIG.cookieLifetime);
                 setCookie('metro_new_language_selected', 'true', CONFIG.cookieLifetime);
-                console.log('🌐 Язык синхронизирован в cookie:', savedLang);
+                logger.log('🌐 Язык синхронизирован в cookie:', savedLang);
             }
         } catch(e) {
-            console.warn('⚠️ Ошибка синхронизации языка:', e);
+            logger.warn('⚠️ Ошибка синхронизации языка:', e);
         }
     }
 
-    // ========== БАННЕР COOKIE (СООТВЕТСТВИЕ ЗАКОНАМ) ==========
+    // ========== БАННЕР COOKIE (БЕЗ АВТОПРИНЯТИЯ) ==========
+
+    let bannerTimer = null;
 
     function showBannerIfNeeded() {
-        // Проверяем, есть ли согласие
         if (hasConsent()) {
-            console.log('✅ Согласие уже есть, баннер не показываем');
+            logger.log('✅ Согласие уже есть, баннер не показываем');
             return false;
         }
 
-        // Проверяем, не скрыт ли баннер ранее
         if (getCookie('cookie_banner_hidden') === 'true') {
             return false;
         }
 
-        // Проверяем, не отображается ли уже
         if (document.getElementById('metroCookieBanner')) {
             return false;
         }
@@ -257,124 +263,163 @@
     }
 
     function createBanner() {
-        const bannerHTML = `
-            <div id="metroCookieBanner" role="dialog" aria-label="Уведомление о cookie" style="
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: rgba(13, 21, 38, 0.97);
-                backdrop-filter: blur(12px);
-                color: #f2f4fa;
-                padding: 16px 20px;
-                z-index: 999999;
-                font-family: 'Montserrat', Arial, sans-serif;
-                border-top: 3px solid #FFD700;
-                box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
-                animation: slideUpBanner 0.4s ease;
-            ">
-                <div style="max-width: 1200px; margin: 0 auto;">
-                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;">
-                        <div style="flex: 2; min-width: 200px;">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                                <span style="font-size: 22px;">🍪</span>
-                                <strong style="font-size: 16px; color: #FFD700;">Мы используем cookie</strong>
-                            </div>
-                            <p style="margin: 0; font-size: 13px; opacity: 0.85; line-height: 1.5;">
-                                Мы используем cookie для запоминания вашего языка, персонализации и улучшения работы сайта.
-                                <a href="/ru/help/cookies" style="color: #FFD700; text-decoration: underline; font-weight: 600;">Подробнее</a>
-                            </p>
-                            <p style="margin: 4px 0 0; font-size: 11px; opacity: 0.5;">
-                                <i class="fas fa-shield-alt"></i> Ваши данные защищены в соответствии с 152-ФЗ и GDPR
-                            </p>
-                        </div>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                            <button id="cookieAcceptAllBtn" style="
-                                background: linear-gradient(135deg, #FFD700, #e6c200);
-                                color: #0d1526;
-                                border: none;
-                                padding: 10px 24px;
-                                border-radius: 30px;
-                                cursor: pointer;
-                                font-weight: 700;
-                                font-size: 14px;
-                                transition: all 0.3s;
-                                font-family: 'Montserrat', Arial, sans-serif;
-                            ">
-                                ✅ Принять все
-                            </button>
-                            <button id="cookieAcceptNecessaryBtn" style="
-                                background: transparent;
-                                color: #f2f4fa;
-                                border: 1px solid rgba(255, 215, 0, 0.4);
-                                padding: 10px 20px;
-                                border-radius: 30px;
-                                cursor: pointer;
-                                font-weight: 600;
-                                font-size: 13px;
-                                transition: all 0.3s;
-                                font-family: 'Montserrat', Arial, sans-serif;
-                            ">
-                                ⚙️ Только необходимое
-                            </button>
-                            <button id="cookieSettingsBtn" style="
-                                background: transparent;
-                                color: #77819e;
-                                border: 1px solid rgba(119, 129, 158, 0.3);
-                                padding: 10px 16px;
-                                border-radius: 30px;
-                                cursor: pointer;
-                                font-weight: 500;
-                                font-size: 13px;
-                                transition: all 0.3s;
-                                font-family: 'Montserrat', Arial, sans-serif;
-                            ">
-                                ⚙️ Настроить
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <style>
-                @keyframes slideUpBanner {
-                    from {
-                        transform: translateY(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateY(0);
-                        opacity: 1;
-                    }
-                }
-                #metroCookieBanner button:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
-                }
-                #cookieAcceptNecessaryBtn:hover {
-                    border-color: #FFD700;
-                    background: rgba(255, 215, 0, 0.05);
-                }
-                #cookieSettingsBtn:hover {
-                    border-color: #FFD700;
-                    color: #f2f4fa;
-                }
-            </style>
+        // Создаём элементы через createElement()
+        const banner = document.createElement('div');
+        banner.id = 'metroCookieBanner';
+        banner.setAttribute('role', 'dialog');
+        banner.setAttribute('aria-label', 'Уведомление о cookie');
+        banner.style.cssText = `
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 21, 38, 0.97);
+            backdrop-filter: blur(12px);
+            color: #f2f4fa;
+            padding: 16px 20px;
+            z-index: 999999;
+            font-family: 'Montserrat', Arial, sans-serif;
+            border-top: 3px solid #FFD700;
+            box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+            animation: slideUpBanner 0.4s ease;
         `;
 
-        document.body.insertAdjacentHTML('beforeend', bannerHTML);
+        // Внутренний контейнер
+        const inner = document.createElement('div');
+        inner.style.cssText = 'max-width: 1200px; margin: 0 auto;';
 
-        // Автозакрытие через 30 секунд
-        bannerTimer = setTimeout(() => {
-            if (document.getElementById('metroCookieBanner') && !hasConsent()) {
-                acceptNecessaryCookies();
-                console.log('⏰ Баннер закрыт автоматически через 30 секунд');
+        const flex = document.createElement('div');
+        flex.style.cssText = 'display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;';
+
+        // Текстовая часть
+        const textBlock = document.createElement('div');
+        textBlock.style.cssText = 'flex: 2; min-width: 200px;';
+
+        const title = document.createElement('div');
+        title.style.cssText = 'display: flex; align-items: center; gap: 10px; margin-bottom: 4px;';
+        const icon = document.createElement('span');
+        icon.textContent = '🍪';
+        icon.style.fontSize = '22px';
+        const strong = document.createElement('strong');
+        strong.style.cssText = 'font-size: 16px; color: #FFD700;';
+        strong.textContent = 'Мы используем cookie';
+        title.appendChild(icon);
+        title.appendChild(strong);
+
+        const desc = document.createElement('p');
+        desc.style.cssText = 'margin: 0; font-size: 13px; opacity: 0.85; line-height: 1.5;';
+        desc.innerHTML = 'Мы используем cookie для запоминания вашего языка, персонализации и улучшения работы сайта. ' +
+            '<a href="https://kirill12633.github.io/Metro.New.Official/ru/help/cookies/" style="color: #FFD700; text-decoration: underline; font-weight: 600;">Подробнее</a>';
+
+        const legal = document.createElement('p');
+        legal.style.cssText = 'margin: 4px 0 0; font-size: 11px; opacity: 0.5;';
+        legal.innerHTML = '<i class="fas fa-shield-alt"></i> Ваши данные защищены в соответствии с 152-ФЗ и GDPR';
+
+        textBlock.appendChild(title);
+        textBlock.appendChild(desc);
+        textBlock.appendChild(legal);
+
+        // Кнопки
+        const btnGroup = document.createElement('div');
+        btnGroup.style.cssText = 'display: flex; gap: 10px; flex-wrap: wrap; align-items: center;';
+
+        const btnAcceptAll = document.createElement('button');
+        btnAcceptAll.id = 'cookieAcceptAllBtn';
+        btnAcceptAll.textContent = '✅ Принять все';
+        btnAcceptAll.style.cssText = `
+            background: linear-gradient(135deg, #FFD700, #e6c200);
+            color: #0d1526;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: 'Montserrat', Arial, sans-serif;
+        `;
+        btnAcceptAll.addEventListener('click', acceptAllCookies);
+        btnAcceptAll.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 20px rgba(255,215,0,0.3)';
+        });
+        btnAcceptAll.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '';
+        });
+
+        const btnNecessary = document.createElement('button');
+        btnNecessary.id = 'cookieAcceptNecessaryBtn';
+        btnNecessary.textContent = '⚙️ Только необходимое';
+        btnNecessary.style.cssText = `
+            background: transparent;
+            color: #f2f4fa;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-family: 'Montserrat', Arial, sans-serif;
+        `;
+        btnNecessary.addEventListener('click', acceptNecessaryCookies);
+        btnNecessary.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#FFD700';
+            this.style.background = 'rgba(255,215,0,0.05)';
+        });
+        btnNecessary.addEventListener('mouseleave', function() {
+            this.style.borderColor = 'rgba(255,215,0,0.4)';
+            this.style.background = 'transparent';
+        });
+
+        const btnSettings = document.createElement('button');
+        btnSettings.id = 'cookieSettingsBtn';
+        btnSettings.textContent = '⚙️ Настроить';
+        btnSettings.style.cssText = `
+            background: transparent;
+            color: #77819e;
+            border: 1px solid rgba(119, 129, 158, 0.3);
+            padding: 10px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-family: 'Montserrat', Arial, sans-serif;
+        `;
+        btnSettings.addEventListener('click', showSettingsPanel);
+        btnSettings.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#FFD700';
+            this.style.color = '#f2f4fa';
+        });
+        btnSettings.addEventListener('mouseleave', function() {
+            this.style.borderColor = 'rgba(119,129,158,0.3)';
+            this.style.color = '#77819e';
+        });
+
+        btnGroup.appendChild(btnAcceptAll);
+        btnGroup.appendChild(btnNecessary);
+        btnGroup.appendChild(btnSettings);
+
+        flex.appendChild(textBlock);
+        flex.appendChild(btnGroup);
+        inner.appendChild(flex);
+        banner.appendChild(inner);
+
+        document.body.appendChild(banner);
+
+        // Добавляем анимацию
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUpBanner {
+                from { transform: translateY(100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
             }
-        }, CONFIG.autoCloseBannerSeconds * 1000);
+        `;
+        document.head.appendChild(style);
 
-        // Обработчики кнопок
-        document.getElementById('cookieAcceptAllBtn')?.addEventListener('click', acceptAllCookies);
-        document.getElementById('cookieAcceptNecessaryBtn')?.addEventListener('click', acceptNecessaryCookies);
-        document.getElementById('cookieSettingsBtn')?.addEventListener('click', showSettingsPanel);
+        logger.log('🍪 Баннер cookie создан');
     }
 
     function removeBanner() {
@@ -386,14 +431,11 @@
             setTimeout(() => {
                 banner.remove();
             }, 300);
-            if (bannerTimer) {
-                clearTimeout(bannerTimer);
-                bannerTimer = null;
-            }
+            logger.log('🍪 Баннер cookie удалён');
         }
     }
 
-    // ========== ПАНЕЛЬ НАСТРОЕК ==========
+    // ========== ПАНЕЛЬ НАСТРОЕК (ЧЕРЕЗ createElement) ==========
 
     function showSettingsPanel() {
         const preferences = getCookie('cookie_preferences');
@@ -403,161 +445,146 @@
             try {
                 prefs = JSON.parse(preferences);
             } catch(e) {
-                console.warn('⚠️ Не удалось разобрать настройки cookie');
+                logger.warn('⚠️ Не удалось разобрать настройки cookie');
             }
         }
 
-        const modalHTML = `
-            <div id="cookieSettingsModal" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(13, 21, 38, 0.92);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1000000;
-                backdrop-filter: blur(8px);
-                font-family: 'Montserrat', Arial, sans-serif;
-                animation: fadeInModal 0.3s ease;
-            ">
-                <div style="
-                    background: linear-gradient(145deg, #182444, #0d1526);
-                    border: 1px solid rgba(255, 215, 0, 0.15);
-                    border-radius: 24px;
-                    max-width: 480px;
-                    width: 92%;
-                    padding: 30px 28px;
-                    color: #f2f4fa;
-                    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-                    animation: slideInModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 style="color: #FFD700; margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-cookie-bite"></i> Настройки cookie
-                        </h2>
-                        <button id="closeSettingsBtn" style="
-                            background: none;
-                            border: none;
-                            color: #77819e;
-                            font-size: 24px;
-                            cursor: pointer;
-                            transition: all 0.3s;
-                        ">✖️</button>
-                    </div>
-
-                    <div style="margin: 20px 0;">
-                        <div style="margin-bottom: 12px; padding: 14px 16px; background: rgba(255,255,255,0.04); border-radius: 12px; border-left: 3px solid #FFD700;">
-                            <label style="display: flex; justify-content: space-between; align-items: center; cursor: default;">
-                                <div>
-                                    <div style="font-weight: 600; color: #f2f4fa;">📋 Строго необходимые</div>
-                                    <div style="font-size: 12px; color: #77819e;">Обеспечивают работу сайта</div>
-                                </div>
-                                <span style="color: #34a853; font-weight: 600; font-size: 13px;">Всегда включены</span>
-                            </label>
-                        </div>
-
-                        <div style="margin-bottom: 12px; padding: 14px 16px; background: rgba(255,255,255,0.04); border-radius: 12px; border-left: 3px solid rgba(255,215,0,0.3);">
-                            <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                                <div>
-                                    <div style="font-weight: 600; color: #f2f4fa;">🎨 Функциональные</div>
-                                    <div style="font-size: 12px; color: #77819e;">Запоминают язык и предпочтения</div>
-                                </div>
-                                <input type="checkbox" id="prefFunctional" ${prefs.functional ? 'checked' : ''} style="
-                                    width: 20px; height: 20px; accent-color: #FFD700; cursor: pointer;
-                                ">
-                            </label>
-                        </div>
-
-                        <div style="margin-bottom: 12px; padding: 14px 16px; background: rgba(255,255,255,0.04); border-radius: 12px; border-left: 3px solid rgba(255,215,0,0.3);">
-                            <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                                <div>
-                                    <div style="font-weight: 600; color: #f2f4fa;">📊 Аналитические</div>
-                                    <div style="font-size: 12px; color: #77819e;">Помогают улучшать работу сайта</div>
-                                </div>
-                                <input type="checkbox" id="prefAnalytics" ${prefs.analytics ? 'checked' : ''} style="
-                                    width: 20px; height: 20px; accent-color: #FFD700; cursor: pointer;
-                                ">
-                            </label>
-                        </div>
-
-                        <div style="margin-bottom: 12px; padding: 14px 16px; background: rgba(255,255,255,0.04); border-radius: 12px; border-left: 3px solid rgba(255,215,0,0.3);">
-                            <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                                <div>
-                                    <div style="font-weight: 600; color: #f2f4fa;">🎯 Рекламные</div>
-                                    <div style="font-size: 12px; color: #77819e;">Персонализированная реклама</div>
-                                </div>
-                                <input type="checkbox" id="prefAdvertising" ${prefs.advertising ? 'checked' : ''} style="
-                                    width: 20px; height: 20px; accent-color: #FFD700; cursor: pointer;
-                                ">
-                            </label>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
-                        <button id="saveSettingsBtn" style="
-                            background: linear-gradient(135deg, #FFD700, #e6c200);
-                            color: #0d1526;
-                            border: none;
-                            padding: 10px 24px;
-                            border-radius: 30px;
-                            cursor: pointer;
-                            font-weight: 700;
-                            font-size: 14px;
-                            font-family: 'Montserrat', Arial, sans-serif;
-                        ">
-                            💾 Сохранить
-                        </button>
-                        <button id="closeSettingsBtn2" style="
-                            background: transparent;
-                            color: #77819e;
-                            border: 1px solid rgba(119, 129, 158, 0.3);
-                            padding: 10px 20px;
-                            border-radius: 30px;
-                            cursor: pointer;
-                            font-weight: 500;
-                            font-size: 13px;
-                            font-family: 'Montserrat', Arial, sans-serif;
-                        ">
-                            ✖️ Закрыть
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <style>
-                @keyframes fadeInModal {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes slideInModal {
-                    from {
-                        opacity: 0;
-                        transform: scale(0.92) translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: scale(1) translateY(0);
-                    }
-                }
-                #cookieSettingsModal input[type="checkbox"]:hover {
-                    transform: scale(1.1);
-                }
-            </style>
+        // Создаём элементы
+        const overlay = document.createElement('div');
+        overlay.id = 'cookieSettingsModal';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 21, 38, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000000;
+            backdrop-filter: blur(8px);
+            font-family: 'Montserrat', Arial, sans-serif;
+            animation: fadeInModal 0.3s ease;
         `;
 
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            background: linear-gradient(145deg, #182444, #0d1526);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 24px;
+            max-width: 480px;
+            width: 92%;
+            padding: 30px 28px;
+            color: #f2f4fa;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            animation: slideInModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        `;
 
-        // Закрытие по клику вне модалки
-        document.getElementById('cookieSettingsModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.remove();
-            }
+        // Заголовок
+        const header = document.createElement('div');
+        header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;';
+        const h2 = document.createElement('h2');
+        h2.style.cssText = 'color: #FFD700; margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px;';
+        const h2Icon = document.createElement('i');
+        h2Icon.className = 'fas fa-cookie-bite';
+        h2.appendChild(h2Icon);
+        h2.appendChild(document.createTextNode(' Настройки cookie'));
+
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '✖️';
+        closeBtn.style.cssText = 'background: none; border: none; color: #77819e; font-size: 24px; cursor: pointer; transition: all 0.3s;';
+        closeBtn.addEventListener('click', function() {
+            overlay.remove();
+        });
+        closeBtn.addEventListener('mouseenter', function() {
+            this.style.color = '#f2f4fa';
+        });
+        closeBtn.addEventListener('mouseleave', function() {
+            this.style.color = '#77819e';
         });
 
-        // Обработчики кнопок
-        document.getElementById('saveSettingsBtn')?.addEventListener('click', () => {
+        header.appendChild(h2);
+        header.appendChild(closeBtn);
+
+        // Список настроек
+        const settingsList = document.createElement('div');
+        settingsList.style.cssText = 'margin: 20px 0;';
+
+        const categories = [
+            { id: 'necessary', label: '📋 Строго необходимые', desc: 'Обеспечивают работу сайта', always: true },
+            { id: 'functional', label: '🎨 Функциональные', desc: 'Запоминают язык и предпочтения', always: false },
+            { id: 'analytics', label: '📊 Аналитические', desc: 'Помогают улучшать работу сайта', always: false },
+            { id: 'advertising', label: '🎯 Рекламные', desc: 'Персонализированная реклама', always: false }
+        ];
+
+        categories.forEach(cat => {
+            const item = document.createElement('div');
+            item.style.cssText = `
+                margin-bottom: 12px;
+                padding: 14px 16px;
+                background: rgba(255,255,255,0.04);
+                border-radius: 12px;
+                border-left: 3px solid ${cat.always ? '#FFD700' : 'rgba(255,215,0,0.3)'};
+            `;
+
+            const label = document.createElement('label');
+            label.style.cssText = 'display: flex; justify-content: space-between; align-items: center; cursor: default;';
+
+            const info = document.createElement('div');
+            const name = document.createElement('div');
+            name.style.cssText = 'font-weight: 600; color: #f2f4fa;';
+            name.textContent = cat.label;
+            const desc = document.createElement('div');
+            desc.style.cssText = 'font-size: 12px; color: #77819e;';
+            desc.textContent = cat.desc;
+            info.appendChild(name);
+            info.appendChild(desc);
+
+            if (cat.always) {
+                const always = document.createElement('span');
+                always.style.cssText = 'color: #34a853; font-weight: 600; font-size: 13px;';
+                always.textContent = 'Всегда включены';
+                label.appendChild(info);
+                label.appendChild(always);
+            } else {
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = 'pref' + cat.id.charAt(0).toUpperCase() + cat.id.slice(1);
+                input.checked = prefs[cat.id] || false;
+                input.style.cssText = 'width: 20px; height: 20px; accent-color: #FFD700; cursor: pointer;';
+                label.style.cursor = 'pointer';
+                label.onclick = function(e) {
+                    if (e.target !== input) {
+                        input.checked = !input.checked;
+                    }
+                };
+                label.appendChild(info);
+                label.appendChild(input);
+            }
+
+            item.appendChild(label);
+            settingsList.appendChild(item);
+        });
+
+        // Кнопки внизу
+        const footer = document.createElement('div');
+        footer.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;';
+
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '💾 Сохранить';
+        saveBtn.style.cssText = `
+            background: linear-gradient(135deg, #FFD700, #e6c200);
+            color: #0d1526;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Montserrat', Arial, sans-serif;
+        `;
+        saveBtn.addEventListener('click', function() {
             const functional = document.getElementById('prefFunctional')?.checked || false;
             const analytics = document.getElementById('prefAnalytics')?.checked || false;
             const advertising = document.getElementById('prefAdvertising')?.checked || false;
@@ -566,28 +593,76 @@
             setCookie('cookie_preferences', JSON.stringify(newPrefs), CONFIG.cookieLifetime);
             setCookie('cookie_consent', 'true', CONFIG.cookieLifetime);
 
-            document.getElementById('cookieSettingsModal')?.remove();
+            overlay.remove();
             showMessage('⚙️ Настройки сохранены', 'success');
         });
 
-        document.getElementById('closeSettingsBtn')?.addEventListener('click', () => {
-            document.getElementById('cookieSettingsModal')?.remove();
+        const closeBtn2 = document.createElement('button');
+        closeBtn2.textContent = '✖️ Закрыть';
+        closeBtn2.style.cssText = `
+            background: transparent;
+            color: #77819e;
+            border: 1px solid rgba(119, 129, 158, 0.3);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            font-family: 'Montserrat', Arial, sans-serif;
+        `;
+        closeBtn2.addEventListener('click', function() {
+            overlay.remove();
         });
 
-        document.getElementById('closeSettingsBtn2')?.addEventListener('click', () => {
-            document.getElementById('cookieSettingsModal')?.remove();
+        footer.appendChild(saveBtn);
+        footer.appendChild(closeBtn2);
+
+        modal.appendChild(header);
+        modal.appendChild(settingsList);
+        modal.appendChild(footer);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Закрытие по клику вне модалки
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.remove();
+            }
         });
 
         // Закрытие по ESC
         document.addEventListener('keydown', function handler(e) {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('cookieSettingsModal');
-                if (modal) {
-                    modal.remove();
+                const modalEl = document.getElementById('cookieSettingsModal');
+                if (modalEl) {
+                    modalEl.remove();
                     document.removeEventListener('keydown', handler);
                 }
             }
         });
+
+        // Добавляем стили
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInModal {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideInModal {
+                from {
+                    opacity: 0;
+                    transform: scale(0.92) translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        logger.log('⚙️ Панель настроек cookie открыта');
     }
 
     // ========== УВЕДОМЛЕНИЯ ==========
@@ -627,15 +702,15 @@
     // ========== ИНИЦИАЛИЗАЦИЯ ==========
 
     function init() {
-        console.log('🍪 Инициализация cookie manager...');
+        logger.log('🍪 Инициализация cookie manager...');
 
         // Синхронизация языка
         syncLanguageToCookie();
 
-        // Показ баннера если нужно
+        // Показ баннера если нужно (без автопринятия)
         showBannerIfNeeded();
 
-        console.log('✅ cookie.js инициализирован');
+        logger.log('✅ cookie.js инициализирован');
     }
 
     // ========== ПУБЛИЧНЫЙ API ==========
@@ -664,7 +739,8 @@
         hideBanner: removeBanner,
 
         // Конфигурация
-        config: CONFIG
+        config: CONFIG,
+        isProduction: isProduction
     };
 
     // ========== ЗАПУСК ==========
@@ -675,6 +751,5 @@
         init();
     }
 
-    console.log('🍪 MetroNewCookies API доступен');
-    console.log('📌 Используйте: window.MetroNewCookies.acceptAll()');
+    logger.log('🍪 MetroNewCookies API доступен');
 })();
