@@ -65,6 +65,9 @@
         }
     };
 
+    // Доступные языки (полностью готовые)
+    const DEVELOPED_LANGS = ['ru', 'en'];
+
     // ========== ОПРЕДЕЛЕНИЕ ЯЗЫКА ==========
 
     function getCurrentLangFromURL() {
@@ -124,7 +127,13 @@
         const targetUrl = CONFIG.paths[lang];
         const currentUrl = window.location.href;
 
+        // Проверяем, не находимся ли уже на правильной версии
         if (currentUrl.includes(CONFIG.paths[lang]) || currentUrl === targetUrl) {
+            return false;
+        }
+
+        // Проверяем, не является ли это страницей выбора языка
+        if (currentUrl.includes('/language/')) {
             return false;
         }
 
@@ -148,13 +157,16 @@
                 width: 100%;
                 height: 100%;
                 background: rgba(13, 21, 38, 0.92);
-                display: flex;
+                display: none;
                 align-items: center;
                 justify-content: center;
                 z-index: 100000;
                 font-family: 'Montserrat', Arial, sans-serif;
                 backdrop-filter: blur(12px);
                 animation: metroFadeIn 0.4s ease;
+            }
+            .metro-lang-overlay.active {
+                display: flex;
             }
 
             .metro-lang-modal {
@@ -170,25 +182,13 @@
                 animation: metroSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
-            .metro-lang-modal::-webkit-scrollbar {
-                width: 4px;
-            }
-            .metro-lang-modal::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            .metro-lang-modal::-webkit-scrollbar-thumb {
-                background: #FFD700;
-                border-radius: 8px;
-            }
+            .metro-lang-modal::-webkit-scrollbar { width: 4px; }
+            .metro-lang-modal::-webkit-scrollbar-track { background: transparent; }
+            .metro-lang-modal::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 8px; }
 
-            .metro-lang-header {
-                text-align: center;
-                margin-bottom: 28px;
-            }
-
+            .metro-lang-header { text-align: center; margin-bottom: 28px; }
             .metro-lang-icon {
-                width: 72px;
-                height: 72px;
+                width: 72px; height: 72px;
                 background: linear-gradient(135deg, #FFD700, #e6c200);
                 border-radius: 50%;
                 display: flex;
@@ -197,12 +197,7 @@
                 margin: 0 auto 16px;
                 box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
             }
-
-            .metro-lang-icon i {
-                font-size: 32px;
-                color: #0d1526;
-            }
-
+            .metro-lang-icon i { font-size: 32px; color: #0d1526; }
             .metro-lang-title {
                 color: #f2f4fa;
                 font-size: 26px;
@@ -213,12 +208,7 @@
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
             }
-
-            .metro-lang-subtitle {
-                color: #a6b0cc;
-                font-size: 14px;
-                font-weight: 500;
-            }
+            .metro-lang-subtitle { color: #a6b0cc; font-size: 14px; font-weight: 500; }
 
             .metro-lang-grid {
                 display: grid;
@@ -244,7 +234,6 @@
                 text-align: left;
                 width: 100%;
             }
-
             .metro-lang-btn:hover {
                 background: rgba(255, 215, 0, 0.08);
                 border-color: #FFD700;
@@ -252,16 +241,8 @@
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(255, 215, 0, 0.08);
             }
-
-            .metro-lang-btn .flag {
-                font-size: 22px;
-                flex-shrink: 0;
-            }
-
-            .metro-lang-btn .lang-name {
-                flex: 1;
-            }
-
+            .metro-lang-btn .flag { font-size: 22px; flex-shrink: 0; }
+            .metro-lang-btn .lang-name { flex: 1; }
             .metro-lang-btn .lang-code {
                 font-size: 11px;
                 color: #77819e;
@@ -270,14 +251,6 @@
                 background: rgba(119, 129, 158, 0.15);
                 border-radius: 6px;
             }
-
-            .metro-lang-btn.active {
-                background: rgba(255, 215, 0, 0.12);
-                border-color: #FFD700;
-                color: #f2f4fa;
-                box-shadow: 0 0 20px rgba(255, 215, 0, 0.06);
-            }
-
             .metro-lang-btn .status-badge {
                 font-size: 10px;
                 padding: 2px 8px;
@@ -285,20 +258,17 @@
                 font-weight: 700;
                 letter-spacing: 0.3px;
             }
-
             .metro-lang-btn .status-badge.available {
                 background: rgba(52, 168, 83, 0.2);
                 color: #34a853;
                 border: 1px solid rgba(52, 168, 83, 0.2);
             }
-
             .metro-lang-btn .status-badge.development {
                 background: rgba(255, 215, 0, 0.12);
                 color: #FFD700;
                 border: 1px solid rgba(255, 215, 0, 0.1);
                 font-size: 8px;
             }
-
             .metro-lang-btn.disabled {
                 opacity: 0.4;
                 cursor: not-allowed;
@@ -310,7 +280,7 @@
                 box-shadow: none;
             }
 
-            .metro-lang-footer {
+            .metro-lang-footer-modal {
                 text-align: center;
                 padding-top: 16px;
                 border-top: 1px solid rgba(37, 52, 96, 0.3);
@@ -320,19 +290,14 @@
                 flex-wrap: wrap;
                 gap: 10px;
             }
-
-            .metro-lang-footer .hint {
+            .metro-lang-footer-modal .hint {
                 color: #77819e;
                 font-size: 11px;
                 display: flex;
                 align-items: center;
                 gap: 6px;
             }
-
-            .metro-lang-footer .hint i {
-                color: #FFD700;
-            }
-
+            .metro-lang-footer-modal .hint i { color: #FFD700; }
             .metro-lang-close {
                 background: rgba(255,255,255,0.05);
                 border: 1px solid rgba(37, 52, 96, 0.3);
@@ -345,7 +310,6 @@
                 transition: all 0.3s;
                 font-family: 'Montserrat', Arial, sans-serif;
             }
-
             .metro-lang-close:hover {
                 background: rgba(255, 215, 0, 0.08);
                 border-color: #FFD700;
@@ -356,109 +320,202 @@
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
-
             @keyframes metroSlideUp {
-                from {
-                    opacity: 0;
-                    transform: scale(0.92) translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1) translateY(0);
-                }
+                from { opacity: 0; transform: scale(0.92) translateY(30px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
             }
 
-            /* ===== МИНИ-ПЕРЕКЛЮЧАТЕЛЬ ===== */
-            .metro-lang-mini {
-                display: inline-flex;
+            /* ===== ПЕРЕКЛЮЧАТЕЛЬ В ФУТЕРЕ ===== */
+            .footer-lang-switcher {
+                display: flex;
                 align-items: center;
-                gap: 4px;
-                background: rgba(255,255,255,0.06);
-                border: 1px solid rgba(37, 52, 96, 0.3);
+                gap: 6px;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(37, 52, 96, 0.25);
                 border-radius: 30px;
-                padding: 4px;
+                padding: 3px 6px;
                 transition: all 0.3s;
             }
-
-            .metro-lang-mini:hover {
+            .footer-lang-switcher:hover {
                 border-color: rgba(255, 215, 0, 0.3);
             }
-
-            .metro-lang-mini-btn {
-                padding: 6px 14px;
+            .footer-lang-btn {
+                padding: 4px 12px;
                 border: none;
                 border-radius: 30px;
                 cursor: pointer;
                 font-family: 'Montserrat', Arial, sans-serif;
-                font-size: 13px;
+                font-size: 11px;
                 font-weight: 600;
                 transition: all 0.3s;
                 background: transparent;
                 color: #a6b0cc;
+                text-transform: uppercase;
             }
-
-            .metro-lang-mini-btn:hover {
+            .footer-lang-btn:hover {
                 color: #f2f4fa;
             }
-
-            .metro-lang-mini-btn.active {
+            .footer-lang-btn.active {
                 background: #FFD700;
                 color: #0d1526;
                 box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
             }
-
-            .metro-lang-mini-btn .flag {
-                margin-right: 4px;
-            }
-
-            .metro-lang-mini-more {
-                padding: 6px 10px;
+            .footer-lang-btn .flag { margin-right: 4px; font-size: 14px; }
+            .footer-lang-more {
+                padding: 4px 8px;
                 border: none;
                 border-radius: 30px;
                 cursor: pointer;
                 font-family: 'Montserrat', Arial, sans-serif;
-                font-size: 13px;
-                font-weight: 600;
+                font-size: 12px;
                 background: transparent;
                 color: #77819e;
                 transition: all 0.3s;
             }
-
-            .metro-lang-mini-more:hover {
+            .footer-lang-more:hover {
                 color: #f2f4fa;
             }
 
-            @media (max-width: 480px) {
-                .metro-lang-modal {
-                    padding: 24px 18px;
-                    max-width: 100%;
-                    border-radius: 16px;
-                }
-                .metro-lang-grid {
-                    grid-template-columns: 1fr 1fr;
-                    gap: 8px;
-                }
-                .metro-lang-btn {
-                    padding: 10px 12px;
-                    font-size: 12px;
-                }
-                .metro-lang-btn .flag {
-                    font-size: 18px;
-                }
-                .metro-lang-title {
-                    font-size: 20px;
-                }
-                .metro-lang-mini-btn {
-                    font-size: 11px;
-                    padding: 4px 10px;
-                }
+            /* ===== СТРАНИЦА ВЫБОРА ЯЗЫКА ===== */
+            .lang-page-wrapper {
+                padding: 40px 0 50px;
+                min-height: 60vh;
+            }
+            .lang-page-header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            .lang-page-header h1 {
+                font-size: clamp(2.2rem, 5vw, 3.5rem);
+                font-weight: 800;
+                background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 12px;
+            }
+            .lang-page-header p {
+                color: var(--text-secondary);
+                font-size: 1.15rem;
+                max-width: 600px;
+                margin: 0 auto;
             }
 
-            @media (max-width: 380px) {
-                .metro-lang-grid {
-                    grid-template-columns: 1fr;
-                }
+            .lang-page-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+                max-width: 900px;
+                margin: 0 auto;
             }
+            .lang-page-card {
+                background: var(--bg-card);
+                border: 2px solid var(--border);
+                border-radius: var(--radius-xl);
+                padding: 24px 18px;
+                text-align: center;
+                transition: all 0.3s;
+                cursor: pointer;
+                text-decoration: none;
+                color: var(--text-primary);
+                position: relative;
+                overflow: hidden;
+            }
+            .lang-page-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .lang-page-card:hover {
+                transform: translateY(-6px);
+                border-color: var(--accent);
+                box-shadow: 0 12px 40px var(--accent-glow);
+            }
+            .lang-page-card:hover::before { opacity: 1; }
+            .lang-page-card .flag { font-size: 3rem; display: block; margin-bottom: 10px; }
+            .lang-page-card .lang-name { font-size: 1.1rem; font-weight: 700; }
+            .lang-page-card .lang-code {
+                font-size: 0.75rem;
+                color: var(--text-tertiary);
+                text-transform: uppercase;
+                font-weight: 600;
+                letter-spacing: 1px;
+            }
+            .lang-page-card .lang-status {
+                margin-top: 10px;
+                display: inline-block;
+                padding: 3px 14px;
+                border-radius: 12px;
+                font-size: 0.65rem;
+                font-weight: 600;
+                background: var(--bg-secondary);
+                color: var(--text-tertiary);
+                border: 1px solid var(--border-light);
+            }
+            .lang-page-card .lang-status.active {
+                background: var(--accent-light);
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+            .lang-page-card .lang-status.inactive {
+                opacity: 0.5;
+            }
+            .lang-page-card.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+
+            @media (max-width: 768px) {
+                .lang-page-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 14px;
+                }
+                .lang-page-card { padding: 18px 12px; }
+                .lang-page-card .flag { font-size: 2.4rem; }
+                .lang-page-card .lang-name { font-size: 0.95rem; }
+            }
+            @media (max-width: 480px) {
+                .lang-page-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 10px;
+                }
+                .lang-page-card { padding: 14px 10px; }
+                .lang-page-card .flag { font-size: 2rem; }
+                .lang-page-card .lang-name { font-size: 0.8rem; }
+                .lang-page-card .lang-code { font-size: 0.6rem; }
+            }
+
+            /* ===== TOAST ===== */
+            .metro-toast {
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #182444;
+                border: 1px solid #FFD700;
+                color: #f2f4fa;
+                padding: 14px 28px;
+                border-radius: 50px;
+                z-index: 99999;
+                font-family: 'Montserrat', Arial, sans-serif;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                animation: metroFadeIn 0.3s ease;
+                backdrop-filter: blur(8px);
+                max-width: 90%;
+                text-align: center;
+            }
+            .metro-toast.success { border-color: #34a853; }
+            .metro-toast.warning { border-color: #FFD700; }
+            .metro-toast.error { border-color: #f28b82; }
         `;
 
         document.head.appendChild(styles);
@@ -481,16 +538,12 @@
         injectStyles();
 
         const currentLang = getSavedLanguage() || 'ru';
-        const availableLangs = CONFIG.availableLangs;
-        const developedLangs = ['ru', 'en']; // Только эти полностью готовы
-        const inDevelopment = availableLangs.filter(l => !developedLangs.includes(l));
-
         let gridHTML = '';
 
-        // Сначала доступные языки
-        developedLangs.forEach(lang => {
+        // Доступные языки
+        DEVELOPED_LANGS.forEach(lang => {
             gridHTML += `
-                <button class="metro-lang-btn active" data-lang="${lang}" onclick="window.MetroNewLang.select('${lang}')">
+                <button class="metro-lang-btn" data-lang="${lang}" onclick="window.MetroNewLang.select('${lang}')">
                     <span class="flag">${CONFIG.langFlags[lang]}</span>
                     <span class="lang-name">${CONFIG.langNames[lang]}</span>
                     <span class="lang-code">${lang.toUpperCase()}</span>
@@ -499,8 +552,8 @@
             `;
         });
 
-        // Затем языки в разработке
-        inDevelopment.forEach(lang => {
+        // Языки в разработке
+        CONFIG.availableLangs.filter(l => !DEVELOPED_LANGS.includes(l)).forEach(lang => {
             gridHTML += `
                 <button class="metro-lang-btn disabled" data-lang="${lang}" onclick="window.MetroNewLang.select('${lang}')" title="В разработке">
                     <span class="flag">${CONFIG.langFlags[lang]}</span>
@@ -512,24 +565,16 @@
         });
 
         const modalHTML = `
-            <div id="metroLangModal" class="metro-lang-overlay">
+            <div id="metroLangModal" class="metro-lang-overlay active">
                 <div class="metro-lang-modal">
                     <div class="metro-lang-header">
-                        <div class="metro-lang-icon">
-                            <i class="fas fa-language"></i>
-                        </div>
+                        <div class="metro-lang-icon"><i class="fas fa-language"></i></div>
                         <div class="metro-lang-title">Выберите язык</div>
                         <div class="metro-lang-subtitle">Choose your preferred language</div>
                     </div>
-
-                    <div class="metro-lang-grid">
-                        ${gridHTML}
-                    </div>
-
-                    <div class="metro-lang-footer">
-                        <span class="hint">
-                            <i class="fas fa-save"></i> Ваш выбор будет сохранён
-                        </span>
+                    <div class="metro-lang-grid">${gridHTML}</div>
+                    <div class="metro-lang-footer-modal">
+                        <span class="hint"><i class="fas fa-save"></i> Ваш выбор будет сохранён</span>
                         <button class="metro-lang-close" onclick="window.MetroNewLang.closeModal()">
                             <i class="fas fa-times"></i> Закрыть
                         </button>
@@ -559,6 +604,7 @@
     function closeModal() {
         const modal = document.getElementById('metroLangModal');
         if (modal) {
+            modal.classList.remove('active');
             modal.style.opacity = '0';
             modal.style.transition = 'opacity 0.3s ease';
             setTimeout(() => {
@@ -580,71 +626,129 @@
     function selectLanguage(lang) {
         if (!CONFIG.availableLangs.includes(lang)) return;
 
-        const developedLangs = ['ru', 'en'];
-        if (!developedLangs.includes(lang)) {
+        if (!DEVELOPED_LANGS.includes(lang)) {
             showToast('🚧 Этот язык пока в разработке', 'warning');
             return;
         }
 
         saveLanguage(lang);
+
+        // Обновляем переключатель в футере
+        updateFooterSwitcher(lang);
+
         closeModal();
-        redirectToLanguage(lang);
+
+        // Перенаправление, если не на странице выбора языка
+        if (!window.location.pathname.includes('/language/')) {
+            redirectToLanguage(lang);
+        } else {
+            // Если на странице выбора языка, просто обновляем UI
+            updateLanguagePage(lang);
+            showToast(`🌐 Выбран язык: ${CONFIG.langNames[lang]}`, 'success');
+        }
     }
 
-    // ========== МИНИ-ПЕРЕКЛЮЧАТЕЛЬ В ШАПКЕ ==========
+    // ========== ПЕРЕКЛЮЧАТЕЛЬ В ФУТЕРЕ ==========
 
-    function addLanguageSwitcher() {
-        // Ждём загрузки DOM
-        const checkNav = setInterval(() => {
-            const navLinks = document.querySelector('.nav-links');
-            if (!navLinks) return;
+    function addFooterLanguageSwitcher() {
+        const checkFooter = setInterval(() => {
+            const footerBottom = document.querySelector('.footer-bottom');
+            if (!footerBottom) return;
 
-            clearInterval(checkNav);
+            clearInterval(checkFooter);
 
             const currentLang = getSavedLanguage() || 'ru';
-            const developedLangs = ['ru', 'en'];
 
-            let miniHTML = `
-                <div class="metro-lang-mini" id="metroLangMini">
-            `;
+            // Создаём переключатель
+            const switcher = document.createElement('div');
+            switcher.className = 'footer-lang-switcher';
+            switcher.id = 'footerLangSwitcher';
 
-            developedLangs.forEach(lang => {
-                miniHTML += `
-                    <button class="metro-lang-mini-btn ${currentLang === lang ? 'active' : ''}" 
+            let html = '';
+            DEVELOPED_LANGS.forEach(lang => {
+                html += `
+                    <button class="footer-lang-btn ${currentLang === lang ? 'active' : ''}" 
                             onclick="window.MetroNewLang.setLang('${lang}')">
                         <span class="flag">${CONFIG.langFlags[lang]}</span>
-                        ${lang.toUpperCase()}
+                        ${lang}
                     </button>
                 `;
             });
-
-            miniHTML += `
-                    <button class="metro-lang-mini-more" onclick="window.MetroNewLang.showModal()" title="Все языки">
-                        <i class="fas fa-chevron-down" style="font-size: 11px;"></i>
-                    </button>
-                </div>
+            html += `
+                <button class="footer-lang-more" onclick="window.MetroNewLang.showModal()" title="Все языки">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
             `;
 
-            // Вставляем после login-btn или в nav-links
-            const loginBtn = document.querySelector('.login-btn');
-            if (loginBtn) {
-                loginBtn.insertAdjacentHTML('beforebegin', miniHTML);
+            switcher.innerHTML = html;
+
+            // Вставляем перед theme-toggle
+            const themeToggle = footerBottom.querySelector('.theme-toggle');
+            if (themeToggle) {
+                footerBottom.insertBefore(switcher, themeToggle);
             } else {
-                navLinks.insertAdjacentHTML('beforeend', miniHTML);
+                footerBottom.appendChild(switcher);
             }
 
-            // Обновляем активную кнопку при изменении языка
-            window.MetroNewLang.updateSwitcher = function() {
-                const newLang = getSavedLanguage() || 'ru';
-                document.querySelectorAll('.metro-lang-mini-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    const btnLang = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
-                    if (btnLang === newLang) {
-                        btn.classList.add('active');
-                    }
-                });
-            };
-        }, 100);
+            console.log('🌐 Переключатель языка добавлен в футер');
+        }, 200);
+    }
+
+    function updateFooterSwitcher(lang) {
+        const btns = document.querySelectorAll('.footer-lang-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('active');
+            const btnLang = btn.textContent.trim().toLowerCase();
+            if (btnLang === lang) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    // ========== СТРАНИЦА ВЫБОРА ЯЗЫКА ==========
+
+    function initLanguagePage() {
+        const container = document.querySelector('.lang-page-grid');
+        if (!container) return;
+
+        const currentLang = getSavedLanguage() || 'ru';
+
+        let html = '';
+        CONFIG.availableLangs.forEach(lang => {
+            const isDeveloped = DEVELOPED_LANGS.includes(lang);
+            const isActive = currentLang === lang;
+            html += `
+                <div class="lang-page-card ${!isDeveloped ? 'disabled' : ''}" 
+                     onclick="${isDeveloped ? `window.MetroNewLang.select('${lang}')` : ''}">
+                    <span class="flag">${CONFIG.langFlags[lang]}</span>
+                    <div class="lang-name">${CONFIG.langNames[lang]}</div>
+                    <div class="lang-code">${lang.toUpperCase()}</div>
+                    <span class="lang-status ${isActive ? 'active' : ''}">
+                        ${isActive ? '✅ Текущий' : (isDeveloped ? '📌 Доступен' : '🚧 В разработке')}
+                    </span>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function updateLanguagePage(lang) {
+        const cards = document.querySelectorAll('.lang-page-card');
+        cards.forEach(card => {
+            const status = card.querySelector('.lang-status');
+            if (status) {
+                const langCode = card.querySelector('.lang-code')?.textContent?.toLowerCase();
+                if (langCode === lang) {
+                    status.textContent = '✅ Текущий';
+                    status.className = 'lang-status active';
+                } else {
+                    const isDeveloped = DEVELOPED_LANGS.includes(langCode);
+                    status.textContent = isDeveloped ? '📌 Доступен' : '🚧 В разработке';
+                    status.className = 'lang-status';
+                }
+            }
+        });
     }
 
     // ========== УВЕДОМЛЕНИЯ ==========
@@ -656,27 +760,7 @@
         if (existing) existing.remove();
 
         const toast = document.createElement('div');
-        toast.className = 'metro-toast';
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #182444;
-            border: 1px solid ${type === 'warning' ? '#FFD700' : '#34a853'};
-            color: #f2f4fa;
-            padding: 14px 28px;
-            border-radius: 50px;
-            z-index: 99999;
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: metroFadeIn 0.3s ease;
-            backdrop-filter: blur(8px);
-            max-width: 90%;
-            text-align: center;
-        `;
+        toast.className = `metro-toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
 
@@ -690,23 +774,35 @@
 
     // ========== ИНИЦИАЛИЗАЦИЯ ==========
 
-    async function init() {
+    function init() {
         console.log('🌐 Metro New Language Module инициализация...');
+
+        // Внедряем стили
+        injectStyles();
 
         const savedLang = getSavedLanguage();
         const isSelected = isLanguageSelected();
         const urlLang = getCurrentLangFromURL();
 
-        // Если язык не выбран и не сохранён — показываем модалку
-        if (!isSelected && !savedLang) {
-            console.log('📌 Язык не выбран, показываем модальное окно');
-            showLanguageModal();
-        } else if (savedLang && urlLang && urlLang !== savedLang) {
-            console.log(`🔄 Перенаправление на сохранённый язык: ${savedLang}`);
-            redirectToLanguage(savedLang);
+        // Проверяем, находимся ли на странице выбора языка
+        const isLanguagePage = window.location.pathname.includes('/language/');
+
+        if (isLanguagePage) {
+            // На странице выбора языка — показываем все варианты
+            setTimeout(initLanguagePage, 100);
+        } else {
+            // На обычной странице
+            if (!isSelected && !savedLang) {
+                console.log('📌 Язык не выбран, показываем модальное окно');
+                showLanguageModal();
+            } else if (savedLang && urlLang && urlLang !== savedLang) {
+                console.log(`🔄 Перенаправление на сохранённый язык: ${savedLang}`);
+                redirectToLanguage(savedLang);
+            }
         }
 
-        addLanguageSwitcher();
+        // Добавляем переключатель в футер
+        addFooterLanguageSwitcher();
 
         console.log('✅ Metro New Language Module готов');
         console.log(`🌐 Текущий язык: ${getSavedLanguage() || 'не выбран'}`);
@@ -721,8 +817,13 @@
         setLang: function(lang) {
             if (CONFIG.availableLangs.includes(lang)) {
                 saveLanguage(lang);
-                if (this.updateSwitcher) this.updateSwitcher();
-                redirectToLanguage(lang);
+                updateFooterSwitcher(lang);
+                if (!window.location.pathname.includes('/language/')) {
+                    redirectToLanguage(lang);
+                } else {
+                    updateLanguagePage(lang);
+                    showToast(`🌐 Выбран язык: ${CONFIG.langNames[lang]}`, 'success');
+                }
             }
         },
         select: selectLanguage,
@@ -733,11 +834,12 @@
         availableLangs: CONFIG.availableLangs,
         langNames: CONFIG.langNames,
         langFlags: CONFIG.langFlags,
-        developedLangs: ['ru', 'en'],
+        developedLangs: DEVELOPED_LANGS,
 
         // Вспомогательные
         showToast: showToast,
-        updateSwitcher: null
+        initLanguagePage: initLanguagePage,
+        updateFooterSwitcher: updateFooterSwitcher
     };
 
     // ========== ЗАПУСК ==========
