@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Админ-панель — Метро New</title>
+
+    <!-- ===== ИКОНКИ ===== -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <style>
+        /* ===== БАЗОВЫЕ ПЕРЕМЕННЫЕ ===== */
+        :root {
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --accent: #FFD700;
+            --accent-light: rgba(255, 215, 0, 0.15);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --blue: #4d94ff;
+            --blue-dark: #0066CC;
+            --green: #34a853;
+            --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82;
+            --red-dark: #dc3545;
+            --orange: #ffc107;
+            --border: #253460;
+            --border-light: #1d2b4f;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+            --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #eef1f9;
+            --text-primary: #14151f;
+            --text-secondary: #565f7a;
+            --text-tertiary: #8890a8;
+            --border: #e2e6f0;
+            --border-light: #eef1f9;
+            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
+            color-scheme: light;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* ===== AUTH ===== */
+        .auth-container { max-width: 420px; margin: 80px auto; padding: 20px; }
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 40px 35px;
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+        }
+        .auth-card .auth-icon {
+            width: 72px; height: 72px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 2rem;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+        .auth-card h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; color: var(--text-primary); }
+        .auth-card p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 24px; }
+        .auth-card .form-group { margin-bottom: 16px; text-align: left; }
+        .auth-card .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .auth-card .form-group input {
+            width: 100%; padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .auth-card .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+        .auth-card .btn-auth {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border: none; border-radius: var(--radius);
+            color: #14151f;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .auth-card .btn-auth:hover { transform: translateY(-3px); box-shadow: 0 8px 35px var(--accent-glow); }
+        .auth-card .btn-auth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .auth-card .auth-error { color: var(--red); font-size: 0.85rem; margin-top: 12px; display: none; }
+
+        /* ===== ADMIN PANEL ===== */
+        .admin-container { display: none; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .admin-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: var(--shadow);
+        }
+        .admin-header .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.2rem; }
+        .admin-header .logo .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0d1526; font-weight: 800; }
+        .admin-header .user-info { display: flex; align-items: center; gap: 15px; }
+        .admin-header .user-info .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent); border: 2px solid var(--accent); }
+        .admin-header .user-info .logout-btn { background: none; border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 18px; border-radius: 30px; cursor: pointer; font-family: 'Montserrat', sans-serif; font-weight: 600; transition: all 0.3s; }
+        .admin-header .user-info .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+        /* ===== TABS ===== */
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .admin-tab {
+            padding: 10px 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .admin-tab.active { background: var(--accent); border-color: var(--accent); color: #14151f; box-shadow: 0 4px 20px var(--accent-glow); }
+        .admin-tab .badge { background: var(--bg-secondary); padding: 0 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+        .admin-tab.active .badge { background: rgba(20, 21, 31, 0.2); }
+
+        /* ===== CARDS ===== */
+        .admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        .admin-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-card .card-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .admin-card .card-header h3 i { color: var(--accent); }
+        .admin-card .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* ===== FORMS ===== */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .form-group label .required { color: var(--red); }
+        .form-group .form-control {
+            width: 100%; padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .form-group .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+        .form-group select.form-control { appearance: none; cursor: pointer; }
+        .form-group textarea.form-control { resize: vertical; min-height: 120px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: var(--blue-dark); color: white; }
+        .btn-primary:hover { background: var(--blue); box-shadow: 0 4px 20px rgba(0, 102, 204, 0.3); }
+        .btn-success { background: var(--green); color: white; }
+        .btn-success:hover { background: #2d9248; box-shadow: 0 4px 20px var(--green-light); }
+        .btn-warning { background: var(--orange); color: #000; }
+        .btn-warning:hover { background: #e0a800; box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3); }
+        .btn-danger { background: var(--red-dark); color: white; }
+        .btn-danger:hover { background: #c82333; box-shadow: 0 4px 20px var(--red-light); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-sm { padding: 4px 12px; font-size: 0.75rem; }
+
+        /* ===== TABLE ===== */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--bg-secondary); font-weight: 700; color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover td { background: var(--bg-card-hover); }
+
+        .status-badge {
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .status-badge.published { background: var(--green); color: white; }
+        .status-badge.draft { background: var(--orange); color: #000; }
+        .status-badge.deleted { background: var(--red); color: white; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 14px 28px;
+            border-radius: 50px;
+            z-index: 9999;
+            font-weight: 600;
+            box-shadow: var(--shadow-xl);
+            animation: toastIn 0.3s ease;
+            backdrop-filter: blur(8px);
+            font-family: 'Montserrat', sans-serif;
+            max-width: 92%;
+            text-align: center;
+        }
+        .toast.success { border-color: var(--green); color: var(--green); }
+        .toast.error { border-color: var(--red); color: var(--red); }
+        .toast.warning { border-color: var(--orange); color: var(--orange); }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            max-width: 650px;
+            width: 100%;
+            padding: 30px;
+            box-shadow: var(--shadow-xl);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-content .modal-header h3 { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+        .modal-content .modal-header .close-btn { background: none; border: none; color: var(--text-tertiary); font-size: 1.5rem; cursor: pointer; transition: all 0.3s; }
+        .modal-content .modal-header .close-btn:hover { color: var(--red); }
+        .modal-content .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding-top: 12px; border-top: 1px solid var(--border); }
+
+        /* ===== DASHBOARD ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stat-card .stat-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+        .stat-card .stat-number { font-size: 2rem; font-weight: 800; color: var(--accent); display: block; }
+        .stat-card .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* ===== DRAFTS ===== */
+        .draft-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+        }
+        .draft-item:last-child { border-bottom: none; }
+        .draft-item .draft-title { font-weight: 600; color: var(--text-primary); flex: 1; min-width: 150px; }
+        .draft-item .draft-date { font-size: 0.75rem; color: var(--text-tertiary); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .admin-header { flex-direction: column; text-align: center; }
+            .admin-tabs { justify-content: center; }
+            .admin-tab { font-size: 0.8rem; padding: 8px 14px; }
+            .admin-card .card-header { flex-direction: column; align-items: flex-start; }
+            .modal-content { max-width: 100%; padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .auth-card { padding: 24px 18px; }
+            .admin-card { padding: 16px; }
+            .admin-tab { font-size: 0.7rem; padding: 6px 10px; }
+            .admin-tab span { display: none; }
+            th, td { padding: 6px 8px; font-size: 0.75rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stat-card .stat-number { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== AUTH ===== -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-card">
+            <div class="auth-icon"><i class="fas fa-shield-alt"></i></div>
+            <h1>Админ-панель</h1>
+            <p>Войдите в свою учетную запись</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="admin@metro.new" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-auth" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+                <div class="auth-error" id="authError">Неверный email или пароль</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN PANEL ===== -->
+    <div class="admin-container" id="adminContainer">
+
+        <!-- HEADER -->
+        <div class="admin-header">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span>Метро New — Админ-панель</span>
+            </div>
+            <div class="user-info">
+                <span id="adminName">Администратор</span>
+                <div class="avatar" id="adminAvatar">A</div>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="showTab('dashboard')">
+                <i class="fas fa-chart-line"></i> <span>Дашборд</span>
+            </button>
+            <button class="admin-tab" onclick="showTab('sections')">
+                <i class="fas fa-folder"></i> <span>Разделы</span>
+                <span class="badge" id="sectionsCount">0</span>
+            </button>
+            <button class="admin-tab" onclick="showTab('articles')">
+                <i class="fas fa-file-alt"></i> <span>Статьи</span>
+                <span class="badge" id="articlesCount">0</span>
+            </button>
+            <button class="admin-tab" onclick="showTab('drafts')">
+                <i class="fas fa-pen-fancy"></i> <span>Черновики</span>
+                <span class="badge" id="draftsCount">0</span>
+            </button>
+            <button class="admin-tab" onclick="showTab('trash')">
+                <i class="fas fa-trash"></i> <span>Корзина</span>
+                <span class="badge" id="trashCount">0</span>
+            </button>
+        </div>
+
+        <!-- ===== TAB: DASHBOARD ===== -->
+        <div class="admin-card" id="tab-dashboard">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <span class="stat-icon">📰</span>
+                    <span class="stat-number" id="statArticles">0</span>
+                    <span class="stat-label">Всего статей</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📁</span>
+                    <span class="stat-number" id="statSections">0</span>
+                    <span class="stat-label">Разделов</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📝</span>
+                    <span class="stat-number" id="statDrafts">0</span>
+                    <span class="stat-label">Черновиков</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🗑️</span>
+                    <span class="stat-number" id="statTrash">0</span>
+                    <span class="stat-label">В корзине</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: SECTIONS ===== -->
+        <div class="admin-card" id="tab-sections" style="display:none;">
+            <div class="card-header">
+                <h3><i class="fas fa-folder"></i> Управление разделами</h3>
+                <div class="card-actions">
+                    <button class="btn btn-success" onclick="openSectionModal()"><i class="fas fa-plus"></i> Создать раздел</button>
+                    <button class="btn btn-outline btn-sm" onclick="loadSections()"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Иконка</th>
+                            <th>Название</th>
+                            <th>Тег</th>
+                            <th>Статей</th>
+                            <th>Порядок</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sectionsTable">
+                        <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-tertiary);">Загрузка...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== TAB: ARTICLES ===== -->
+        <div class="admin-card" id="tab-articles" style="display:none;">
+            <div class="card-header">
+                <h3><i class="fas fa-file-alt"></i> Управление статьями</h3>
+                <div class="card-actions">
+                    <button class="btn btn-success" onclick="openArticleModal()"><i class="fas fa-plus"></i> Создать статью</button>
+                    <button class="btn btn-outline btn-sm" onclick="loadArticles()"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Иконка</th>
+                            <th>Название</th>
+                            <th>Раздел</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="articlesTable">
+                        <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-tertiary);">Загрузка...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== TAB: DRAFTS ===== -->
+        <div class="admin-card" id="tab-drafts" style="display:none;">
+            <div class="card-header">
+                <h3><i class="fas fa-pen-fancy"></i> Черновики</h3>
+                <div class="card-actions">
+                    <button class="btn btn-outline btn-sm" onclick="loadDrafts()"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div id="draftsList">
+                <div style="text-align:center;padding:30px;color:var(--text-tertiary);">Нет черновиков</div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: TRASH ===== -->
+        <div class="admin-card" id="tab-trash" style="display:none;">
+            <div class="card-header">
+                <h3><i class="fas fa-trash"></i> Корзина</h3>
+                <div class="card-actions">
+                    <button class="btn btn-outline btn-sm" onclick="loadTrash()"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Тип</th>
+                            <th>Название</th>
+                            <th>Удалён</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trashTable">
+                        <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-tertiary);">Корзина пуста</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО: РАЗДЕЛ ===== -->
+    <div class="modal-overlay" id="sectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="sectionModalTitle"><i class="fas fa-folder"></i> Создание раздела</h3>
+                <button class="close-btn" onclick="closeModal('sectionModal')">&times;</button>
+            </div>
+            <form id="sectionForm">
+                <input type="hidden" id="sectionId">
+                <div class="form-group">
+                    <label>Название <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="sectionTitle" placeholder="Например: Сайт" required>
+                </div>
+                <div class="form-group">
+                    <label>Иконка (эмодзи) <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="sectionIcon" placeholder="🌐" required>
+                </div>
+                <div class="form-group">
+                    <label>Тег <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="sectionTag" placeholder="site" required>
+                </div>
+                <div class="form-group">
+                    <label>Порядок</label>
+                    <input type="number" class="form-control" id="sectionOrder" value="1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('sectionModal')">Отмена</button>
+                    <button type="submit" class="btn btn-primary" id="sectionSubmitBtn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО: СТАТЬЯ ===== -->
+    <div class="modal-overlay" id="articleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="articleModalTitle"><i class="fas fa-file-alt"></i> Создание статьи</h3>
+                <button class="close-btn" onclick="closeModal('articleModal')">&times;</button>
+            </div>
+            <form id="articleForm">
+                <input type="hidden" id="articleId">
+                <div class="form-group">
+                    <label>Название <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="articleTitle" placeholder="Введите название" required>
+                </div>
+                <div class="form-group">
+                    <label>Иконка <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="articleIcon" placeholder="📄" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Раздел <span class="required">*</span></label>
+                        <select class="form-control" id="articleSection" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Бейдж</label>
+                        <select class="form-control" id="articleBadge">
+                            <option value="">Без бейджа</option>
+                            <option value="new">🆕 Новое</option>
+                            <option value="hot">🔥 Популярное</option>
+                            <option value="updated">🔄 Обновлено</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Краткое описание <span class="required">*</span></label>
+                    <textarea class="form-control" id="articleExcerpt" rows="3" placeholder="Краткое описание" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Содержание <span class="required">*</span></label>
+                    <textarea class="form-control" id="articleContent" rows="6" placeholder="Полный текст статьи" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select class="form-control" id="articleStatus">
+                        <option value="published">Опубликовано</option>
+                        <option value="draft">Черновик</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('articleModal')">Отмена</button>
+                    <button type="submit" class="btn btn-primary" id="articleSubmitBtn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== SCRIPTS ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // ===== FIREBASE =====
+        // ============================================================
+        firebase.initializeApp({
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        });
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
+
+        // ============================================================
+        // ===== ПЕРЕМЕННЫЕ =====
+        // ============================================================
+        let currentUser = null;
+        let currentAdmin = null;
+        let allSections = [];
+
+        // ============================================================
+        // ===== ТЕМА =====
+        // ============================================================
+        (function() {
+            const THEME_KEY = 'metro_new_theme';
+            const root = document.documentElement;
+            const saved = localStorage.getItem(THEME_KEY);
+            const theme = (saved === 'light' || saved === 'dark') ? saved :
+                window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            root.setAttribute('data-theme', theme);
+        })();
+
+        // ============================================================
+        // ===== АВТОРИЗАЦИЯ =====
+        // ============================================================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const adminDoc = await db.collection('admins').doc(user.uid).get();
+                if (adminDoc.exists) {
+                    currentUser = user;
+                    currentAdmin = { uid: user.uid, ...adminDoc.data() };
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('adminContainer').style.display = 'block';
+                    document.getElementById('adminName').textContent = currentAdmin?.name || currentUser?.email ||
+                        'Администратор';
+                    document.getElementById('adminAvatar').textContent = (currentAdmin?.name || currentUser?.email ||
+                        'A')[0].toUpperCase();
+                    loadAllData();
+                } else {
+                    showAuthError('У вас нет прав администратора');
+                    await auth.signOut();
+                }
+            } else {
+                document.getElementById('authContainer').style.display = 'block';
+                document.getElementById('adminContainer').style.display = 'none';
+            }
+        });
+
+        function showAuthError(message) {
+            const errorEl = document.getElementById('authError');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-in-alt"></i> Войти';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                showAuthError(error.message);
+            }
+        });
+
+        function logout() {
+            auth.signOut();
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('adminContainer').style.display = 'none';
+        }
+
+        // ============================================================
+        // ===== ВКЛАДКИ =====
+        // ============================================================
+        function showTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-card').forEach(c => c.style.display = 'none');
+
+            document.querySelector(`.admin-tab[onclick*="${tab}"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).style.display = 'block';
+
+            if (tab === 'dashboard') updateDashboard();
+            if (tab === 'sections') loadSections();
+            if (tab === 'articles') loadArticles();
+            if (tab === 'drafts') loadDrafts();
+            if (tab === 'trash') loadTrash();
+        }
+
+        // ============================================================
+        // ===== TOAST =====
+        // ============================================================
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // ============================================================
+        // ===== МОДАЛЬНЫЕ ОКНА =====
+        // ============================================================
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
+            }
+        });
+
+        // ============================================================
+        // ===== ЗАГРУЗКА ВСЕХ ДАННЫХ =====
+        // ============================================================
+        async function loadAllData() {
+            await Promise.all([
+                loadSections(),
+                loadArticles(),
+                loadDrafts(),
+                loadTrash()
+            ]);
+            updateDashboard();
+        }
+
+        // ============================================================
+        // ===== DASHBOARD =====
+        // ============================================================
+        async function updateDashboard() {
+            try {
+                const articlesSnap = await db.collection('wiki_articles').get();
+                const sectionsSnap = await db.collection('wiki_sections').where('status', '!=', 'deleted').get();
+                const draftsSnap = await db.collection('wiki_articles').where('status', '==', 'draft').get();
+                const trashSnap = await db.collection('wiki_articles').where('status', '==', 'deleted').get();
+
+                document.getElementById('statArticles').textContent = articlesSnap.size;
+                document.getElementById('statSections').textContent = sectionsSnap.size;
+                document.getElementById('statDrafts').textContent = draftsSnap.size;
+                document.getElementById('statTrash').textContent = trashSnap.size;
+
+            } catch (error) {
+                console.error('Ошибка обновления дашборда:', error);
+            }
+        }
+
+        // ============================================================
+        // ===== РАЗДЕЛЫ (СОЗДАНИЕ И ЗАГРУЗКА) =====
+        // ============================================================
+        async function loadSections() {
+            try {
+                const snap = await db.collection('wiki_sections')
+                    .where('status', '!=', 'deleted')
+                    .get();
+
+                const sections = [];
+                snap.forEach(doc => sections.push({ id: doc.id, ...doc.data() }));
+                sections.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                allSections = sections;
+
+                const tbody = document.getElementById('sectionsTable');
+                if (sections.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-tertiary);">Разделов пока нет</td></tr>';
+                } else {
+                    tbody.innerHTML = sections.map(s => `
+                        <tr>
+                            <td style="font-size:1.5rem;">${s.icon || '📁'}</td>
+                            <td><strong>${s.title || 'Без названия'}</strong></td>
+                            <td><code style="background:var(--bg-secondary);padding:2px 8px;border-radius:4px;">${s.tag || '—'}</code></td>
+                            <td>${s.articleIds?.length || 0}</td>
+                            <td>${s.order || 0}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editSection('${s.id}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="moveToTrash('section','${s.id}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                document.getElementById('sectionsCount').textContent = sections.length;
+
+                // Обновляем select для статей
+                const select = document.getElementById('articleSection');
+                select.innerHTML = '<option value="">Выберите раздел</option>';
+                sections.forEach(s => {
+                    select.innerHTML += `<option value="${s.id}">${s.icon || '📁'} ${s.title}</option>`;
+                });
+
+            } catch (error) {
+                console.error('Ошибка загрузки разделов:', error);
+                showToast('Ошибка загрузки разделов', 'error');
+            }
+        }
+
+        function openSectionModal(data = null) {
+            const isEdit = !!data;
+            document.getElementById('sectionModalTitle').innerHTML =
+                `<i class="fas fa-folder"></i> ${isEdit ? 'Редактирование' : 'Создание'} раздела`;
+            document.getElementById('sectionId').value = data?.id || '';
+            document.getElementById('sectionTitle').value = data?.title || '';
+            document.getElementById('sectionIcon').value = data?.icon || '📁';
+            document.getElementById('sectionTag').value = data?.tag || '';
+            document.getElementById('sectionOrder').value = data?.order || 1;
+            document.getElementById('sectionSubmitBtn').textContent = isEdit ? 'Обновить' : 'Создать';
+            openModal('sectionModal');
+        }
+
+        window.editSection = function(id) {
+            db.collection('wiki_sections').doc(id).get().then(doc => {
+                if (doc.exists) openSectionModal({ id: doc.id, ...doc.data() });
+            });
+        };
+
+        document.getElementById('sectionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('sectionId').value;
+            const data = {
+                title: document.getElementById('sectionTitle').value.trim(),
+                icon: document.getElementById('sectionIcon').value.trim(),
+                tag: document.getElementById('sectionTag').value.trim().toLowerCase(),
+                order: parseInt(document.getElementById('sectionOrder').value) || 1,
+                status: 'published',
+                articleIds: [],
+                updatedAt: serverTimestamp()
+            };
+
+            try {
+                if (id) {
+                    await db.collection('wiki_sections').doc(id).update(data);
+                    showToast('Раздел обновлён');
+                } else {
+                    await db.collection('wiki_sections').add({
+                        ...data,
+                        createdAt: serverTimestamp()
+                    });
+                    showToast('Раздел создан');
+                }
+                closeModal('sectionModal');
+                loadSections();
+                loadArticles();
+                updateDashboard();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        });
+
+        // ============================================================
+        // ===== СТАТЬИ =====
+        // ============================================================
+        async function loadArticles() {
+            try {
+                const snap = await db.collection('wiki_articles')
+                    .where('status', '!=', 'deleted')
+                    .get();
+
+                const articles = [];
+                snap.forEach(doc => articles.push({ id: doc.id, ...doc.data() }));
+                articles.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                const sectionsMap = {};
+                allSections.forEach(s => sectionsMap[s.id] = s.title);
+
+                const tbody = document.getElementById('articlesTable');
+                if (articles.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-tertiary);">Статей пока нет</td></tr>';
+                } else {
+                    tbody.innerHTML = articles.map(a => {
+                        const statusMap = {
+                            published: '<span class="status-badge published">Опубликовано</span>',
+                            draft: '<span class="status-badge draft">Черновик</span>'
+                        };
+                        return `
+                        <tr>
+                            <td style="font-size:1.3rem;">${a.icon || '📄'}</td>
+                            <td><strong>${a.title || 'Без названия'}</strong></td>
+                            <td>${sectionsMap[a.sectionId] || '—'}</td>
+                            <td>${statusMap[a.status] || '—'}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editArticle('${a.id}')"><i class="fas fa-edit"></i></button>
+                                ${a.status !== 'draft' ? `<button class="btn btn-sm btn-outline" onclick="moveToDraft('${a.id}')"><i class="fas fa-pen-fancy"></i></button>` : ''}
+                                <button class="btn btn-danger btn-sm" onclick="moveToTrash('article','${a.id}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `}).join('');
+                }
+
+                document.getElementById('articlesCount').textContent = articles.length;
+                updateDashboard();
+
+            } catch (error) {
+                console.error('Ошибка загрузки статей:', error);
+                showToast('Ошибка загрузки статей', 'error');
+            }
+        }
+
+        function openArticleModal(data = null) {
+            const isEdit = !!data;
+            document.getElementById('articleModalTitle').innerHTML =
+                `<i class="fas fa-file-alt"></i> ${isEdit ? 'Редактирование' : 'Создание'} статьи`;
+            document.getElementById('articleId').value = data?.id || '';
+            document.getElementById('articleTitle').value = data?.title || '';
+            document.getElementById('articleIcon').value = data?.icon || '📄';
+            document.getElementById('articleBadge').value = data?.badge || '';
+            document.getElementById('articleExcerpt').value = data?.excerpt || '';
+            document.getElementById('articleContent').value = data?.content || '';
+            document.getElementById('articleStatus').value = data?.status || 'published';
+            document.getElementById('articleSubmitBtn').textContent = isEdit ? 'Обновить' : 'Создать';
+
+            loadSections().then(() => {
+                if (data?.sectionId) {
+                    document.getElementById('articleSection').value = data.sectionId;
+                }
+            });
+
+            openModal('articleModal');
+        }
+
+        window.editArticle = function(id) {
+            db.collection('wiki_articles').doc(id).get().then(doc => {
+                if (doc.exists) openArticleModal({ id: doc.id, ...doc.data() });
+            });
+        };
+
+        document.getElementById('articleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('articleId').value;
+            const sectionId = document.getElementById('articleSection').value;
+
+            if (!sectionId) {
+                showToast('Выберите раздел', 'error');
+                return;
+            }
+
+            const data = {
+                title: document.getElementById('articleTitle').value.trim(),
+                icon: document.getElementById('articleIcon').value.trim(),
+                badge: document.getElementById('articleBadge').value,
+                excerpt: document.getElementById('articleExcerpt').value.trim(),
+                content: document.getElementById('articleContent').value.trim(),
+                sectionId: sectionId,
+                status: document.getElementById('articleStatus').value,
+                updatedAt: serverTimestamp()
+            };
+
+            if (!data.title || !data.excerpt || !data.content) {
+                showToast('Заполните название, описание и содержание', 'error');
+                return;
+            }
+
+            try {
+                if (id) {
+                    await db.collection('wiki_articles').doc(id).update(data);
+                    showToast('Статья обновлена');
+                } else {
+                    const ref = await db.collection('wiki_articles').add({
+                        ...data,
+                        order: 1,
+                        createdAt: serverTimestamp()
+                    });
+
+                    const sectionRef = db.collection('wiki_sections').doc(sectionId);
+                    const sectionDoc = await sectionRef.get();
+                    const articleIds = sectionDoc.data()?.articleIds || [];
+                    await sectionRef.update({ articleIds: [...articleIds, ref.id] });
+
+                    showToast('Статья создана');
+                }
+                closeModal('articleModal');
+                loadArticles();
+                loadSections();
+                updateDashboard();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        });
+
+        // ============================================================
+        // ===== ЧЕРНОВИКИ =====
+        // ============================================================
+        async function loadDrafts() {
+            try {
+                const snap = await db.collection('wiki_articles')
+                    .where('status', '==', 'draft')
+                    .get();
+
+                const drafts = [];
+                snap.forEach(doc => drafts.push({ id: doc.id, ...doc.data() }));
+                drafts.sort((a, b) => {
+                    const dateA = a.updatedAt?.toDate?.() || new Date(0);
+                    const dateB = b.updatedAt?.toDate?.() || new Date(0);
+                    return dateB - dateA;
+                });
+
+                const container = document.getElementById('draftsList');
+                if (drafts.length === 0) {
+                    container.innerHTML =
+                        '<div style="text-align:center;padding:30px;color:var(--text-tertiary);">Нет черновиков</div>';
+                } else {
+                    container.innerHTML = '';
+                    drafts.forEach(doc => {
+                        const data = doc.data();
+                        const date = data.updatedAt?.toDate?.() || new Date();
+                        const item = document.createElement('div');
+                        item.className = 'draft-item';
+                        item.innerHTML = `
+                            <span class="draft-title">${data.title || 'Без названия'}</span>
+                            <span class="draft-date">${date.toLocaleString('ru-RU')}</span>
+                            <button class="btn btn-sm btn-warning" onclick="editArticle('${doc.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-success" onclick="publishDraft('${doc.id}')"><i class="fas fa-check"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="moveToTrash('article','${doc.id}')"><i class="fas fa-trash"></i></button>
+                        `;
+                        container.appendChild(item);
+                    });
+                }
+
+                document.getElementById('draftsCount').textContent = drafts.length;
+
+            } catch (error) {
+                console.error('Ошибка загрузки черновиков:', error);
+                showToast('Ошибка загрузки черновиков', 'error');
+            }
+        }
+
+        async function moveToDraft(id) {
+            try {
+                await db.collection('wiki_articles').doc(id).update({
+                    status: 'draft',
+                    updatedAt: serverTimestamp()
+                });
+                showToast('Статья перемещена в черновики', 'warning');
+                loadArticles();
+                loadDrafts();
+                updateDashboard();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        async function publishDraft(id) {
+            try {
+                await db.collection('wiki_articles').doc(id).update({
+                    status: 'published',
+                    updatedAt: serverTimestamp()
+                });
+                showToast('Статья опубликована', 'success');
+                loadArticles();
+                loadDrafts();
+                updateDashboard();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // ===== КОРЗИНА =====
+        // ============================================================
+        async function loadTrash() {
+            try {
+                const articlesSnap = await db.collection('wiki_articles')
+                    .where('status', '==', 'deleted')
+                    .get();
+
+                const sectionsSnap = await db.collection('wiki_sections')
+                    .where('status', '==', 'deleted')
+                    .get();
+
+                const items = [];
+                articlesSnap.forEach(doc => {
+                    const data = doc.data();
+                    items.push({
+                        id: doc.id,
+                        type: 'article',
+                        title: data.title || 'Без названия',
+                        icon: data.icon || '📄',
+                        deletedAt: data.deletedAt?.toDate?.() || new Date(),
+                        deletedBy: data.deletedBy || '—'
+                    });
+                });
+
+                sectionsSnap.forEach(doc => {
+                    const data = doc.data();
+                    items.push({
+                        id: doc.id,
+                        type: 'section',
+                        title: data.title || 'Без названия',
+                        icon: data.icon || '📁',
+                        deletedAt: data.deletedAt?.toDate?.() || new Date(),
+                        deletedBy: data.deletedBy || '—'
+                    });
+                });
+
+                items.sort((a, b) => b.deletedAt - a.deletedAt);
+
+                const tbody = document.getElementById('trashTable');
+                if (items.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-tertiary);">Корзина пуста</td></tr>';
+                } else {
+                    tbody.innerHTML = items.map(item => `
+                        <tr>
+                            <td>${item.icon} ${item.type === 'article' ? 'Статья' : 'Раздел'}</td>
+                            <td><strong>${item.title}</strong></td>
+                            <td>${item.deletedAt.toLocaleString('ru-RU')}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="restoreFromTrash('${item.type}','${item.id}')"><i class="fas fa-undo"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                document.getElementById('trashCount').textContent = items.length;
+
+            } catch (error) {
+                console.error('Ошибка загрузки корзины:', error);
+                showToast('Ошибка загрузки корзины', 'error');
+            }
+        }
+
+        async function moveToTrash(type, id) {
+            if (!confirm(`Переместить ${type === 'article' ? 'статью' : 'раздел'} в корзину?`)) return;
+
+            try {
+                const collection = type === 'article' ? 'wiki_articles' : 'wiki_sections';
+                await db.collection(collection).doc(id).update({
+                    status: 'deleted',
+                    deletedAt: serverTimestamp(),
+                    deletedBy: currentUser?.uid || 'unknown'
+                });
+
+                showToast(`${type === 'article' ? 'Статья' : 'Раздел'} перемещён(а) в корзину`, 'warning');
+                loadAllData();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        async function restoreFromTrash(type, id) {
+            try {
+                const collection = type === 'article' ? 'wiki_articles' : 'wiki_sections';
+                await db.collection(collection).doc(id).update({
+                    status: 'published',
+                    deletedAt: null,
+                    deletedBy: null
+                });
+
+                showToast(`Восстановлено из корзины`, 'success');
+                loadAllData();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // ===== ЗАПУСК =====
+        // ============================================================
+        console.log('🛠️ Админ-панель загружена');
+        console.log('📌 Только администраторы могут управлять контентом');
+        console.log('📌 Удаление → Корзина (восстановление возможно)');
+        console.log('📌 Полное удаление НЕДОСТУПНО');
+    </script>
+
+</body>
+</html>
