@@ -13,7 +13,7 @@
         HIDE_KEY: 'metro_lang_hidden',
 
         // Таймер (24 часа в миллисекундах)
-        TIMER_DURATION: 24 * 60 * 60 * 1000,
+        TIMER_DURATION: 365 * 24 * 60 * 60 * 1000,
 
         // Доступные языки
         languages: {
