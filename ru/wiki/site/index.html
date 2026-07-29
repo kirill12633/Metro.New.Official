@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Сайт Метро New — Wiki</title>
+
+    <!-- ===== ИКОНКИ САЙТА ===== -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <!-- ===== SEO ===== -->
+    <meta name="description" content="Информация о сайте Метро New, его структуре, функциях и возможностях" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kirill12633.github.io/Metro.New.Official/ru/wiki/" />
+
+    <!-- ===== Open Graph ===== -->
+    <meta property="og:title" content="Сайт Метро New — Wiki" />
+    <meta property="og:description" content="Информация о сайте Метро New, его структуре, функциях и возможностях" />
+    <meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <meta property="og:url" content="https://kirill12633.github.io/Metro.New.Official/ru/wiki/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Метро New" />
+
+    <!-- ===== Twitter Cards ===== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Сайт Метро New — Wiki" />
+    <meta name="twitter:description" content="Информация о сайте Метро New" />
+    <meta name="twitter:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <style>
+        /* ===== БАЗОВЫЕ ПЕРЕМЕННЫЕ ===== */
+        :root {
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --accent: #FFD700;
+            --accent-hover: #ffe14d;
+            --accent-light: rgba(255, 215, 0, 0.15);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --blue: #4d94ff;
+            --blue-hover: #7aacff;
+            --blue-light: rgba(77, 148, 255, 0.15);
+            --green: #34a853;
+            --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82;
+            --red-light: rgba(242, 139, 130, 0.15);
+            --border: #253460;
+            --border-light: #1d2b4f;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+            --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+            --scrollbar-thumb: #2d3d6b;
+            --scrollbar-track: transparent;
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f6fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #eef1f9;
+            --text-primary: #14151f;
+            --text-secondary: #565f7a;
+            --text-tertiary: #8890a8;
+            --accent: #e6c200;
+            --accent-hover: #c2a300;
+            --accent-light: rgba(230, 194, 0, 0.12);
+            --accent-glow: rgba(230, 194, 0, 0.18);
+            --blue: #0066CC;
+            --blue-hover: #0052a3;
+            --blue-light: rgba(0, 102, 204, 0.1);
+            --green: #1e8e4e;
+            --green-light: rgba(30, 142, 78, 0.1);
+            --red: #d93025;
+            --red-light: rgba(217, 48, 37, 0.1);
+            --border: #e2e6f0;
+            --border-light: #eef1f9;
+            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
+            --shadow-xl: 0 24px 60px rgba(20, 22, 40, 0.16);
+            --scrollbar-thumb: #d1d6e6;
+            --scrollbar-track: transparent;
+            color-scheme: light;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--blue) 8%, transparent) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        .container { width: 92%; max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* ===== HEADER ===== */
+        header {
+            background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links>a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .nav-links>a:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .nav-links>a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px) scale(1.05); box-shadow: 0 0 18px var(--accent-glow); }
+
+        .theme-toggle .fa-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+        .theme-toggle .fa-sun { opacity: 0; transform: rotate(90deg) scale(0.3); }
+        [data-theme="light"] .theme-toggle .fa-sun { opacity: 1; transform: rotate(0deg) scale(1); color: var(--accent); }
+        [data-theme="light"] .theme-toggle .fa-moon { opacity: 0; transform: rotate(-90deg) scale(0.3); }
+
+        .login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 22px;
+            background: linear-gradient(135deg, var(--blue), var(--blue-hover));
+            border-radius: 50px;
+            color: #fff !important;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px var(--blue-glow);
+            font-size: 0.95rem;
+        }
+
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 35px var(--blue-glow); }
+
+        .burger-menu {
+            display: none;
+            font-size: 1.6rem;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown>button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown>button:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .dropdown>button i { font-size: 0.7rem; transition: transform 0.25s; }
+        .dropdown.open>button i { transform: rotate(180deg); }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-width: 200px;
+            padding: 8px 0;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .dropdown.open .dropdown-content { display: block; }
+
+        .dropdown-content a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.15s;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-content a i { width: 20px; color: var(--accent); }
+        .dropdown-content a:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+        /* ===== WIKI ===== */
+        .wiki-page { padding: 30px 0 50px; }
+
+        .wiki-site-icon { text-align: center; margin-bottom: 20px; }
+        .wiki-site-icon .icon {
+            font-size: 4rem;
+            display: inline-block;
+            background: var(--accent-light);
+            padding: 20px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .wiki-header { text-align: center; margin-bottom: 30px; }
+        .wiki-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+        .wiki-header .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+
+        /* ===== ПОИСК ===== */
+        .wiki-search { max-width: 700px; margin: 0 auto 30px; }
+        .wiki-search .search-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            padding: 6px 20px 6px 24px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .wiki-search .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-lg); }
+        .wiki-search .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .wiki-search .search-box input::placeholder { color: var(--text-tertiary); }
+        .wiki-search .search-box button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 6px;
+            transition: all 0.2s;
+        }
+        .wiki-search .search-box button:hover { color: var(--accent); }
+
+        /* ===== РАЗДЕЛЫ ===== */
+        .wiki-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 10px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .wiki-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .wiki-section:hover { border-color: var(--accent); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+
+        .wiki-section .section-header {
+            padding: 18px 22px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .wiki-section .section-header .section-icon { font-size: 1.8rem; }
+        .wiki-section .section-header .section-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
+        .wiki-section .section-header .section-count {
+            margin-left: auto;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 2px 12px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .wiki-section .section-body { padding: 10px 0; }
+
+        .wiki-article {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 22px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .wiki-article:last-child { border-bottom: none; }
+        .wiki-article:hover { background: var(--bg-card-hover); color: var(--text-primary); padding-left: 28px; }
+
+        .wiki-article .article-icon { font-size: 1.2rem; width: 28px; text-align: center; flex-shrink: 0; }
+        .wiki-article .article-title { flex: 1; font-weight: 500; }
+
+        .wiki-article .article-badge {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .wiki-article .article-badge.new { background: var(--red); color: white; animation: pulse 2s infinite; }
+        .wiki-article .article-badge.hot { background: #ffc107; color: #000; }
+        .wiki-article .article-badge.updated { background: var(--blue); color: white; }
+
+        .wiki-article .article-arrow { color: var(--text-tertiary); font-size: 0.9rem; transition: all 0.2s; }
+        .wiki-article:hover .article-arrow { color: var(--accent); transform: translateX(4px); }
+
+        /* ===== МОДАЛЬНОЕ ОКНО СТАТЬИ ===== */
+        .article-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(13, 21, 38, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .article-modal-overlay.active { display: flex; }
+
+        .article-modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            max-width: 780px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            box-shadow: var(--shadow-xl);
+            animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.92) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .article-modal-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 16px;
+        }
+
+        .article-modal-content .modal-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .article-modal-content .modal-header .close-btn {
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .article-modal-content .modal-header .close-btn:hover { background: var(--red); color: #fff; }
+
+        .article-modal-content .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .article-modal-content .modal-meta span { display: flex; align-items: center; gap: 6px; }
+
+        .article-modal-content .modal-body {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .article-modal-content .modal-body h1,
+        .article-modal-content .modal-body h2,
+        .article-modal-content .modal-body h3 {
+            color: var(--text-primary);
+            margin: 16px 0 8px;
+        }
+
+        .article-modal-content .modal-body p { margin-bottom: 12px; }
+        .article-modal-content .modal-body img { max-width: 100%; border-radius: var(--radius); margin: 12px 0; }
+        .article-modal-content .modal-body ul, .article-modal-content .modal-body ol { padding-left: 24px; margin: 8px 0 12px; }
+        .article-modal-content .modal-body blockquote {
+            border-left: 3px solid var(--accent);
+            padding-left: 16px;
+            margin: 12px 0;
+            color: var(--text-tertiary);
+        }
+        .article-modal-content .modal-body code {
+            background: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .article-modal-content .modal-body pre {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        /* ===== КНОПКА КОПИРОВАНИЯ ССЫЛКИ ===== */
+        .copy-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .copy-link-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 44px 0 28px;
+            margin-top: 40px;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .footer-brand .logo-icon { width: 60px; height: 60px; }
+        .footer-brand .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .footer-brand p { color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; }
+
+        .footer-social {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .footer-social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: all 0.25s;
+            text-decoration: none;
+        }
+
+        .footer-social a:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 25px var(--accent-glow); }
+        .footer-social a img.social-icon-img { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; display: block; flex-shrink: 0; }
+
+        .social-more-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 12, 20, 0.25);
+            z-index: 190;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .social-more-wrap.open .social-more-backdrop { display: block; opacity: 1; }
+        .social-more-wrap { position: relative; }
+
+        .social-more-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            z-index: 201;
+        }
+
+        .social-more-btn:hover,
+        .social-more-wrap.open .social-more-btn {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .social-more-wrap.open .social-more-btn i { transform: rotate(90deg); }
+        .social-more-btn i { transition: transform 0.25s ease; }
+
+        .social-more-popup {
+            display: none;
+            position: absolute;
+            top: calc(100% + 16px);
+            right: -220px;
+            transform: translateY(-8px) scale(0.96);
+            transform-origin: top right;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 10px;
+            width: 200px;
+            box-shadow: var(--shadow-xl);
+            z-index: 201;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .social-more-popup::before {
+            content: '';
+            position: absolute;
+            top: -7px;
+            right: 234px;
+            width: 14px;
+            height: 14px;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            border-top: 1px solid var(--border);
+            transform: rotate(45deg);
+            border-radius: 3px 0 0 0;
+        }
+
+        .social-more-popup-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-tertiary);
+            padding: 4px 10px 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+        }
+
+        .social-more-wrap.open .social-more-popup {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .social-more-popup a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .social-more-popup a .social-more-icon-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+        }
+
+        .social-more-popup a .social-more-icon-badge img.social-icon-img { width: 18px; height: 18px; border-radius: 0; object-fit: contain; }
+        .social-more-popup a i { width: 18px; flex-shrink: 0; color: var(--accent); text-align: center; font-size: 1.05rem; }
+        .social-more-popup a:hover { background: var(--accent-light); color: var(--text-primary); transform: translateX(2px); }
+        .social-more-popup a:hover .social-more-icon-badge { background: var(--bg-card); }
+
+        @media (max-width: 480px) {
+            .social-more-popup {
+                position: fixed;
+                top: auto;
+                bottom: 24px;
+                left: 62%;
+                right: auto;
+                transform: translate(-50%, 12px) scale(0.96);
+                transform-origin: bottom center;
+                width: min(280px, 86vw);
+            }
+            .social-more-popup::before { display: none; }
+            .social-more-wrap.open .social-more-popup { transform: translate(-50%, 0) scale(1); }
+            .social-more-popup-label { text-align: center; }
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .footer-col h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 6px; }
+        .footer-col ul a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .footer-col ul a:hover { color: var(--accent); }
+        .footer-col ul a i { width: 16px; font-size: 0.8rem; }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== АДАПТИВ ===== */
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 16px;
+                margin-top: 10px;
+                gap: 4px;
+            }
+            .nav-links.active { display: flex; }
+            .nav-links>a { padding: 10px 14px; width: 100%; }
+            .dropdown { width: 100%; }
+            .dropdown>button { width: 100%; justify-content: flex-start; padding: 10px 14px; }
+            .dropdown-content {
+                position: static;
+                border: none;
+                background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+                box-shadow: none;
+                padding: 0 0 0 16px;
+                margin-top: 4px;
+            }
+            .nav-right { order: -1; }
+            .wiki-sections { grid-template-columns: 1fr; max-width: 100%; }
+            .footer-top { grid-template-columns: 1fr; gap: 30px; }
+            .footer-links { grid-template-columns: 1fr 1fr; gap: 20px; }
+            .article-modal-content { padding: 24px; max-width: 95%; }
+        }
+
+        @media (max-width: 768px) {
+            .wiki-sections { grid-template-columns: 1fr; }
+            .footer-links { grid-template-columns: 1fr 1fr; gap: 16px; }
+            .article-modal-content { padding: 20px; }
+            .article-modal-content .modal-header h2 { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .wiki-header h1 { font-size: 1.8rem; }
+            .footer-links { grid-template-columns: 1fr; gap: 16px; }
+            .wiki-section .section-header { padding: 14px 16px; }
+            .wiki-article { padding: 8px 16px; }
+            .article-modal-content { padding: 16px; max-height: 95vh; }
+        }
+
+        /* ===== ЗАГРУЗКА ===== */
+        .loading-spinner {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+            grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 4rem; display: block; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state h3 { font-size: 1.3rem; color: var(--text-secondary); margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">
+                            <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" loading="lazy" />
+                        </span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+
+                <div class="nav-right">
+                    <button class="burger-menu" id="burgerMenu" aria-label="Открыть меню">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Прочее <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki" class="active"><i class="fas fa-book"></i> Wiki</a>
+                        </div>
+                    </div>
+
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+        <div class="container">
+            <section class="wiki-page">
+
+                <!-- ===== ИКОНКА ===== -->
+                <div class="wiki-site-icon">
+                    <span class="icon">🌐</span>
+                </div>
+
+                <!-- ===== ЗАГОЛОВОК ===== -->
+                <div class="wiki-header">
+                    <h1>Сайт Метро New</h1>
+                    <p class="subtitle">Информация о сайте, его структуре, функциях и возможностях</p>
+                </div>
+
+                <!-- ===== ПОИСК ===== -->
+                <div class="wiki-search">
+                    <div class="search-box">
+                        <i class="fas fa-search" style="color: var(--text-tertiary);"></i>
+                        <input type="text" id="wikiSearch" placeholder="Поиск по Wiki..." oninput="filterWiki()">
+                        <button onclick="clearWikiSearch()" id="clearSearch" style="display:none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== РАЗДЕЛЫ И СТАТЬИ ИЗ FIREBASE ===== -->
+                <div class="wiki-sections" id="wikiSections">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p style="margin-top:12px; color:var(--text-tertiary);">Загрузка Wiki...</p>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО ДЛЯ СТАТЬИ ===== -->
+    <div class="article-modal-overlay" id="articleModal">
+        <div class="article-modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Загрузка...</h2>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button class="copy-link-btn" onclick="copyArticleLink()" title="Копировать ссылку на статью">
+                        <i class="fas fa-link"></i>
+                    </button>
+                    <button class="close-btn" onclick="closeArticleModal()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-meta" id="modalMeta">
+                <span><i class="far fa-calendar-alt"></i> <span id="modalDate"></span></span>
+                <span><i class="far fa-folder"></i> <span id="modalCategory"></span></span>
+                <span><i class="far fa-eye"></i> <span id="modalViews"></span></span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-icon">
+                        <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" loading="lazy" />
+                    </div>
+                    <div class="brand-name">Метро New</div>
+                    <p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+                    <div class="footer-social">
+                        <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
+                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
+                        </a>
+                        <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
+
+                        <div class="social-more-wrap" id="socialMoreWrap">
+                            <div class="social-more-backdrop" id="socialMoreBackdrop"></div>
+                            <button class="social-more-btn" id="socialMoreBtn" title="Ещё соцсети">
+                                <i class="fas fa-ellipsis"></i>
+                            </button>
+                            <div class="social-more-popup" id="moreSocialPopup">
+                                <div class="social-more-popup-label">Другие соцсети</div>
+                                <a href="https://www.reddit.com/r/Metro_New/" target="_blank" rel="noopener noreferrer">
+                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-reddit.svg" alt="Reddit" loading="lazy" /></span> Reddit
+                                </a>
+                                <a href="https://boosty.to/metro.new" target="_blank" rel="noopener noreferrer">
+                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZYr-6XWqvc2kuiXvKgp331vF9YwheCDW_P6MA66w2Cw&s=10" alt="Boosty" loading="lazy" /></span> Boosty
+                                </a>
+                                <a href="https://www.tiktok.com/@metro.new" target="_blank" rel="noopener noreferrer">
+                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-tiktok.svg" alt="TikTok" loading="lazy" /></span> TikTok
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>О нас</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сообщество</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Правовые документы</h4>
+                        <ul>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Политика возврата</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Политика авторских прав</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines"><i class="fas fa-globe"></i> Правила сайта</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Контакты</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Форма обратной связи</a></li>
+                            <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Техническая поддержка</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Полезные ссылки</h4>
+                        <ul>
+                            <li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Все игры</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> База знаний</a></li>
+                            <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус сервисов</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+                <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- ===== SCRIPTS ===== -->
+    <!-- ============================================================ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ===== ТЕМА =====
+            const THEME_KEY = 'metro_new_theme';
+            const root = document.documentElement;
+
+            function applyTheme(theme) {
+                root.setAttribute('data-theme', theme);
+                localStorage.setItem(THEME_KEY, theme);
+            }
+
+            function getInitialTheme() {
+                const saved = localStorage.getItem(THEME_KEY);
+                if (saved === 'light' || saved === 'dark' || saved === 'auto') return saved;
+                return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            }
+
+            let currentTheme = getInitialTheme();
+            applyTheme(currentTheme);
+
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', function() {
+                const themes = ['dark', 'light', 'auto'];
+                const currentIndex = themes.indexOf(currentTheme);
+                const nextIndex = (currentIndex + 1) % themes.length;
+                currentTheme = themes[nextIndex];
+                applyTheme(currentTheme);
+            });
+
+            if (!localStorage.getItem(THEME_KEY)) {
+                window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem(THEME_KEY)) {
+                        currentTheme = e.matches ? 'light' : 'dark';
+                        applyTheme(currentTheme);
+                    }
+                });
+            }
+
+            // ===== БУРГЕР =====
+            const burger = document.getElementById('burgerMenu');
+            const navLinks = document.getElementById('navLinks');
+
+            burger.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+
+            document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 992) {
+                        navLinks.classList.remove('active');
+                    }
+                });
+            });
+
+            // ===== ДРОПДАУН =====
+            const dropdownOther = document.getElementById('dropdownOther');
+            const dropdownBtn = document.getElementById('dropdownBtn');
+
+            dropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownOther.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!dropdownOther.contains(e.target)) {
+                    dropdownOther.classList.remove('open');
+                }
+            });
+
+            // ===== СОЦСЕТИ "ЕЩЁ" =====
+            const socialMoreWrap = document.getElementById('socialMoreWrap');
+            const socialMoreBtn = document.getElementById('socialMoreBtn');
+            const socialMoreBackdrop = document.getElementById('socialMoreBackdrop');
+
+            if (socialMoreWrap && socialMoreBtn) {
+                socialMoreBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    socialMoreWrap.classList.toggle('open');
+                });
+
+                if (socialMoreBackdrop) {
+                    socialMoreBackdrop.addEventListener('click', function() {
+                        socialMoreWrap.classList.remove('open');
+                    });
+                }
+
+                document.addEventListener('click', function(e) {
+                    if (!socialMoreWrap.contains(e.target)) {
+                        socialMoreWrap.classList.remove('open');
+                    }
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        socialMoreWrap.classList.remove('open');
+                    }
+                });
+            }
+
+            // ===== ТЕКУЩИЙ ГОД =====
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // ============================================================
+            // ===== FIREBASE =====
+            // ============================================================
+            firebase.initializeApp({
+                apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+                authDomain: "metro-new-admin.firebaseapp.com",
+                projectId: "metro-new-admin",
+                storageBucket: "metro-new-admin.firebasestorage.app",
+                messagingSenderId: "769002010414",
+                appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+            });
+
+            const db = firebase.firestore();
+
+            // ============================================================
+            // ===== ПЕРЕМЕННЫЕ =====
+            // ============================================================
+            let currentArticleId = null;
+
+            // ============================================================
+            // ===== ЗАГРУЗКА WIKI =====
+            // ============================================================
+            const wikiSectionsContainer = document.getElementById('wikiSections');
+
+            window.openArticle = async function(articleId) {
+                currentArticleId = articleId;
+                const modal = document.getElementById('articleModal');
+                const title = document.getElementById('modalTitle');
+                const body = document.getElementById('modalBody');
+                const date = document.getElementById('modalDate');
+                const category = document.getElementById('modalCategory');
+                const views = document.getElementById('modalViews');
+
+                // Обновляем URL с ID статьи
+                const params = new URLSearchParams(window.location.search);
+                params.set('id', articleId);
+                const newUrl = window.location.pathname + '?' + params.toString();
+                window.history.pushState({}, '', newUrl);
+
+                try {
+                    // Увеличиваем просмотры
+                    const ref = db.collection('wiki_articles').doc(articleId);
+                    await ref.update({ views: firebase.firestore.FieldValue.increment(1) });
+
+                    const doc = await ref.get();
+                    if (!doc.exists) return;
+
+                    const data = doc.data();
+
+                    title.textContent = data.title || 'Без названия';
+                    date.textContent = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString(
+                        'ru-RU', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+                    views.textContent = (data.views || 0) + 1;
+
+                    // Получаем название раздела
+                    if (data.sectionId) {
+                        const sectionDoc = await db.collection('wiki_sections').doc(data.sectionId).get();
+                        if (sectionDoc.exists) {
+                            category.textContent = sectionDoc.data().title || '—';
+                        }
+                    }
+
+                    // Конвертируем Markdown в HTML
+                    let content = data.content || '<p>Содержание статьи отсутствует</p>';
+                    content = content
+                        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                        .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+                        .replace(/\*(.*)\*/gim, '<em>$1</em>')
+                        .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+                        .replace(/`([^`]+)`/gim, '<code>$1</code>')
+                        .replace(/^- (.*$)/gim, '<li>$1</li>')
+                        .replace(/\n/gim, '<br>');
+
+                    body.innerHTML = content;
+
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+
+                } catch (error) {
+                    console.error('Ошибка загрузки статьи:', error);
+                    showToast('Ошибка загрузки статьи', 'error');
+                }
+            };
+
+            window.closeArticleModal = function() {
+                const modal = document.getElementById('articleModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+
+                // Убираем ID из URL
+                const params = new URLSearchParams(window.location.search);
+                params.delete('id');
+                const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.pushState({}, '', newUrl);
+                currentArticleId = null;
+            };
+
+            // ===== КОПИРОВАНИЕ ССЫЛКИ =====
+            window.copyArticleLink = function() {
+                if (!currentArticleId) {
+                    showToast('Нет открытой статьи', 'warning');
+                    return;
+                }
+
+                const url = window.location.origin + window.location.pathname + '?id=' + currentArticleId;
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Ссылка скопирована! 📋', 'success');
+                }).catch(() => {
+                    showToast('Не удалось скопировать ссылку', 'error');
+                });
+            };
+
+            // Закрытие по клику вне
+            document.getElementById('articleModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeArticleModal();
+                }
+            });
+
+            // Закрытие по ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeArticleModal();
+                }
+            });
+
+            // ===== ЗАГРУЗКА ДАННЫХ =====
+            async function loadWiki() {
+                try {
+                    // Загружаем разделы
+                    const sectionsSnap = await db.collection('wiki_sections')
+                        .where('status', '!=', 'deleted')
+                        .orderBy('order', 'asc')
+                        .get();
+
+                    if (sectionsSnap.empty) {
+                        wikiSectionsContainer.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <h3>Разделов пока нет</h3>
+                                <p>Добавьте разделы и статьи через админ-панель</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let totalArticles = 0;
+                    wikiSectionsContainer.innerHTML = '';
+
+                    for (const sectionDoc of sectionsSnap.docs) {
+                        const sectionData = sectionDoc.data();
+                        const sectionId = sectionDoc.id;
+
+                        const articlesSnap = await db.collection('wiki_articles')
+                            .where('sectionId', '==', sectionId)
+                            .where('status', '!=', 'deleted')
+                            .orderBy('order', 'asc')
+                            .get();
+
+                        const articles = [];
+                        articlesSnap.forEach(articleDoc => {
+                            articles.push({ id: articleDoc.id, ...articleDoc.data() });
+                        });
+
+                        totalArticles += articles.length;
+
+                        const sectionEl = document.createElement('div');
+                        sectionEl.className = 'wiki-section';
+                        sectionEl.dataset.tag = sectionData.tag || 'site';
+
+                        const sectionHeader = document.createElement('div');
+                        sectionHeader.className = 'section-header';
+                        sectionHeader.innerHTML = `
+                            <span class="section-icon">${sectionData.icon || '📁'}</span>
+                            <span class="section-title">${sectionData.title || 'Раздел'}</span>
+                            <span class="section-count">${articles.length} статья</span>
+                        `;
+
+                        const sectionBody = document.createElement('div');
+                        sectionBody.className = 'section-body';
+
+                        if (articles.length === 0) {
+                            const empty = document.createElement('div');
+                            empty.style.cssText =
+                                'padding: 16px 22px; color: var(--text-tertiary); font-size: 0.9rem;';
+                            empty.textContent = 'В этом разделе пока нет статей';
+                            sectionBody.appendChild(empty);
+                        } else {
+                            articles.forEach(article => {
+                                const articleEl = document.createElement('a');
+                                articleEl.className = 'wiki-article';
+                                articleEl.href = '?id=' + article.id;
+                                articleEl.dataset.tag = sectionData.tag || 'site';
+                                articleEl.onclick = function(e) {
+                                    e.preventDefault();
+                                    openArticle(article.id);
+                                };
+
+                                const badgeMap = { 'new': 'new', 'hot': 'hot', 'updated': 'updated' };
+                                const badgeClass = badgeMap[article.badge] || '';
+                                const badgeText = article.badge ? article.badge.toUpperCase() : '';
+
+                                articleEl.innerHTML = `
+                                    <span class="article-icon">${article.icon || '📄'}</span>
+                                    <span class="article-title">${article.title || 'Статья'}</span>
+                                    ${badgeText ? `<span class="article-badge ${badgeClass}">${badgeText}</span>` : ''}
+                                    <span class="article-arrow"><i class="fas fa-arrow-right"></i></span>
+                                `;
+
+                                sectionBody.appendChild(articleEl);
+                            });
+                        }
+
+                        sectionEl.appendChild(sectionHeader);
+                        sectionEl.appendChild(sectionBody);
+                        wikiSectionsContainer.appendChild(sectionEl);
+                    }
+
+                    console.log('📚 Wiki загружена из Firebase');
+                    console.log('📌 Разделов:', sectionsSnap.size);
+                    console.log('📌 Всего статей:', totalArticles);
+
+                    // Проверяем, есть ли ID в URL
+                    const params = new URLSearchParams(window.location.search);
+                    const articleId = params.get('id');
+                    if (articleId) {
+                        setTimeout(() => openArticle(articleId), 500);
+                    }
+
+                    const spinner = document.querySelector('.loading-spinner');
+                    if (spinner) spinner.remove();
+
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки Wiki:', error);
+                    wikiSectionsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--red);"></i>
+                            <h3>Ошибка загрузки</h3>
+                            <p>Не удалось загрузить Wiki. Попробуйте позже.</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // ============================================================
+            // ===== ПОИСК =====
+            // ============================================================
+            window.filterWiki = function() {
+                const query = document.getElementById('wikiSearch').value.toLowerCase().trim();
+                const clearBtn = document.getElementById('clearSearch');
+
+                if (query.length > 0) {
+                    clearBtn.style.display = 'block';
+                } else {
+                    clearBtn.style.display = 'none';
+                }
+
+                const allArticles = document.querySelectorAll('.wiki-article');
+
+                allArticles.forEach(function(article) {
+                    const title = article.querySelector('.article-title')?.textContent?.toLowerCase() || '';
+                    const match = !query || title.includes(query);
+                    article.style.display = match ? 'flex' : 'none';
+                });
+
+                document.querySelectorAll('.wiki-section').forEach(function(section) {
+                    const visible = section.querySelectorAll('.wiki-article[style*="display: flex"]').length;
+                    const countSpan = section.querySelector('.section-count');
+                    if (countSpan) {
+                        const total = section.querySelectorAll('.wiki-article').length;
+                        countSpan.textContent = visible + ' статья';
+                        section.style.display = visible > 0 ? 'block' : 'none';
+                    }
+                });
+            };
+
+            window.clearWikiSearch = function() {
+                document.getElementById('wikiSearch').value = '';
+                document.getElementById('clearSearch').style.display = 'none';
+                filterWiki();
+                document.getElementById('wikiSearch').focus();
+            };
+
+            // ============================================================
+            // ===== TOAST =====
+            // ============================================================
+            function showToast(message, type) {
+                type = type || 'success';
+                const existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+
+                const toast = document.createElement('div');
+                toast.className = 'toast ' + type;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(-50%) translateY(20px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // ============================================================
+            // ===== ОБРАБОТЧИК НАВИГАЦИИ НАЗАД/ВПЕРЁД =====
+            // ============================================================
+            window.addEventListener('popstate', function() {
+                const params = new URLSearchParams(window.location.search);
+                const articleId = params.get('id');
+                if (articleId && !document.getElementById('articleModal').classList.contains('active')) {
+                    openArticle(articleId);
+                } else if (!articleId) {
+                    closeArticleModal();
+                }
+            });
+
+            // ============================================================
+            // ===== ЗАПУСК =====
+            // ============================================================
+            loadWiki();
+
+            console.log('📚 Wiki с Firebase запущена');
+            console.log('📌 Для ссылки на статью используйте: ?id=ID_СТАТЬИ');
+        });
+    </script>
+
+</body>
+</html>
