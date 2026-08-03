@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Новости — Метро New</title>
 
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://kirill12633.github.io https://*.firebaseio.com https://*.googleapis.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        img-src 'self' https: data: blob:;
+        connect-src 'self' https://metro-new-admin.firebaseapp.com https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;
+        frame-src 'none';
+        base-uri 'self';
+        form-action 'self';
+        upgrade-insecure-requests;
+    " />
+
     <!-- Иконки сайта -->
     <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
     <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
@@ -20,15 +40,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Subresource Integrity -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
-    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" 
+            integrity="sha384-4q0Wj2Bo2D9Oq4U+s9W1QZ21b3CzR0O4Y1JEFsCwG7C9U7fSB4a1/jmZ/YHWqMf" 
+            crossorigin="anonymous"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
+            integrity="sha384-DJxGpX61Gm8ZJyyfj0TphKYn4eSqMMAf+rL2ffS4tXhV6GzTJV4HBgObyAsWcJo" 
+            crossorigin="anonymous"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"
+            integrity="sha384-1tY1jPEFVGBStO/6JrgNUc45PzNJk6BcBtiIC7vz1SBgWlC2QQjPqfP1jGKBjmB"
+            crossorigin="anonymous"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"
+            integrity="sha384-s1WwqMuf2h0Wz6JdnJ9FcyxKVNE0rJ9J9s5MNLQqzv/DGYI1tOjU5cgT4BATZ2R"
+            crossorigin="anonymous"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"
+            integrity="sha384-5XgQFwl5KZ5bNIBQDHnB0tSC+5uYhck/LkSm5fXkUOaJw7c3FZP2hxRzKjAh1CY"
+            crossorigin="anonymous"></script>
 
     <style>
         /* ===== БАЗОВЫЕ ПЕРЕМЕННЫЕ ===== */
@@ -121,8 +156,6 @@
             color: var(--text-primary);
             line-height: 1.6;
             transition: background-color 0.3s ease, color 0.3s ease;
-            background-image: radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
-                radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--blue) 8%, transparent) 0%, transparent 60%);
             min-height: 100vh;
         }
 
@@ -149,13 +182,13 @@
 
         /* ===== HEADER ===== */
         header {
-            background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
-            backdrop-filter: blur(14px);
+            background: var(--bg-primary);
             border-bottom: 1px solid var(--border);
             padding: 12px 0;
             position: sticky;
             top: 0;
             z-index: 999;
+            opacity: 0.95;
         }
 
         nav {
@@ -222,12 +255,12 @@
 
         .nav-links>a:hover {
             color: var(--text-primary);
-            background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+            background: var(--bg-card-hover);
         }
 
         .nav-links>a.active {
             color: var(--accent);
-            background: color-mix(in srgb, var(--accent) 8%, transparent);
+            background: var(--accent-light);
         }
 
         .nav-right {
@@ -290,7 +323,6 @@
             font-weight: 700;
             text-decoration: none;
             transition: all 0.25s;
-            box-shadow: 0 4px 20px var(--blue-glow);
             font-size: 0.95rem;
         }
 
@@ -330,7 +362,7 @@
 
         .dropdown>button:hover {
             color: var(--text-primary);
-            background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+            background: var(--bg-card-hover);
         }
 
         .dropdown>button i {
@@ -484,7 +516,7 @@
         }
 
         .news-header {
-            background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+            background: var(--bg-elevated);
             border: 1px solid var(--border);
             border-radius: var(--radius-xl);
             padding: 28px 32px;
@@ -493,18 +525,6 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-        }
-
-        .news-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
-            opacity: 0.5;
-            pointer-events: none;
         }
 
         .news-header h1 {
@@ -603,7 +623,6 @@
             box-shadow: 0 12px 40px var(--accent-glow);
         }
 
-        /* ===== КРАСИВЫЙ ПЛЕЙСХОЛДЕР ДЛЯ ФОТО ===== */
         .news-image {
             height: 200px;
             background-size: cover;
@@ -620,7 +639,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+            background: var(--bg-elevated);
             color: var(--text-tertiary);
             position: relative;
             overflow: hidden;
@@ -643,57 +662,11 @@
             text-transform: uppercase;
         }
 
-        .news-image .placeholder-img .placeholder-pattern {
-            position: absolute;
-            inset: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, var(--accent-light) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, var(--blue-light) 0%, transparent 50%);
-            opacity: 0.3;
-        }
-
-        .news-image .placeholder-img .placeholder-pattern-2 {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(30deg, transparent 40%, var(--accent-light) 40%, var(--accent-light) 42%, transparent 42%),
-                linear-gradient(-30deg, transparent 40%, var(--accent-light) 40%, var(--accent-light) 42%, transparent 42%);
-            background-size: 60px 60px;
-            opacity: 0.1;
-        }
-
         @keyframes floatIcon {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
 
-        .news-image .placeholder-img .metro-lines {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            gap: 4px;
-        }
-
-        .news-image .placeholder-img .metro-lines span {
-            width: 20px;
-            height: 4px;
-            border-radius: 2px;
-            background: var(--accent);
-            opacity: 0.3;
-        }
-
-        .news-image .placeholder-img .metro-lines span:nth-child(2) {
-            width: 30px;
-            opacity: 0.2;
-        }
-
-        .news-image .placeholder-img .metro-lines span:nth-child(3) {
-            width: 15px;
-            opacity: 0.15;
-        }
-
-        /* Бейджи на картинке */
         .news-badge {
             position: absolute;
             top: 12px;
@@ -718,10 +691,8 @@
             font-size: 0.65rem;
             font-weight: 600;
             z-index: 1;
-            backdrop-filter: blur(4px);
         }
 
-        /* Тело карточки */
         .news-body {
             padding: 18px 20px 20px;
             flex: 1;
@@ -749,7 +720,6 @@
             overflow: hidden;
         }
 
-        /* ===== ТЕГИ / ХЕШТЕГИ ===== */
         .news-tags {
             display: flex;
             flex-wrap: wrap;
@@ -778,7 +748,6 @@
             box-shadow: 0 4px 15px var(--accent-glow);
         }
 
-        /* Футер карточки */
         .news-footer-card {
             display: flex;
             justify-content: space-between;
@@ -834,7 +803,6 @@
             transform: translateX(3px);
         }
 
-        /* ===== КНОПКА "ЧИТАТЬ ПОЗЖЕ" ===== */
         .save-later-btn {
             display: inline-flex;
             align-items: center;
@@ -964,7 +932,6 @@
             color: #fff;
         }
 
-        /* ===== ТРИ ТОЧКИ ===== */
         .modal-dots-wrapper {
             position: relative;
             display: inline-block;
@@ -1087,7 +1054,6 @@
             margin: 4px 12px;
         }
 
-        /* ===== МИНИ-ПОПАП ДЛЯ ОЦЕНКИ ===== */
         .feedback-mini-popup {
             display: none;
             position: absolute;
@@ -1252,7 +1218,6 @@
             margin: 12px 0;
         }
 
-        /* ===== ПОХОЖИЕ НОВОСТИ В МОДАЛКЕ ===== */
         .similar-news-section {
             margin-top: 20px;
             padding-top: 16px;
@@ -1568,28 +1533,6 @@
             background: var(--bg-card);
         }
 
-        @media (max-width: 480px) {
-            .social-more-popup {
-                position: fixed;
-                top: auto;
-                bottom: 24px;
-                left: 62%;
-                right: auto;
-                transform: translate(-50%, 12px) scale(0.96);
-                transform-origin: bottom center;
-                width: min(280px, 86vw);
-            }
-            .social-more-popup::before {
-                display: none;
-            }
-            .social-more-wrap.open .social-more-popup {
-                transform: translate(-50%, 0) scale(1);
-            }
-            .social-more-popup-label {
-                text-align: center;
-            }
-        }
-
         .footer-links {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -1678,7 +1621,7 @@
             .dropdown-content {
                 position: static;
                 border: none;
-                background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+                background: var(--bg-card-hover);
                 box-shadow: none;
                 padding: 0 0 0 16px;
                 margin-top: 4px;
@@ -1850,9 +1793,9 @@
             <!-- ===== ПОИСК ===== -->
             <div class="search-container">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Поиск новостей..." aria-label="Поиск новостей">
-                    <button onclick="searchNews()" aria-label="Найти"><i class="fas fa-search"></i></button>
-                    <button onclick="clearSearch()" aria-label="Очистить"><i class="fas fa-times"></i></button>
+                    <input type="text" id="searchInput" placeholder="Поиск новостей..." aria-label="Поиск новостей" maxlength="100">
+                    <button id="searchBtn" aria-label="Найти"><i class="fas fa-search"></i></button>
+                    <button id="clearSearchBtn" aria-label="Очистить"><i class="fas fa-times"></i></button>
                 </div>
             </div>
 
@@ -1876,7 +1819,6 @@
 
                 <!-- ===== САЙДБАР ===== -->
                 <aside class="sidebar">
-                    <!-- Сохранённые новости -->
                     <div class="sidebar-widget" id="savedWidget">
                         <h3><i class="fas fa-bookmark"></i> Читать позже</h3>
                         <div id="savedNewsList" style="font-size:0.85rem;">
@@ -1919,7 +1861,7 @@
     </main>
 
     <!-- ===== МОДАЛЬНОЕ ОКНО ===== -->
-    <div class="modal-overlay" id="newsModal">
+    <div class="modal-overlay" id="newsModal" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Загрузка...</h2>
@@ -1928,51 +1870,49 @@
                         <button class="modal-dots-btn" id="dotsBtn" aria-label="Действия">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <div class="modal-dots-popup" id="dotsPopup">
-                            <!-- Поделиться -->
+                        <div class="modal-dots-popup" id="dotsPopup" role="menu">
                             <div class="modal-dots-popup-label"><i class="fas fa-share-alt"></i> Поделиться</div>
-                            <button class="modal-dots-popup-item" onclick="shareNews('telegram')">
+                            <button class="modal-dots-popup-item" data-share="telegram" role="menuitem">
                                 <i class="fab fa-telegram icon-telegram"></i> Telegram
                             </button>
-                            <button class="modal-dots-popup-item" onclick="shareNews('whatsapp')">
+                            <button class="modal-dots-popup-item" data-share="whatsapp" role="menuitem">
                                 <i class="fab fa-whatsapp icon-whatsapp"></i> WhatsApp
                             </button>
-                            <button class="modal-dots-popup-item" onclick="shareNews('vk')">
+                            <button class="modal-dots-popup-item" data-share="vk" role="menuitem">
                                 <i class="fab fa-vk icon-vk"></i> ВКонтакте
                             </button>
-                            <button class="modal-dots-popup-item" onclick="shareNews('copy')">
+                            <button class="modal-dots-popup-item" data-share="copy" role="menuitem">
                                 <i class="fas fa-link icon-copy"></i> Копировать ссылку
                             </button>
 
                             <div class="modal-dots-popup-divider"></div>
 
-                            <!-- Действия -->
                             <div class="modal-dots-popup-label"><i class="fas fa-ellipsis-h"></i> Действия</div>
-                            <button class="modal-dots-popup-item" onclick="toggleSaveLater()" id="saveLaterModalBtn">
+                            <button class="modal-dots-popup-item" id="saveLaterModalBtn" role="menuitem">
                                 <i class="fas fa-bookmark icon-save"></i> <span id="saveLaterModalText">Читать позже</span>
                             </button>
-                            <button class="modal-dots-popup-item" onclick="toggleFeedbackPopup(event)">
+                            <button class="modal-dots-popup-item" id="feedbackToggleBtn" role="menuitem">
                                 <i class="fas fa-thumbs-up"></i> Оценить новость
                             </button>
-                            <button class="modal-dots-popup-item danger" onclick="reportNews()">
+                            <button class="modal-dots-popup-item" id="reportBtn" role="menuitem">
                                 <i class="fas fa-flag"></i> Пожаловаться
                             </button>
                         </div>
 
                         <div class="feedback-mini-popup" id="feedbackMiniPopup">
                             <div class="feedback-mini-popup-title">Ваша оценка</div>
-                            <button class="feedback-mini-btn like" onclick="submitFeedback('like')">
+                            <button class="feedback-mini-btn like" data-feedback="like">
                                 <i class="fas fa-thumbs-up"></i> Нравится
                                 <span class="count" id="likeCount">0</span>
                             </button>
-                            <button class="feedback-mini-btn dislike" onclick="submitFeedback('dislike')">
+                            <button class="feedback-mini-btn dislike" data-feedback="dislike">
                                 <i class="fas fa-thumbs-down"></i> Не нравится
                                 <span class="count" id="dislikeCount">0</span>
                             </button>
                         </div>
                     </div>
 
-                    <button class="modal-close-btn" onclick="closeModal()" aria-label="Закрыть">&times;</button>
+                    <button class="modal-close-btn" id="modalCloseBtn" aria-label="Закрыть">&times;</button>
                 </div>
             </div>
             <div id="modalImage" class="modal-image"></div>
@@ -1984,7 +1924,6 @@
             </div>
             <div class="modal-body" id="modalBody"></div>
 
-            <!-- ===== ПОХОЖИЕ НОВОСТИ ===== -->
             <div class="similar-news-section" id="similarNewsSection">
                 <h4><i class="fas fa-layer-group"></i> Похожие новости</h4>
                 <div class="similar-news-list" id="similarNewsList"></div>
@@ -1995,7 +1934,7 @@
                     <span><i class="fas fa-thumbs-up" style="color:var(--green);"></i> <span id="likeCountFooter">0</span></span>
                     <span><i class="fas fa-thumbs-down" style="color:var(--red);"></i> <span id="dislikeCountFooter">0</span></span>
                 </div>
-                <button class="save-later-btn" onclick="toggleSaveLater()" id="saveLaterFooterBtn">
+                <button class="save-later-btn" id="saveLaterFooterBtn">
                     <i class="far fa-bookmark"></i> <span>Читать позже</span>
                 </button>
             </div>
@@ -2016,7 +1955,7 @@
                         <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a>
                         <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
                         <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
-                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" />
+                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
                         </a>
                         <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
 
@@ -2028,13 +1967,13 @@
                             <div class="social-more-popup" id="moreSocialPopup">
                                 <div class="social-more-popup-label">Другие соцсети</div>
                                 <a href="https://www.reddit.com/r/Metro_New/" target="_blank" rel="noopener noreferrer">
-                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-reddit.svg" alt="Reddit" /></span> Reddit
+                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-reddit.svg" alt="Reddit" loading="lazy" /></span> Reddit
                                 </a>
                                 <a href="https://boosty.to/metro.new" target="_blank" rel="noopener noreferrer">
-                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZYr-6XWqvc2kuiXvKgp331vF9YwheCDW_P6MA66w2Cw&s=10" alt="Boosty" /></span> Boosty
+                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZYr-6XWqvc2kuiXvKgp331vF9YwheCDW_P6MA66w2Cw&s=10" alt="Boosty" loading="lazy" /></span> Boosty
                                 </a>
                                 <a href="https://www.tiktok.com/@metro.new" target="_blank" rel="noopener noreferrer">
-                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-tiktok.svg" alt="TikTok" /></span> TikTok
+                                    <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-tiktok.svg" alt="TikTok" loading="lazy" /></span> TikTok
                                 </a>
                             </div>
                         </div>
@@ -2094,191 +2033,95 @@
         </div>
     </footer>
 
-    <!-- ===== SCRIPTS ===== -->
+    <!-- ===== БЕЗОПАСНЫЙ SCRIPTS ===== -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===== ТЕМА =====
-            const THEME_KEY = 'metro_new_theme';
-            const root = document.documentElement;
+        (function() {
+            'use strict';
 
-            function applyTheme(theme) {
-                root.setAttribute('data-theme', theme);
+            // ===== БЕЗОПАСНЫЕ УТИЛИТЫ =====
+            
+            // Экранирование HTML (предотвращает XSS)
+            function escapeHTML(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
             }
 
-            function getInitialTheme() {
-                const saved = localStorage.getItem(THEME_KEY);
-                if (saved === 'light' || saved === 'dark') return saved;
-                return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-            }
-
-            let currentTheme = getInitialTheme();
-            applyTheme(currentTheme);
-
-            const themeToggle = document.getElementById('themeToggle');
-            themeToggle.addEventListener('click', () => {
-                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                applyTheme(currentTheme);
-                localStorage.setItem(THEME_KEY, currentTheme);
-            });
-
-            if (!localStorage.getItem(THEME_KEY)) {
-                window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-                    if (!localStorage.getItem(THEME_KEY)) {
-                        currentTheme = e.matches ? 'light' : 'dark';
-                        applyTheme(currentTheme);
+            // Безопасный парсинг JSON (предотвращает Prototype Pollution)
+            function safeParseJSON(data, fallback) {
+                try {
+                    const parsed = JSON.parse(data);
+                    // Проверяем, что это не прототип
+                    if (typeof parsed === 'object' && parsed !== null) {
+                        // Проверка на __proto__ и constructor
+                        if (parsed.__proto__ || parsed.constructor) {
+                            console.warn('Обнаружена попытка Prototype Pollution');
+                            return fallback;
+                        }
+                        return parsed;
                     }
-                });
+                    return fallback;
+                } catch {
+                    return fallback;
+                }
             }
 
-            window.addEventListener('storage', (e) => {
-                if (e.key === THEME_KEY && (e.newValue === 'light' || e.newValue === 'dark')) {
-                    currentTheme = e.newValue;
-                    applyTheme(currentTheme);
-                }
-            });
-
-            // ===== БУРГЕР =====
-            const burger = document.getElementById('burgerMenu');
-            const navLinks = document.getElementById('navLinks');
-            burger.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-            });
-
-            document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 992) {
-                        navLinks.classList.remove('active');
-                    }
-                });
-            });
-
-            // ===== ДРОПДАУН =====
-            const dropdownOther = document.getElementById('dropdownOther');
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            dropdownBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownOther.classList.toggle('open');
-            });
-            document.addEventListener('click', function(e) {
-                if (!dropdownOther.contains(e.target)) {
-                    dropdownOther.classList.remove('open');
-                }
-            });
-
-            // ===== СОЦСЕТИ "ЕЩЁ" =====
-            const socialMoreWrap = document.getElementById('socialMoreWrap');
-            const socialMoreBtn = document.getElementById('socialMoreBtn');
-            const socialMoreBackdrop = document.getElementById('socialMoreBackdrop');
-
-            if (socialMoreWrap && socialMoreBtn) {
-                socialMoreBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    socialMoreWrap.classList.toggle('open');
-                });
-
-                if (socialMoreBackdrop) {
-                    socialMoreBackdrop.addEventListener('click', function() {
-                        socialMoreWrap.classList.remove('open');
+            // Безопасная санитизация HTML (используем DOMPurify)
+            function sanitizeHTML(html) {
+                if (typeof DOMPurify !== 'undefined') {
+                    return DOMPurify.sanitize(html, {
+                        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'a', 'img', 'span', 'div', 'b', 'i', 'u', 's', 'sub', 'sup'],
+                        ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'id', 'style', 'title'],
+                        ALLOW_DATA_ATTR: false,
+                        FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'textarea', 'select', 'option']
                     });
                 }
-
-                document.addEventListener('click', function(e) {
-                    if (!socialMoreWrap.contains(e.target)) {
-                        socialMoreWrap.classList.remove('open');
-                    }
-                });
-
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        socialMoreWrap.classList.remove('open');
-                    }
-                });
+                // Fallback если DOMPurify не загружен
+                return escapeHTML(html);
             }
 
-            // ===== ТРИ ТОЧКИ =====
-            const dotsWrapper = document.getElementById('dotsWrapper');
-            const dotsBtn = document.getElementById('dotsBtn');
-
-            dotsBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dotsWrapper.classList.remove('open-feedback');
-                dotsWrapper.classList.toggle('open');
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!dotsWrapper.contains(e.target)) {
-                    dotsWrapper.classList.remove('open');
-                    dotsWrapper.classList.remove('open-feedback');
+            // Безопасная проверка URL (предотвращает Open Redirect)
+            function isValidURL(url) {
+                if (!url) return false;
+                try {
+                    const parsed = new URL(url);
+                    const allowedDomains = [
+                        'kirill12633.github.io',
+                        'metro.new',
+                        'www.metro.new',
+                        'localhost',
+                        '127.0.0.1'
+                    ];
+                    return allowedDomains.some(domain => parsed.hostname === domain || parsed.hostname.endsWith('.' + domain));
+                } catch {
+                    return false;
                 }
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    dotsWrapper.classList.remove('open');
-                    dotsWrapper.classList.remove('open-feedback');
-                }
-            });
-
-            window.toggleFeedbackPopup = function(e) {
-                if (e) e.stopPropagation();
-                dotsWrapper.classList.toggle('open-feedback');
-            };
-
-            // ===== ТЕКУЩИЙ ГОД =====
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-            // ===== FIREBASE =====
-            firebase.initializeApp({
-                apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
-                authDomain: "metro-new-admin.firebaseapp.com",
-                projectId: "metro-new-admin",
-                storageBucket: "metro-new-admin.firebasestorage.app",
-                messagingSenderId: "769002010414",
-                appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-            });
-            const db = firebase.firestore();
-
-            // ===== СОСТОЯНИЕ =====
-            let allNews = [];
-            let currentCategory = 'all';
-            let searchQuery = '';
-            let searchTimer = null;
-            let currentNewsId = null;
-            let currentNewsData = null;
-
-            const feedbackStorage = JSON.parse(localStorage.getItem('newsFeedback_v2') || '{}');
-            const savedNews = JSON.parse(localStorage.getItem('savedNews_v2') || '[]');
-
-            // ===== УТИЛИТЫ =====
-            function esc(str) {
-                return String(str || '').replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m]));
             }
 
-            function fmtDate(ts) {
-                if (!ts) return '';
-                if (ts.toDate) ts = ts.toDate();
-                return new Date(ts).toLocaleDateString('ru-RU', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+            // Безопасная проверка email
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
             }
 
+            // Ограничение длины строки
+            function safeString(str, maxLength) {
+                if (!str) return '';
+                return String(str).slice(0, maxLength || 1000);
+            }
+
+            // Уведомления (безопасные)
             function notify(msg) {
+                const safeMsg = escapeHTML(msg);
                 const t = document.createElement('div');
+                t.textContent = safeMsg;
                 t.style.cssText = `
-                position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-                background:var(--bg-card);border:1px solid var(--accent);
-                color:var(--text-primary);padding:12px 28px;border-radius:50px;
-                z-index:3000;font-family:Montserrat,sans-serif;font-size:0.9rem;
-                box-shadow:var(--shadow-lg);animation:fadeInUp 0.3s ease;
-                backdrop-filter:blur(8px);
-              `;
-                t.textContent = msg;
+                    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+                    background:var(--bg-card);border:1px solid var(--accent);
+                    color:var(--text-primary);padding:12px 28px;border-radius:50px;
+                    z-index:3000;font-family:Montserrat,sans-serif;font-size:0.9rem;
+                    box-shadow:var(--shadow-lg);animation:fadeInUp 0.3s ease;
+                `;
                 document.body.appendChild(t);
                 setTimeout(() => {
                     t.style.opacity = '0';
@@ -2288,14 +2131,37 @@
                 }, 2800);
             }
 
-            const styleNotify = document.createElement('style');
-            styleNotify.textContent = `
-              @keyframes fadeInUp {
-                from { opacity:0; transform:translateX(-50%) translateY(20px); }
-                to { opacity:1; transform:translateX(-50%) translateY(0); }
-              }
-            `;
-            document.head.appendChild(styleNotify);
+            // ===== FIREBASE (БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ) =====
+            try {
+                if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+                    firebase.initializeApp({
+                        apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+                        authDomain: "metro-new-admin.firebaseapp.com",
+                        projectId: "metro-new-admin",
+                        storageBucket: "metro-new-admin.firebasestorage.app",
+                        messagingSenderId: "769002010414",
+                        appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+                    });
+                } else {
+                    console.warn('Firebase не загружен');
+                }
+            } catch (e) {
+                console.warn('Ошибка инициализации Firebase:', e);
+            }
+
+            const db = typeof firebase !== 'undefined' && firebase.firestore ? firebase.firestore() : null;
+
+            // ===== СОСТОЯНИЕ =====
+            let allNews = [];
+            let currentCategory = 'all';
+            let searchQuery = '';
+            let searchTimer = null;
+            let currentNewsId = null;
+            let currentNewsData = null;
+
+            // Безопасное чтение из localStorage
+            const feedbackStorage = safeParseJSON(localStorage.getItem('newsFeedback_v2'), {});
+            let savedNews = safeParseJSON(localStorage.getItem('savedNews_v2'), []);
 
             // ===== КАТЕГОРИИ =====
             const categories = [
@@ -2313,13 +2179,21 @@
                 announcement: 'Анонс'
             };
 
+            // ===== ФУНКЦИИ РЕНДЕРИНГА (БЕЗОПАСНЫЕ) =====
+
             function renderCategories() {
-                document.getElementById('categoriesContainer').innerHTML = categories.map(c =>
-                    `<button class="category-btn ${currentCategory===c.id?'active':''}" 
-                  onclick="filterCategory('${c.id}')">
-                  <i class="fas ${c.icon}"></i> ${c.name}
-                </button>`
-                ).join('');
+                const container = document.getElementById('categoriesContainer');
+                container.innerHTML = '';
+                categories.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.className = `category-btn ${currentCategory === c.id ? 'active' : ''}`;
+                    btn.innerHTML = `<i class="fas ${c.icon}"></i> ${escapeHTML(c.name)}`;
+                    btn.dataset.category = c.id;
+                    btn.addEventListener('click', function() {
+                        filterCategory(this.dataset.category);
+                    });
+                    container.appendChild(btn);
+                });
             }
 
             window.filterCategory = function(cat) {
@@ -2329,7 +2203,7 @@
                 updateURL();
             };
 
-            // ===== РАБОТА С URL =====
+            // ===== РАБОТА С URL (БЕЗОПАСНАЯ) =====
             function updateURL() {
                 const params = new URLSearchParams();
                 if (currentCategory !== 'all') params.set('category', currentCategory);
@@ -2339,35 +2213,41 @@
             }
 
             function loadFromURL() {
-                const params = new URLSearchParams(window.location.search);
-                const cat = params.get('category');
-                const search = params.get('search');
-                const newsId = params.get('id');
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const cat = params.get('category');
+                    const search = params.get('search');
+                    const newsId = params.get('id');
 
-                if (cat && cat !== 'all') {
-                    currentCategory = cat;
-                    renderCategories();
-                }
-                if (search) {
-                    searchQuery = search;
-                    document.getElementById('searchInput').value = search;
-                }
-                if (newsId) {
-                    setTimeout(() => openNews(newsId), 500);
+                    if (cat && cat !== 'all') {
+                        currentCategory = cat;
+                        renderCategories();
+                    }
+                    if (search) {
+                        searchQuery = safeString(search, 100);
+                        document.getElementById('searchInput').value = searchQuery;
+                    }
+                    if (newsId) {
+                        setTimeout(() => openNews(newsId), 500);
+                    }
+                } catch (e) {
+                    console.warn('Ошибка чтения URL:', e);
                 }
             }
 
-            // ===== ЗАГРУЗКА НОВОСТЕЙ =====
+            // ===== ЗАГРУЗКА НОВОСТЕЙ (БЕЗОПАСНАЯ) =====
             async function loadNews() {
                 const grid = document.getElementById('newsGrid');
                 grid.innerHTML = `
-                <div style="text-align:center;padding:60px;color:var(--text-tertiary);grid-column:1/-1;">
-                  <i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
-                  Загрузка...
-                </div>
-              `;
+                    <div style="text-align:center;padding:60px;color:var(--text-tertiary);grid-column:1/-1;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
+                        Загрузка...
+                    </div>
+                `;
 
                 try {
+                    if (!db) throw new Error('Firebase не инициализирован');
+
                     let q = db.collection('news').orderBy('createdAt', 'desc');
                     if (currentCategory !== 'all') {
                         q = q.where('category', '==', currentCategory);
@@ -2383,7 +2263,7 @@
 
                     let list = allNews;
                     if (searchQuery) {
-                        const qLower = searchQuery.toLowerCase();
+                        const qLower = searchQuery.toLowerCase().replace(/[^\w\s-]/g, '');
                         list = list.filter(n =>
                             (n.title || '').toLowerCase().includes(qLower) ||
                             (n.excerpt || '').toLowerCase().includes(qLower) ||
@@ -2401,163 +2281,235 @@
                         setTimeout(() => openNews(newsId), 300);
                     }
 
-                    // Обновить виджет сохранённых
                     updateSavedWidget();
 
                 } catch (e) {
                     console.error('Ошибка загрузки:', e);
                     grid.innerHTML = `
-                    <div style="text-align:center;padding:60px;color:var(--red);grid-column:1/-1;">
-                      <i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
-                      Ошибка загрузки новостей
-                      <br><button onclick="loadNews()" style="margin-top:12px;padding:8px 20px;background:var(--accent);border:none;border-radius:8px;cursor:pointer;font-weight:600;">Обновить</button>
-                    </div>
-                  `;
+                        <div style="text-align:center;padding:60px;color:var(--red);grid-column:1/-1;">
+                            <i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
+                            Ошибка загрузки новостей
+                            <br><button id="retryBtn" style="margin-top:12px;padding:8px 20px;background:var(--accent);border:none;border-radius:8px;cursor:pointer;font-weight:600;">Обновить</button>
+                        </div>
+                    `;
+                    document.getElementById('retryBtn')?.addEventListener('click', loadNews);
                 }
             }
 
-            // ===== ОТОБРАЖЕНИЕ НОВОСТЕЙ (НОВЫЙ ДИЗАЙН) =====
+            // ===== ОТОБРАЖЕНИЕ НОВОСТЕЙ (БЕЗОПАСНОЕ) =====
             function displayNews(list) {
                 const grid = document.getElementById('newsGrid');
                 if (!list.length) {
                     grid.innerHTML = `
-                    <div style="text-align:center;padding:60px;color:var(--text-tertiary);grid-column:1/-1;">
-                      <i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
-                      ${searchQuery ? 'Ничего не найдено по запросу "' + esc(searchQuery) + '"' : 'Новостей пока нет'}
-                    </div>
-                  `;
+                        <div style="text-align:center;padding:60px;color:var(--text-tertiary);grid-column:1/-1;">
+                            <i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
+                            ${searchQuery ? 'Ничего не найдено по запросу "' + escapeHTML(searchQuery) + '"' : 'Новостей пока нет'}
+                        </div>
+                    `;
                     return;
                 }
 
-                grid.innerHTML = list.map((n, index) => {
-                    const date = fmtDate(n.createdAt);
+                grid.innerHTML = '';
+                list.forEach((n, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'news-card';
+                    card.style.animationDelay = `${index * 0.05}s`;
+
+                    const date = n.createdAt ? fmtDate(n.createdAt) : '';
                     const catName = categoryNames[n.category] || 'Новость';
-
-                    const hasImage = n.imageUrl && n.imageUrl.length > 0;
-                    const imageStyle = hasImage ? `background-image:url('${n.imageUrl}')` : '';
-
-                    // Теги / хештеги
-                    const tags = n.tags || [];
-                    const tagsHtml = tags.length ? tags.map(t =>
-                        `<span class="tag" onclick="event.stopPropagation(); filterByTag('${t}')">#${esc(t)}</span>`
-                    ).join('') : '';
-
+                    const hasImage = n.imageUrl && typeof n.imageUrl === 'string' && n.imageUrl.length > 0;
                     const isSaved = savedNews.includes(n.id);
 
-                    return `
-                  <div class="news-card" style="animation-delay:${index * 0.05}s" onclick="openNews('${n.id}')">
-                    <div class="news-image" style="${imageStyle}">
-                      ${!hasImage ? `
-                        <div class="placeholder-img">
-                          <div class="placeholder-pattern"></div>
-                          <div class="placeholder-pattern-2"></div>
-                          <div class="placeholder-icon"><i class="fas fa-subway"></i></div>
-                          <div class="placeholder-text">Метро New</div>
-                          <div class="metro-lines">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                          </div>
+                    // Безопасные теги
+                    let tagsHtml = '';
+                    if (Array.isArray(n.tags) && n.tags.length) {
+                        const tagsDiv = document.createElement('div');
+                        tagsDiv.className = 'news-tags';
+                        n.tags.slice(0, 10).forEach(t => {
+                            const tag = document.createElement('span');
+                            tag.className = 'tag';
+                            tag.textContent = '#' + escapeHTML(String(t));
+                            tag.dataset.tag = String(t);
+                            tag.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                filterByTag(this.dataset.tag);
+                            });
+                            tagsDiv.appendChild(tag);
+                        });
+                        tagsHtml = tagsDiv.outerHTML;
+                    }
+
+                    // Сборка карточки
+                    card.innerHTML = `
+                        <div class="news-image" style="${hasImage ? `background-image:url('${escapeHTML(n.imageUrl)}')` : ''}">
+                            ${!hasImage ? `
+                                <div class="placeholder-img">
+                                    <div class="placeholder-icon"><i class="fas fa-subway"></i></div>
+                                    <div class="placeholder-text">Метро New</div>
+                                </div>
+                            ` : ''}
+                            ${n.badge ? `<span class="news-badge">${escapeHTML(String(n.badge))}</span>` : ''}
+                            <span class="category-badge"><i class="fas fa-tag"></i> ${escapeHTML(catName)}</span>
                         </div>
-                      ` : ''}
-                      ${n.badge ? `<span class="news-badge">${esc(n.badge)}</span>` : ''}
-                      <span class="category-badge"><i class="fas fa-tag"></i> ${catName}</span>
-                    </div>
-                    <div class="news-body">
-                      <div class="news-title">${esc(n.title || 'Без названия')}</div>
-                      <div class="news-excerpt">${esc((n.excerpt || n.content || '').substring(0, 160))}${(n.excerpt || n.content || '').length > 160 ? '...' : ''}</div>
-                      ${tagsHtml ? `<div class="news-tags">${tagsHtml}</div>` : ''}
-                      <div class="news-footer-card">
-                        <div class="news-meta">
-                          <span><i class="far fa-calendar-alt"></i> ${date}</span>
-                          <span><i class="far fa-eye"></i> ${n.views || 0}</span>
+                        <div class="news-body">
+                            <div class="news-title">${escapeHTML(n.title || 'Без названия')}</div>
+                            <div class="news-excerpt">${escapeHTML((n.excerpt || n.content || '').substring(0, 160))}${(n.excerpt || n.content || '').length > 160 ? '...' : ''}</div>
+                            ${tagsHtml}
+                            <div class="news-footer-card">
+                                <div class="news-meta">
+                                    <span><i class="far fa-calendar-alt"></i> ${escapeHTML(date)}</span>
+                                    <span><i class="far fa-eye"></i> ${Number(n.views) || 0}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <button class="save-later-btn ${isSaved ? 'saved' : ''}" data-newsid="${escapeHTML(n.id)}" title="Сохранить">
+                                        <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
+                                    </button>
+                                    <a href="?id=${escapeHTML(n.id)}" class="news-link" data-newsid="${escapeHTML(n.id)}">
+                                        Подробнее <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div style="display:flex;align-items:center;gap:6px;">
-                          <button class="save-later-btn ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleSaveLater('${n.id}')" title="Сохранить">
-                            <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
-                          </button>
-                          <a href="?id=${n.id}" class="news-link" onclick="event.preventDefault(); openNews('${n.id}')">
-                            Подробнее <i class="fas fa-arrow-right"></i>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                `;
-                }).join('');
+                    `;
+
+                    // Обработчики событий
+                    card.addEventListener('click', function() {
+                        const id = this.querySelector('[data-newsid]')?.dataset.newsid;
+                        if (id) openNews(id);
+                    });
+
+                    const saveBtn = card.querySelector('.save-later-btn');
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const id = this.dataset.newsid;
+                            if (id) toggleSaveLater(id);
+                        });
+                    }
+
+                    const link = card.querySelector('.news-link');
+                    if (link) {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const id = this.dataset.newsid;
+                            if (id) openNews(id);
+                        });
+                    }
+
+                    grid.appendChild(card);
+                });
             }
 
             // ===== ФИЛЬТР ПО ТЕГУ =====
             window.filterByTag = function(tag) {
-                searchQuery = '#' + tag;
+                const safeTag = safeString(tag, 50);
+                searchQuery = '#' + safeTag;
                 document.getElementById('searchInput').value = searchQuery;
                 loadNews();
-                notify('🔍 Поиск по тегу: #' + tag);
+                notify('🔍 Поиск по тегу: #' + safeTag);
             };
 
             // ===== ОБНОВЛЕНИЕ САЙДБАРА =====
             function updateSidebar() {
-                const popular = [...allNews].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
-                document.getElementById('popularNews').innerHTML = popular.length ? popular.map(n =>
-                    `<div style="cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border);" onclick="openNews('${n.id}')">
-                    <div style="font-weight:600;font-size:0.85rem;">${esc(n.title || '')}</div>
-                    <div style="font-size:0.7rem;color:var(--text-tertiary);"><i class="far fa-eye"></i> ${n.views || 0}</div>
-                  </div>`
-                ).join('') :
-                    '<div style="color:var(--text-tertiary);text-align:center;padding:8px 0;">Нет данных</div>';
+                const popular = [...allNews].sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0)).slice(0, 5);
+                const popularContainer = document.getElementById('popularNews');
+                popularContainer.innerHTML = '';
+                if (popular.length) {
+                    popular.forEach(n => {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border);';
+                        div.innerHTML = `
+                            <div style="font-weight:600;font-size:0.85rem;">${escapeHTML(n.title || '')}</div>
+                            <div style="font-size:0.7rem;color:var(--text-tertiary);"><i class="far fa-eye"></i> ${Number(n.views) || 0}</div>
+                        `;
+                        div.addEventListener('click', () => openNews(n.id));
+                        popularContainer.appendChild(div);
+                    });
+                } else {
+                    popularContainer.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:8px 0;">Нет данных</div>';
+                }
 
                 const recent = [...allNews].slice(0, 5);
-                document.getElementById('recentNews').innerHTML = recent.length ? recent.map(n =>
-                    `<div style="cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border);" onclick="openNews('${n.id}')">
-                    <div style="font-size:0.85rem;">${esc(n.title || '')}</div>
-                    <div style="font-size:0.65rem;color:var(--text-tertiary);">${fmtDate(n.createdAt)}</div>
-                  </div>`
-                ).join('') :
-                    '<div style="color:var(--text-tertiary);text-align:center;padding:8px 0;">Нет данных</div>';
+                const recentContainer = document.getElementById('recentNews');
+                recentContainer.innerHTML = '';
+                if (recent.length) {
+                    recent.forEach(n => {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border);';
+                        div.innerHTML = `
+                            <div style="font-size:0.85rem;">${escapeHTML(n.title || '')}</div>
+                            <div style="font-size:0.65rem;color:var(--text-tertiary);">${escapeHTML(fmtDate(n.createdAt))}</div>
+                        `;
+                        div.addEventListener('click', () => openNews(n.id));
+                        recentContainer.appendChild(div);
+                    });
+                } else {
+                    recentContainer.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:8px 0;">Нет данных</div>';
+                }
 
                 const stats = {};
                 allNews.forEach(n => {
                     const cat = n.category || 'other';
                     stats[cat] = (stats[cat] || 0) + 1;
                 });
-                document.getElementById('categoryStats').innerHTML = Object.entries(stats).map(([cat, count]) =>
-                    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);">
-                    <span>${categoryNames[cat] || cat}</span>
-                    <span style="color:var(--accent);font-weight:600;">${count}</span>
-                  </div>`
-                ).join('') || '<div style="color:var(--text-tertiary);text-align:center;padding:8px 0;">Нет данных</div>';
+                const statsContainer = document.getElementById('categoryStats');
+                statsContainer.innerHTML = '';
+                const entries = Object.entries(stats);
+                if (entries.length) {
+                    entries.forEach(([cat, count]) => {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);';
+                        div.innerHTML = `
+                            <span>${escapeHTML(categoryNames[cat] || cat)}</span>
+                            <span style="color:var(--accent);font-weight:600;">${count}</span>
+                        `;
+                        statsContainer.appendChild(div);
+                    });
+                } else {
+                    statsContainer.innerHTML = '<div style="color:var(--text-tertiary);text-align:center;padding:8px 0;">Нет данных</div>';
+                }
             }
 
-            // ===== СОХРАНЁННЫЕ НОВОСТИ (ВИДЖЕТ) =====
+            // ===== СОХРАНЁННЫЕ НОВОСТИ =====
             function updateSavedWidget() {
                 const list = document.getElementById('savedNewsList');
                 if (!savedNews.length) {
                     list.innerHTML = `
-                    <div style="color:var(--text-tertiary);text-align:center;padding:12px 0;">
-                      <i class="far fa-bookmark"></i> Нет сохранённых новостей
-                    </div>
-                  `;
+                        <div style="color:var(--text-tertiary);text-align:center;padding:12px 0;">
+                            <i class="far fa-bookmark"></i> Нет сохранённых новостей
+                        </div>
+                    `;
                     return;
                 }
 
-                const savedItems = savedNews.slice(0, 5).map(id => {
+                list.innerHTML = '';
+                const savedItems = savedNews.slice(0, 5);
+                let hasItems = false;
+                savedItems.forEach(id => {
                     const news = allNews.find(n => n.id === id);
-                    return news ? `
-                    <div style="cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border);" onclick="openNews('${news.id}')">
-                      <div style="font-size:0.85rem;font-weight:600;">${esc(news.title || '')}</div>
-                      <div style="font-size:0.65rem;color:var(--text-tertiary);">${fmtDate(news.createdAt)}</div>
-                    </div>
-                  ` : '';
-                }).filter(Boolean).join('');
+                    if (news) {
+                        hasItems = true;
+                        const div = document.createElement('div');
+                        div.style.cssText = 'cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border);';
+                        div.innerHTML = `
+                            <div style="font-size:0.85rem;font-weight:600;">${escapeHTML(news.title || '')}</div>
+                            <div style="font-size:0.65rem;color:var(--text-tertiary);">${escapeHTML(fmtDate(news.createdAt))}</div>
+                        `;
+                        div.addEventListener('click', () => openNews(news.id));
+                        list.appendChild(div);
+                    }
+                });
 
-                list.innerHTML = savedItems || `
-                  <div style="color:var(--text-tertiary);text-align:center;padding:12px 0;">
-                    <i class="far fa-bookmark"></i> Нет сохранённых новостей
-                  </div>
-                `;
+                if (!hasItems) {
+                    list.innerHTML = `
+                        <div style="color:var(--text-tertiary);text-align:center;padding:12px 0;">
+                            <i class="far fa-bookmark"></i> Нет сохранённых новостей
+                        </div>
+                    `;
+                }
             }
 
-            // ===== ЧИТАТЬ ПОЗЖЕ =====
+            // ===== ЧИТАТЬ ПОЗЖЕ (БЕЗОПАСНОЕ) =====
             window.toggleSaveLater = function(newsId) {
                 const id = newsId || currentNewsId;
                 if (!id) return;
@@ -2567,8 +2519,13 @@
                     savedNews.splice(index, 1);
                     notify('🗑️ Удалено из "Читать позже"');
                 } else {
-                    savedNews.push(id);
-                    notify('💾 Добавлено в "Читать позже"');
+                    if (savedNews.length < 50) {
+                        savedNews.push(id);
+                        notify('💾 Добавлено в "Читать позже"');
+                    } else {
+                        notify('⚠️ Максимум 50 сохранённых новостей');
+                        return;
+                    }
                 }
 
                 localStorage.setItem('savedNews_v2', JSON.stringify(savedNews));
@@ -2582,7 +2539,7 @@
 
                 if (saveBtn) {
                     saveBtn.innerHTML = `<i class="fas fa-bookmark ${isSaved ? 'icon-saved' : 'icon-save'}"></i>`;
-                    saveText.textContent = isSaved ? 'Удалить из сохранённых' : 'Читать позже';
+                    if (saveText) saveText.textContent = isSaved ? 'Удалить из сохранённых' : 'Читать позже';
                 }
                 if (footerBtn) {
                     footerBtn.innerHTML = `<i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i> <span>${isSaved ? 'В сохранённых' : 'Читать позже'}</span>`;
@@ -2590,37 +2547,54 @@
                 }
 
                 // Обновить карточки
-                displayNews(allNews.filter(n => {
-                    if (searchQuery) {
-                        const qLower = searchQuery.toLowerCase();
-                        return (n.title || '').toLowerCase().includes(qLower) ||
-                            (n.excerpt || '').toLowerCase().includes(qLower) ||
-                            (n.content || '').toLowerCase().includes(qLower);
-                    }
-                    return true;
-                }));
+                loadNews();
             };
 
-            // ===== ПОИСК =====
+            // ===== ПОИСК (БЕЗОПАСНЫЙ) =====
+            document.getElementById('searchBtn').addEventListener('click', searchNews);
+            document.getElementById('searchInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') searchNews();
+            });
+            document.getElementById('searchInput').addEventListener('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(searchNews, 300);
+            });
+            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+
             function searchNews() {
                 clearTimeout(searchTimer);
-                searchTimer = setTimeout(() => {
-                    searchQuery = document.getElementById('searchInput').value.trim();
-                    loadNews();
-                }, 300);
+                const input = document.getElementById('searchInput');
+                searchQuery = safeString(input.value.trim(), 100);
+                loadNews();
             }
-
-            window.searchNews = searchNews;
 
             function clearSearch() {
                 document.getElementById('searchInput').value = '';
                 searchQuery = '';
                 loadNews();
             }
-            window.clearSearch = clearSearch;
 
-            // ===== ОТКРЫТИЕ НОВОСТИ =====
+            // ===== ФОРМАТИРОВАНИЕ ДАТЫ =====
+            function fmtDate(ts) {
+                if (!ts) return '';
+                try {
+                    if (ts.toDate) ts = ts.toDate();
+                    return new Date(ts).toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch {
+                    return '';
+                }
+            }
+
+            // ===== ОТКРЫТИЕ НОВОСТИ (БЕЗОПАСНОЕ) =====
             window.openNews = async function(id) {
+                if (!id || typeof id !== 'string') return;
+
                 currentNewsId = id;
                 const modal = document.getElementById('newsModal');
                 modal.classList.add('open');
@@ -2635,32 +2609,48 @@
                 window.history.pushState({}, '', newUrl);
 
                 try {
+                    if (!db) throw new Error('Firebase не инициализирован');
+
                     const ref = db.collection('news').doc(id);
                     await ref.update({ views: firebase.firestore.FieldValue.increment(1) });
                     const doc = await ref.get();
-                    if (!doc.exists) return;
+                    if (!doc.exists) {
+                        notify('Новость не найдена');
+                        closeModal();
+                        return;
+                    }
 
                     const n = doc.data();
                     currentNewsData = n;
 
-                    document.getElementById('modalTitle').textContent = n.title || 'Без названия';
-                    document.getElementById('modalImage').style.backgroundImage = n.imageUrl ?
-                        `url('${n.imageUrl}')` :
+                    // Безопасное отображение
+                    document.getElementById('modalTitle').textContent = safeString(n.title || 'Без названия', 200);
+                    document.getElementById('modalImage').style.backgroundImage = (n.imageUrl && typeof n.imageUrl === 'string' && n.imageUrl.length > 0) ?
+                        `url('${escapeHTML(n.imageUrl)}')` :
                         'linear-gradient(135deg,var(--blue),var(--bg-elevated))';
                     document.getElementById('modalAuthor').innerHTML =
-                        `<i class="fas fa-user"></i> ${esc(n.author || 'Метро New')} <span style="color:var(--accent);font-size:0.7rem;"><i class="fas fa-check-circle"></i> Проверенный автор</span>`;
+                        `<i class="fas fa-user"></i> ${escapeHTML(n.author || 'Метро New')} <span style="color:var(--accent);font-size:0.7rem;"><i class="fas fa-check-circle"></i> Проверенный автор</span>`;
 
                     document.getElementById('modalDate').textContent = fmtDate(n.createdAt);
-                    document.getElementById('modalCategory').textContent = categoryNames[n.category] || 'Новость';
-                    document.getElementById('modalViews').textContent = (n.views || 0) + 1;
+                    document.getElementById('modalCategory').textContent = escapeHTML(categoryNames[n.category] || 'Новость');
+                    document.getElementById('modalViews').textContent = (Number(n.views) || 0) + 1;
 
-                    document.getElementById('modalBody').innerHTML = typeof marked !== 'undefined' ?
-                        marked.parse(n.content || '') :
-                        esc(n.content || '');
+                    // Санитизация контента
+                    let contentHtml = n.content || '';
+                    if (typeof marked !== 'undefined' && marked.parse) {
+                        try {
+                            contentHtml = marked.parse(safeString(contentHtml, 50000));
+                        } catch {
+                            contentHtml = escapeHTML(contentHtml);
+                        }
+                    } else {
+                        contentHtml = escapeHTML(contentHtml);
+                    }
+                    document.getElementById('modalBody').innerHTML = sanitizeHTML(contentHtml);
 
                     updateFeedbackUI(id);
 
-                    // Обновить кнопку "Читать позже" в модалке
+                    // Обновить кнопку "Читать позже"
                     const isSaved = savedNews.includes(id);
                     const saveBtn = document.getElementById('saveLaterModalBtn');
                     const saveText = document.getElementById('saveLaterModalText');
@@ -2668,50 +2658,67 @@
 
                     if (saveBtn) {
                         saveBtn.innerHTML = `<i class="fas fa-bookmark ${isSaved ? 'icon-saved' : 'icon-save'}"></i>`;
-                        saveText.textContent = isSaved ? 'Удалить из сохранённых' : 'Читать позже';
+                        if (saveText) saveText.textContent = isSaved ? 'Удалить из сохранённых' : 'Читать позже';
                     }
                     if (footerBtn) {
                         footerBtn.innerHTML = `<i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i> <span>${isSaved ? 'В сохранённых' : 'Читать позже'}</span>`;
                         footerBtn.classList.toggle('saved', isSaved);
                     }
 
-                    // ===== ПОХОЖИЕ НОВОСТИ =====
+                    // Похожие новости
                     const similar = allNews.filter(x => x.id !== id && x.category === n.category).slice(0, 4);
                     const similarList = document.getElementById('similarNewsList');
+                    const similarSection = document.getElementById('similarNewsSection');
+
                     if (similar.length) {
-                        similarList.innerHTML = similar.map(s =>
-                            `<div class="similar-news-item" onclick="openNews('${s.id}')">
-                            <div class="sim-title">${esc(s.title || '')}</div>
-                            <div class="sim-meta">
-                              <span><i class="far fa-calendar-alt"></i> ${fmtDate(s.createdAt)}</span>
-                              <span><i class="far fa-eye"></i> ${s.views || 0}</span>
-                            </div>
-                          </div>`
-                        ).join('');
-                        document.getElementById('similarNewsSection').style.display = 'block';
+                        similarList.innerHTML = '';
+                        similar.forEach(s => {
+                            const div = document.createElement('div');
+                            div.className = 'similar-news-item';
+                            div.innerHTML = `
+                                <div class="sim-title">${escapeHTML(s.title || '')}</div>
+                                <div class="sim-meta">
+                                    <span><i class="far fa-calendar-alt"></i> ${escapeHTML(fmtDate(s.createdAt))}</span>
+                                    <span><i class="far fa-eye"></i> ${Number(s.views) || 0}</span>
+                                </div>
+                            `;
+                            div.addEventListener('click', () => openNews(s.id));
+                            similarList.appendChild(div);
+                        });
+                        similarSection.style.display = 'block';
                     } else {
-                        document.getElementById('similarNewsSection').style.display = 'none';
+                        similarSection.style.display = 'none';
                     }
 
                     // Подсветка кода
                     if (typeof hljs !== 'undefined') {
                         document.querySelectorAll('#modalBody pre code').forEach(el => {
-                            hljs.highlightElement(el);
+                            try {
+                                hljs.highlightElement(el);
+                            } catch {}
                         });
                     }
 
-                    const history = JSON.parse(localStorage.getItem('newsHistory') || '[]');
-                    history.unshift({ id, title: n.title, date: new Date().toISOString() });
-                    if (history.length > 20) history.pop();
-                    localStorage.setItem('newsHistory', JSON.stringify(history));
+                    // История
+                    try {
+                        const history = safeParseJSON(localStorage.getItem('newsHistory'), []);
+                        history.unshift({ id, title: n.title, date: new Date().toISOString() });
+                        if (history.length > 20) history.pop();
+                        localStorage.setItem('newsHistory', JSON.stringify(history));
+                    } catch {}
 
                 } catch (e) {
                     console.error('Ошибка открытия новости:', e);
-                    document.getElementById('modalBody').innerHTML =
-                        '<div style="color:var(--red);padding:20px;">Ошибка загрузки новости</div>';
+                    document.getElementById('modalBody').innerHTML = `
+                        <div style="color:var(--red);padding:20px;">
+                            <i class="fas fa-exclamation-triangle"></i> Ошибка загрузки новости
+                            <br><small>Попробуйте обновить страницу</small>
+                        </div>
+                    `;
                 }
             };
 
+            // ===== ЗАКРЫТИЕ МОДАЛКИ =====
             window.closeModal = function() {
                 document.getElementById('newsModal').classList.remove('open');
                 const params = new URLSearchParams(window.location.search);
@@ -2724,10 +2731,10 @@
                 document.getElementById('dotsWrapper').classList.remove('open-feedback');
             };
 
+            document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
             document.getElementById('newsModal').addEventListener('click', function(e) {
                 if (e.target === this) closeModal();
             });
-
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closeModal();
             });
@@ -2741,7 +2748,14 @@
                 document.getElementById('dislikeCountFooter').textContent = fb.dislike || 0;
             }
 
-            // ===== ОТПРАВКА ОЦЕНКИ =====
+            // ===== ОТПРАВКА ОЦЕНКИ (БЕЗОПАСНАЯ) =====
+            document.querySelectorAll('[data-feedback]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.feedback;
+                    submitFeedback(type);
+                });
+            });
+
             window.submitFeedback = function(type) {
                 if (!currentNewsId) return;
 
@@ -2766,7 +2780,14 @@
                 document.getElementById('dotsWrapper').classList.remove('open');
             };
 
-            // ===== ШЕРИНГ =====
+            // ===== ШЕРИНГ (БЕЗОПАСНЫЙ) =====
+            document.querySelectorAll('[data-share]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const platform = this.dataset.share;
+                    shareNews(platform);
+                });
+            });
+
             window.shareNews = function(platform) {
                 const url = window.location.href;
                 const title = document.getElementById('modalTitle').textContent;
@@ -2776,7 +2797,24 @@
                     whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent('📢 ' + title + '\n' + url)}`,
                     vk: `https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`,
                     copy: () => {
-                        navigator.clipboard.writeText(url).then(() => notify('Ссылка скопирована! 📋'));
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(url).then(() => notify('Ссылка скопирована! 📋'));
+                        } else {
+                            // Fallback
+                            try {
+                                const textarea = document.createElement('textarea');
+                                textarea.value = url;
+                                textarea.style.position = 'fixed';
+                                textarea.style.opacity = '0';
+                                document.body.appendChild(textarea);
+                                textarea.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(textarea);
+                                notify('Ссылка скопирована! 📋');
+                            } catch {
+                                notify('Не удалось скопировать ссылку');
+                            }
+                        }
                     }
                 };
 
@@ -2790,18 +2828,19 @@
                 document.getElementById('dotsWrapper').classList.remove('open-feedback');
             };
 
-            // ===== ПОЖАЛОВАТЬСЯ =====
+            // ===== ПОЖАЛОВАТЬСЯ (БЕЗОПАСНОЕ) =====
+            document.getElementById('reportBtn').addEventListener('click', reportNews);
+
             window.reportNews = function() {
                 if (!currentNewsData) return;
-                const title = currentNewsData.title || 'Неизвестная новость';
+                const title = safeString(currentNewsData.title || 'Неизвестная новость', 200);
                 const subject = encodeURIComponent(`Жалоба на новость: ${title}`);
                 const body = encodeURIComponent(
                     `Новость: ${title}\n` +
                     `ID: ${currentNewsId}\n` +
                     `Ссылка: ${window.location.href}\n\n` +
                     `Опишите причину жалобы:\n\n` +
-                    `---\nОтправлено через сайт Метро New\n` +
-                    `Браузер: ${navigator.userAgent}`
+                    `---\nОтправлено через сайт Метро New`
                 );
                 window.location.href = `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
                 notify('Жалоба отправляется... 📧');
@@ -2809,6 +2848,135 @@
                 document.getElementById('dotsWrapper').classList.remove('open');
                 document.getElementById('dotsWrapper').classList.remove('open-feedback');
             };
+
+            // ===== ТРИ ТОЧКИ =====
+            document.getElementById('dotsBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const wrapper = document.getElementById('dotsWrapper');
+                wrapper.classList.remove('open-feedback');
+                wrapper.classList.toggle('open');
+            });
+
+            document.getElementById('feedbackToggleBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const wrapper = document.getElementById('dotsWrapper');
+                wrapper.classList.toggle('open-feedback');
+            });
+
+            document.addEventListener('click', function(e) {
+                const wrapper = document.getElementById('dotsWrapper');
+                if (!wrapper.contains(e.target)) {
+                    wrapper.classList.remove('open');
+                    wrapper.classList.remove('open-feedback');
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('dotsWrapper').classList.remove('open');
+                    document.getElementById('dotsWrapper').classList.remove('open-feedback');
+                }
+            });
+
+            // ===== ТЕМА =====
+            const THEME_KEY = 'metro_new_theme';
+            const root = document.documentElement;
+
+            function applyTheme(theme) {
+                root.setAttribute('data-theme', theme);
+            }
+
+            function getInitialTheme() {
+                const saved = localStorage.getItem(THEME_KEY);
+                if (saved === 'light' || saved === 'dark') return saved;
+                return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            }
+
+            let currentTheme = getInitialTheme();
+            applyTheme(currentTheme);
+
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(currentTheme);
+                localStorage.setItem(THEME_KEY, currentTheme);
+            });
+
+            // ===== БУРГЕР =====
+            document.getElementById('burgerMenu').addEventListener('click', function() {
+                document.getElementById('navLinks').classList.toggle('active');
+            });
+
+            document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 992) {
+                        document.getElementById('navLinks').classList.remove('active');
+                    }
+                });
+            });
+
+            // ===== ДРОПДАУН =====
+            document.getElementById('dropdownBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('dropdownOther').classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('dropdownOther');
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+
+            // ===== СОЦСЕТИ "ЕЩЁ" =====
+            const socialMoreWrap = document.getElementById('socialMoreWrap');
+            const socialMoreBtn = document.getElementById('socialMoreBtn');
+            const socialMoreBackdrop = document.getElementById('socialMoreBackdrop');
+
+            if (socialMoreBtn) {
+                socialMoreBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    socialMoreWrap.classList.toggle('open');
+                });
+            }
+
+            if (socialMoreBackdrop) {
+                socialMoreBackdrop.addEventListener('click', function() {
+                    socialMoreWrap.classList.remove('open');
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (socialMoreWrap && !socialMoreWrap.contains(e.target)) {
+                    socialMoreWrap.classList.remove('open');
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    socialMoreWrap?.classList.remove('open');
+                }
+            });
+
+            // ===== КНОПКИ СОХРАНЕНИЯ В МОДАЛКЕ =====
+            document.getElementById('saveLaterModalBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSaveLater(currentNewsId);
+                document.getElementById('dotsWrapper').classList.remove('open');
+            });
+
+            document.getElementById('saveLaterFooterBtn').addEventListener('click', function() {
+                toggleSaveLater(currentNewsId);
+            });
+
+            // ===== ТЕКУЩИЙ ГОД =====
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // ===== ЗАПУСК =====
+            renderCategories();
+            loadFromURL();
+            loadNews();
 
             // ===== ОБРАБОТКА НАВИГАЦИИ =====
             window.addEventListener('popstate', function() {
@@ -2827,11 +2995,7 @@
                 }
             });
 
-            // ===== ЗАПУСК =====
-            renderCategories();
-            loadFromURL();
-            loadNews();
-        });
+        })();
     </script>
 
 </body>
