@@ -28,57 +28,29 @@
     const STORAGE_PREFIX = 'metro_doc_';
 
     // ★ ПРИ ОБНОВЛЕНИИ ДОКУМЕНТА - МЕНЯЙТЕ version ★
-    const DOCS = {
-        privacy: {
-            version: '1.5.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/',
-            name: 'Политика конфиденциальности',
-            icon: '🔒',
-            lastUpdate: '06 июня 2026 года'
-        },
-        terms: {
-            version: '1.1.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/',
-            name: 'Пользовательское соглашение',
-            icon: '📝',
-            lastUpdate: '06 апреля 2026 года'
-        },
-        refund: {
-            version: '1.4.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy/',
-            name: 'Политика возврата',
-            icon: '💰',
-            lastUpdate: '04 мая 2026 года'
-        },
-        cookies: {
-            version: '1.0.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/cookies/',
-            name: 'Политика использования cookie',
-            icon: '🍪',
-            lastUpdate: '06 апреля 2026 года'
-        },
-        copyright: {
-            version: '1.1.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy/',
-            name: 'Политика авторских прав',
-            icon: '©️',
-            lastUpdate: '02 мая 2026 года'
-        },
-        community: {
-            version: '1.0.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/community-guidelines/',
-            name: 'Правила сообщества Discord',
-            icon: '💬',
-            lastUpdate: '29 января 2025 года'
-        },
-        site: {
-            version: '1.0.0',
-            url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/',
-            name: 'Правила использования сайта',
-            icon: '🌐',
-            lastUpdate: '06 апреля 2026 года'
-        }
-    };
+const DOCS = {
+    privacy: {
+        version: '1.5.0',
+        url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/',
+        name: 'Политика конфиденциальности',
+        icon: '🔒',
+        lastUpdate: '06 июня 2026 года'
+    },
+    terms: {
+        version: '1.1.0',
+        url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/',
+        name: 'Пользовательское соглашение',
+        icon: '📝',
+        lastUpdate: '06 апреля 2026 года'
+    },
+    site: {
+        version: '1.0.0',
+        url: 'https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines/',
+        name: 'Правила использования сайта',
+        icon: '🌐',
+        lastUpdate: '06 апреля 2026 года'
+    }
+};
 
     // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 
