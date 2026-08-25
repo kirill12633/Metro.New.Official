@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Админ-панель — Вакансии Метро New</title>
+
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* ============================================================
+                   СТИЛИ
+                   ============================================================ */
+        :root {
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --accent: #FFD700;
+            --accent-hover: #ffe14d;
+            --accent-light: rgba(255, 215, 0, 0.12);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --green: #34a853;
+            --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82;
+            --red-light: rgba(242, 139, 130, 0.15);
+            --blue: #4d94ff;
+            --blue-hover: #7aacff;
+            --border: #253460;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+            color-scheme: dark;
+        }
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f6fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #eef1f9;
+            --text-primary: #14151f;
+            --text-secondary: #565f7a;
+            --text-tertiary: #8890a8;
+            --accent: #e6c200;
+            --accent-hover: #c2a300;
+            --accent-light: rgba(230, 194, 0, 0.12);
+            --accent-glow: rgba(230, 194, 0, 0.18);
+            --green: #1e8e4e;
+            --green-light: rgba(30, 142, 78, 0.1);
+            --red: #d93025;
+            --red-light: rgba(217, 48, 37, 0.1);
+            --blue: #0066CC;
+            --blue-hover: #0052a3;
+            --border: #e2e6f0;
+            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            background-image: radial-gradient(ellipse at 20% 30%, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, color-mix(in srgb, #4d94ff 7%, transparent) 0%, transparent 60%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ===== HEADER ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+        .page-header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .page-header .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: #0d1526;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px var(--accent-glow);
+        }
+        .btn-green {
+            background: linear-gradient(135deg, var(--green), #2d8f4e);
+            color: #fff;
+        }
+        .btn-green:hover {
+            transform: translateY(-3px);
+        }
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue), var(--blue-hover));
+            color: #fff;
+        }
+        .btn-blue:hover {
+            transform: translateY(-3px);
+        }
+        .btn-red {
+            background: linear-gradient(135deg, var(--red), #d93025);
+            color: #fff;
+        }
+        .btn-red:hover {
+            transform: translateY(-3px);
+        }
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+        .theme-toggle .fa-moon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+        .theme-toggle .fa-sun {
+            opacity: 0;
+            transform: rotate(90deg) scale(0.3);
+        }
+        [data-theme="light"] .theme-toggle .fa-sun {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+            color: var(--accent);
+        }
+        [data-theme="light"] .theme-toggle .fa-moon {
+            opacity: 0;
+            transform: rotate(-90deg) scale(0.3);
+        }
+
+        /* ===== ФОРМА ДОБАВЛЕНИЯ ===== */
+        .form-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+        .form-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-section h2 i {
+            color: var(--accent);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+        .form-group label .required {
+            color: var(--red);
+            margin-left: 4px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.25s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-group .hint {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* ===== СПИСОК ВАКАНСИЙ ===== */
+        .vacancies-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .vacancy-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .vacancy-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .vacancy-item .info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .vacancy-item .info .top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .vacancy-item .info .top .title {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .vacancy-item .info .top .badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-open {
+            background: var(--green-light);
+            color: var(--green);
+        }
+        .badge-soon {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+        .vacancy-item .info .details {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .vacancy-item .info .details i {
+            color: var(--accent);
+            width: 16px;
+        }
+        .vacancy-item .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+        .loading i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .empty {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+        .empty i {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            max-width: 400px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast.success {
+            border-color: var(--green);
+        }
+        .toast.error {
+            border-color: var(--red);
+        }
+        .toast .toast-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .toast .toast-message {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .vacancy-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .vacancy-item .actions {
+                justify-content: flex-start;
+            }
+        }
+        @media (max-width: 480px) {
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .page-header .header-actions {
+                justify-content: flex-start;
+            }
+            .form-section {
+                padding: 18px;
+            }
+            .toast {
+                left: 16px;
+                right: 16px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="page-header">
+            <h1><i class="fas fa-briefcase" style="color:var(--accent);"></i> Управление вакансиями</h1>
+            <div class="header-actions">
+                <a href="https://kirill12633.github.io/careers.metro.new/vacancies/" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> На сайт
+                </a>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== ФОРМА ДОБАВЛЕНИЯ ===== -->
+        <section class="form-section" id="formSection">
+            <h2 id="formTitle"><i class="fas fa-plus-circle"></i> Добавить вакансию</h2>
+
+            <form id="vacancyForm">
+                <input type="hidden" id="editId" value="" />
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title">Название вакансии <span class="required">*</span></label>
+                        <input type="text" id="title" placeholder="Администратор Игры" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Статус <span class="required">*</span></label>
+                        <select id="status" required>
+                            <option value="open">Открыта</option>
+                            <option value="soon">Скоро</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location">Локация <span class="required">*</span></label>
+                        <input type="text" id="location" placeholder="Удалённо" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="schedule">График работы <span class="required">*</span></label>
+                        <input type="text" id="schedule" placeholder="Полный день" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание <span class="required">*</span></label>
+                    <textarea id="description" placeholder="Полное описание вакансии..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="requirements">Требования <span class="required">*</span></label>
+                    <textarea id="requirements" placeholder="Каждое требование с новой строки&#10;Опыт работы от 1 года&#10;Знание Roblox Studio" required></textarea>
+                    <div class="hint">Каждое требование с новой строки</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="conditions">Условия <span class="optional">(необязательно)</span></label>
+                    <textarea id="conditions" placeholder="Каждое условие с новой строки&#10;Официальное трудоустройство&#10;З/п от 50 000 руб"></textarea>
+                    <div class="hint">Каждое условие с новой строки</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="extra">Дополнительная информация <span class="optional">(необязательно)</span></label>
+                    <textarea id="extra" placeholder="Дополнительная информация о вакансии"></textarea>
+                </div>
+
+                <div class="form-actions" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
+                    <button type="submit" class="btn btn-green" id="submitBtn">
+                        <i class="fas fa-save"></i> <span id="submitText">Сохранить</span>
+                    </button>
+                    <button type="reset" class="btn btn-secondary" id="cancelBtn" style="display:none;">
+                        <i class="fas fa-times"></i> Отменить
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== СПИСОК ВАКАНСИЙ ===== -->
+        <section class="form-section">
+            <h2><i class="fas fa-list"></i> Все вакансии</h2>
+            <div id="vacanciesContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Загрузка вакансий...</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast">
+        <div class="toast-title" id="toastTitle">Готово!</div>
+        <div class="toast-message" id="toastMessage">Действие выполнено</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== FIREBASE + MAIN SCRIPTS ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // ===== FIREBASE =====
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ============================================================
+        // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
+        // ============================================================
+        let allVacancies = [];
+        let isEditing = false;
+
+        // ============================================================
+        // ===== DOM ЭЛЕМЕНТЫ =====
+        // ============================================================
+        const form = document.getElementById('vacancyForm');
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const editId = document.getElementById('editId');
+
+        const titleInput = document.getElementById('title');
+        const statusInput = document.getElementById('status');
+        const locationInput = document.getElementById('location');
+        const scheduleInput = document.getElementById('schedule');
+        const descriptionInput = document.getElementById('description');
+        const requirementsInput = document.getElementById('requirements');
+        const conditionsInput = document.getElementById('conditions');
+        const extraInput = document.getElementById('extra');
+
+        const container = document.getElementById('vacanciesContainer');
+
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMessage = document.getElementById('toastMessage');
+        let toastTimeout = null;
+
+        // ============================================================
+        // ===== TOAST =====
+        // ============================================================
+        function showToast(title, message, type = 'success') {
+            toast.className = 'toast ' + type;
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ============================================================
+        // ===== ЗАГРУЗКА ВАКАНСИЙ =====
+        // ============================================================
+        async function loadVacancies() {
+            try {
+                const snapshot = await db.collection('careers')
+                    .orderBy('title')
+                    .get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                            <div class="empty">
+                                <i class="fas fa-inbox"></i>
+                                <p>Вакансии пока не добавлены</p>
+                            </div>
+                        `;
+                    return;
+                }
+
+                allVacancies = [];
+                snapshot.forEach(doc => {
+                    allVacancies.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                renderVacancies();
+
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                container.innerHTML = `
+                        <div class="empty">
+                            <i class="fas fa-exclamation-triangle" style="color:var(--red);"></i>
+                            <p>Ошибка загрузки вакансий</p>
+                            <button class="btn btn-primary btn-sm" onclick="loadVacancies()" style="margin-top:12px;">
+                                <i class="fas fa-redo"></i> Попробовать снова
+                            </button>
+                        </div>
+                    `;
+            }
+        }
+
+        // ============================================================
+        // ===== ОТОБРАЖЕНИЕ ВАКАНСИЙ =====
+        // ============================================================
+        function renderVacancies() {
+            if (allVacancies.length === 0) {
+                container.innerHTML = `
+                        <div class="empty">
+                            <i class="fas fa-inbox"></i>
+                            <p>Вакансий пока нет</p>
+                        </div>
+                    `;
+                return;
+            }
+
+            container.innerHTML = allVacancies.map(v => {
+                const statusLabel = v.status === 'open' ? 'Открыта' : 'Скоро';
+                const statusClass = v.status === 'open' ? 'badge-open' : 'badge-soon';
+                const reqCount = v.requirements ? v.requirements.length : 0;
+
+                return `
+                        <div class="vacancy-item">
+                            <div class="info">
+                                <div class="top">
+                                    <span class="title">${v.title || 'Без названия'}</span>
+                                    <span class="badge ${statusClass}">${statusLabel}</span>
+                                </div>
+                                <div class="details">
+                                    <span><i class="fas fa-map-pin"></i> ${v.location || '—'}</span>
+                                    <span><i class="fas fa-clock"></i> ${v.schedule || '—'}</span>
+                                    <span><i class="fas fa-list-check"></i> ${reqCount} требований</span>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-blue btn-sm" onclick="editVacancy('${v.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-red btn-sm" onclick="deleteVacancy('${v.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        // ============================================================
+        // ===== ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ =====
+        // ============================================================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = {
+                title: titleInput.value.trim(),
+                status: statusInput.value,
+                location: locationInput.value.trim(),
+                schedule: scheduleInput.value.trim(),
+                description: descriptionInput.value.trim(),
+                requirements: requirementsInput.value.split('\n').filter(r => r.trim() !== ''),
+                conditions: conditionsInput.value.split('\n').filter(c => c.trim() !== ''),
+                extra: extraInput.value.trim()
+            };
+
+            // Валидация
+            if (!data.title || !data.location || !data.schedule || !data.description || data.requirements.length === 0) {
+                showToast('⚠️ Ошибка', 'Заполните все обязательные поля', 'error');
+                return;
+            }
+
+            try {
+                if (isEditing && editId.value) {
+                    // Обновление
+                    await db.collection('careers').doc(editId.value).update(data);
+                    showToast('✅ Успешно!', 'Вакансия обновлена');
+                } else {
+                    // Добавление
+                    await db.collection('careers').add(data);
+                    showToast('✅ Успешно!', 'Вакансия добавлена');
+                }
+
+                resetForm();
+                await loadVacancies();
+
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showToast('❌ Ошибка', 'Не удалось сохранить вакансию', 'error');
+            }
+        });
+
+        // ============================================================
+        // ===== РЕДАКТИРОВАНИЕ =====
+        // ============================================================
+        function editVacancy(id) {
+            const v = allVacancies.find(item => item.id === id);
+            if (!v) return;
+
+            isEditing = true;
+            editId.value = id;
+
+            titleInput.value = v.title || '';
+            statusInput.value = v.status || 'open';
+            locationInput.value = v.location || '';
+            scheduleInput.value = v.schedule || '';
+            descriptionInput.value = v.description || '';
+            requirementsInput.value = (v.requirements || []).join('\n');
+            conditionsInput.value = (v.conditions || []).join('\n');
+            extraInput.value = v.extra || '';
+
+            formTitle.innerHTML = '<i class="fas fa-edit" style="color:var(--accent);"></i> Редактировать вакансию';
+            submitText.textContent = 'Обновить';
+            cancelBtn.style.display = 'inline-flex';
+
+            document.getElementById('formSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============================================================
+        // ===== УДАЛЕНИЕ =====
+        // ============================================================
+        async function deleteVacancy(id) {
+            if (!confirm('Вы уверены, что хотите удалить эту вакансию?')) return;
+
+            try {
+                await db.collection('careers').doc(id).delete();
+                showToast('✅ Успешно!', 'Вакансия удалена');
+                await loadVacancies();
+
+                if (isEditing && editId.value === id) {
+                    resetForm();
+                }
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                showToast('❌ Ошибка', 'Не удалось удалить вакансию', 'error');
+            }
+        }
+
+        // ============================================================
+        // ===== СБРОС ФОРМЫ =====
+        // ============================================================
+        function resetForm() {
+            isEditing = false;
+            editId.value = '';
+            form.reset();
+            conditionsInput.value = '';
+            extraInput.value = '';
+
+            formTitle.innerHTML = '<i class="fas fa-plus-circle" style="color:var(--accent);"></i> Добавить вакансию';
+            submitText.textContent = 'Сохранить';
+            cancelBtn.style.display = 'none';
+        }
+
+        cancelBtn.addEventListener('click', resetForm);
+
+        // ============================================================
+        // ===== ТЕМА =====
+        // ============================================================
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
+        }
+
+        function getInitialTheme() {
+            const saved = localStorage.getItem(THEME_KEY);
+            if (saved === 'light' || saved === 'dark') return saved;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        // ============================================================
+        // ===== ЗАПУСК =====
+        // ============================================================
+        loadVacancies();
+
+        // Для глобального доступа
+        window.editVacancy = editVacancy;
+        window.deleteVacancy = deleteVacancy;
+        window.loadVacancies = loadVacancies;
+    </script>
+
+</body>
+</html>
