@@ -1,13 +1,28 @@
 /**
  * Metro New — Roblox Developer Earnings Calculator (Embed)
  * Встраиваемый калькулятор дохода разработчика Roblox
- * Поддерживает 10 языков + Дополнительные инструменты
  * 
- * Как использовать:
- * 1. Добавьте на страницу: <div id="roblox-calculator"></div>
- * 2. Подключите этот скрипт: <script src="embed.js"></script>
+ * Исправления:
+ * - DevEx rate: $0.0035 (фиксированная ставка)
+ * - Убран необъяснимый -5
+ * - Исправлен рекламный USD расчёт
+ * - Пересмотрена модель Premium/Creator Rewards
+ * - Проверка деления на ноль
+ * - Исправлены ссылки href
+ * - Добавлен rel="noopener noreferrer"
+ * - Добавлено сохранение языка
+ * - Добавлена валидация
+ * - Убран глобальный mnCalculator
+ * - Добавлен официальный disclaimer
+ * - Добавлены aria-label
+ * - Добавлены сообщения об ошибках
+ * - Добавлен Enter для расчёта
+ * - Показываются единицы возле результата
+ * - DevEx rate как отдельная настройка
+ * - Дата актуальности расчёта
+ * - Разделены Robux earned и обычный баланс Robux
  * 
- * @version 2.1.0
+ * @version 3.0.0
  * @author Metro New Team
  */
 
@@ -15,7 +30,42 @@
     'use strict';
 
     // ============================================================
-    // ===== ПЕРЕВОДЫ НА 10 ЯЗЫКОВ =====
+    // ===== КОНФИГ =====
+    // ============================================================
+    const CONFIG = {
+        containerId: 'roblox-calculator',
+        version: '3.0.0',
+        devexRate: 0.0035, // DevEx курс: 1 Robux = $0.0035
+        language: detectLanguage(),
+        lastUpdated: '28 августа 2026'
+    };
+
+    // ============================================================
+    // ===== ДЕТЕКТИМ ЯЗЫК =====
+    // ============================================================
+    function detectLanguage() {
+        const saved = localStorage.getItem('mn_language');
+        if (saved && LANGUAGES[saved]) return saved;
+        
+        const browserLang = navigator.language || navigator.userLanguage || 'en';
+        const langMap = {
+            'ru': 'ru', 'uk': 'ru', 'be': 'ru',
+            'en': 'en', 'en-US': 'en', 'en-GB': 'en',
+            'es': 'es', 'es-ES': 'es',
+            'fr': 'fr', 'fr-FR': 'fr',
+            'de': 'de', 'de-DE': 'de',
+            'zh': 'zh', 'zh-CN': 'zh', 'zh-TW': 'zh',
+            'ja': 'ja', 'ja-JP': 'ja',
+            'ko': 'ko', 'ko-KR': 'ko',
+            'ar': 'ar', 'ar-SA': 'ar',
+            'hi': 'hi', 'hi-IN': 'hi'
+        };
+        const lang = browserLang.slice(0, 2).toLowerCase();
+        return langMap[lang] || 'en';
+    }
+
+    // ============================================================
+    // ===== ПЕРЕВОДЫ =====
     // ============================================================
     const LANGUAGES = {
         ru: {
@@ -23,7 +73,8 @@
             flag: '🇷🇺',
             title: '💰 Калькулятор дохода разработчика Roblox',
             subtitle: 'от проекта Метро New',
-            notice: '⚠️ Внимание: Расчёты приблизительные. Реальный доход может отличаться.',
+            disclaimer: '⚠️ Все расчёты являются приблизительными и основаны на официальных формулах Roblox. Реальный доход может отличаться. Мы не гарантируем точность расчётов. Используйте информацию в ознакомительных целях.',
+            lastUpdated: 'Актуально на:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -40,10 +91,11 @@
                 time: 'Среднее время (Y)',
                 timeHint: 'в минутах',
                 btn: 'Рассчитать',
-                robux: 'Доход в Robux',
+                robux: 'Заработано Robux',
+                robuxBalance: 'Баланс Robux',
                 usd: 'Доход в USD',
                 subMonth: 'за месяц',
-                subWithdraw: 'после вывода',
+                subWithdraw: 'после DevEx',
                 formula: 'Формула: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -53,10 +105,11 @@
                 price: 'Цена пасса (Y)',
                 priceHint: 'в Robux',
                 btn: 'Рассчитать',
-                robux: 'Доход в Robux',
+                robux: 'Заработано Robux',
+                robuxBalance: 'Баланс Robux',
                 usd: 'Доход в USD',
                 subTotal: 'за всё время',
-                subWithdraw: 'после вывода',
+                subWithdraw: 'после DevEx',
                 formula: 'Формула: X × 50 × Y × 0.7'
             },
             players: {
@@ -119,16 +172,25 @@
             },
             footer: {
                 link: 'Метро New Калькулятор',
-                privacy: 'Конфиденциальность'
+                privacy: 'Конфиденциальность',
+                clearData: '🗑️ Очистить сохранённые данные'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'Курс DevEx: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ Заполните все поля',
+                zero: '⚠️ Значение не может быть равно нулю',
+                negative: '⚠️ Значение не может быть отрицательным',
+                invalid: '⚠️ Введите корректное число'
+            }
         },
         en: {
             name: 'English',
             flag: '🇬🇧',
             title: '💰 Roblox Developer Earnings Calculator',
             subtitle: 'from Metro New project',
-            notice: '⚠️ Note: Calculations are approximate. Actual income may vary.',
+            disclaimer: '⚠️ All calculations are approximate and based on official Roblox formulas. Actual income may vary. We do not guarantee the accuracy of calculations. Use for informational purposes only.',
+            lastUpdated: 'Last updated:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -145,10 +207,11 @@
                 time: 'Average time (Y)',
                 timeHint: 'in minutes',
                 btn: 'Calculate',
-                robux: 'Income in Robux',
+                robux: 'Robux Earned',
+                robuxBalance: 'Robux Balance',
                 usd: 'Income in USD',
                 subMonth: 'per month',
-                subWithdraw: 'after withdrawal',
+                subWithdraw: 'after DevEx',
                 formula: 'Formula: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -158,10 +221,11 @@
                 price: 'Pass price (Y)',
                 priceHint: 'in Robux',
                 btn: 'Calculate',
-                robux: 'Income in Robux',
+                robux: 'Robux Earned',
+                robuxBalance: 'Robux Balance',
                 usd: 'Income in USD',
                 subTotal: 'total',
-                subWithdraw: 'after withdrawal',
+                subWithdraw: 'after DevEx',
                 formula: 'Formula: X × 50 × Y × 0.7'
             },
             players: {
@@ -224,16 +288,25 @@
             },
             footer: {
                 link: 'Metro New Calculator',
-                privacy: 'Privacy Policy'
+                privacy: 'Privacy Policy',
+                clearData: '🗑️ Clear saved data'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'DevEx rate: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ Please fill in all fields',
+                zero: '⚠️ Value cannot be zero',
+                negative: '⚠️ Value cannot be negative',
+                invalid: '⚠️ Please enter a valid number'
+            }
         },
         es: {
             name: 'Español',
             flag: '🇪🇸',
             title: '💰 Calculadora de Ingresos para Desarrolladores de Roblox',
             subtitle: 'del proyecto Metro New',
-            notice: '⚠️ Nota: Los cálculos son aproximados. Los ingresos reales pueden variar.',
+            disclaimer: '⚠️ Todos los cálculos son aproximados y se basan en fórmulas oficiales de Roblox. Los ingresos reales pueden variar. No garantizamos la exactitud de los cálculos. Utilice solo con fines informativos.',
+            lastUpdated: 'Última actualización:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -250,10 +323,11 @@
                 time: 'Tiempo promedio (Y)',
                 timeHint: 'en minutos',
                 btn: 'Calcular',
-                robux: 'Ingresos en Robux',
+                robux: 'Robux Ganados',
+                robuxBalance: 'Saldo Robux',
                 usd: 'Ingresos en USD',
                 subMonth: 'por mes',
-                subWithdraw: 'después del retiro',
+                subWithdraw: 'después de DevEx',
                 formula: 'Fórmula: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -263,10 +337,11 @@
                 price: 'Precio del pase (Y)',
                 priceHint: 'en Robux',
                 btn: 'Calcular',
-                robux: 'Ingresos en Robux',
+                robux: 'Robux Ganados',
+                robuxBalance: 'Saldo Robux',
                 usd: 'Ingresos en USD',
                 subTotal: 'total',
-                subWithdraw: 'después del retiro',
+                subWithdraw: 'después de DevEx',
                 formula: 'Fórmula: X × 50 × Y × 0.7'
             },
             players: {
@@ -329,16 +404,25 @@
             },
             footer: {
                 link: 'Metro New Calculadora',
-                privacy: 'Política de Privacidad'
+                privacy: 'Política de Privacidad',
+                clearData: '🗑️ Borrar datos guardados'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'Tasa DevEx: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ Complete todos los campos',
+                zero: '⚠️ El valor no puede ser cero',
+                negative: '⚠️ El valor no puede ser negativo',
+                invalid: '⚠️ Ingrese un número válido'
+            }
         },
         fr: {
             name: 'Français',
             flag: '🇫🇷',
             title: '💰 Calculateur de Revenus pour Développeurs Roblox',
             subtitle: 'du projet Metro New',
-            notice: '⚠️ Remarque: Les calculs sont approximatifs. Les revenus réels peuvent varier.',
+            disclaimer: '⚠️ Tous les calculs sont approximatifs et basés sur les formules officielles de Roblox. Les revenus réels peuvent varier. Nous ne garantissons pas l\'exactitude des calculs. À utiliser à titre informatif uniquement.',
+            lastUpdated: 'Dernière mise à jour:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -355,10 +439,11 @@
                 time: 'Temps moyen (Y)',
                 timeHint: 'en minutes',
                 btn: 'Calculer',
-                robux: 'Revenus en Robux',
+                robux: 'Robux Gagnés',
+                robuxBalance: 'Solde Robux',
                 usd: 'Revenus en USD',
                 subMonth: 'par mois',
-                subWithdraw: 'après retrait',
+                subWithdraw: 'après DevEx',
                 formula: 'Formule: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -368,10 +453,11 @@
                 price: 'Prix du pass (Y)',
                 priceHint: 'en Robux',
                 btn: 'Calculer',
-                robux: 'Revenus en Robux',
+                robux: 'Robux Gagnés',
+                robuxBalance: 'Solde Robux',
                 usd: 'Revenus en USD',
                 subTotal: 'total',
-                subWithdraw: 'après retrait',
+                subWithdraw: 'après DevEx',
                 formula: 'Formule: X × 50 × Y × 0.7'
             },
             players: {
@@ -434,16 +520,25 @@
             },
             footer: {
                 link: 'Metro New Calculateur',
-                privacy: 'Politique de Confidentialité'
+                privacy: 'Politique de Confidentialité',
+                clearData: '🗑️ Effacer les données sauvegardées'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'Taux DevEx: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ Veuillez remplir tous les champs',
+                zero: '⚠️ La valeur ne peut pas être zéro',
+                negative: '⚠️ La valeur ne peut pas être négative',
+                invalid: '⚠️ Veuillez entrer un nombre valide'
+            }
         },
         de: {
             name: 'Deutsch',
             flag: '🇩🇪',
             title: '💰 Roblox-Entwickler-Einkommensrechner',
             subtitle: 'vom Metro New Projekt',
-            notice: '⚠️ Hinweis: Die Berechnungen sind Näherungswerte. Die tatsächlichen Einnahmen können abweichen.',
+            disclaimer: '⚠️ Alle Berechnungen sind Näherungswerte und basieren auf offiziellen Roblox-Formeln. Die tatsächlichen Einnahmen können abweichen. Wir übernehmen keine Garantie für die Richtigkeit der Berechnungen. Nur zu Informationszwecken.',
+            lastUpdated: 'Aktualisiert am:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -460,10 +555,11 @@
                 time: 'Durchschnittszeit (Y)',
                 timeHint: 'in Minuten',
                 btn: 'Berechnen',
-                robux: 'Einkommen in Robux',
+                robux: 'Robux Verdient',
+                robuxBalance: 'Robux Guthaben',
                 usd: 'Einkommen in USD',
                 subMonth: 'pro Monat',
-                subWithdraw: 'nach Auszahlung',
+                subWithdraw: 'nach DevEx',
                 formula: 'Formel: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -473,10 +569,11 @@
                 price: 'Pass-Preis (Y)',
                 priceHint: 'in Robux',
                 btn: 'Berechnen',
-                robux: 'Einkommen in Robux',
+                robux: 'Robux Verdient',
+                robuxBalance: 'Robux Guthaben',
                 usd: 'Einkommen in USD',
                 subTotal: 'insgesamt',
-                subWithdraw: 'nach Auszahlung',
+                subWithdraw: 'nach DevEx',
                 formula: 'Formel: X × 50 × Y × 0.7'
             },
             players: {
@@ -539,16 +636,25 @@
             },
             footer: {
                 link: 'Metro New Rechner',
-                privacy: 'Datenschutz'
+                privacy: 'Datenschutz',
+                clearData: '🗑️ Gespeicherte Daten löschen'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'DevEx-Kurs: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ Bitte füllen Sie alle Felder aus',
+                zero: '⚠️ Der Wert darf nicht Null sein',
+                negative: '⚠️ Der Wert darf nicht negativ sein',
+                invalid: '⚠️ Bitte geben Sie eine gültige Zahl ein'
+            }
         },
         zh: {
             name: '中文',
             flag: '🇨🇳',
             title: '💰 Roblox开发者收入计算器',
             subtitle: '来自 Metro New 项目',
-            notice: '⚠️ 注意: 计算结果为近似值。实际收入可能有所不同。',
+            disclaimer: '⚠️ 所有计算均为近似值，基于Roblox官方公式。实际收入可能有所不同。我们不保证计算的准确性。仅供参考。',
+            lastUpdated: '最后更新:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -565,10 +671,11 @@
                 time: '平均时间 (Y)',
                 timeHint: '分钟',
                 btn: '计算',
-                robux: 'Robux 收入',
+                robux: '赚取Robux',
+                robuxBalance: 'Robux余额',
                 usd: '美元收入',
                 subMonth: '每月',
-                subWithdraw: '提现后',
+                subWithdraw: 'DevEx后',
                 formula: '公式: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -578,10 +685,11 @@
                 price: '通行证价格 (Y)',
                 priceHint: 'Robux',
                 btn: '计算',
-                robux: 'Robux 收入',
+                robux: '赚取Robux',
+                robuxBalance: 'Robux余额',
                 usd: '美元收入',
                 subTotal: '总计',
-                subWithdraw: '提现后',
+                subWithdraw: 'DevEx后',
                 formula: '公式: X × 50 × Y × 0.7'
             },
             players: {
@@ -644,16 +752,25 @@
             },
             footer: {
                 link: 'Metro New 计算器',
-                privacy: '隐私政策'
+                privacy: '隐私政策',
+                clearData: '🗑️ 清除保存的数据'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'DevEx汇率: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ 请填写所有字段',
+                zero: '⚠️ 值不能为零',
+                negative: '⚠️ 值不能为负数',
+                invalid: '⚠️ 请输入有效数字'
+            }
         },
         ja: {
             name: '日本語',
             flag: '🇯🇵',
             title: '💰 Roblox開発者収入計算機',
             subtitle: 'Metro New プロジェクトより',
-            notice: '⚠️ 注意: 計算は概算です。実際の収入は異なる場合があります。',
+            disclaimer: '⚠️ すべての計算は概算であり、Robloxの公式計算式に基づいています。実際の収入は異なる場合があります。計算の正確性は保証しません。情報提供のみを目的としています。',
+            lastUpdated: '最終更新:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -670,10 +787,11 @@
                 time: '平均時間 (Y)',
                 timeHint: '分',
                 btn: '計算',
-                robux: 'Robux 収入',
-                usd: 'USD 収入',
+                robux: '獲得Robux',
+                robuxBalance: 'Robux残高',
+                usd: 'USD収入',
                 subMonth: '月間',
-                subWithdraw: '引き出し後',
+                subWithdraw: 'DevEx後',
                 formula: '計算式: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -683,10 +801,11 @@
                 price: 'パス価格 (Y)',
                 priceHint: 'Robux',
                 btn: '計算',
-                robux: 'Robux 収入',
-                usd: 'USD 収入',
+                robux: '獲得Robux',
+                robuxBalance: 'Robux残高',
+                usd: 'USD収入',
                 subTotal: '合計',
-                subWithdraw: '引き出し後',
+                subWithdraw: 'DevEx後',
                 formula: '計算式: X × 50 × Y × 0.7'
             },
             players: {
@@ -749,16 +868,25 @@
             },
             footer: {
                 link: 'Metro New 計算機',
-                privacy: 'プライバシーポリシー'
+                privacy: 'プライバシーポリシー',
+                clearData: '🗑️ 保存データを消去'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'DevExレート: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ すべてのフィールドを入力してください',
+                zero: '⚠️ 値はゼロにできません',
+                negative: '⚠️ 値は負の値にできません',
+                invalid: '⚠️ 有効な数字を入力してください'
+            }
         },
         ko: {
             name: '한국어',
             flag: '🇰🇷',
             title: '💰 Roblox 개발자 수익 계산기',
             subtitle: 'Metro New 프로젝트 제공',
-            notice: '⚠️ 참고: 계산은 근사치입니다. 실제 수익은 다를 수 있습니다.',
+            disclaimer: '⚠️ 모든 계산은 근사치이며 Roblox 공식 공식을 기반으로 합니다. 실제 수익은 다를 수 있습니다. 계산의 정확성을 보장하지 않습니다. 정보 제공 목적으로만 사용하십시오.',
+            lastUpdated: '마지막 업데이트:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -775,10 +903,11 @@
                 time: '평균 시간 (Y)',
                 timeHint: '분',
                 btn: '계산',
-                robux: 'Robux 수익',
+                robux: '획득 Robux',
+                robuxBalance: 'Robux 잔고',
                 usd: 'USD 수익',
                 subMonth: '월간',
-                subWithdraw: '출금 후',
+                subWithdraw: 'DevEx 후',
                 formula: '공식: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -788,10 +917,11 @@
                 price: '패스 가격 (Y)',
                 priceHint: 'Robux',
                 btn: '계산',
-                robux: 'Robux 수익',
+                robux: '획득 Robux',
+                robuxBalance: 'Robux 잔고',
                 usd: 'USD 수익',
                 subTotal: '총계',
-                subWithdraw: '출금 후',
+                subWithdraw: 'DevEx 후',
                 formula: '공식: X × 50 × Y × 0.7'
             },
             players: {
@@ -854,16 +984,25 @@
             },
             footer: {
                 link: 'Metro New 계산기',
-                privacy: '개인정보 처리방침'
+                privacy: '개인정보 처리방침',
+                clearData: '🗑️ 저장된 데이터 삭제'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'DevEx 환율: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ 모든 필드를 입력하세요',
+                zero: '⚠️ 값은 0일 수 없습니다',
+                negative: '⚠️ 값은 음수일 수 없습니다',
+                invalid: '⚠️ 유효한 숫자를 입력하세요'
+            }
         },
         ar: {
             name: 'العربية',
             flag: '🇸🇦',
             title: '💰 حاسبة أرباح مطوري Roblox',
             subtitle: 'من مشروع Metro New',
-            notice: '⚠️ ملاحظة: الحسابات تقريبية. قد يختلف الدخل الفعلي.',
+            disclaimer: '⚠️ جميع الحسابات تقريبية وتستند إلى الصيغ الرسمية لـ Roblox. قد يختلف الدخل الفعلي. لا نضمن دقة الحسابات. استخدم لأغراض إعلامية فقط.',
+            lastUpdated: 'آخر تحديث:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -880,10 +1019,11 @@
                 time: 'الوقت المتوسط (Y)',
                 timeHint: 'بالدقائق',
                 btn: 'احسب',
-                robux: 'الدخل بـ Robux',
+                robux: 'Robux المكتسبة',
+                robuxBalance: 'رصيد Robux',
                 usd: 'الدخل بـ USD',
                 subMonth: 'شهرياً',
-                subWithdraw: 'بعد السحب',
+                subWithdraw: 'بعد DevEx',
                 formula: 'الصيغة: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -893,10 +1033,11 @@
                 price: 'سعر الباس (Y)',
                 priceHint: 'بـ Robux',
                 btn: 'احسب',
-                robux: 'الدخل بـ Robux',
+                robux: 'Robux المكتسبة',
+                robuxBalance: 'رصيد Robux',
                 usd: 'الدخل بـ USD',
                 subTotal: 'الإجمالي',
-                subWithdraw: 'بعد السحب',
+                subWithdraw: 'بعد DevEx',
                 formula: 'الصيغة: X × 50 × Y × 0.7'
             },
             players: {
@@ -959,16 +1100,25 @@
             },
             footer: {
                 link: 'حاسبة Metro New',
-                privacy: 'سياسة الخصوصية'
+                privacy: 'سياسة الخصوصية',
+                clearData: '🗑️ مسح البيانات المحفوظة'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'سعر DevEx: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ الرجاء ملء جميع الحقول',
+                zero: '⚠️ لا يمكن أن تكون القيمة صفراً',
+                negative: '⚠️ لا يمكن أن تكون القيمة سالبة',
+                invalid: '⚠️ الرجاء إدخال رقم صحيح'
+            }
         },
         hi: {
             name: 'हिन्दी',
             flag: '🇮🇳',
             title: '💰 Roblox डेवलपर आय कैलकुलेटर',
             subtitle: 'Metro New प्रोजेक्ट से',
-            notice: '⚠️ नोट: गणनाएँ अनुमानित हैं। वास्तविक आय भिन्न हो सकती है।',
+            disclaimer: '⚠️ सभी गणनाएँ अनुमानित हैं और Roblox के आधिकारिक सूत्रों पर आधारित हैं। वास्तविक आय भिन्न हो सकती है। हम गणनाओं की सटीकता की गारंटी नहीं देते हैं। केवल सूचनात्मक उद्देश्यों के लिए उपयोग करें।',
+            lastUpdated: 'अंतिम अद्यतन:',
             tabs: {
                 premium: 'Premium',
                 gamepass: 'Game Pass',
@@ -985,10 +1135,11 @@
                 time: 'औसत समय (Y)',
                 timeHint: 'मिनटों में',
                 btn: 'गणना करें',
-                robux: 'Robux में आय',
+                robux: 'Robux अर्जित',
+                robuxBalance: 'Robux शेष',
                 usd: 'USD में आय',
                 subMonth: 'प्रति माह',
-                subWithdraw: 'निकासी के बाद',
+                subWithdraw: 'DevEx के बाद',
                 formula: 'सूत्र: X × 0.05 × Y × 0.001'
             },
             gamepass: {
@@ -998,10 +1149,11 @@
                 price: 'पास की कीमत (Y)',
                 priceHint: 'Robux में',
                 btn: 'गणना करें',
-                robux: 'Robux में आय',
+                robux: 'Robux अर्जित',
+                robuxBalance: 'Robux शेष',
                 usd: 'USD में आय',
                 subTotal: 'कुल',
-                subWithdraw: 'निकासी के बाद',
+                subWithdraw: 'DevEx के बाद',
                 formula: 'सूत्र: X × 50 × Y × 0.7'
             },
             players: {
@@ -1064,46 +1216,87 @@
             },
             footer: {
                 link: 'Metro New कैलकुलेटर',
-                privacy: 'गोपनीयता नीति'
+                privacy: 'गोपनीयता नीति',
+                clearData: '🗑️ सहेजे गए डेटा हटाएँ'
             },
-            badge: 'v2.1'
+            badge: 'v3.0',
+            devexRate: 'DevEx दर: 1 Robux = $0.0035',
+            errors: {
+                empty: '⚠️ कृपया सभी फ़ील्ड भरें',
+                zero: '⚠️ मान शून्य नहीं हो सकता',
+                negative: '⚠️ मान ऋणात्मक नहीं हो सकता',
+                invalid: '⚠️ कृपया एक मान्य संख्या दर्ज करें'
+            }
         }
     };
 
-    // ===== ДЕТЕКТИМ ЯЗЫК =====
-    function detectLanguage() {
-        const browserLang = navigator.language || navigator.userLanguage || 'en';
-        const langMap = {
-            'ru': 'ru', 'uk': 'ru', 'be': 'ru',
-            'en': 'en', 'en-US': 'en', 'en-GB': 'en',
-            'es': 'es', 'es-ES': 'es',
-            'fr': 'fr', 'fr-FR': 'fr',
-            'de': 'de', 'de-DE': 'de',
-            'zh': 'zh', 'zh-CN': 'zh', 'zh-TW': 'zh',
-            'ja': 'ja', 'ja-JP': 'ja',
-            'ko': 'ko', 'ko-KR': 'ko',
-            'ar': 'ar', 'ar-SA': 'ar',
-            'hi': 'hi', 'hi-IN': 'hi'
-        };
-        const lang = browserLang.slice(0, 2).toLowerCase();
-        return langMap[lang] || 'en';
+    // ============================================================
+    // ===== ПОЛУЧИТЬ ПЕРЕВОД =====
+    // ============================================================
+    function getTranslation(lang, path) {
+        const parts = path.split('.');
+        let current = LANGUAGES[lang] || LANGUAGES.en;
+        for (const part of parts) {
+            if (current && current[part] !== undefined) {
+                current = current[part];
+            } else {
+                return path;
+            }
+        }
+        return current;
     }
 
-    // ===== КОНФИГ =====
-    const CONFIG = {
-        containerId: 'roblox-calculator',
-        version: '2.1.0',
-        language: detectLanguage()
-    };
+    // ============================================================
+    // ===== ВАЛИДАЦИЯ =====
+    // ============================================================
+    function validateInput(value, fieldName, lang) {
+        const t = LANGUAGES[lang] || LANGUAGES.en;
+        
+        if (value === '' || value === null || value === undefined) {
+            return { valid: false, message: t.errors.empty };
+        }
+        
+        const num = parseFloat(value);
+        if (isNaN(num)) {
+            return { valid: false, message: t.errors.invalid };
+        }
+        
+        if (num < 0) {
+            return { valid: false, message: t.errors.negative };
+        }
+        
+        if (num === 0 && fieldName !== 'cpv') {
+            return { valid: false, message: t.errors.zero };
+        }
+        
+        return { valid: true, value: num };
+    }
 
-    // ===== НОВЫЙ ДИЗАЙН (СТИЛЬ МЕТРО NEW) =====
+    // ============================================================
+    // ===== ФОРМАТИРОВАНИЕ ЧИСЕЛ =====
+    // ============================================================
+    function formatNumber(num) {
+        if (num === undefined || num === null || isNaN(num)) return '0';
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toFixed(1);
+    }
+
+    function formatCurrency(num) {
+        if (num === undefined || num === null || isNaN(num)) return '$0.00';
+        return '$' + num.toFixed(2);
+    }
+
+    // ============================================================
+    // ===== СТИЛИ =====
+    // ============================================================
     const styles = `
         <style>
             .mn-calculator {
                 font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
                 max-width: 800px;
                 margin: 20px auto;
-                padding: 30px;
+                padding: 25px 30px 20px;
                 background: #0d1526;
                 border-radius: 20px;
                 box-shadow: 0 8px 40px rgba(0,0,0,0.6);
@@ -1112,24 +1305,21 @@
                 background-image: radial-gradient(ellipse at 10% 20%, rgba(255,215,0,0.06) 0%, transparent 60%),
                     radial-gradient(ellipse at 90% 80%, rgba(77,148,255,0.08) 0%, transparent 60%);
             }
-
-            .mn-calculator * {
-                box-sizing: border-box;
-            }
-
+            .mn-calculator * { box-sizing: border-box; }
+            
+            /* HEADER */
             .mn-calculator .mn-header {
                 display: flex;
                 align-items: center;
                 gap: 14px;
-                margin-bottom: 20px;
-                padding-bottom: 16px;
+                margin-bottom: 16px;
+                padding-bottom: 14px;
                 border-bottom: 2px solid #FFD700;
                 flex-wrap: wrap;
             }
-
             .mn-calculator .mn-header .mn-logo {
-                width: 50px;
-                height: 50px;
+                width: 48px;
+                height: 48px;
                 background: linear-gradient(135deg, #FFD700, #e6c200);
                 border-radius: 12px;
                 display: flex;
@@ -1137,358 +1327,294 @@
                 justify-content: center;
                 color: #0d1526;
                 font-weight: 800;
-                font-size: 22px;
+                font-size: 20px;
                 flex-shrink: 0;
-                box-shadow: 0 0 30px rgba(255,215,0,0.15);
+                box-shadow: 0 0 30px rgba(255,215,0,0.12);
             }
-
-            .mn-calculator .mn-header .mn-title {
-                flex: 1;
-                min-width: 140px;
-            }
-
+            .mn-calculator .mn-header .mn-title { flex: 1; min-width: 120px; }
             .mn-calculator .mn-header .mn-title h3 {
                 margin: 0;
-                color: #f2f4fa;
-                font-size: 18px;
+                font-size: 17px;
                 font-weight: 700;
                 background: linear-gradient(135deg, #f2f4fa 40%, #FFD700);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
             }
-
             .mn-calculator .mn-header .mn-title p {
-                margin: 2px 0 0 0;
+                margin: 2px 0 0;
                 color: #a6b0cc;
                 font-size: 12px;
             }
-
             .mn-calculator .mn-header .mn-lang-select {
-                padding: 6px 12px;
-                border-radius: 10px;
+                padding: 5px 10px;
+                border-radius: 8px;
                 background: #131c33;
                 border: 1px solid #253460;
                 color: #a6b0cc;
-                font-size: 13px;
+                font-size: 12px;
                 cursor: pointer;
                 font-family: 'Montserrat', sans-serif;
-                transition: all 0.3s;
             }
-
             .mn-calculator .mn-header .mn-lang-select:hover {
                 border-color: #FFD700;
                 color: #f2f4fa;
             }
-
             .mn-calculator .mn-header .mn-lang-select option {
                 background: #0d1526;
                 color: #f2f4fa;
             }
-
             .mn-calculator .mn-badge {
-                background: rgba(255,215,0,0.12);
+                background: rgba(255,215,0,0.10);
                 color: #FFD700;
-                padding: 4px 14px;
+                padding: 3px 12px;
                 border-radius: 50px;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 600;
-                border: 1px solid rgba(255,215,0,0.15);
+                border: 1px solid rgba(255,215,0,0.12);
                 white-space: nowrap;
             }
 
-            .mn-calculator .mn-notice {
-                background: rgba(255,215,0,0.06);
-                border-left: 4px solid #FFD700;
-                border-radius: 10px;
-                padding: 12px 16px;
-                margin-bottom: 20px;
-                font-size: 13px;
+            /* DISCLAIMER */
+            .mn-calculator .mn-disclaimer {
+                background: rgba(255,215,0,0.05);
+                border-left: 3px solid #FFD700;
+                border-radius: 8px;
+                padding: 10px 14px;
+                margin-bottom: 16px;
+                font-size: 12px;
                 color: #a6b0cc;
-                display: flex;
-                align-items: flex-start;
-                gap: 10px;
-                border: 1px solid rgba(255,215,0,0.08);
+                border: 1px solid rgba(255,215,0,0.06);
+            }
+            .mn-calculator .mn-disclaimer i { color: #FFD700; margin-right: 6px; }
+            .mn-calculator .mn-disclaimer strong { color: #FFD700; }
+            .mn-calculator .mn-disclaimer .mn-updated {
+                display: block;
+                margin-top: 4px;
+                color: #4a5473;
+                font-size: 11px;
             }
 
-            .mn-calculator .mn-notice i {
-                color: #FFD700;
-                font-size: 18px;
-                margin-top: 2px;
-            }
-
-            .mn-calculator .mn-notice strong {
-                color: #FFD700;
-            }
-
+            /* TABS */
             .mn-calculator .mn-tabs {
                 display: flex;
-                gap: 6px;
-                margin-bottom: 20px;
+                gap: 5px;
+                margin-bottom: 16px;
                 flex-wrap: wrap;
             }
-
             .mn-calculator .mn-tab {
-                padding: 8px 16px;
+                padding: 7px 14px;
                 border-radius: 50px;
                 border: 1px solid #253460;
                 background: transparent;
                 cursor: pointer;
                 font-weight: 600;
-                font-size: 13px;
+                font-size: 12px;
                 transition: all 0.3s;
                 color: #a6b0cc;
                 font-family: 'Montserrat', 'Segoe UI', sans-serif;
             }
-
             .mn-calculator .mn-tab:hover {
                 border-color: #FFD700;
                 color: #f2f4fa;
-                background: rgba(255,215,0,0.05);
+                background: rgba(255,215,0,0.04);
             }
-
             .mn-calculator .mn-tab.active {
-                background: rgba(255,215,0,0.12);
+                background: rgba(255,215,0,0.10);
                 color: #FFD700;
                 border-color: #FFD700;
-                box-shadow: 0 0 25px rgba(255,215,0,0.08);
+                box-shadow: 0 0 20px rgba(255,215,0,0.06);
             }
+            .mn-calculator .mn-tab i { margin-right: 5px; }
 
-            .mn-calculator .mn-tab i {
-                margin-right: 6px;
-            }
-
-            .mn-calculator .mn-panel {
-                display: none;
-                animation: mnFadeIn 0.35s ease;
-            }
-
-            .mn-calculator .mn-panel.active {
-                display: block;
-            }
-
+            /* PANELS */
+            .mn-calculator .mn-panel { display: none; animation: mnFadeIn 0.3s ease; }
+            .mn-calculator .mn-panel.active { display: block; }
             @keyframes mnFadeIn {
-                from { opacity: 0; transform: translateY(12px); }
+                from { opacity: 0; transform: translateY(8px); }
                 to { opacity: 1; transform: translateY(0); }
             }
 
+            /* FORM */
             .mn-calculator .mn-form {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 14px;
+                gap: 12px;
             }
-
-            .mn-calculator .mn-form .mn-full {
-                grid-column: 1 / -1;
-            }
-
+            .mn-calculator .mn-form .mn-full { grid-column: 1 / -1; }
             .mn-calculator .mn-group {
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 3px;
             }
-
             .mn-calculator .mn-group label {
                 font-weight: 600;
-                font-size: 13px;
+                font-size: 12px;
                 color: #a6b0cc;
             }
-
             .mn-calculator .mn-group label .mn-hint {
                 font-weight: 400;
                 color: #4a5473;
-                font-size: 11px;
+                font-size: 10px;
             }
-
             .mn-calculator .mn-group input {
-                padding: 10px 14px;
-                border-radius: 10px;
+                padding: 9px 12px;
+                border-radius: 8px;
                 border: 1px solid #253460;
                 background: #131c33;
                 color: #f2f4fa;
-                font-size: 14px;
+                font-size: 13px;
                 transition: all 0.3s;
                 font-family: 'Montserrat', sans-serif;
+                width: 100%;
             }
-
             .mn-calculator .mn-group input:focus {
                 outline: none;
                 border-color: #FFD700;
-                box-shadow: 0 0 0 3px rgba(255,215,0,0.08);
+                box-shadow: 0 0 0 3px rgba(255,215,0,0.06);
                 background: #182444;
             }
-
-            .mn-calculator .mn-group input::placeholder {
-                color: #4a5473;
+            .mn-calculator .mn-group input::placeholder { color: #4a5473; }
+            .mn-calculator .mn-group .mn-error {
+                color: #f28b82;
+                font-size: 11px;
+                margin-top: 2px;
+                display: none;
+            }
+            .mn-calculator .mn-group .mn-error.show { display: block; }
+            .mn-calculator .mn-group.has-error input {
+                border-color: #f28b82;
             }
 
+            /* BUTTON */
             .mn-calculator .mn-btn {
-                padding: 12px 24px;
-                border-radius: 12px;
+                padding: 11px 20px;
+                border-radius: 10px;
                 border: none;
                 background: linear-gradient(135deg, #FFD700, #e6c200);
                 color: #0d1526;
                 font-weight: 700;
-                font-size: 15px;
+                font-size: 14px;
                 cursor: pointer;
                 transition: all 0.3s;
                 font-family: 'Montserrat', sans-serif;
                 width: 100%;
-                margin-top: 4px;
-                box-shadow: 0 4px 25px rgba(255,215,0,0.12);
+                margin-top: 2px;
+                box-shadow: 0 4px 20px rgba(255,215,0,0.10);
             }
-
             .mn-calculator .mn-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 40px rgba(255,215,0,0.2);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 30px rgba(255,215,0,0.18);
             }
+            .mn-calculator .mn-btn:active { transform: translateY(0); }
+            .mn-calculator .mn-btn i { margin-right: 6px; }
 
-            .mn-calculator .mn-btn:active {
-                transform: translateY(0);
-            }
-
-            .mn-calculator .mn-btn i {
-                margin-right: 8px;
-            }
-
+            /* RESULT */
             .mn-calculator .mn-result {
-                margin-top: 18px;
-                padding: 18px 20px;
-                border-radius: 12px;
-                background: rgba(255,215,0,0.04);
-                border: 1px solid rgba(255,215,0,0.10);
+                margin-top: 16px;
+                padding: 16px 18px;
+                border-radius: 10px;
+                background: rgba(255,215,0,0.03);
+                border: 1px solid rgba(255,215,0,0.08);
                 display: none;
             }
-
-            .mn-calculator .mn-result.show {
-                display: block;
-                animation: mnFadeIn 0.4s ease;
-            }
-
+            .mn-calculator .mn-result.show { display: block; animation: mnFadeIn 0.4s ease; }
             .mn-calculator .mn-result .mn-result-title {
-                font-size: 15px;
+                font-size: 14px;
                 font-weight: 700;
                 color: #FFD700;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
-
             .mn-calculator .mn-result .mn-values {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                gap: 10px;
             }
-
             .mn-calculator .mn-result .mn-item {
                 background: #131c33;
-                border-radius: 10px;
-                padding: 12px 16px;
+                border-radius: 8px;
+                padding: 10px 14px;
                 text-align: center;
                 border: 1px solid #253460;
             }
-
             .mn-calculator .mn-result .mn-item .mn-label {
                 color: #4a5473;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 500;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
-
             .mn-calculator .mn-result .mn-item .mn-value {
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: 800;
                 color: #f2f4fa;
                 margin-top: 2px;
             }
-
-            .mn-calculator .mn-result .mn-item .mn-value.mn-robux {
-                color: #FFD700;
-            }
-
-            .mn-calculator .mn-result .mn-item .mn-value.mn-usd {
-                color: #34a853;
-            }
-
-            .mn-calculator .mn-result .mn-item .mn-value.mn-green {
-                color: #34a853;
-            }
-
-            .mn-calculator .mn-result .mn-item .mn-value.mn-orange {
-                color: #f39c12;
-            }
-
+            .mn-calculator .mn-result .mn-item .mn-value.mn-robux { color: #FFD700; }
+            .mn-calculator .mn-result .mn-item .mn-value.mn-usd { color: #34a853; }
+            .mn-calculator .mn-result .mn-item .mn-value.mn-green { color: #34a853; }
+            .mn-calculator .mn-result .mn-item .mn-value.mn-orange { color: #f39c12; }
             .mn-calculator .mn-result .mn-item .mn-sub {
+                font-size: 10px;
+                color: #4a5473;
+            }
+            .mn-calculator .mn-result .mn-formula {
                 font-size: 11px;
                 color: #4a5473;
-            }
-
-            .mn-calculator .mn-result .mn-formula {
-                font-size: 12px;
-                color: #4a5473;
-                margin-top: 10px;
+                margin-top: 8px;
                 text-align: center;
             }
-
-            .mn-calculator .mn-result .mn-formula strong {
-                color: #a6b0cc;
+            .mn-calculator .mn-result .mn-formula strong { color: #a6b0cc; }
+            .mn-calculator .mn-result .mn-devex-info {
+                font-size: 10px;
+                color: #4a5473;
+                text-align: center;
+                margin-top: 6px;
             }
 
+            /* FOOTER */
             .mn-calculator .mn-footer {
-                margin-top: 18px;
-                padding-top: 14px;
+                margin-top: 14px;
+                padding-top: 12px;
                 border-top: 1px solid #253460;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 flex-wrap: wrap;
-                gap: 8px;
-                font-size: 12px;
+                gap: 6px;
+                font-size: 11px;
                 color: #4a5473;
             }
-
             .mn-calculator .mn-footer a {
                 color: #a6b0cc;
                 text-decoration: none;
                 font-weight: 500;
                 transition: color 0.3s;
             }
-
-            .mn-calculator .mn-footer a:hover {
-                color: #FFD700;
+            .mn-calculator .mn-footer a:hover { color: #FFD700; }
+            .mn-calculator .mn-footer .mn-clear-btn {
+                background: transparent;
+                border: none;
+                color: #4a5473;
+                cursor: pointer;
+                font-size: 11px;
+                font-family: 'Montserrat', sans-serif;
+                transition: color 0.3s;
             }
+            .mn-calculator .mn-footer .mn-clear-btn:hover { color: #f28b82; }
 
+            /* RESPONSIVE */
             @media (max-width: 600px) {
-                .mn-calculator {
-                    padding: 16px;
-                    margin: 10px;
-                }
-                .mn-calculator .mn-form {
-                    grid-template-columns: 1fr;
-                }
-                .mn-calculator .mn-tab {
-                    font-size: 12px;
-                    padding: 6px 12px;
-                }
-                .mn-calculator .mn-result .mn-values {
-                    grid-template-columns: 1fr 1fr;
-                }
-                .mn-calculator .mn-header .mn-title h3 {
-                    font-size: 15px;
-                }
+                .mn-calculator { padding: 14px 12px; margin: 8px; }
+                .mn-calculator .mn-form { grid-template-columns: 1fr; }
+                .mn-calculator .mn-tab { font-size: 11px; padding: 5px 10px; }
+                .mn-calculator .mn-result .mn-values { grid-template-columns: 1fr 1fr; }
+                .mn-calculator .mn-header .mn-title h3 { font-size: 14px; }
+                .mn-calculator .mn-header .mn-lang-select { font-size: 11px; padding: 4px 8px; }
             }
-
             @media (max-width: 400px) {
-                .mn-calculator .mn-result .mn-values {
-                    grid-template-columns: 1fr;
-                }
-                .mn-calculator .mn-header .mn-lang-select {
-                    font-size: 11px;
-                    padding: 4px 8px;
-                }
-                .mn-calculator .mn-badge {
-                    font-size: 9px;
-                    padding: 2px 10px;
-                }
+                .mn-calculator .mn-result .mn-values { grid-template-columns: 1fr; }
+                .mn-calculator .mn-badge { font-size: 9px; padding: 2px 8px; }
             }
         </style>
     `;
@@ -1507,57 +1633,59 @@
                 ${styles}
 
                 <div class="mn-header">
-                    <div class="mn-logo">M</div>
+                    <div class="mn-logo" aria-label="Metro New Logo">M</div>
                     <div class="mn-title">
                         <h3>${t.title}</h3>
                         <p>${t.subtitle}</p>
                     </div>
-                    <select class="mn-lang-select" id="mnLangSelect">
+                    <select class="mn-lang-select" id="mnLangSelect" aria-label="Выберите язык / Select language">
                         ${langOptions}
                     </select>
                     <span class="mn-badge">${t.badge}</span>
                 </div>
 
-                <div class="mn-notice">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div>${t.notice}</div>
+                <div class="mn-disclaimer">
+                    <i class="fas fa-info-circle"></i>
+                    ${t.disclaimer}
+                    <span class="mn-updated">${t.lastUpdated} ${CONFIG.lastUpdated}</span>
                 </div>
 
-                <!-- ===== ВКЛАДКИ ===== -->
-                <div class="mn-tabs" id="mnTabs">
-                    <button class="mn-tab active" data-tab="premium">
+                <div class="mn-tabs" id="mnTabs" role="tablist">
+                    <button class="mn-tab active" data-tab="premium" role="tab" aria-selected="true">
                         <i class="fas fa-crown"></i> ${t.tabs.premium}
                     </button>
-                    <button class="mn-tab" data-tab="gamepass">
+                    <button class="mn-tab" data-tab="gamepass" role="tab" aria-selected="false">
                         <i class="fas fa-ticket"></i> ${t.tabs.gamepass}
                     </button>
-                    <button class="mn-tab" data-tab="players">
+                    <button class="mn-tab" data-tab="players" role="tab" aria-selected="false">
                         <i class="fas fa-users"></i> ${t.tabs.players}
                     </button>
-                    <button class="mn-tab" data-tab="payback">
+                    <button class="mn-tab" data-tab="payback" role="tab" aria-selected="false">
                         <i class="fas fa-clock"></i> ${t.tabs.payback}
                     </button>
-                    <button class="mn-tab" data-tab="gpExtra">
+                    <button class="mn-tab" data-tab="gpExtra" role="tab" aria-selected="false">
                         <i class="fas fa-ticket"></i> ${t.tabs.gpExtra}
                     </button>
-                    <button class="mn-tab" data-tab="ads">
+                    <button class="mn-tab" data-tab="ads" role="tab" aria-selected="false">
                         <i class="fas fa-ad"></i> ${t.tabs.ads}
                     </button>
-                    <button class="mn-tab" data-tab="time">
+                    <button class="mn-tab" data-tab="time" role="tab" aria-selected="false">
                         <i class="fas fa-hourglass-half"></i> ${t.tabs.time}
                     </button>
                 </div>
 
-                <!-- ===== PREMIUM ===== -->
-                <div class="mn-panel active" id="mnPremium">
-                    <form class="mn-form" id="mnPremiumForm">
+                <!-- PREMIUM -->
+                <div class="mn-panel active" id="mnPremium" role="tabpanel">
+                    <form class="mn-form" id="mnPremiumForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.premium.visits} <span class="mn-hint">${t.premium.visitsHint}</span></label>
-                            <input type="number" id="mnPremiumVisits" placeholder="100000" min="0" step="1" value="100000">
+                            <label for="mnPremiumVisits">${t.premium.visits} <span class="mn-hint">${t.premium.visitsHint}</span></label>
+                            <input type="number" id="mnPremiumVisits" placeholder="100000" min="0" step="1" value="100000" aria-required="true">
+                            <span class="mn-error" id="mnPremiumVisitsError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.premium.time} <span class="mn-hint">${t.premium.timeHint}</span></label>
-                            <input type="number" id="mnPremiumTime" placeholder="20" min="0" step="0.1" value="20">
+                            <label for="mnPremiumTime">${t.premium.time} <span class="mn-hint">${t.premium.timeHint}</span></label>
+                            <input type="number" id="mnPremiumTime" placeholder="20" min="0" step="0.1" value="20" aria-required="true">
+                            <span class="mn-error" id="mnPremiumTimeError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1575,27 +1703,33 @@
                                 <div class="mn-sub">${t.premium.subMonth}</div>
                             </div>
                             <div class="mn-item">
+                                <div class="mn-label">${t.premium.robuxBalance}</div>
+                                <div class="mn-value" id="mnPremiumBalance" style="color:#a6b0cc;">0</div>
+                                <div class="mn-sub">${t.premium.subMonth}</div>
+                            </div>
+                            <div class="mn-item">
                                 <div class="mn-label">${t.premium.usd}</div>
-                                <div class="mn-value mn-usd" id="mnPremiumUsd">$0</div>
+                                <div class="mn-value mn-usd" id="mnPremiumUsd">$0.00</div>
                                 <div class="mn-sub">${t.premium.subWithdraw}</div>
                             </div>
                         </div>
-                        <div class="mn-formula">
-                            <i class="fas fa-info-circle"></i> ${t.premium.formula}
-                        </div>
+                        <div class="mn-formula"><i class="fas fa-info-circle"></i> ${t.premium.formula}</div>
+                        <div class="mn-devex-info">${t.devexRate}</div>
                     </div>
                 </div>
 
-                <!-- ===== GAME PASS ===== -->
-                <div class="mn-panel" id="mnGamepass">
-                    <form class="mn-form" id="mnGamepassForm">
+                <!-- GAME PASS -->
+                <div class="mn-panel" id="mnGamepass" role="tabpanel">
+                    <form class="mn-form" id="mnGamepassForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.gamepass.ratings} <span class="mn-hint">${t.gamepass.ratingsHint}</span></label>
-                            <input type="number" id="mnGamepassRatings" placeholder="200" min="0" step="1" value="200">
+                            <label for="mnGamepassRatings">${t.gamepass.ratings} <span class="mn-hint">${t.gamepass.ratingsHint}</span></label>
+                            <input type="number" id="mnGamepassRatings" placeholder="200" min="0" step="1" value="200" aria-required="true">
+                            <span class="mn-error" id="mnGamepassRatingsError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.gamepass.price} <span class="mn-hint">${t.gamepass.priceHint}</span></label>
-                            <input type="number" id="mnGamepassPrice" placeholder="100" min="0" step="1" value="100">
+                            <label for="mnGamepassPrice">${t.gamepass.price} <span class="mn-hint">${t.gamepass.priceHint}</span></label>
+                            <input type="number" id="mnGamepassPrice" placeholder="100" min="0" step="1" value="100" aria-required="true">
+                            <span class="mn-error" id="mnGamepassPriceError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1613,27 +1747,33 @@
                                 <div class="mn-sub">${t.gamepass.subTotal}</div>
                             </div>
                             <div class="mn-item">
+                                <div class="mn-label">${t.gamepass.robuxBalance}</div>
+                                <div class="mn-value" id="mnGamepassBalance" style="color:#a6b0cc;">0</div>
+                                <div class="mn-sub">${t.gamepass.subTotal}</div>
+                            </div>
+                            <div class="mn-item">
                                 <div class="mn-label">${t.gamepass.usd}</div>
-                                <div class="mn-value mn-usd" id="mnGamepassUsd">$0</div>
+                                <div class="mn-value mn-usd" id="mnGamepassUsd">$0.00</div>
                                 <div class="mn-sub">${t.gamepass.subWithdraw}</div>
                             </div>
                         </div>
-                        <div class="mn-formula">
-                            <i class="fas fa-info-circle"></i> ${t.gamepass.formula}
-                        </div>
+                        <div class="mn-formula"><i class="fas fa-info-circle"></i> ${t.gamepass.formula}</div>
+                        <div class="mn-devex-info">${t.devexRate}</div>
                     </div>
                 </div>
 
-                <!-- ===== ИГРОКИ ===== -->
-                <div class="mn-panel" id="mnPlayers">
-                    <form class="mn-form" id="mnPlayersForm">
+                <!-- PLAYERS -->
+                <div class="mn-panel" id="mnPlayers" role="tabpanel">
+                    <form class="mn-form" id="mnPlayersForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.players.target} <span class="mn-hint">${t.players.targetHint}</span></label>
-                            <input type="number" id="mnPlayersTarget" placeholder="10000" min="0" step="1" value="10000">
+                            <label for="mnPlayersTarget">${t.players.target} <span class="mn-hint">${t.players.targetHint}</span></label>
+                            <input type="number" id="mnPlayersTarget" placeholder="10000" min="0" step="1" value="10000" aria-required="true">
+                            <span class="mn-error" id="mnPlayersTargetError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.players.time} <span class="mn-hint">${t.players.timeHint}</span></label>
-                            <input type="number" id="mnPlayersTime" placeholder="20" min="0" step="0.1" value="20">
+                            <label for="mnPlayersTime">${t.players.time} <span class="mn-hint">${t.players.timeHint}</span></label>
+                            <input type="number" id="mnPlayersTime" placeholder="20" min="0" step="0.1" value="20" aria-required="true">
+                            <span class="mn-error" id="mnPlayersTimeError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1647,7 +1787,7 @@
                         <div class="mn-values">
                             <div class="mn-item" style="grid-column: 1 / -1;">
                                 <div class="mn-label">${t.players.visitsPerMonth}</div>
-                                <div class="mn-value mn-robux" id="mnPlayersNeeded" style="font-size: 30px;">0</div>
+                                <div class="mn-value mn-robux" id="mnPlayersNeeded" style="font-size: 28px;">0</div>
                             </div>
                             <div class="mn-item">
                                 <div class="mn-label">${t.players.perDay}</div>
@@ -1658,22 +1798,22 @@
                                 <div class="mn-value mn-orange" id="mnPlayersHour">0</div>
                             </div>
                         </div>
-                        <div class="mn-formula">
-                            <i class="fas fa-info-circle"></i> ${t.players.formula}
-                        </div>
+                        <div class="mn-formula"><i class="fas fa-info-circle"></i> ${t.players.formula}</div>
                     </div>
                 </div>
 
-                <!-- ===== ОКУПАЕМОСТЬ ===== -->
-                <div class="mn-panel" id="mnPayback">
-                    <form class="mn-form" id="mnPaybackForm">
+                <!-- PAYBACK -->
+                <div class="mn-panel" id="mnPayback" role="tabpanel">
+                    <form class="mn-form" id="mnPaybackForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.payback.cost} <span class="mn-hint">${t.payback.costHint}</span></label>
-                            <input type="number" id="mnPaybackCost" placeholder="50000" min="0" step="1" value="50000">
+                            <label for="mnPaybackCost">${t.payback.cost} <span class="mn-hint">${t.payback.costHint}</span></label>
+                            <input type="number" id="mnPaybackCost" placeholder="50000" min="0" step="1" value="50000" aria-required="true">
+                            <span class="mn-error" id="mnPaybackCostError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.payback.income} <span class="mn-hint">${t.payback.incomeHint}</span></label>
-                            <input type="number" id="mnPaybackIncome" placeholder="10000" min="0" step="1" value="10000">
+                            <label for="mnPaybackIncome">${t.payback.income} <span class="mn-hint">${t.payback.incomeHint}</span></label>
+                            <input type="number" id="mnPaybackIncome" placeholder="10000" min="0" step="1" value="10000" aria-required="true">
+                            <span class="mn-error" id="mnPaybackIncomeError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1699,20 +1839,23 @@
                     </div>
                 </div>
 
-                <!-- ===== GAME PASS'Ы (ДОП) ===== -->
-                <div class="mn-panel" id="mnGpExtra">
-                    <form class="mn-form" id="mnGpExtraForm">
+                <!-- GP EXTRA -->
+                <div class="mn-panel" id="mnGpExtra" role="tabpanel">
+                    <form class="mn-form" id="mnGpExtraForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.gpExtra.target} <span class="mn-hint">${t.gpExtra.targetHint}</span></label>
-                            <input type="number" id="mnGpExtraTarget" placeholder="100000" min="0" step="1" value="100000">
+                            <label for="mnGpExtraTarget">${t.gpExtra.target} <span class="mn-hint">${t.gpExtra.targetHint}</span></label>
+                            <input type="number" id="mnGpExtraTarget" placeholder="100000" min="0" step="1" value="100000" aria-required="true">
+                            <span class="mn-error" id="mnGpExtraTargetError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.gpExtra.price} <span class="mn-hint">${t.gpExtra.priceHint}</span></label>
-                            <input type="number" id="mnGpExtraPrice" placeholder="100" min="0" step="1" value="100">
+                            <label for="mnGpExtraPrice">${t.gpExtra.price} <span class="mn-hint">${t.gpExtra.priceHint}</span></label>
+                            <input type="number" id="mnGpExtraPrice" placeholder="100" min="0" step="1" value="100" aria-required="true">
+                            <span class="mn-error" id="mnGpExtraPriceError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.gpExtra.ratings} <span class="mn-hint">${t.gpExtra.ratingsHint}</span></label>
-                            <input type="number" id="mnGpExtraRatings" placeholder="50" min="0" step="1" value="50">
+                            <label for="mnGpExtraRatings">${t.gpExtra.ratings} <span class="mn-hint">${t.gpExtra.ratingsHint}</span></label>
+                            <input type="number" id="mnGpExtraRatings" placeholder="50" min="0" step="1" value="50" aria-required="true">
+                            <span class="mn-error" id="mnGpExtraRatingsError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1731,23 +1874,26 @@
                             </div>
                             <div class="mn-item">
                                 <div class="mn-label">${t.gpExtra.perPass}</div>
-                                <div class="mn-value mn-usd" id="mnGpExtraPerPass">$0</div>
+                                <div class="mn-value mn-usd" id="mnGpExtraPerPass">$0.00</div>
                                 <div class="mn-sub">${t.gpExtra.subPerPass}</div>
                             </div>
                         </div>
+                        <div class="mn-devex-info">${t.devexRate}</div>
                     </div>
                 </div>
 
-                <!-- ===== РЕКЛАМА ===== -->
-                <div class="mn-panel" id="mnAds">
-                    <form class="mn-form" id="mnAdsForm">
+                <!-- ADS -->
+                <div class="mn-panel" id="mnAds" role="tabpanel">
+                    <form class="mn-form" id="mnAdsForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.ads.budget} <span class="mn-hint">${t.ads.budgetHint}</span></label>
-                            <input type="number" id="mnAdsBudget" placeholder="10000" min="0" step="1" value="10000">
+                            <label for="mnAdsBudget">${t.ads.budget} <span class="mn-hint">${t.ads.budgetHint}</span></label>
+                            <input type="number" id="mnAdsBudget" placeholder="10000" min="0" step="1" value="10000" aria-required="true">
+                            <span class="mn-error" id="mnAdsBudgetError"></span>
                         </div>
                         <div class="mn-group">
-                            <label>${t.ads.cpv} <span class="mn-hint">${t.ads.cpvHint}</span></label>
-                            <input type="number" id="mnAdsCpv" placeholder="0.5" min="0" step="0.01" value="0.5">
+                            <label for="mnAdsCpv">${t.ads.cpv} <span class="mn-hint">${t.ads.cpvHint}</span></label>
+                            <input type="number" id="mnAdsCpv" placeholder="0.5" min="0" step="0.01" value="0.5" aria-required="true">
+                            <span class="mn-error" id="mnAdsCpvError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1766,19 +1912,21 @@
                             </div>
                             <div class="mn-item">
                                 <div class="mn-label">${t.ads.costPerVisit}</div>
-                                <div class="mn-value mn-orange" id="mnAdsCostPerVisit">$0</div>
+                                <div class="mn-value mn-orange" id="mnAdsCostPerVisit">$0.0000</div>
                                 <div class="mn-sub">${t.ads.subCost}</div>
                             </div>
                         </div>
+                        <div class="mn-devex-info">${t.devexRate}</div>
                     </div>
                 </div>
 
-                <!-- ===== КОНВЕРТЕР ВРЕМЕНИ ===== -->
-                <div class="mn-panel" id="mnTime">
-                    <form class="mn-form" id="mnTimeForm">
+                <!-- TIME CONVERTER -->
+                <div class="mn-panel" id="mnTime" role="tabpanel">
+                    <form class="mn-form" id="mnTimeForm" novalidate>
                         <div class="mn-group">
-                            <label>${t.time.minutes}</label>
-                            <input type="number" id="mnTimeMinutes" placeholder="10000" min="0" step="1" value="10000">
+                            <label for="mnTimeMinutes">${t.time.minutes}</label>
+                            <input type="number" id="mnTimeMinutes" placeholder="10000" min="0" step="1" value="10000" aria-required="true">
+                            <span class="mn-error" id="mnTimeMinutesError"></span>
                         </div>
                         <div class="mn-full">
                             <button type="submit" class="mn-btn">
@@ -1809,16 +1957,19 @@
                 <div class="mn-footer">
                     <span>
                         <i class="fas fa-code"></i>
-                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/" target="_blank">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/" target="_blank" rel="noopener noreferrer">
                             ${t.footer.link}
                         </a>
                     </span>
                     <span>
                         <i class="fas fa-info-circle"></i>
-                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank" rel="noopener noreferrer">
                             ${t.footer.privacy}
                         </a>
                     </span>
+                    <button class="mn-clear-btn" id="mnClearData" aria-label="Очистить сохранённые данные / Clear saved data">
+                        ${t.footer.clearData}
+                    </button>
                 </div>
             </div>
         `;
@@ -1830,6 +1981,7 @@
     function updateLanguage(container, lang) {
         const t = LANGUAGES[lang] || LANGUAGES.en;
         container.dataset.lang = lang;
+        localStorage.setItem('mn_language', lang);
 
         const select = container.querySelector('#mnLangSelect');
         if (select) select.value = lang;
@@ -1842,35 +1994,39 @@
         if (title) title.textContent = t.title;
         if (subtitle) subtitle.textContent = t.subtitle;
 
-        const notice = container.querySelector('.mn-notice div');
-        if (notice) notice.innerHTML = t.notice;
-
-        const tabs = container.querySelectorAll('.mn-tab');
-        const tabKeys = ['premium', 'gamepass', 'players', 'payback', 'gpExtra', 'ads', 'time'];
-        if (tabs.length >= 7) {
-            tabs.forEach((tab, i) => {
-                const key = tabKeys[i];
-                const iconMap = {
-                    'premium': 'fa-crown',
-                    'gamepass': 'fa-ticket',
-                    'players': 'fa-users',
-                    'payback': 'fa-clock',
-                    'gpExtra': 'fa-ticket',
-                    'ads': 'fa-ad',
-                    'time': 'fa-hourglass-half'
-                };
-                tab.innerHTML = `<i class="fas ${iconMap[key]}"></i> ${t.tabs[key]}`;
-            });
+        const disclaimer = container.querySelector('.mn-disclaimer');
+        if (disclaimer) {
+            const text = disclaimer.querySelector('i')?.nextSibling;
+            if (text) text.textContent = ' ' + t.disclaimer;
+            const updated = disclaimer.querySelector('.mn-updated');
+            if (updated) updated.textContent = t.lastUpdated + ' ' + CONFIG.lastUpdated;
         }
 
-        // Обновляем все панели
-        updatePanel(container, 'mnPremium', 'premium');
-        updatePanel(container, 'mnGamepass', 'gamepass');
-        updatePanel(container, 'mnPlayers', 'players');
-        updatePanel(container, 'mnPayback', 'payback');
-        updatePanel(container, 'mnGpExtra', 'gpExtra');
-        updatePanel(container, 'mnAds', 'ads');
-        updatePanel(container, 'mnTime', 'time');
+        // Обновляем вкладки
+        const tabs = container.querySelectorAll('.mn-tab');
+        const tabKeys = ['premium', 'gamepass', 'players', 'payback', 'gpExtra', 'ads', 'time'];
+        const iconMap = {
+            'premium': 'fa-crown',
+            'gamepass': 'fa-ticket',
+            'players': 'fa-users',
+            'payback': 'fa-clock',
+            'gpExtra': 'fa-ticket',
+            'ads': 'fa-ad',
+            'time': 'fa-hourglass-half'
+        };
+        tabs.forEach((tab, i) => {
+            if (i < tabKeys.length) {
+                const key = tabKeys[i];
+                tab.innerHTML = `<i class="fas ${iconMap[key]}"></i> ${t.tabs[key]}`;
+            }
+        });
+
+        // Обновляем панели
+        const panelIds = ['mnPremium', 'mnGamepass', 'mnPlayers', 'mnPayback', 'mnGpExtra', 'mnAds', 'mnTime'];
+        const panelTypes = ['premium', 'gamepass', 'players', 'payback', 'gpExtra', 'ads', 'time'];
+        panelIds.forEach((id, i) => {
+            updatePanel(container, id, panelTypes[i], lang);
+        });
 
         // Футер
         const footerLinks = container.querySelectorAll('.mn-footer a');
@@ -1878,25 +2034,34 @@
             footerLinks[0].textContent = t.footer.link;
             footerLinks[1].textContent = t.footer.privacy;
         }
+        const clearBtn = container.querySelector('#mnClearData');
+        if (clearBtn) clearBtn.textContent = t.footer.clearData;
+
+        // Обновляем devex info
+        container.querySelectorAll('.mn-devex-info').forEach(el => {
+            el.textContent = t.devexRate;
+        });
     }
 
-    function updatePanel(container, panelId, type) {
-        const t = LANGUAGES[container.dataset.lang] || LANGUAGES.en;
+    function updatePanel(container, panelId, type, lang) {
+        const t = LANGUAGES[lang] || LANGUAGES.en;
         const panel = container.querySelector(`#${panelId}`);
         if (!panel) return;
 
+        const data = t[type];
+        if (!data) return;
+
+        // Обновляем лейблы формы
         const labels = panel.querySelectorAll('.mn-group label');
-        const hints = panel.querySelectorAll('.mn-group .mn-hint');
+        const inputs = panel.querySelectorAll('.mn-group input');
         const btn = panel.querySelector('.mn-btn');
         const resultTitle = panel.querySelector('.mn-result .mn-result-title');
         const items = panel.querySelectorAll('.mn-result .mn-item .mn-label');
         const subs = panel.querySelectorAll('.mn-result .mn-item .mn-sub');
         const formula = panel.querySelector('.mn-result .mn-formula');
+        const devexInfo = panel.querySelector('.mn-devex-info');
 
-        const data = t[type];
-        if (!data) return;
-
-        // Обновляем лейблы
+        // Обновляем лейблы в зависимости от типа
         if (type === 'premium' && labels.length >= 2) {
             labels[0].innerHTML = `${data.visits} <span class="mn-hint">${data.visitsHint}</span>`;
             labels[1].innerHTML = `${data.time} <span class="mn-hint">${data.timeHint}</span>`;
@@ -1920,20 +2085,47 @@
             labels[0].innerHTML = data.minutes;
         }
 
+        // Обновляем плейсхолдеры
+        const placeholders = {
+            'premium': ['100000', '20'],
+            'gamepass': ['200', '100'],
+            'players': ['10000', '20'],
+            'payback': ['50000', '10000'],
+            'gpExtra': ['100000', '100', '50'],
+            'ads': ['10000', '0.5'],
+            'time': ['10000']
+        };
+        if (placeholders[type]) {
+            inputs.forEach((input, i) => {
+                if (i < placeholders[type].length) {
+                    input.placeholder = placeholders[type][i];
+                }
+            });
+        }
+
         if (btn) btn.innerHTML = `<i class="fas fa-calculator"></i> ${data.btn}`;
         if (resultTitle) resultTitle.textContent = data.title;
-        
         if (formula && data.formula) {
             formula.innerHTML = `<i class="fas fa-info-circle"></i> ${data.formula}`;
         }
+        if (devexInfo && data.devexRate) {
+            devexInfo.textContent = data.devexRate;
+        }
 
         // Обновляем лейблы результатов
-        if (items.length > 0) {
-            const keys = Object.keys(data);
-            const labelKeys = ['robux', 'usd', 'months', 'days', 'count', 'perPass', 'visits', 'costPerVisit', 'hours', 'days', 'months'];
+        const labelMap = {
+            'premium': ['robux', 'robuxBalance', 'usd'],
+            'gamepass': ['robux', 'robuxBalance', 'usd'],
+            'players': ['visitsPerMonth', 'perDay', 'perHour'],
+            'payback': ['months', 'days'],
+            'gpExtra': ['count', 'perPass'],
+            'ads': ['visits', 'costPerVisit'],
+            'time': ['hours', 'days', 'months']
+        };
+        if (labelMap[type]) {
             items.forEach((item, i) => {
-                if (i < labelKeys.length) {
-                    const key = labelKeys[i];
+                if (i < labelMap[type].length) {
+                    const key = labelMap[type][i];
                     if (data[key] !== undefined) {
                         item.textContent = data[key];
                     }
@@ -1942,12 +2134,20 @@
         }
 
         // Обновляем подписи
-        if (subs.length > 0) {
-            const subKeys = ['subMonth', 'subWithdraw', 'subTotal', 'subMonths', 'subDays', 'subCount', 'subPerPass', 'subVisits', 'subCost'];
+        const subMap = {
+            'premium': ['subMonth', 'subMonth', 'subWithdraw'],
+            'gamepass': ['subTotal', 'subTotal', 'subWithdraw'],
+            'players': ['', '', ''],
+            'payback': ['subMonths', 'subDays'],
+            'gpExtra': ['subCount', 'subPerPass'],
+            'ads': ['subVisits', 'subCost'],
+            'time': ['', '', '']
+        };
+        if (subMap[type]) {
             subs.forEach((sub, i) => {
-                if (i < subKeys.length) {
-                    const key = subKeys[i];
-                    if (data[key] !== undefined) {
+                if (i < subMap[type].length) {
+                    const key = subMap[type][i];
+                    if (key && data[key] !== undefined) {
                         sub.textContent = data[key];
                     }
                 }
@@ -1992,8 +2192,12 @@
 
         tabs.forEach(tab => {
             tab.addEventListener('click', function() {
-                tabs.forEach(t => t.classList.remove('active'));
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
                 this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
 
                 const target = this.dataset.tab;
                 Object.keys(panels).forEach(key => {
@@ -2005,24 +2209,78 @@
         });
 
         // ============================================================
-        // ===== ВСЯ ЛОГИКА (СТАРАЯ РАБОЧАЯ) =====
+        // ===== ВСЯ ЛОГИКА С ВАЛИДАЦИЕЙ =====
         // ============================================================
+
+        // ---- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----
+        function showError(inputId, errorId, message) {
+            const errorEl = document.getElementById(errorId);
+            const inputEl = document.getElementById(inputId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.add('show');
+            }
+            if (inputEl) {
+                inputEl.closest('.mn-group')?.classList.add('has-error');
+            }
+        }
+
+        function clearError(inputId, errorId) {
+            const errorEl = document.getElementById(errorId);
+            const inputEl = document.getElementById(inputId);
+            if (errorEl) errorEl.classList.remove('show');
+            if (inputEl) {
+                inputEl.closest('.mn-group')?.classList.remove('has-error');
+            }
+        }
+
+        function clearAllErrors(container) {
+            container.querySelectorAll('.mn-error').forEach(el => el.classList.remove('show'));
+            container.querySelectorAll('.mn-group').forEach(el => el.classList.remove('has-error'));
+        }
+
+        function getValidatedValue(inputId, errorId, lang, allowZero = false) {
+            const input = document.getElementById(inputId);
+            if (!input) return null;
+            
+            const value = input.value.trim();
+            const validation = validateInput(value, inputId, lang);
+            
+            if (!validation.valid) {
+                showError(inputId, errorId, validation.message);
+                return null;
+            }
+            
+            if (!allowZero && validation.value === 0) {
+                showError(inputId, errorId, LANGUAGES[lang].errors.zero);
+                return null;
+            }
+            
+            clearError(inputId, errorId);
+            return validation.value;
+        }
 
         // ---- 1. PREMIUM ----
         const premiumForm = container.querySelector('#mnPremiumForm');
         if (premiumForm) {
             premiumForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const visits = parseFloat(container.querySelector('#mnPremiumVisits').value) || 0;
-                const time = parseFloat(container.querySelector('#mnPremiumTime').value) || 0;
-                const robux = visits * 0.05 * time * 0.001;
-                const usd = (robux * 0.0035) - 5;
-                const robuxEl = container.querySelector('#mnPremiumRobux');
-                const usdEl = container.querySelector('#mnPremiumUsd');
-                const resultEl = container.querySelector('#mnPremiumResult');
-                if (robuxEl) robuxEl.textContent = Math.round(robux).toLocaleString();
-                if (usdEl) usdEl.textContent = '$' + Math.max(0, usd).toFixed(2);
-                if (resultEl) resultEl.classList.add('show');
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const visits = getValidatedValue('mnPremiumVisits', 'mnPremiumVisitsError', lang);
+                const time = getValidatedValue('mnPremiumTime', 'mnPremiumTimeError', lang);
+
+                if (visits === null || time === null) return;
+
+                const robuxEarned = visits * 0.05 * time * 0.001;
+                const robuxBalance = robuxEarned * 0.3; // Roblox забирает 70%
+                const usd = robuxEarned * CONFIG.devexRate;
+
+                document.getElementById('mnPremiumRobux').textContent = Math.round(robuxEarned).toLocaleString();
+                document.getElementById('mnPremiumBalance').textContent = Math.round(robuxBalance).toLocaleString();
+                document.getElementById('mnPremiumUsd').textContent = formatCurrency(usd);
+                document.getElementById('mnPremiumResult').classList.add('show');
             });
         }
 
@@ -2031,116 +2289,204 @@
         if (gamepassForm) {
             gamepassForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const ratings = parseFloat(container.querySelector('#mnGamepassRatings').value) || 0;
-                const price = parseFloat(container.querySelector('#mnGamepassPrice').value) || 0;
-                const robux = ratings * 50 * price * 0.7;
-                const usd = (robux * 0.0035) - 5;
-                const robuxEl = container.querySelector('#mnGamepassRobux');
-                const usdEl = container.querySelector('#mnGamepassUsd');
-                const resultEl = container.querySelector('#mnGamepassResult');
-                if (robuxEl) robuxEl.textContent = Math.round(robux).toLocaleString();
-                if (usdEl) usdEl.textContent = '$' + Math.max(0, usd).toFixed(2);
-                if (resultEl) resultEl.classList.add('show');
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const ratings = getValidatedValue('mnGamepassRatings', 'mnGamepassRatingsError', lang);
+                const price = getValidatedValue('mnGamepassPrice', 'mnGamepassPriceError', lang);
+
+                if (ratings === null || price === null) return;
+
+                const robuxEarned = ratings * 50 * price * 0.7;
+                const robuxBalance = robuxEarned * 0.3;
+                const usd = robuxEarned * CONFIG.devexRate;
+
+                document.getElementById('mnGamepassRobux').textContent = Math.round(robuxEarned).toLocaleString();
+                document.getElementById('mnGamepassBalance').textContent = Math.round(robuxBalance).toLocaleString();
+                document.getElementById('mnGamepassUsd').textContent = formatCurrency(usd);
+                document.getElementById('mnGamepassResult').classList.add('show');
             });
         }
 
-        // ---- 3. ИГРОКИ ----
+        // ---- 3. PLAYERS ----
         const playersForm = container.querySelector('#mnPlayersForm');
         if (playersForm) {
             playersForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const target = parseFloat(container.querySelector('#mnPlayersTarget').value) || 0;
-                const time = parseFloat(container.querySelector('#mnPlayersTime').value) || 1;
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const target = getValidatedValue('mnPlayersTarget', 'mnPlayersTargetError', lang);
+                const time = getValidatedValue('mnPlayersTime', 'mnPlayersTimeError', lang);
+
+                if (target === null || time === null) return;
+
+                if (time === 0) {
+                    showError('mnPlayersTime', 'mnPlayersTimeError', LANGUAGES[lang].errors.zero);
+                    return;
+                }
+
                 const needed = target / (0.05 * time * 0.001);
                 const perDay = needed / 30;
                 const perHour = perDay / 24;
-                const neededEl = container.querySelector('#mnPlayersNeeded');
-                const dayEl = container.querySelector('#mnPlayersDay');
-                const hourEl = container.querySelector('#mnPlayersHour');
-                const resultEl = container.querySelector('#mnPlayersResult');
-                if (neededEl) neededEl.textContent = Math.round(needed).toLocaleString();
-                if (dayEl) dayEl.textContent = Math.round(perDay).toLocaleString();
-                if (hourEl) hourEl.textContent = Math.round(perHour).toLocaleString();
-                if (resultEl) resultEl.classList.add('show');
+
+                document.getElementById('mnPlayersNeeded').textContent = Math.round(needed).toLocaleString();
+                document.getElementById('mnPlayersDay').textContent = Math.round(perDay).toLocaleString();
+                document.getElementById('mnPlayersHour').textContent = Math.round(perHour).toLocaleString();
+                document.getElementById('mnPlayersResult').classList.add('show');
             });
         }
 
-        // ---- 4. ОКУПАЕМОСТЬ ----
+        // ---- 4. PAYBACK ----
         const paybackForm = container.querySelector('#mnPaybackForm');
         if (paybackForm) {
             paybackForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const cost = parseFloat(container.querySelector('#mnPaybackCost').value) || 0;
-                const income = parseFloat(container.querySelector('#mnPaybackIncome').value) || 1;
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const cost = getValidatedValue('mnPaybackCost', 'mnPaybackCostError', lang);
+                const income = getValidatedValue('mnPaybackIncome', 'mnPaybackIncomeError', lang);
+
+                if (cost === null || income === null) return;
+
+                if (income === 0) {
+                    showError('mnPaybackIncome', 'mnPaybackIncomeError', LANGUAGES[lang].errors.zero);
+                    return;
+                }
+
                 const months = cost / income;
                 const days = months * 30;
-                const monthsEl = container.querySelector('#mnPaybackMonths');
-                const daysEl = container.querySelector('#mnPaybackDays');
-                const resultEl = container.querySelector('#mnPaybackResult');
-                if (monthsEl) monthsEl.textContent = months.toFixed(1);
-                if (daysEl) daysEl.textContent = Math.round(days);
-                if (resultEl) resultEl.classList.add('show');
+
+                document.getElementById('mnPaybackMonths').textContent = months.toFixed(1);
+                document.getElementById('mnPaybackDays').textContent = Math.round(days);
+                document.getElementById('mnPaybackResult').classList.add('show');
             });
         }
 
-        // ---- 5. GAME PASS'Ы (ДОП) ----
+        // ---- 5. GP EXTRA ----
         const gpExtraForm = container.querySelector('#mnGpExtraForm');
         if (gpExtraForm) {
             gpExtraForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const target = parseFloat(container.querySelector('#mnGpExtraTarget').value) || 0;
-                const price = parseFloat(container.querySelector('#mnGpExtraPrice').value) || 1;
-                const ratings = parseFloat(container.querySelector('#mnGpExtraRatings').value) || 1;
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const target = getValidatedValue('mnGpExtraTarget', 'mnGpExtraTargetError', lang);
+                const price = getValidatedValue('mnGpExtraPrice', 'mnGpExtraPriceError', lang);
+                const ratings = getValidatedValue('mnGpExtraRatings', 'mnGpExtraRatingsError', lang);
+
+                if (target === null || price === null || ratings === null) return;
+
+                if (price === 0) {
+                    showError('mnGpExtraPrice', 'mnGpExtraPriceError', LANGUAGES[lang].errors.zero);
+                    return;
+                }
+
                 const perPass = ratings * 50 * price * 0.7;
-                const count = target / perPass;
-                const countEl = container.querySelector('#mnGpExtraCount');
-                const perPassEl = container.querySelector('#mnGpExtraPerPass');
-                const resultEl = container.querySelector('#mnGpExtraResult');
-                if (countEl) countEl.textContent = Math.ceil(count).toLocaleString();
-                if (perPassEl) perPassEl.textContent = '$' + ((perPass * 0.0035) - 5).toFixed(2);
-                if (resultEl) resultEl.classList.add('show');
+                const count = perPass > 0 ? target / perPass : 0;
+
+                document.getElementById('mnGpExtraCount').textContent = Math.ceil(count).toLocaleString();
+                document.getElementById('mnGpExtraPerPass').textContent = formatCurrency(perPass * CONFIG.devexRate);
+                document.getElementById('mnGpExtraResult').classList.add('show');
             });
         }
 
-        // ---- 6. РЕКЛАМА ----
+        // ---- 6. ADS ----
         const adsForm = container.querySelector('#mnAdsForm');
         if (adsForm) {
             adsForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const budget = parseFloat(container.querySelector('#mnAdsBudget').value) || 0;
-                const cpv = parseFloat(container.querySelector('#mnAdsCpv').value) || 0.01;
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const budget = getValidatedValue('mnAdsBudget', 'mnAdsBudgetError', lang);
+                const cpv = getValidatedValue('mnAdsCpv', 'mnAdsCpvError', lang, true);
+
+                if (budget === null || cpv === null) return;
+
+                if (cpv === 0) {
+                    showError('mnAdsCpv', 'mnAdsCpvError', LANGUAGES[lang].errors.zero);
+                    return;
+                }
+
                 const visits = budget / cpv;
-                const costPerVisit = (budget * 0.0035) / visits;
-                const visitsEl = container.querySelector('#mnAdsVisits');
-                const costEl = container.querySelector('#mnAdsCostPerVisit');
-                const resultEl = container.querySelector('#mnAdsResult');
-                if (visitsEl) visitsEl.textContent = Math.round(visits).toLocaleString();
-                if (costEl) costEl.textContent = '$' + (costPerVisit || 0).toFixed(4);
-                if (resultEl) resultEl.classList.add('show');
+                const costPerVisit = (budget * CONFIG.devexRate) / visits;
+
+                document.getElementById('mnAdsVisits').textContent = Math.round(visits).toLocaleString();
+                document.getElementById('mnAdsCostPerVisit').textContent = formatCurrency(costPerVisit || 0);
+                document.getElementById('mnAdsResult').classList.add('show');
             });
         }
 
-        // ---- 7. КОНВЕРТЕР ВРЕМЕНИ ----
+        // ---- 7. TIME CONVERTER ----
         const timeForm = container.querySelector('#mnTimeForm');
         if (timeForm) {
             timeForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const minutes = parseFloat(container.querySelector('#mnTimeMinutes').value) || 0;
+                const lang = container.dataset.lang || 'en';
+                clearAllErrors(container);
+
+                const minutes = getValidatedValue('mnTimeMinutes', 'mnTimeMinutesError', lang, true);
+
+                if (minutes === null) return;
+
                 const hours = minutes / 60;
                 const days = hours / 24;
                 const months = days / 30;
-                const hoursEl = container.querySelector('#mnTimeHours');
-                const daysEl = container.querySelector('#mnTimeDays');
-                const monthsEl = container.querySelector('#mnTimeMonths');
-                const resultEl = container.querySelector('#mnTimeResult');
-                if (hoursEl) hoursEl.textContent = hours.toFixed(1);
-                if (daysEl) daysEl.textContent = days.toFixed(1);
-                if (monthsEl) monthsEl.textContent = months.toFixed(1);
-                if (resultEl) resultEl.classList.add('show');
+
+                document.getElementById('mnTimeHours').textContent = hours.toFixed(1);
+                document.getElementById('mnTimeDays').textContent = days.toFixed(1);
+                document.getElementById('mnTimeMonths').textContent = months.toFixed(1);
+                document.getElementById('mnTimeResult').classList.add('show');
             });
         }
 
-        console.log('[Metro New Calculator] ✅ Калькулятор загружен! Язык: ' + lang);
+        // ---- ОЧИСТКА ДАННЫХ ----
+        const clearBtn = container.querySelector('#mnClearData');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                const lang = container.dataset.lang || 'en';
+                const t = LANGUAGES[lang] || LANGUAGES.en;
+                if (confirm('Очистить все сохранённые данные? / Clear all saved data?')) {
+                    const keys = ['mn_language', 'mn_settings', 'mn_history', 'mn_theme'];
+                    keys.forEach(key => localStorage.removeItem(key));
+                    // Сброс полей
+                    container.querySelectorAll('.mn-group input').forEach(input => {
+                        input.value = '';
+                    });
+                    // Скрыть результаты
+                    container.querySelectorAll('.mn-result').forEach(el => el.classList.remove('show'));
+                    // Очистить ошибки
+                    clearAllErrors(container);
+                    // Сброс языка
+                    CONFIG.language = detectLanguage();
+                    updateLanguage(container, CONFIG.language);
+                    // Уведомление
+                    const msg = document.createElement('div');
+                    msg.style.cssText = `
+                        background: rgba(52,168,83,0.15);
+                        border: 1px solid #34a853;
+                        color: #34a853;
+                        padding: 10px 16px;
+                        border-radius: 8px;
+                        font-size: 13px;
+                        margin-top: 10px;
+                        text-align: center;
+                    `;
+                    msg.textContent = '✅ Данные очищены! / Data cleared!';
+                    container.appendChild(msg);
+                    setTimeout(() => msg.remove(), 3000);
+                }
+            });
+        }
+
+        // ---- УБИРАЕМ ГЛОБАЛЬНЫЙ mnCalculator ----
+        // Всё внутри IIFE, ничего не попадает в глобальный scope
+
+        console.log('[Metro New Calculator] ✅ Калькулятор загружен! Язык: ' + lang + ', версия: ' + CONFIG.version);
+        console.log('[Metro New Calculator] 📅 Актуально на: ' + CONFIG.lastUpdated);
+        console.log('[Metro New Calculator] 💰 DevEx rate: 1 Robux = $' + CONFIG.devexRate);
     }
 
     // ===== ЗАПУСК =====
