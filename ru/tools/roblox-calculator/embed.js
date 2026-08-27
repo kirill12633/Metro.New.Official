@@ -4,7 +4,7 @@
  * 
  * Как использовать:
  * 1. Добавьте на страницу: <div id="roblox-calculator"></div>
- * 2. Подключите этот скрипт: <script src="https://ваш-сайт/embed.js"></script>
+ * 2. Подключите этот скрипт: <script src="embed.js"></script>
  * 
  * @version 1.0.0
  * @author Metro New Team
@@ -319,31 +319,22 @@
                 color: #856404;
             }
 
-            /* Адаптация */
             @media (max-width: 600px) {
                 .mn-calculator {
                     padding: 16px;
                     margin: 10px;
                 }
-
                 .mn-calculator .mn-form {
                     grid-template-columns: 1fr;
                 }
-
                 .mn-calculator .mn-tabs {
                     flex-direction: column;
                 }
-
                 .mn-calculator .mn-tab {
                     text-align: center;
                 }
-
                 .mn-calculator .mn-result .mn-values {
                     grid-template-columns: 1fr 1fr;
-                }
-
-                .mn-calculator .mn-header .mn-title h3 {
-                    font-size: 16px;
                 }
             }
 
@@ -353,122 +344,96 @@
                 }
             }
 
-            /* Темная тема */
             @media (prefers-color-scheme: dark) {
                 .mn-calculator {
                     background: #1a1a2e;
                     border-color: #2d2d44;
                 }
-
                 .mn-calculator .mn-header .mn-title h3 {
                     color: #f2f4fa;
                 }
-
                 .mn-calculator .mn-header .mn-title p {
                     color: #a6b0cc;
                 }
-
                 .mn-calculator .mn-tab {
                     background: #2d2d44;
                     border-color: #3d3d5a;
                     color: #a6b0cc;
                 }
-
                 .mn-calculator .mn-tab:hover {
                     border-color: #4d94ff;
                     color: #f2f4fa;
                 }
-
                 .mn-calculator .mn-tab.active {
                     background: #0066CC;
                     color: white;
                     border-color: #0066CC;
                 }
-
                 .mn-calculator .mn-group label {
                     color: #f2f4fa;
                 }
-
                 .mn-calculator .mn-group label .mn-hint {
                     color: #77819e;
                 }
-
                 .mn-calculator .mn-group input {
                     background: #2d2d44;
                     border-color: #3d3d5a;
                     color: #f2f4fa;
                 }
-
                 .mn-calculator .mn-group input:focus {
                     border-color: #4d94ff;
                     box-shadow: 0 0 0 3px rgba(77, 148, 255, 0.2);
                 }
-
                 .mn-calculator .mn-group input::placeholder {
                     color: #4a5473;
                 }
-
                 .mn-calculator .mn-result {
                     background: linear-gradient(135deg, #1a2a4a, #0d1a33);
                     border-color: #4d94ff;
                 }
-
                 .mn-calculator .mn-result .mn-result-title {
                     color: #4d94ff;
                 }
-
                 .mn-calculator .mn-result .mn-item {
                     background: #2d2d44;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
                 }
-
                 .mn-calculator .mn-result .mn-item .mn-label {
                     color: #77819e;
                 }
-
                 .mn-calculator .mn-result .mn-item .mn-value {
                     color: #f2f4fa;
                 }
-
                 .mn-calculator .mn-result .mn-item .mn-value.mn-robux {
                     color: #4d94ff;
                 }
-
                 .mn-calculator .mn-result .mn-item .mn-value.mn-usd {
                     color: #34a853;
                 }
-
                 .mn-calculator .mn-result .mn-item .mn-sub {
                     color: #4a5473;
                 }
-
                 .mn-calculator .mn-result .mn-formula {
                     color: #77819e;
                 }
-
                 .mn-calculator .mn-result .mn-formula strong {
                     color: #4d94ff;
                 }
-
                 .mn-calculator .mn-footer {
                     border-top-color: #2d2d44;
                     color: #4a5473;
                 }
-
                 .mn-calculator .mn-footer a {
                     color: #4d94ff;
                 }
-
                 .mn-calculator .mn-notice {
                     background: #2d1f00;
                     border-left-color: #f59e0b;
                     color: #fbbf24;
                 }
-
                 .mn-calculator .mn-notice strong {
                     color: #fbbf24;
                 }
-
                 .mn-calculator .mn-badge {
                     background: #2d1f00;
                     color: #fbbf24;
@@ -655,8 +620,6 @@
         // Вставляем HTML
         container.innerHTML = template;
 
-        // --- ЛОГИКА КАЛЬКУЛЯТОРА ---
-
         // Переключение вкладок
         const tabs = container.querySelectorAll('.mn-tab');
         const panels = {
@@ -677,7 +640,7 @@
             });
         });
 
-        // ---- Формула Premium ----
+        // ---- Premium ----
         const premiumForm = container.querySelector('#mnPremiumForm');
         premiumForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -693,7 +656,7 @@
             container.querySelector('#mnPremiumResult').classList.add('show');
         });
 
-        // ---- Формула Game Pass ----
+        // ---- Game Pass ----
         const gamepassForm = container.querySelector('#mnGamepassForm');
         gamepassForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -709,7 +672,7 @@
             container.querySelector('#mnGamepassResult').classList.add('show');
         });
 
-        // ---- Калькулятор "Сколько нужно игроков" ----
+        // ---- Игроки ----
         const playersForm = container.querySelector('#mnPlayersForm');
         playersForm.addEventListener('submit', function(e) {
             e.preventDefault();
