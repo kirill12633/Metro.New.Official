@@ -1,618 +1,625 @@
-/**
- * Metro New — Roblox Developer Earnings Calculator
- * Встраиваемый калькулятор дохода разработчика Roblox
- * 
- * Как использовать:
- * 1. Добавьте на страницу: <div id="roblox-calculator"></div>
- * 2. Подключите этот скрипт: <script src="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/embed.js"></script>
- * 
- * @version 1.0.0
- * @author Metro New Team
- */
+document.addEventListener('DOMContentLoaded', function() {
 
-(function() {
-    'use strict';
+    // ===== ТЕМА =====
+    const THEME_KEY = 'metro_new_theme';
+    const root = document.documentElement;
 
-    // Конфигурация
-    const CONFIG = {
-        containerId: 'roblox-calculator',
-        version: '1.0.0'
-    };
+    function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+    }
 
-    // Стили для встраиваемого калькулятора
-    const styles = `
-        <style>
-            .mn-calculator {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                max-width: 700px;
-                margin: 20px auto;
-                padding: 25px;
-                background: #ffffff;
-                border-radius: 15px;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-                border: 1px solid #e8e8e8;
-            }
-            
-            .mn-calculator * {
-                box-sizing: border-box;
-            }
-            
-            .mn-calculator .mn-header {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-                border-bottom: 2px solid #0066CC;
-            }
-            
-            .mn-calculator .mn-header .mn-logo {
-                width: 42px;
-                height: 42px;
-                background: linear-gradient(135deg, #0066CC, #0052a3);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #FFD700;
-                font-weight: 800;
-                font-size: 20px;
-                flex-shrink: 0;
-            }
-            
-            .mn-calculator .mn-header .mn-title {
-                flex: 1;
-            }
-            
-            .mn-calculator .mn-header .mn-title h3 {
-                margin: 0;
-                color: #1A1A1A;
-                font-size: 18px;
-                font-weight: 700;
-            }
-            
-            .mn-calculator .mn-header .mn-title p {
-                margin: 2px 0 0 0;
-                color: #6C757D;
-                font-size: 13px;
-            }
-            
-            .mn-calculator .mn-tabs {
-                display: flex;
-                gap: 8px;
-                margin-bottom: 18px;
-                flex-wrap: wrap;
-            }
-            
-            .mn-calculator .mn-tab {
-                padding: 8px 18px;
-                border-radius: 50px;
-                border: 2px solid #ddd;
-                background: #f8f9fa;
-                cursor: pointer;
-                font-weight: 600;
-                font-size: 14px;
-                transition: all 0.3s;
-                color: #6C757D;
-                font-family: inherit;
-            }
-            
-            .mn-calculator .mn-tab:hover {
-                border-color: #4d94ff;
-                color: #1A1A1A;
-            }
-            
-            .mn-calculator .mn-tab.active {
-                background: #0066CC;
-                color: white;
-                border-color: #0066CC;
-            }
-            
-            .mn-calculator .mn-tab i {
-                margin-right: 6px;
-            }
-            
-            .mn-calculator .mn-panel {
-                display: none;
-                animation: mnFadeIn 0.3s ease;
-            }
-            
-            .mn-calculator .mn-panel.active {
-                display: block;
-            }
-            
-            @keyframes mnFadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            .mn-calculator .mn-form {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 14px;
-            }
-            
-            .mn-calculator .mn-form .mn-full {
-                grid-column: 1 / -1;
-            }
-            
-            .mn-calculator .mn-group {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            
-            .mn-calculator .mn-group label {
-                font-weight: 600;
-                font-size: 14px;
-                color: #1A1A1A;
-            }
-            
-            .mn-calculator .mn-group label .mn-hint {
-                font-weight: 400;
-                color: #6C757D;
-                font-size: 12px;
-            }
-            
-            .mn-calculator .mn-group input {
-                padding: 10px 14px;
-                border: 2px solid #e0e0e0;
-                border-radius: 8px;
-                font-size: 15px;
-                transition: border-color 0.3s;
-                background: #f8f9fa;
-                font-family: inherit;
-            }
-            
-            .mn-calculator .mn-group input:focus {
-                outline: none;
-                border-color: #0066CC;
-                box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-            }
-            
-            .mn-calculator .mn-btn {
-                padding: 12px 24px;
-                background: linear-gradient(135deg, #FFD700, #e6c200);
-                color: #1A1A1A;
-                border: none;
-                border-radius: 12px;
-                font-weight: 700;
-                font-size: 16px;
-                cursor: pointer;
-                transition: all 0.3s;
-                font-family: inherit;
-                width: 100%;
-                margin-top: 4px;
-            }
-            
-            .mn-calculator .mn-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 15px rgba(255,215,0,0.4);
-            }
-            
-            .mn-calculator .mn-btn:active {
-                transform: translateY(0);
-            }
-            
-            .mn-calculator .mn-result {
-                margin-top: 20px;
-                padding: 20px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #f0f7ff, #e8f0fe);
-                border: 2px solid #4d94ff;
-                display: none;
-            }
-            
-            .mn-calculator .mn-result.show {
-                display: block;
-                animation: mnFadeIn 0.5s ease;
-            }
-            
-            .mn-calculator .mn-result .mn-result-title {
-                font-size: 16px;
-                font-weight: 600;
-                color: #0052a3;
-                margin-bottom: 10px;
-            }
-            
-            .mn-calculator .mn-result .mn-values {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 12px;
-            }
-            
-            .mn-calculator .mn-result .mn-item {
-                background: white;
-                border-radius: 8px;
-                padding: 12px 16px;
-                text-align: center;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            }
-            
-            .mn-calculator .mn-result .mn-item .mn-label {
-                color: #6C757D;
-                font-size: 12px;
-                font-weight: 500;
-            }
-            
-            .mn-calculator .mn-result .mn-item .mn-value {
-                font-size: 24px;
-                font-weight: 700;
-                color: #1A1A1A;
-            }
-            
-            .mn-calculator .mn-result .mn-item .mn-value.mn-robux {
-                color: #0066CC;
-            }
-            
-            .mn-calculator .mn-result .mn-item .mn-value.mn-usd {
-                color: #2ecc71;
-            }
-            
-            .mn-calculator .mn-result .mn-item .mn-sub {
-                font-size: 11px;
-                color: #6C757D;
-            }
-            
-            .mn-calculator .mn-result .mn-formula {
-                font-size: 13px;
-                color: #6C757D;
-                margin-top: 10px;
-                text-align: center;
-            }
-            
-            .mn-calculator .mn-result .mn-formula strong {
-                color: #0052a3;
-            }
-            
-            .mn-calculator .mn-footer {
-                margin-top: 16px;
-                padding-top: 14px;
-                border-top: 1px solid #eee;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 8px;
-                font-size: 12px;
-                color: #6C757D;
-            }
-            
-            .mn-calculator .mn-footer a {
-                color: #0066CC;
-                text-decoration: none;
-                font-weight: 500;
-            }
-            
-            .mn-calculator .mn-footer a:hover {
-                text-decoration: underline;
-            }
-            
-            .mn-calculator .mn-badge {
-                background: #fff3cd;
-                color: #856404;
-                padding: 4px 12px;
-                border-radius: 50px;
-                font-size: 11px;
-                font-weight: 600;
-            }
-            
-            .mn-calculator .mn-notice {
-                background: #fff3cd;
-                border-left: 4px solid #ffc107;
-                padding: 10px 14px;
-                border-radius: 6px;
-                margin-bottom: 16px;
-                font-size: 13px;
-                color: #856404;
-                display: flex;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .mn-calculator .mn-notice i {
-                font-size: 18px;
-                margin-top: 2px;
-            }
-            
-            .mn-calculator .mn-notice strong {
-                color: #856404;
-            }
-            
-            /* Адаптация */
-            @media (max-width: 600px) {
-                .mn-calculator {
-                    padding: 16px;
-                    margin: 10px;
-                }
-                
-                .mn-calculator .mn-form {
-                    grid-template-columns: 1fr;
-                }
-                
-                .mn-calculator .mn-tabs {
-                    flex-direction: column;
-                }
-                
-                .mn-calculator .mn-tab {
-                    text-align: center;
-                }
-                
-                .mn-calculator .mn-result .mn-values {
-                    grid-template-columns: 1fr 1fr;
-                }
-                
-                .mn-calculator .mn-header .mn-title h3 {
-                    font-size: 16px;
-                }
-            }
-            
-            @media (max-width: 400px) {
-                .mn-calculator .mn-result .mn-values {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
-    `;
+    function getInitialTheme() {
+        const saved = localStorage.getItem(THEME_KEY);
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
 
-    // HTML шаблон калькулятора
-    const template = `
-        <div class="mn-calculator" id="mnCalculator">
-            ${styles}
-            
-            <div class="mn-header">
-                <div class="mn-logo">M</div>
-                <div class="mn-title">
-                    <h3>💰 Калькулятор дохода разработчика Roblox</h3>
-                    <p>от проекта <strong>Метро New</strong></p>
-                </div>
-                <span class="mn-badge">v1.0</span>
-            </div>
-            
-            <div class="mn-notice">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div>
-                    <strong>Внимание:</strong> Расчёты приблизительные. 
-                    Реальный доход может отличаться. Используйте в ознакомительных целях.
-                </div>
-            </div>
-            
-            <div class="mn-tabs">
-                <button class="mn-tab active" data-tab="premium">
-                    <i class="fas fa-crown"></i> Premium
-                </button>
-                <button class="mn-tab" data-tab="gamepass">
-                    <i class="fas fa-ticket"></i> Game Pass
-                </button>
-                <button class="mn-tab" data-tab="players">
-                    <i class="fas fa-users"></i> Игроки
-                </button>
-            </div>
-            
-            <!-- Premium -->
-            <div class="mn-panel active" id="mnPremium">
-                <form class="mn-form" id="mnPremiumForm">
-                    <div class="mn-group">
-                        <label>Визитов (X) <span class="mn-hint">за месяц</span></label>
-                        <input type="number" id="mnPremiumVisits" placeholder="100000" min="0" step="1" value="100000">
-                    </div>
-                    <div class="mn-group">
-                        <label>Среднее время (Y) <span class="mn-hint">в минутах</span></label>
-                        <input type="number" id="mnPremiumTime" placeholder="20" min="0" step="0.1" value="20">
-                    </div>
-                    <div class="mn-full">
-                        <button type="submit" class="mn-btn">
-                            <i class="fas fa-calculator"></i> Рассчитать
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="mn-result" id="mnPremiumResult">
-                    <div class="mn-result-title">📊 Результат (Premium выплаты)</div>
-                    <div class="mn-values">
-                        <div class="mn-item">
-                            <div class="mn-label">Доход в Robux</div>
-                            <div class="mn-value mn-robux" id="mnPremiumRobux">0</div>
-                            <div class="mn-sub">за месяц</div>
-                        </div>
-                        <div class="mn-item">
-                            <div class="mn-label">Доход в USD</div>
-                            <div class="mn-value mn-usd" id="mnPremiumUsd">$0</div>
-                            <div class="mn-sub">после вывода</div>
-                        </div>
-                    </div>
-                    <div class="mn-formula">
-                        <i class="fas fa-info-circle"></i> Формула: <strong>X × 0.05 × Y × 0.001</strong>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Game Pass -->
-            <div class="mn-panel" id="mnGamepass">
-                <form class="mn-form" id="mnGamepassForm">
-                    <div class="mn-group">
-                        <label>Оценок (X) <span class="mn-hint">под пассом</span></label>
-                        <input type="number" id="mnGamepassRatings" placeholder="200" min="0" step="1" value="200">
-                    </div>
-                    <div class="mn-group">
-                        <label>Цена пасса (Y) <span class="mn-hint">в Robux</span></label>
-                        <input type="number" id="mnGamepassPrice" placeholder="100" min="0" step="1" value="100">
-                    </div>
-                    <div class="mn-full">
-                        <button type="submit" class="mn-btn">
-                            <i class="fas fa-calculator"></i> Рассчитать
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="mn-result" id="mnGamepassResult">
-                    <div class="mn-result-title">📊 Результат (Game Pass)</div>
-                    <div class="mn-values">
-                        <div class="mn-item">
-                            <div class="mn-label">Доход в Robux</div>
-                            <div class="mn-value mn-robux" id="mnGamepassRobux">0</div>
-                            <div class="mn-sub">за всё время</div>
-                        </div>
-                        <div class="mn-item">
-                            <div class="mn-label">Доход в USD</div>
-                            <div class="mn-value mn-usd" id="mnGamepassUsd">$0</div>
-                            <div class="mn-sub">после вывода</div>
-                        </div>
-                    </div>
-                    <div class="mn-formula">
-                        <i class="fas fa-info-circle"></i> Формула: <strong>X × 50 × Y × 0.7</strong>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Сколько нужно игроков -->
-            <div class="mn-panel" id="mnPlayers">
-                <form class="mn-form" id="mnPlayersForm">
-                    <div class="mn-group">
-                        <label>Желаемый доход <span class="mn-hint">в Robux за месяц</span></label>
-                        <input type="number" id="mnPlayersTarget" placeholder="10000" min="0" step="1" value="10000">
-                    </div>
-                    <div class="mn-group">
-                        <label>Среднее время <span class="mn-hint">в минутах</span></label>
-                        <input type="number" id="mnPlayersTime" placeholder="20" min="0" step="0.1" value="20">
-                    </div>
-                    <div class="mn-full">
-                        <button type="submit" class="mn-btn">
-                            <i class="fas fa-calculator"></i> Рассчитать
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="mn-result" id="mnPlayersResult">
-                    <div class="mn-result-title">👥 Нужно игроков:</div>
-                    <div class="mn-values">
-                        <div class="mn-item" style="grid-column: 1 / -1;">
-                            <div class="mn-label">Визитов в месяц</div>
-                            <div class="mn-value mn-robux" id="mnPlayersNeeded" style="font-size: 32px;">0</div>
-                        </div>
-                        <div class="mn-item">
-                            <div class="mn-label">В день</div>
-                            <div class="mn-value" id="mnPlayersDay" style="color: #2ecc71;">0</div>
-                        </div>
-                        <div class="mn-item">
-                            <div class="mn-label">В час</div>
-                            <div class="mn-value" id="mnPlayersHour" style="color: #f39c12;">0</div>
-                        </div>
-                    </div>
-                    <div class="mn-formula">
-                        <i class="fas fa-info-circle"></i> Формула: <strong>X = доход / (0.05 × время × 0.001)</strong>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mn-footer">
-                <span>
-                    <i class="fas fa-code"></i>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/" target="_blank">
-                        Metro New Calculator
-                    </a>
-                </span>
-                <span>
-                    <i class="fas fa-info-circle"></i>
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank">
-                        Конфиденциальность
-                    </a>
-                </span>
-            </div>
-        </div>
-    `;
+    let currentTheme = getInitialTheme();
+    applyTheme(currentTheme);
 
-    // Инициализация калькулятора
-    function initCalculator() {
-        const container = document.getElementById(CONFIG.containerId);
-        if (!container) {
-            console.warn('[Metro New Calculator] Контейнер #' + CONFIG.containerId + ' не найден');
-            return;
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+    }
+
+    if (!localStorage.getItem(THEME_KEY)) {
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+            if (!localStorage.getItem(THEME_KEY)) {
+                currentTheme = e.matches ? 'light' : 'dark';
+                applyTheme(currentTheme);
+            }
+        });
+    }
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === THEME_KEY && (e.newValue === 'light' || e.newValue === 'dark')) {
+            currentTheme = e.newValue;
+            applyTheme(currentTheme);
         }
+    });
 
-        // Вставляем HTML
-        container.innerHTML = template;
+    // ===== БУРГЕР =====
+    const burger = document.getElementById('burgerMenu');
+    const navLinks = document.getElementById('navLinks');
+    if (burger && navLinks) {
+        burger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
 
-        // --- Логика калькулятора ---
-        
-        // Переключение вкладок
-        const tabs = container.querySelectorAll('.mn-tab');
-        const panels = {
-            premium: container.querySelector('#mnPremium'),
-            gamepass: container.querySelector('#mnGamepass'),
-            players: container.querySelector('#mnPlayers')
-        };
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                tabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                const target = this.dataset.tab;
-                Object.keys(panels).forEach(key => {
-                    panels[key].classList.toggle('active', key === target);
-                });
+        document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    navLinks.classList.remove('active');
+                }
             });
         });
+    }
 
-        // Формула Premium
-        const premiumForm = container.querySelector('#mnPremiumForm');
-        premiumForm.addEventListener('submit', function(e) {
+    // ===== ДРОПДАУН =====
+    const dropdownOther = document.getElementById('dropdownOther');
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn && dropdownOther) {
+        dropdownBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            const visits = parseFloat(container.querySelector('#mnPremiumVisits').value) || 0;
-            const time = parseFloat(container.querySelector('#mnPremiumTime').value) || 0;
-            
+            e.stopPropagation();
+            dropdownOther.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!dropdownOther.contains(e.target)) {
+                dropdownOther.classList.remove('open');
+            }
+        });
+    }
+
+    // ===== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК (ОСНОВНЫЕ) =====
+    const mainTabs = document.querySelectorAll('#mainTabs .tab');
+    const mainPanels = {
+        premium: document.getElementById('panel-premium'),
+        gamepass: document.getElementById('panel-gamepass'),
+        players: document.getElementById('panel-players')
+    };
+
+    mainTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            mainTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            const target = this.dataset.tab;
+            Object.keys(mainPanels).forEach(key => {
+                if (mainPanels[key]) {
+                    mainPanels[key].classList.toggle('active', key === target);
+                }
+            });
+        });
+    });
+
+    // ===== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК (ДОПОЛНИТЕЛЬНЫЕ) =====
+    const extraTabs = document.querySelectorAll('#extraTabs .tab');
+    const extraPanels = {
+        payback: document.getElementById('panel-payback'),
+        'gamepass-extra': document.getElementById('panel-gamepass-extra'),
+        ads: document.getElementById('panel-ads'),
+        time: document.getElementById('panel-time')
+    };
+
+    extraTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            extraTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            const target = this.dataset.tab;
+            Object.keys(extraPanels).forEach(key => {
+                if (extraPanels[key]) {
+                    extraPanels[key].classList.toggle('active', key === target);
+                }
+            });
+        });
+    });
+
+    // ============================================================
+    // ===== ЛОГИКА КАЛЬКУЛЯТОРОВ =====
+    // ============================================================
+
+    // ---- 1. PREMIUM ----
+    const premiumBtn = document.getElementById('calcPremiumBtn');
+    if (premiumBtn) {
+        premiumBtn.addEventListener('click', function() {
+            const visits = parseFloat(document.getElementById('premiumVisits')?.value) || 0;
+            const time = parseFloat(document.getElementById('premiumTime')?.value) || 0;
+
             const robux = visits * 0.05 * time * 0.001;
             const usd = (robux * 0.0035) - 5;
-            
-            container.querySelector('#mnPremiumRobux').textContent = Math.round(robux).toLocaleString();
-            container.querySelector('#mnPremiumUsd').textContent = '$' + Math.max(0, usd).toFixed(2);
-            container.querySelector('#mnPremiumResult').classList.add('show');
-        });
 
-        // Формула Game Pass
-        const gamepassForm = container.querySelector('#mnGamepassForm');
-        gamepassForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            const robuxEl = document.getElementById('premiumRobux');
+            const usdEl = document.getElementById('premiumUsd');
+            const resultEl = document.getElementById('premiumResult');
+
+            if (robuxEl) robuxEl.textContent = Math.round(robux).toLocaleString();
+            if (usdEl) usdEl.textContent = '$' + Math.max(0, usd).toFixed(2);
+            if (resultEl) resultEl.classList.add('show');
             
-            const ratings = parseFloat(container.querySelector('#mnGamepassRatings').value) || 0;
-            const price = parseFloat(container.querySelector('#mnGamepassPrice').value) || 0;
-            
+            window._lastResult = { robux, usd, type: 'premium' };
+        });
+    }
+
+    // ---- 2. GAME PASS ----
+    const gamepassBtn = document.getElementById('calcGamepassBtn');
+    if (gamepassBtn) {
+        gamepassBtn.addEventListener('click', function() {
+            const ratings = parseFloat(document.getElementById('gamepassRatings')?.value) || 0;
+            const price = parseFloat(document.getElementById('gamepassPrice')?.value) || 0;
+
             const robux = ratings * 50 * price * 0.7;
             const usd = (robux * 0.0035) - 5;
-            
-            container.querySelector('#mnGamepassRobux').textContent = Math.round(robux).toLocaleString();
-            container.querySelector('#mnGamepassUsd').textContent = '$' + Math.max(0, usd).toFixed(2);
-            container.querySelector('#mnGamepassResult').classList.add('show');
-        });
 
-        // Калькулятор "Сколько нужно игроков"
-        const playersForm = container.querySelector('#mnPlayersForm');
-        playersForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            const robuxEl = document.getElementById('gamepassRobux');
+            const usdEl = document.getElementById('gamepassUsd');
+            const resultEl = document.getElementById('gamepassResult');
+
+            if (robuxEl) robuxEl.textContent = Math.round(robux).toLocaleString();
+            if (usdEl) usdEl.textContent = '$' + Math.max(0, usd).toFixed(2);
+            if (resultEl) resultEl.classList.add('show');
             
-            const target = parseFloat(container.querySelector('#mnPlayersTarget').value) || 0;
-            const time = parseFloat(container.querySelector('#mnPlayersTime').value) || 1;
-            
+            window._lastResult = { robux, usd, type: 'gamepass' };
+        });
+    }
+
+    // ---- 3. СКОЛЬКО ИГРОКОВ ----
+    const playersBtn = document.getElementById('calcPlayersBtn');
+    if (playersBtn) {
+        playersBtn.addEventListener('click', function() {
+            const target = parseFloat(document.getElementById('playersTarget')?.value) || 0;
+            const time = parseFloat(document.getElementById('playersTime')?.value) || 1;
+
             const needed = target / (0.05 * time * 0.001);
             const perDay = needed / 30;
             const perHour = perDay / 24;
+
+            const neededEl = document.getElementById('playersNeeded');
+            const dayEl = document.getElementById('playersDay');
+            const hourEl = document.getElementById('playersHour');
+            const resultEl = document.getElementById('playersResult');
+
+            if (neededEl) neededEl.textContent = Math.round(needed).toLocaleString();
+            if (dayEl) dayEl.textContent = Math.round(perDay).toLocaleString();
+            if (hourEl) hourEl.textContent = Math.round(perHour).toLocaleString();
+            if (resultEl) resultEl.classList.add('show');
             
-            container.querySelector('#mnPlayersNeeded').textContent = Math.round(needed).toLocaleString();
-            container.querySelector('#mnPlayersDay').textContent = Math.round(perDay).toLocaleString();
-            container.querySelector('#mnPlayersHour').textContent = Math.round(perHour).toLocaleString();
-            container.querySelector('#mnPlayersResult').classList.add('show');
+            window._lastResult = { needed, perDay, perHour, type: 'players' };
         });
-
-        console.log('[Metro New Calculator] ✅ Калькулятор успешно загружен!');
     }
 
-    // Запускаем при загрузке DOM
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCalculator);
-    } else {
-        initCalculator();
+    // ---- 4. ОКУПАЕМОСТЬ ----
+    const paybackBtn = document.getElementById('calcPaybackBtn');
+    if (paybackBtn) {
+        paybackBtn.addEventListener('click', function() {
+            const cost = parseFloat(document.getElementById('paybackCost')?.value) || 0;
+            const income = parseFloat(document.getElementById('paybackIncome')?.value) || 1;
+
+            const months = cost / income;
+            const days = months * 30;
+
+            const monthsEl = document.getElementById('paybackMonths');
+            const daysEl = document.getElementById('paybackDays');
+            const resultEl = document.getElementById('paybackResult');
+
+            if (monthsEl) monthsEl.textContent = months.toFixed(1);
+            if (daysEl) daysEl.textContent = Math.round(days);
+            if (resultEl) resultEl.classList.add('show');
+        });
     }
 
-})();
+    // ---- 5. GAME PASS'Ы (дополнительный) ----
+    const gpBtn = document.getElementById('calcGpBtn');
+    if (gpBtn) {
+        gpBtn.addEventListener('click', function() {
+            const target = parseFloat(document.getElementById('gpTarget')?.value) || 0;
+            const price = parseFloat(document.getElementById('gpPrice')?.value) || 1;
+            const ratings = parseFloat(document.getElementById('gpRatings')?.value) || 1;
+
+            const perPass = ratings * 50 * price * 0.7;
+            const count = target / perPass;
+
+            const countEl = document.getElementById('gpCount');
+            const perPassEl = document.getElementById('gpPerPass');
+            const resultEl = document.getElementById('gpResult');
+
+            if (countEl) countEl.textContent = Math.ceil(count).toLocaleString();
+            if (perPassEl) perPassEl.textContent = '$' + ((perPass * 0.0035) - 5).toFixed(2);
+            if (resultEl) resultEl.classList.add('show');
+        });
+    }
+
+    // ---- 6. РЕКЛАМА ----
+    const adsBtn = document.getElementById('calcAdsBtn');
+    if (adsBtn) {
+        adsBtn.addEventListener('click', function() {
+            const budget = parseFloat(document.getElementById('adsBudget')?.value) || 0;
+            const cpv = parseFloat(document.getElementById('adsCpv')?.value) || 0.01;
+
+            const visits = budget / cpv;
+            const costPerVisit = (budget * 0.0035) / visits;
+
+            const visitsEl = document.getElementById('adsVisits');
+            const costEl = document.getElementById('adsCostPerVisit');
+            const resultEl = document.getElementById('adsResult');
+
+            if (visitsEl) visitsEl.textContent = Math.round(visits).toLocaleString();
+            if (costEl) costEl.textContent = '$' + (costPerVisit || 0).toFixed(4);
+            if (resultEl) resultEl.classList.add('show');
+        });
+    }
+
+    // ---- 7. КОНВЕРТЕР ВРЕМЕНИ ----
+    const timeBtn = document.getElementById('calcTimeBtn');
+    if (timeBtn) {
+        timeBtn.addEventListener('click', function() {
+            const minutes = parseFloat(document.getElementById('timeMinutes')?.value) || 0;
+
+            const hours = minutes / 60;
+            const days = hours / 24;
+            const months = days / 30;
+
+            const hoursEl = document.getElementById('timeHours');
+            const daysEl = document.getElementById('timeDays');
+            const monthsEl = document.getElementById('timeMonths');
+            const resultEl = document.getElementById('timeResult');
+
+            if (hoursEl) hoursEl.textContent = hours.toFixed(1);
+            if (daysEl) daysEl.textContent = days.toFixed(1);
+            if (monthsEl) monthsEl.textContent = months.toFixed(1);
+            if (resultEl) resultEl.classList.add('show');
+        });
+    }
+
+    // ============================================================
+    // ===== ПОДЕЛИТЬСЯ (СОЦСЕТИ) =====
+    // ============================================================
+    window.shareResult = function() {
+        const url = encodeURIComponent(window.location.href);
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            background: #182444; border: 1px solid #253460;
+            border-radius: 20px; padding: 30px 35px;
+            max-width: 440px; width: 92%; text-align: center;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+            animation: scaleIn 0.3s ease;
+        `;
+        
+        popup.innerHTML = `
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📤</div>
+            <h3 style="color: #f2f4fa; font-size: 1.3rem; margin-bottom: 6px;">Поделиться результатом</h3>
+            <p style="color: #a6b0cc; font-size: 0.9rem; margin-bottom: 20px;">Выберите соцсеть для публикации</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                <button onclick="shareTo('telegram')" style="
+                    padding: 16px 10px; border-radius: 14px;
+                    border: 1px solid #253460; background: #131c33;
+                    color: #f2f4fa; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                    font-weight: 600; font-size: 0.8rem;
+                    display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    transition: all 0.25s;
+                " onmouseover="this.style.borderColor='#0088cc'" onmouseout="this.style.borderColor='#253460'">
+                    <i class="fab fa-telegram" style="font-size: 1.8rem; color: #0088cc;"></i>
+                    Telegram
+                </button>
+                
+                <button onclick="shareTo('vk')" style="
+                    padding: 16px 10px; border-radius: 14px;
+                    border: 1px solid #253460; background: #131c33;
+                    color: #f2f4fa; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                    font-weight: 600; font-size: 0.8rem;
+                    display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    transition: all 0.25s;
+                " onmouseover="this.style.borderColor='#0077ff'" onmouseout="this.style.borderColor='#253460'">
+                    <i class="fab fa-vk" style="font-size: 1.8rem; color: #0077ff;"></i>
+                    ВКонтакте
+                </button>
+                
+                <button onclick="shareTo('whatsapp')" style="
+                    padding: 16px 10px; border-radius: 14px;
+                    border: 1px solid #253460; background: #131c33;
+                    color: #f2f4fa; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                    font-weight: 600; font-size: 0.8rem;
+                    display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    transition: all 0.25s;
+                " onmouseover="this.style.borderColor='#25D366'" onmouseout="this.style.borderColor='#253460'">
+                    <i class="fab fa-whatsapp" style="font-size: 1.8rem; color: #25D366;"></i>
+                    WhatsApp
+                </button>
+                
+                <button onclick="shareTo('twitter')" style="
+                    padding: 16px 10px; border-radius: 14px;
+                    border: 1px solid #253460; background: #131c33;
+                    color: #f2f4fa; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                    font-weight: 600; font-size: 0.8rem;
+                    display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    transition: all 0.25s;
+                " onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='#253460'">
+                    <i class="fab fa-x-twitter" style="font-size: 1.8rem; color: #fff;"></i>
+                    X (Twitter)
+                </button>
+                
+                <button onclick="shareTo('copy')" style="
+                    padding: 16px 10px; border-radius: 14px;
+                    border: 1px solid #253460; background: #131c33;
+                    color: #f2f4fa; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                    font-weight: 600; font-size: 0.8rem;
+                    display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    transition: all 0.25s;
+                " onmouseover="this.style.borderColor='#FFD700'" onmouseout="this.style.borderColor='#253460'">
+                    <i class="fas fa-link" style="font-size: 1.8rem; color: #FFD700;"></i>
+                    Копировать
+                </button>
+                
+                <button onclick="shareTo('native')" style="
+                    padding: 16px 10px; border-radius: 14px;
+                    border: 1px solid #253460; background: #131c33;
+                    color: #f2f4fa; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                    font-weight: 600; font-size: 0.8rem;
+                    display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    transition: all 0.25s;
+                " onmouseover="this.style.borderColor='#FFD700'" onmouseout="this.style.borderColor='#253460'">
+                    <i class="fas fa-share-alt" style="font-size: 1.8rem; color: #FFD700;"></i>
+                    Системный
+                </button>
+            </div>
+            
+            <button onclick="closeSharePopup()" style="
+                padding: 10px 24px; border-radius: 50px;
+                border: 1px solid #253460; background: transparent;
+                color: #a6b0cc; cursor: pointer; font-family: 'Montserrat', sans-serif;
+                font-weight: 600; font-size: 0.85rem; transition: all 0.25s;
+            " onmouseover="this.style.borderColor='#FFD700'; this.style.color='#FFD700'" onmouseout="this.style.borderColor='#253460'; this.style.color='#a6b0cc'">
+                Закрыть
+            </button>
+        `;
+        
+        overlay.appendChild(popup);
+        document.body.appendChild(overlay);
+        
+        if (!document.getElementById('shareStyles')) {
+            const style = document.createElement('style');
+            style.id = 'shareStyles';
+            style.textContent = `
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes scaleIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeSharePopup();
+        });
+    };
+
+    window.closeSharePopup = function() {
+        const overlay = document.querySelector('div[style*="backdrop-filter: blur(8px)"]');
+        if (overlay) overlay.remove();
+    };
+
+    window.shareTo = function(platform) {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent('💰 Посчитай свой доход в Roblox с калькулятором Метро New!');
+        
+        const shareUrls = {
+            telegram: `https://t.me/share/url?url=${url}&text=${text}`,
+            vk: `https://vk.com/share.php?url=${url}&title=${text}`,
+            whatsapp: `https://wa.me/?text=${text}%20${url}`,
+            twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`
+        };
+        
+        if (platform === 'copy') {
+            navigator.clipboard.writeText(decodeURIComponent(url)).then(() => {
+                showToast('✅ Ссылка скопирована!');
+                closeSharePopup();
+            }).catch(() => {
+                prompt('Скопируйте ссылку:', decodeURIComponent(url));
+                closeSharePopup();
+            });
+            return;
+        }
+        
+        if (platform === 'native') {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Калькулятор дохода разработчика Roblox',
+                    text: 'Посчитай свой доход в Roblox!',
+                    url: decodeURIComponent(url)
+                }).catch(() => {});
+            } else {
+                showToast('⚠️ Системный шаринг не поддерживается');
+            }
+            closeSharePopup();
+            return;
+        }
+        
+        if (shareUrls[platform]) {
+            window.open(shareUrls[platform], '_blank', 'width=600,height=500');
+            closeSharePopup();
+        }
+    };
+
+    // ===== TOAST-УВЕДОМЛЕНИЯ =====
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #182444; border: 1px solid #FFD700;
+            color: #f2f4fa; padding: 14px 28px; border-radius: 14px;
+            font-weight: 600; font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem; box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+            z-index: 10000; animation: toastIn 0.4s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'toastOut 0.4s ease';
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+        
+        if (!document.getElementById('toastStyles')) {
+            const style = document.createElement('style');
+            style.id = 'toastStyles';
+            style.textContent = `
+                @keyframes toastIn {
+                    from { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.95); }
+                    to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+                }
+                @keyframes toastOut {
+                    from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+                    to { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.95); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // ============================================================
+    // ===== ЭКСПОРТ В PDF =====
+    // ============================================================
+    window.exportPDF = function() {
+        const resultEl = document.querySelector('.result.show, .result-players.show');
+        if (!resultEl) {
+            showToast('⚠️ Сначала выполните расчёт!');
+            return;
+        }
+
+        const btn = document.querySelector('.btn-action[onclick*="exportPDF"]');
+        const originalText = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание PDF...';
+            btn.disabled = true;
+        }
+
+        const clone = resultEl.cloneNode(true);
+        clone.querySelectorAll('.action-buttons').forEach(el => el.remove());
+        
+        const element = document.createElement('div');
+        element.style.cssText = `
+            padding: 40px; background: #ffffff; color: #1a1a1a;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px; margin: 0 auto;
+        `;
+        
+        element.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 3px solid #0066CC; padding-bottom: 16px;">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #0066CC, #0052a3); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #FFD700; font-weight: 800; font-size: 24px;">M</div>
+                <div>
+                    <h1 style="font-size: 22px; margin: 0; color: #0066CC;">📊 Отчёт по доходу</h1>
+                    <p style="margin: 0; color: #666; font-size: 14px;">Метро New — Калькулятор разработчика Roblox</p>
+                </div>
+            </div>
+            
+            <div style="background: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #e8e8e8;">
+                ${clone.outerHTML}
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
+                <div>
+                    <p style="margin: 0; color: #999; font-size: 12px;">
+                        <strong>📅 Дата:</strong> ${new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                    <p style="margin: 0; color: #999; font-size: 12px;">
+                        <strong>⏰ Время:</strong> ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; color: #999; font-size: 12px;">
+                        <strong>🔗 Источник:</strong>
+                        <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/" style="color: #0066CC; text-decoration: none;">
+                            Метро New
+                        </a>
+                    </p>
+                    <p style="margin: 0; color: #999; font-size: 12px;">
+                        <strong>📌 Версия:</strong> 1.0
+                    </p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 2px solid #0066CC; text-align: center;">
+                <p style="margin: 0; color: #999; font-size: 11px;">
+                    © ${new Date().getFullYear()} Метро New. Все права защищены.
+                </p>
+            </div>
+        `;
+        
+        if (typeof html2pdf !== 'undefined') {
+            html2pdf()
+                .set({
+                    margin: 10,
+                    filename: `отчет-доход-${new Date().toISOString().slice(0,10)}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                })
+                .from(element)
+                .save()
+                .then(() => {
+                    if (btn) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                    showToast('✅ PDF успешно создан!');
+                })
+                .catch(() => {
+                    if (btn) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                    showToast('❌ Ошибка создания PDF');
+                });
+        } else {
+            showToast('❌ Библиотека PDF не загружена');
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    };
+
+    // ============================================================
+    // ===== КОПИРОВАНИЕ EMBED-КОДА =====
+    // ============================================================
+    const copyBtn = document.getElementById('copyEmbedBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            const codeEl = document.getElementById('embedCode');
+            if (!codeEl) return;
+            
+            const code = codeEl.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }).catch(() => {
+                alert('❌ Не удалось скопировать. Выделите код вручную.');
+            });
+        });
+    }
+
+    // ===== ТЕКУЩИЙ ГОД =====
+    const yearEl = document.getElementById('currentYear');
+    if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+    }
+
+});
