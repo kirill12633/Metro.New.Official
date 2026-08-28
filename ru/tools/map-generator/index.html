@@ -1,0 +1,3171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Генератор карты метро — Метро New</title>
+
+<!-- ===== ИКОНКИ ===== -->
+<link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+<link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+<!-- ===== SEO ===== -->
+<meta name="description" content="Создай свою уникальную схему метро с линиями и станциями. Генератор карты метро от Метро New." />
+<meta name="keywords" content="генератор карты, метро, схема метро, линии, станции, карта метро" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://kirill12633.github.io/Metro.New.Official/ru/tools/map-generator/" />
+
+<!-- ===== Open Graph ===== -->
+<meta property="og:title" content="Генератор карты метро — Метро New" />
+<meta property="og:description" content="Создай свою уникальную схему метро с линиями и станциями." />
+<meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+<meta property="og:url" content="https://kirill12633.github.io/Metro.New.Official/ru/tools/map-generator/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="ru_RU" />
+<meta property="og:site_name" content="Метро New" />
+
+<!-- ===== Twitter Cards ===== -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Генератор карты метро — Метро New" />
+<meta name="twitter:description" content="Создай свою уникальную схему метро с линиями и станциями." />
+<meta name="twitter:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+<!-- ===== HTTP Security Headers ===== -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+<meta name="permissions-policy" content="geolocation=(), microphone=(), camera=()" />
+<meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+      /* ============================================================
+   📱 СОЦСЕТИ В ФУТЕРЕ
+   ============================================================ */
+
+.footer-social {
+    display: flex !important;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.footer-social > a {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-primary, #131c33);
+    border: 1px solid var(--border, #253460);
+    color: var(--text-secondary, #a6b0cc);
+    font-size: 1.2rem;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.footer-social > a:hover {
+    border-color: var(--accent, #FFD700);
+    color: var(--accent, #FFD700);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+}
+
+.footer-social > a img.social-icon-img {
+    width: 22px;
+    height: 22px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    flex-shrink: 0;
+}
+
+/* Цвета при ховере */
+.footer-social > a[title="Discord"]:hover {
+    border-color: #5865F2 !important;
+    color: #5865F2 !important;
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.3) !important;
+}
+
+.footer-social > a[title="Telegram"]:hover {
+    border-color: #0088cc !important;
+    color: #0088cc !important;
+    box-shadow: 0 8px 25px rgba(0, 136, 204, 0.3) !important;
+}
+
+.footer-social > a[title="YouTube"]:hover {
+    border-color: #FF0000 !important;
+    color: #FF0000 !important;
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3) !important;
+}
+
+.footer-social > a[title="Roblox"]:hover {
+    border-color: #00b2ff !important;
+    box-shadow: 0 8px 25px rgba(0, 178, 255, 0.3) !important;
+}
+
+/* ===== КНОПКА "ЕЩЁ" ===== */
+.social-more-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.social-more-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-primary, #131c33);
+    border: 1px solid var(--border, #253460);
+    color: var(--text-secondary, #a6b0cc);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    z-index: 201;
+    font-family: inherit;
+}
+
+.social-more-btn:hover {
+    border-color: var(--accent, #FFD700);
+    color: var(--accent, #FFD700);
+    background: rgba(255, 215, 0, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+}
+
+.social-more-btn i {
+    transition: transform 0.3s ease;
+}
+
+.social-more-wrap.open .social-more-btn i {
+    transform: rotate(90deg);
+}
+
+/* ===== БЕКДРОП ===== */
+.social-more-backdrop {
+    display: none !important;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 12, 20, 0.4);
+    z-index: 190;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.social-more-wrap.open .social-more-backdrop {
+    display: block !important;
+    opacity: 1;
+}
+
+/* ===== ПОПАП ===== */
+.social-more-popup {
+    display: none !important;
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    transform: translateY(-8px) scale(0.95);
+    transform-origin: top right;
+    background: var(--bg-card, #182444);
+    border: 1px solid var(--border, #253460);
+    border-radius: 16px;
+    padding: 10px;
+    min-width: 200px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    z-index: 201;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.social-more-popup::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 16px;
+    width: 14px;
+    height: 14px;
+    background: var(--bg-card, #182444);
+    border-left: 1px solid var(--border, #253460);
+    border-top: 1px solid var(--border, #253460);
+    transform: rotate(45deg);
+    border-radius: 3px 0 0 0;
+}
+
+.social-more-wrap.open .social-more-popup {
+    display: flex !important;
+    flex-direction: column;
+    gap: 2px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.social-more-popup-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary, #77819e);
+    padding: 4px 10px 10px;
+    border-bottom: 1px solid var(--border, #253460);
+    margin-bottom: 4px;
+}
+
+.social-more-popup a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: var(--text-secondary, #a6b0cc);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.social-more-popup a:hover {
+    background: rgba(255, 215, 0, 0.08);
+    color: var(--text-primary, #f2f4fa);
+    transform: translateX(3px);
+}
+
+.social-more-popup a .social-more-icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--bg-secondary, #131c33);
+    flex-shrink: 0;
+}
+
+.social-more-popup a .social-more-icon-badge img.social-icon-img {
+    width: 18px;
+    height: 18px;
+    border-radius: 0;
+    object-fit: contain;
+    display: block;
+}
+
+/* ===== АДАПТИВ ПОПАПА ===== */
+@media (max-width: 480px) {
+    .social-more-popup {
+        position: fixed;
+        top: auto;
+        bottom: 24px;
+        left: 50%;
+        right: auto;
+        transform: translate(-50%, 20px) scale(0.95);
+        transform-origin: bottom center;
+        width: min(280px, 86vw);
+    }
+    
+    .social-more-popup::before {
+        display: none;
+    }
+    
+    .social-more-wrap.open .social-more-popup {
+        transform: translate(-50%, 0) scale(1);
+    }
+    
+    .social-more-popup-label {
+        text-align: center;
+    }
+    
+    .social-more-popup a {
+        justify-content: center;
+    }
+}
+
+/* ===== ФУТЕР ===== */
+.footer-top {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+}
+
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-brand .logo-icon {
+    width: 60px;
+    height: 60px;
+}
+
+.footer-brand .brand-name {
+    font-size: 1.6rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.footer-brand p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    max-width: 300px;
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.footer-col h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 4px;
+}
+
+.footer-col ul a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.footer-col ul a:hover {
+    color: var(--accent);
+}
+
+.footer-col ul a i {
+    width: 16px;
+    font-size: 0.75rem;
+}
+
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 18px var(--accent-glow);
+}
+
+@media (max-width: 768px) {
+    .footer-top {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .footer-links {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-links {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+        /* ============================================================
+           🗺️ ГЕНЕРАТОР КАРТЫ МЕТРО — СТИЛИ
+           ============================================================ */
+
+        :root {
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --text-disabled: #4a5473;
+            --accent: #FFD700;
+            --accent-hover: #ffe14d;
+            --accent-light: rgba(255, 215, 0, 0.15);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --border: #253460;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            background-image: radial-gradient(ellipse at 10% 20%, rgba(255,215,0,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, rgba(77,148,255,0.08) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links>a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .nav-links>a:hover {
+            color: var(--text-primary);
+            background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+        }
+
+        .nav-links>a.active {
+            color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 8%, transparent);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .burger-menu {
+            display: none;
+            font-size: 1.6rem;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 22px;
+            background: linear-gradient(135deg, #4d94ff, #7aacff);
+            border-radius: 50px;
+            color: #fff !important;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s;
+            font-size: 0.95rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(77, 148, 255, 0.3);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown>button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown>button:hover {
+            color: var(--text-primary);
+            background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+        }
+
+        .dropdown>button i {
+            font-size: 0.7rem;
+            transition: transform 0.25s;
+        }
+
+        .dropdown.open>button i {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-width: 200px;
+            padding: 8px 0;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .dropdown.open .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.15s;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-content a i {
+            width: 20px;
+            color: var(--accent);
+        }
+
+        .dropdown-content a:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 30px 0 20px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: color-mix(in srgb, var(--accent) 12%, transparent);
+            border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 10px;
+            font-weight: 500;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.25s;
+            margin-bottom: 16px;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+            transform: translateX(-4px);
+        }
+
+        /* ============================================================
+           🎨 КАСТОМНЫЙ ВЫБОР ЦВЕТА
+           ============================================================ */
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .color-picker-wrapper .current-color {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.25s;
+            flex-shrink: 0;
+        }
+
+        .color-picker-wrapper .current-color:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .color-position {
+            position: relative;
+            display: inline-block;
+        }
+
+        .color-picker-popup {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 50;
+            min-width: 200px;
+        }
+
+        .color-picker-popup.open {
+            display: block;
+        }
+
+        .color-picker-popup .preset-colors {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .color-picker-popup .preset-colors .color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-picker-popup .preset-colors .color-option:hover {
+            transform: scale(1.15);
+            border-color: #fff;
+        }
+
+        .color-picker-popup .preset-colors .color-option.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .color-picker-popup .custom-color-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .color-picker-popup .custom-color-row input[type="text"] {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .color-picker-popup .custom-color-row input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .color-picker-popup .custom-color-row .apply-hex {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            background: var(--accent);
+            color: #0d1526;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.25s;
+        }
+
+        .color-picker-popup .custom-color-row .apply-hex:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        /* ============================================================
+           🗺️ ГЕНЕРАТОР
+           ============================================================ */
+
+        .generator-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            margin: 20px 0 40px;
+        }
+
+        .map-canvas-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            min-height: 500px;
+        }
+
+        .map-canvas-wrapper .map-toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .map-canvas-wrapper .map-toolbar button {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .map-canvas-wrapper .map-toolbar button:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-light);
+        }
+
+        .map-canvas-wrapper .map-toolbar button.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .map-canvas-wrapper .map-toolbar .toolbar-separator {
+            width: 1px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        .map-canvas {
+            width: 100%;
+            min-height: 420px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            user-select: none;
+            transition: background 0.3s;
+        }
+
+        .map-canvas .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .map-canvas .grid-overlay.visible {
+            opacity: 1;
+        }
+
+        .map-canvas .map-watermark {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            font-size: 0.7rem;
+            color: var(--text-disabled);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .map-canvas .map-stats-overlay {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            background: rgba(13, 21, 38, 0.8);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            z-index: 10;
+            pointer-events: none;
+            display: none;
+        }
+
+        .map-canvas .map-stats-overlay.visible {
+            display: block;
+        }
+
+        .map-canvas .station {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            transition: box-shadow 0.2s, transform 0.1s;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+        }
+
+        .map-canvas .station:hover {
+            z-index: 5;
+            box-shadow: 0 0 30px rgba(255,215,0,0.3);
+        }
+
+        .map-canvas .station.dragging {
+            cursor: grabbing;
+            z-index: 10;
+            transform: translate(-50%, -50%) scale(1.25);
+            box-shadow: 0 0 50px rgba(255,215,0,0.5);
+        }
+
+        .map-canvas .station .station-label {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            padding: 3px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            display: none;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .map-canvas .station:hover .station-label {
+            display: block;
+        }
+
+        .map-canvas .station .station-distance {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--text-tertiary);
+            background: rgba(13, 21, 38, 0.8);
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            display: none;
+            pointer-events: none;
+        }
+
+        .map-canvas .station:hover .station-distance {
+            display: block;
+        }
+
+        .map-canvas .line {
+            position: absolute;
+            height: 4px;
+            border-radius: 4px;
+            transform-origin: left center;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .map-canvas .line .line-label {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 1px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            border: 1px solid var(--border);
+        }
+
+        .map-empty-state {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-disabled);
+            pointer-events: none;
+        }
+
+        .map-empty-state i {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .map-empty-state p {
+            font-size: 1rem;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== */
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: fit-content;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+
+        .controls-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .controls-panel h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-panel h3 i {
+            color: var(--accent);
+        }
+
+        .controls-panel .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .controls-panel .control-group label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .controls-panel .control-group input,
+        .controls-panel .control-group select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.25s;
+        }
+
+        .controls-panel .control-group input:focus,
+        .controls-panel .control-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .controls-panel .control-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .controls-panel .control-row .btn-sm {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .controls-panel .btn-primary {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: #0d1526;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            width: 100%;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .controls-panel .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px var(--accent-glow);
+        }
+
+        .controls-panel .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            width: 100%;
+        }
+
+        .controls-panel .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-light);
+        }
+
+        .controls-panel .btn-danger {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #f28b82;
+            background: transparent;
+            color: #f28b82;
+            font-weight: 600;
+            font-size: 0.8rem;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            width: 100%;
+        }
+
+        .controls-panel .btn-danger:hover {
+            background: rgba(242, 139, 130, 0.1);
+            border-color: #f28b82;
+        }
+
+        .controls-panel .btn-success {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #34a853;
+            background: transparent;
+            color: #34a853;
+            font-weight: 600;
+            font-size: 0.8rem;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            width: 100%;
+        }
+
+        .controls-panel .btn-success:hover {
+            background: rgba(52, 168, 83, 0.1);
+            border-color: #34a853;
+        }
+
+        .controls-panel .stations-list {
+            max-height: 120px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-right: 4px;
+        }
+
+        .controls-panel .stations-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .controls-panel .stations-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .controls-panel .station-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .controls-panel .station-item:hover {
+            border-color: var(--border);
+        }
+
+        .controls-panel .station-item .station-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .controls-panel .station-item .station-name {
+            flex: 1;
+            margin: 0 8px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .controls-panel .station-item .station-delete {
+            background: none;
+            border: none;
+            color: var(--text-disabled);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+
+        .controls-panel .station-item .station-delete:hover {
+            color: #f28b82;
+        }
+
+        .controls-panel .empty-stations {
+            color: var(--text-disabled);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .controls-panel .map-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .controls-panel .map-stats .stat-item {
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 6px 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .controls-panel .map-stats .stat-item .stat-number {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .controls-panel .map-stats .stat-item .stat-label {
+            font-size: 0.6rem;
+            color: var(--text-tertiary);
+            display: block;
+        }
+
+        /* ===== ШАБЛОНЫ ===== */
+        .templates-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .templates-row .template-btn {
+            padding: 4px 12px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .templates-row .template-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-light);
+        }
+
+        /* ===== ПРЕДПРОСМОТР ===== */
+        .preview-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .preview-section h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-section h3 i {
+            color: var(--accent);
+        }
+
+        .preview-section .preview-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .preview-section .preview-actions button {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .preview-section .preview-actions button:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-light);
+        }
+
+        .preview-section .preview-actions button i {
+            margin-right: 4px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 30px 0 20px;
+            margin-top: 20px;
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ============================================================
+           📱 АДАПТИВ
+           ============================================================ */
+
+        @media (max-width: 992px) {
+            .burger-menu {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 16px;
+                margin-top: 10px;
+                gap: 4px;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-links>a {
+                padding: 10px 14px;
+                width: 100%;
+            }
+            .dropdown {
+                width: 100%;
+            }
+            .dropdown>button {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 10px 14px;
+            }
+            .dropdown-content {
+                position: static;
+                border: none;
+                background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+                box-shadow: none;
+                padding: 0 0 0 16px;
+                margin-top: 4px;
+            }
+            .dropdown-content a {
+                color: var(--text-secondary);
+                padding: 8px 14px;
+            }
+            .nav-right {
+                order: -1;
+            }
+            .generator-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .controls-panel {
+                order: 2;
+                max-height: none;
+            }
+            .map-canvas-wrapper {
+                order: 1;
+                min-height: 350px;
+            }
+            .map-canvas {
+                min-height: 350px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .map-canvas-wrapper {
+                padding: 12px;
+                min-height: 300px;
+            }
+            .map-canvas {
+                min-height: 300px;
+            }
+            .map-canvas .station {
+                width: 22px;
+                height: 22px;
+                font-size: 7px;
+            }
+            .map-canvas-wrapper .map-toolbar button {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            .controls-panel {
+                padding: 14px;
+            }
+            .color-picker-popup {
+                left: -80px;
+                min-width: 220px;
+            }
+            .color-picker-popup .preset-colors {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            .controls-panel .map-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .preview-section {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">
+                            <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" />
+                        </span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+
+                <div class="nav-right">
+                    <button class="burger-menu" id="burgerMenu" aria-label="Открыть меню">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Прочее <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/"><i class="fas fa-calculator"></i> Калькулятор дохода</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/map-generator/" class="active"><i class="fas fa-map-marked-alt"></i> Генератор карты</a>
+                        </div>
+                    </div>
+
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+        <div class="container">
+
+            <!-- ===== HERO ===== -->
+            <section class="hero">
+                <div class="hero-badge"><i class="fas fa-map-marked-alt"></i> Инструмент</div>
+                <h1>🗺️ Генератор карты метро</h1>
+                <p>Создай свою уникальную схему метро с линиями и станциями. Добавляй, перемещай, раскрашивай!</p>
+            </section>
+
+            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/" class="back-link">
+                <i class="fas fa-arrow-left"></i> Вернуться в инструменты
+            </a>
+
+            <!-- ===== ГЕНЕРАТОР ===== -->
+            <div class="generator-wrapper">
+
+                <!-- ===== КАНВАС ===== -->
+                <div class="map-canvas-wrapper">
+                    <div class="map-toolbar">
+                        <button class="active" data-tool="select"><i class="fas fa-mouse-pointer"></i> Выбрать</button>
+                        <button data-tool="station"><i class="fas fa-circle"></i> Станция</button>
+                        <button data-tool="line"><i class="fas fa-minus"></i> Линия</button>
+                        <span class="toolbar-separator"></span>
+                        <button id="toggleGrid"><i class="fas fa-th"></i> Сетка</button>
+                        <button id="toggleStats"><i class="fas fa-chart-bar"></i> Статистика</button>
+                        <span class="toolbar-separator"></span>
+                        <button id="clearMap"><i class="fas fa-trash"></i> Очистить</button>
+                        <button id="undoMap"><i class="fas fa-undo"></i> Отменить</button>
+                    </div>
+
+                    <div class="map-canvas" id="mapCanvas" style="background: var(--bg-secondary);">
+                        <div class="grid-overlay" id="gridOverlay"></div>
+                        <div class="map-empty-state" id="emptyState">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <p>Нажмите <strong>«Станция»</strong> и кликните на карте, чтобы добавить станцию, или <strong>«Линия»</strong> для соединения станций</p>
+                        </div>
+                        <div class="map-watermark" id="watermark">© Метро New</div>
+                        <div class="map-stats-overlay" id="statsOverlay">
+                            <div>Станций: <span id="statStations">0</span></div>
+                            <div>Линий: <span id="statLines">0</span></div>
+                            <div>Длина: <span id="statLength">0</span> км</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== -->
+                <div class="controls-panel">
+                    <h3><i class="fas fa-sliders-h"></i> Управление</h3>
+
+                    <!-- Авторство -->
+                    <div class="control-group">
+                        <label><i class="fas fa-user-edit"></i> Автор</label>
+                        <input type="text" id="authorName" placeholder="Ваше имя" value="Метро New">
+                    </div>
+
+                    <!-- Фон карты -->
+                    <div class="control-group">
+                        <label>Фон карты</label>
+                        <select id="bgSelect">
+                            <option value="dark">🌙 Тёмный</option>
+                            <option value="light">☀️ Светлый</option>
+                            <option value="map">🗺️ Карта города</option>
+                        </select>
+                    </div>
+
+                    <!-- Привязка к сетке -->
+                    <div class="control-group">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                            <input type="checkbox" id="snapToGrid" /> 
+                            🧲 Привязка к сетке
+                        </label>
+                    </div>
+
+                    <!-- Добавление станции -->
+                    <div class="control-group">
+                        <label>Название станции</label>
+                        <input type="text" id="stationName" placeholder="Название" value="Новая станция">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Цвет станции</label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-position">
+                                <div class="current-color" id="stationColorPreview" style="background: #FFD700;"></div>
+                                <div class="color-picker-popup" id="stationColorPopup">
+                                    <div class="preset-colors" id="presetColors"></div>
+                                    <div class="custom-color-row">
+                                        <input type="text" id="customColorHex" placeholder="#FFD700" maxlength="7" />
+                                        <button class="apply-hex" id="applyCustomColor">Применить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="addStationBtn">
+                        <i class="fas fa-plus-circle"></i> Добавить станцию
+                    </button>
+
+                    <hr style="border-color: var(--border); margin: 2px 0;">
+
+                    <!-- Линия -->
+                    <div class="control-group">
+                        <label>Название линии</label>
+                        <input type="text" id="lineName" placeholder="Название линии" value="Линия 1">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Соединить</label>
+                        <select id="lineFrom">
+                            <option value="">— первая —</option>
+                        </select>
+                        <select id="lineTo" style="margin-top:4px;">
+                            <option value="">— вторая —</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Цвет линии</label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-position">
+                                <div class="current-color" id="lineColorPreview" style="background: #4d94ff;"></div>
+                                <div class="color-picker-popup" id="lineColorPopup">
+                                    <div class="preset-colors" id="linePresetColors"></div>
+                                    <div class="custom-color-row">
+                                        <input type="text" id="lineCustomColorHex" placeholder="#4d94ff" maxlength="7" />
+                                        <button class="apply-hex" id="applyLineCustomColor">Применить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="addLineBtn">
+                        <i class="fas fa-minus"></i> Добавить линию
+                    </button>
+
+                    <hr style="border-color: var(--border); margin: 2px 0;">
+
+                    <!-- Статистика -->
+                    <div class="map-stats" id="mapStats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="statStationsPanel">0</span>
+                            <span class="stat-label">Станций</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="statLinesPanel">0</span>
+                            <span class="stat-label">Линий</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="statLengthPanel">0</span>
+                            <span class="stat-label">Длина (км)</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="statAvgPanel">0</span>
+                            <span class="stat-label">Среднее расстояние</span>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: var(--border); margin: 2px 0;">
+
+                    <!-- Шаблоны -->
+                    <div class="control-group">
+                        <label>🎯 Готовые шаблоны</label>
+                        <div class="templates-row">
+                            <button class="template-btn" data-template="moscow">🏛️ Москва</button>
+                            <button class="template-btn" data-template="spb">🌉 Питер</button>
+                            <button class="template-btn" data-template="london">🔵 Лондон</button>
+                            <button class="template-btn" data-template="grid">📐 Сетка</button>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: var(--border); margin: 2px 0;">
+
+                    <!-- Список станций -->
+                    <div class="control-group">
+                        <label>Станции</label>
+                        <div class="stations-list" id="stationsList">
+                            <div class="empty-stations">Нет станций</div>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: var(--border); margin: 2px 0;">
+
+                    <!-- Экспорт -->
+                    <div class="control-group">
+                        <label>📤 Экспорт</label>
+                        <div class="control-row">
+                            <button class="btn-secondary btn-sm" id="exportPNG"><i class="fas fa-image"></i> PNG</button>
+                            <button class="btn-secondary btn-sm" id="exportJPEG"><i class="fas fa-file-image"></i> JPEG</button>
+                            <button class="btn-secondary btn-sm" id="exportPDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                        </div>
+                        <div class="control-row" style="margin-top:4px;">
+                            <button class="btn-secondary btn-sm" id="exportSVG"><i class="fas fa-code"></i> SVG</button>
+                            <button class="btn-success btn-sm" id="saveProject"><i class="fas fa-save"></i> Сохранить</button>
+                            <button class="btn-secondary btn-sm" id="loadProject"><i class="fas fa-folder-open"></i> Загрузить</button>
+                            <button class="btn-secondary btn-sm" id="shareLink"><i class="fas fa-link"></i> Ссылка</button>
+                        </div>
+                        <input type="file" id="fileInput" accept=".json" style="display:none;">
+                    </div>
+
+                    <button class="btn-danger" id="resetMap">
+                        <i class="fas fa-trash-alt"></i> Сбросить всё
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- ===== ПРЕДПРОСМОТР ===== -->
+            <div class="preview-section">
+                <h3><i class="fas fa-eye"></i> Предпросмотр карты</h3>
+                <div id="previewContainer" style="background: var(--bg-secondary); border-radius: 12px; padding: 16px; min-height: 80px; border: 1px solid var(--border);">
+                    <div style="color: var(--text-disabled); text-align: center; padding: 20px;">
+                        <i class="fas fa-map-marked-alt" style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
+                        <p>Добавьте станции и линии, чтобы увидеть предпросмотр</p>
+                    </div>
+                </div>
+                <div class="preview-actions">
+                    <button id="copyPreview"><i class="fas fa-copy"></i> Копировать</button>
+                    <button id="copyImage"><i class="fas fa-image"></i> Копировать изображение</button>
+                    <button id="sharePreview"><i class="fas fa-share-alt"></i> Поделиться</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+    <div class="container">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="logo-icon">
+                    <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" loading="lazy" />
+                </div>
+                <div class="brand-name">Метро New</div>
+                <p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+                
+                <!-- ===== СОЦСЕТИ ===== -->
+                <div class="footer-social">
+                    <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
+                        <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
+                    </a>
+
+                    <div class="social-more-wrap" id="socialMoreWrap">
+                        <div class="social-more-backdrop" id="socialMoreBackdrop"></div>
+                        <button class="social-more-btn" id="socialMoreBtn" title="Ещё соцсети">
+                            <i class="fas fa-ellipsis"></i>
+                        </button>
+                        <div class="social-more-popup" id="moreSocialPopup">
+                            <div class="social-more-popup-label">Другие соцсети</div>
+                            <a href="https://www.reddit.com/r/Metro_New/" target="_blank" rel="noopener noreferrer">
+                                <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-reddit.svg" alt="Reddit" loading="lazy" /></span> Reddit
+                            </a>
+                            <a href="https://boosty.to/metro.new" target="_blank" rel="noopener noreferrer">
+                                <span class="social-more-icon-badge"><img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZYr-6XWqvc2kuiXvKgp331vF9YwheCDW_P6MA66w2Cw&s=10" alt="Boosty" loading="lazy" /></span> Boosty
+                            </a>
+                            <a href="https://www.tiktok.com/@metro.new" target="_blank" rel="noopener noreferrer">
+                                <span class="social-more-icon-badge"><img class="social-icon-img" src="https://s.magecdn.com/social/tc-tiktok.svg" alt="TikTok" loading="lazy" /></span> TikTok
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>О нас</h4>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сообщество</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Правовые документы</h4>
+                    <ul>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Политика возврата</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Политика авторских прав</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines"><i class="fas fa-globe"></i> Правила сайта</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Контакты</h4>
+                    <ul>
+                        <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Форма обратной связи</a></li>
+                        <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Техническая поддержка</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Полезные ссылки</h4>
+                    <ul>
+                        <li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Все игры</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> База знаний</a></li>
+                        <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус сервисов</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li>
+                        <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+            <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                <i class="fas fa-moon"></i>
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+    </div>
+</footer>
+
+    <!-- ============================================================ -->
+    <!-- ===== SCRIPTS ===== -->
+    <!-- ============================================================ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ===== ТЕКУЩИЙ ГОД =====
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // ===== БУРГЕР =====
+            const burger = document.getElementById('burgerMenu');
+            const navLinks = document.getElementById('navLinks');
+            if (burger) {
+                burger.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
+
+            document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 992) {
+                        navLinks.classList.remove('active');
+                    }
+                });
+            });
+
+            // ===== ДРОПДАУН =====
+            const dropdownOther = document.getElementById('dropdownOther');
+            const dropdownBtn = document.getElementById('dropdownBtn');
+            if (dropdownBtn) {
+                dropdownBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropdownOther.classList.toggle('open');
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (!dropdownOther.contains(e.target)) {
+                    dropdownOther.classList.remove('open');
+                }
+            });
+
+            // ============================================================
+            // ===== ПРЕСЕТЫ ЦВЕТОВ =====
+            // ============================================================
+            const PRESET_COLORS = [
+                '#FFD700', '#FF6B6B', '#FF9F43', '#FECA57', '#48DBFB',
+                '#0ABDE3', '#10AC84', '#EE5A24', '#5F27CD', '#341F97',
+                '#FF9FF3', '#54A0FF', '#5F6DEC', '#FF6348', '#7BED9F',
+                '#70A1FF', '#FF4757', '#2ED573', '#1E90FF', '#FFA502'
+            ];
+
+            // ===== КАСТОМНЫЙ ВЫБОР ЦВЕТА =====
+            function initColorPicker(triggerId, popupId, presetContainerId, hexInputId, applyBtnId, previewId, callback) {
+                const trigger = document.getElementById(triggerId);
+                const popup = document.getElementById(popupId);
+                const presetContainer = document.getElementById(presetContainerId);
+                const hexInput = document.getElementById(hexInputId);
+                const applyBtn = document.getElementById(applyBtnId);
+                const preview = document.getElementById(previewId);
+                let currentColor = preview ? preview.style.background || '#FFD700' : '#FFD700';
+
+                if (presetContainer) {
+                    presetContainer.innerHTML = PRESET_COLORS.map(color => `
+                        <div class="color-option ${color === currentColor ? 'active' : ''}" 
+                             style="background: ${color};" 
+                             data-color="${color}"></div>
+                    `).join('');
+
+                    presetContainer.querySelectorAll('.color-option').forEach(el => {
+                        el.addEventListener('click', function() {
+                            const color = this.dataset.color;
+                            setColor(color);
+                            presetContainer.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
+                            this.classList.add('active');
+                            if (popup) popup.classList.remove('open');
+                        });
+                    });
+                }
+
+                function setColor(color) {
+                    currentColor = color;
+                    if (preview) preview.style.background = color;
+                    if (hexInput) hexInput.value = color.toUpperCase();
+                    if (callback) callback(color);
+                }
+
+                if (trigger) {
+                    trigger.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        popup.classList.toggle('open');
+                        document.querySelectorAll('.color-picker-popup').forEach(p => {
+                            if (p !== popup) p.classList.remove('open');
+                        });
+                    });
+                }
+
+                if (applyBtn && hexInput) {
+                    applyBtn.addEventListener('click', function() {
+                        let color = hexInput.value.trim();
+                        if (color.startsWith('#')) {
+                            if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+                                setColor(color);
+                                if (popup) popup.classList.remove('open');
+                                if (presetContainer) {
+                                    presetContainer.querySelectorAll('.color-option').forEach(c => {
+                                        c.classList.toggle('active', c.dataset.color === color);
+                                    });
+                                }
+                            } else {
+                                alert('❌ Неверный формат цвета. Используйте #RRGGBB');
+                            }
+                        } else {
+                            alert('❌ Цвет должен начинаться с #');
+                        }
+                    });
+
+                    hexInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            applyBtn.click();
+                        }
+                    });
+                }
+
+                document.addEventListener('click', function(e) {
+                    if (popup && !popup.contains(e.target) && !trigger.contains(e.target)) {
+                        popup.classList.remove('open');
+                    }
+                });
+
+                return { getColor: () => currentColor, setColor: setColor };
+            }
+
+            // ===== ИНИЦИАЛИЗАЦИЯ ЦВЕТОВ =====
+            let stationColor = '#FFD700';
+            let lineColor = '#4d94ff';
+
+            const stationPicker = initColorPicker(
+                'stationColorPreview', 'stationColorPopup', 'presetColors',
+                'customColorHex', 'applyCustomColor', 'stationColorPreview',
+                (color) => { stationColor = color; }
+            );
+
+            const linePicker = initColorPicker(
+                'lineColorPreview', 'lineColorPopup', 'linePresetColors',
+                'lineCustomColorHex', 'applyLineCustomColor', 'lineColorPreview',
+                (color) => { lineColor = color; }
+            );
+
+            // ============================================================
+            // ===== ЛОГИКА ГЕНЕРАТОРА КАРТЫ =====
+            // ============================================================
+
+            const canvas = document.getElementById('mapCanvas');
+            const emptyState = document.getElementById('emptyState');
+            const stationsList = document.getElementById('stationsList');
+            const lineFrom = document.getElementById('lineFrom');
+            const lineTo = document.getElementById('lineTo');
+            const previewContainer = document.getElementById('previewContainer');
+            const watermark = document.getElementById('watermark');
+            const authorInput = document.getElementById('authorName');
+            const gridOverlay = document.getElementById('gridOverlay');
+            const snapCheckbox = document.getElementById('snapToGrid');
+            const statsOverlay = document.getElementById('statsOverlay');
+            const bgSelect = document.getElementById('bgSelect');
+
+            let stations = [];
+            let lines = [];
+            let stationIdCounter = 0;
+            let selectedTool = 'select';
+            let selectedStationId = null;
+            let isDragging = false;
+            let dragTarget = null;
+            let dragOffsetX = 0;
+            let dragOffsetY = 0;
+            let lineStartStation = null;
+            let history = [];
+            let maxHistory = 20;
+            let showGrid = false;
+            let showStats = false;
+            const SNAP_SIZE = 30;
+            let bgMode = 'dark';
+
+            // ===== СОСТОЯНИЯ ПО УМОЛЧАНИЮ =====
+            const defaultStations = [
+                { id: 0, name: 'Центральная', x: 200, y: 250, color: '#FFD700' },
+                { id: 1, name: 'Парковая', x: 350, y: 180, color: '#4d94ff' },
+                { id: 2, name: 'Речная', x: 450, y: 320, color: '#34a853' },
+            ];
+
+            const defaultLines = [
+                { from: 0, to: 1, color: '#FFD700', name: 'Линия 1' },
+                { from: 1, to: 2, color: '#4d94ff', name: 'Линия 2' },
+            ];
+
+            // ===== ШАБЛОНЫ =====
+            const TEMPLATES = {
+                moscow: {
+                    stations: [
+                        { name: 'Сокольники', x: 150, y: 100, color: '#FFD700' },
+                        { name: 'Комсомольская', x: 250, y: 100, color: '#FFD700' },
+                        { name: 'Красные Ворота', x: 350, y: 100, color: '#FFD700' },
+                        { name: 'Чистые пруды', x: 450, y: 100, color: '#FFD700' },
+                        { name: 'Лубянка', x: 550, y: 100, color: '#FFD700' },
+                        { name: 'Охотный Ряд', x: 650, y: 100, color: '#FFD700' },
+                        { name: 'Библиотека им. Ленина', x: 750, y: 100, color: '#FFD700' },
+                        { name: 'Кропоткинская', x: 850, y: 100, color: '#FFD700' },
+                        { name: 'Парк культуры', x: 950, y: 100, color: '#FFD700' },
+                        // Вторая линия
+                        { name: 'Театральная', x: 650, y: 60, color: '#4d94ff' },
+                        { name: 'Тверская', x: 650, y: 140, color: '#4d94ff' },
+                        { name: 'Маяковская', x: 650, y: 220, color: '#4d94ff' },
+                    ],
+                    lines: [
+                        { from: 0, to: 1, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 1, to: 2, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 2, to: 3, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 3, to: 4, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 4, to: 5, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 5, to: 6, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 6, to: 7, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 7, to: 8, color: '#FFD700', name: 'Сокольническая' },
+                        { from: 9, to: 10, color: '#4d94ff', name: 'Замоскворецкая' },
+                        { from: 10, to: 11, color: '#4d94ff', name: 'Замоскворецкая' },
+                        { from: 5, to: 9, color: '#34a853', name: 'Переход' },
+                    ]
+                },
+                spb: {
+                    stations: [
+                        { name: 'Парнас', x: 100, y: 50, color: '#FF6B6B' },
+                        { name: 'Проспект Просвещения', x: 200, y: 100, color: '#FF6B6B' },
+                        { name: 'Озерки', x: 300, y: 150, color: '#FF6B6B' },
+                        { name: 'Удельная', x: 400, y: 200, color: '#FF6B6B' },
+                        { name: 'Пионерская', x: 500, y: 250, color: '#FF6B6B' },
+                        { name: 'Чёрная речка', x: 600, y: 300, color: '#FF6B6B' },
+                        { name: 'Петроградская', x: 700, y: 350, color: '#FF6B6B' },
+                        { name: 'Горьковская', x: 800, y: 400, color: '#FF6B6B' },
+                        // Вторая линия
+                        { name: 'Купчино', x: 100, y: 450, color: '#4d94ff' },
+                        { name: 'Звёздная', x: 200, y: 400, color: '#4d94ff' },
+                        { name: 'Московская', x: 300, y: 350, color: '#4d94ff' },
+                        { name: 'Парк Победы', x: 400, y: 300, color: '#4d94ff' },
+                        { name: 'Электросила', x: 500, y: 250, color: '#4d94ff' },
+                        { name: 'Фрунзенская', x: 600, y: 200, color: '#4d94ff' },
+                        { name: 'Технологический институт', x: 700, y: 150, color: '#4d94ff' },
+                        { name: 'Пушкинская', x: 800, y: 100, color: '#4d94ff' },
+                    ],
+                    lines: [
+                        { from: 0, to: 1, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 1, to: 2, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 2, to: 3, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 3, to: 4, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 4, to: 5, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 5, to: 6, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 6, to: 7, color: '#FF6B6B', name: 'Кировско-Выборгская' },
+                        { from: 8, to: 9, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 9, to: 10, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 10, to: 11, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 11, to: 12, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 12, to: 13, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 13, to: 14, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 14, to: 15, color: '#4d94ff', name: 'Московско-Петроградская' },
+                        { from: 4, to: 12, color: '#34a853', name: 'Переход' },
+                    ]
+                },
+                london: {
+                    stations: [
+                        { name: 'Circle', x: 400, y: 200, color: '#FFD700' },
+                        { name: 'District', x: 500, y: 250, color: '#34a853' },
+                        { name: 'Jubilee', x: 600, y: 200, color: '#4d94ff' },
+                        { name: 'Metropolitan', x: 700, y: 250, color: '#FF6B6B' },
+                        { name: 'Northern', x: 500, y: 150, color: '#341F97' },
+                        { name: 'Piccadilly', x: 600, y: 150, color: '#EE5A24' },
+                        { name: 'Victoria', x: 400, y: 150, color: '#5F27CD' },
+                        { name: 'Bakerloo', x: 300, y: 200, color: '#FF9F43' },
+                        { name: 'Central', x: 350, y: 250, color: '#FF6B6B' },
+                        { name: 'Hammersmith', x: 450, y: 300, color: '#FECA57' },
+                    ],
+                    lines: [
+                        { from: 0, to: 1, color: '#FFD700', name: 'Circle' },
+                        { from: 1, to: 2, color: '#34a853', name: 'District' },
+                        { from: 2, to: 3, color: '#4d94ff', name: 'Jubilee' },
+                        { from: 0, to: 7, color: '#FF9F43', name: 'Bakerloo' },
+                        { from: 7, to: 8, color: '#FF9F43', name: 'Bakerloo' },
+                        { from: 8, to: 9, color: '#FF9F43', name: 'Bakerloo' },
+                        { from: 4, to: 5, color: '#341F97', name: 'Northern' },
+                        { from: 5, to: 6, color: '#EE5A24', name: 'Piccadilly' },
+                        { from: 1, to: 9, color: '#34a853', name: 'District' },
+                        { from: 0, to: 6, color: '#5F27CD', name: 'Victoria' },
+                    ]
+                },
+                grid: {
+                    stations: [],
+                    lines: []
+                }
+            };
+
+            // Генерируем сетку 5x5
+            for (let i = 0; i < 25; i++) {
+                const row = Math.floor(i / 5);
+                const col = i % 5;
+                TEMPLATES.grid.stations.push({
+                    name: `${String.fromCharCode(65 + col)}${row + 1}`,
+                    x: 100 + col * 160,
+                    y: 50 + row * 80,
+                    color: PRESET_COLORS[i % PRESET_COLORS.length]
+                });
+                if (col < 4) {
+                    TEMPLATES.grid.lines.push({
+                        from: i,
+                        to: i + 1,
+                        color: PRESET_COLORS[i % PRESET_COLORS.length],
+                        name: `Линия ${row + 1}`
+                    });
+                }
+                if (row < 4) {
+                    TEMPLATES.grid.lines.push({
+                        from: i,
+                        to: i + 5,
+                        color: PRESET_COLORS[(i + 5) % PRESET_COLORS.length],
+                        name: `Линия ${col + 1}`
+                    });
+                }
+            }
+
+            // ===== ФУНКЦИИ =====
+
+            function snapToGrid(val) {
+                return Math.round(val / SNAP_SIZE) * SNAP_SIZE;
+            }
+
+            function getSnapped(x, y) {
+                if (!snapCheckbox.checked) return { x, y };
+                return { x: snapToGrid(x), y: snapToGrid(y) };
+            }
+
+            function setBackground(mode) {
+                bgMode = mode;
+                const bgColors = {
+                    dark: '#131c33',
+                    light: '#f0f2f5',
+                    map: '#1a2a3a'
+                };
+                canvas.style.background = bgColors[mode] || bgColors.dark;
+                // Меняем цвет текста для светлого фона
+                const isLight = mode === 'light';
+                canvas.style.color = isLight ? '#1a1a2e' : '#f2f4fa';
+                document.querySelectorAll('.station .station-label').forEach(el => {
+                    el.style.color = isLight ? '#1a1a2e' : '#f2f4fa';
+                });
+                // Меняем цвет сетки
+                gridOverlay.style.backgroundImage = isLight ?
+                    'linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px)' :
+                    'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)';
+            }
+
+            function initMap() {
+                stations = JSON.parse(JSON.stringify(defaultStations));
+                lines = JSON.parse(JSON.stringify(defaultLines));
+                stationIdCounter = stations.length;
+                history = [];
+                renderMap();
+                updateStationsList();
+                updateLineSelects();
+                updatePreview();
+                updateWatermark();
+                updateStats();
+                setBackground(bgMode);
+            }
+
+            function updateWatermark() {
+                const author = authorInput.value.trim() || 'Метро New';
+                watermark.textContent = '© ' + author;
+            }
+
+            function updateStats() {
+                const stationCount = stations.length;
+                const lineCount = lines.length;
+                let totalLength = 0;
+                let totalDistance = 0;
+                let distanceCount = 0;
+
+                lines.forEach(line => {
+                    const from = stations.find(s => s.id === line.from);
+                    const to = stations.find(s => s.id === line.to);
+                    if (from && to) {
+                        const dx = to.x - from.x;
+                        const dy = to.y - from.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const km = (dist / 100) * 0.5; // Условные километры
+                        totalLength += km;
+                        totalDistance += dist;
+                        distanceCount++;
+                    }
+                });
+
+                const avgDist = distanceCount > 0 ? totalDistance / distanceCount : 0;
+                const avgKm = (avgDist / 100) * 0.5;
+
+                document.getElementById('statStations').textContent = stationCount;
+                document.getElementById('statLines').textContent = lineCount;
+                document.getElementById('statLength').textContent = totalLength.toFixed(1);
+
+                document.getElementById('statStationsPanel').textContent = stationCount;
+                document.getElementById('statLinesPanel').textContent = lineCount;
+                document.getElementById('statLengthPanel').textContent = totalLength.toFixed(1);
+                document.getElementById('statAvgPanel').textContent = avgKm.toFixed(1);
+
+                statsOverlay.classList.toggle('visible', showStats);
+            }
+
+            function renderMap() {
+                canvas.querySelectorAll('.station, .line').forEach(el => el.remove());
+
+                if (stations.length === 0) {
+                    emptyState.style.display = 'flex';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+
+                // Рисуем линии
+                lines.forEach((line, index) => {
+                    const fromStation = stations.find(s => s.id === line.from);
+                    const toStation = stations.find(s => s.id === line.to);
+                    if (!fromStation || !toStation) return;
+
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'line';
+                    lineEl.dataset.from = line.from;
+                    lineEl.dataset.to = line.to;
+
+                    const dx = toStation.x - fromStation.x;
+                    const dy = toStation.y - fromStation.y;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                    lineEl.style.width = length + 'px';
+                    lineEl.style.left = fromStation.x + 'px';
+                    lineEl.style.top = fromStation.y + 'px';
+                    lineEl.style.transform = `rotate(${angle}deg)`;
+                    lineEl.style.background = line.color || '#4d94ff';
+                    lineEl.style.boxShadow = `0 0 12px ${line.color || '#4d94ff'}40`;
+
+                    const label = document.createElement('span');
+                    label.className = 'line-label';
+                    label.textContent = line.name || `Линия ${index + 1}`;
+                    label.style.color = line.color || '#4d94ff';
+                    lineEl.appendChild(label);
+
+                    canvas.appendChild(lineEl);
+                });
+
+                // Рисуем станции
+                stations.forEach((station, index) => {
+                    const stationEl = document.createElement('div');
+                    stationEl.className = 'station';
+                    stationEl.dataset.id = station.id;
+                    stationEl.style.left = station.x + 'px';
+                    stationEl.style.top = station.y + 'px';
+                    stationEl.style.background = station.color || '#FFD700';
+                    stationEl.style.borderColor = station.color || '#FFD700';
+                    stationEl.style.boxShadow = `0 0 25px ${station.color || '#FFD700'}40`;
+                    stationEl.textContent = (index + 1);
+
+                    const label = document.createElement('span');
+                    label.className = 'station-label';
+                    label.textContent = station.name || 'Станция';
+                    stationEl.appendChild(label);
+
+                    // Расстояние до других станций
+                    const distSpan = document.createElement('span');
+                    distSpan.className = 'station-distance';
+                    const distances = stations
+                        .filter(s => s.id !== station.id)
+                        .map(s => {
+                            const dx = s.x - station.x;
+                            const dy = s.y - station.y;
+                            return Math.sqrt(dx * dx + dy * dy);
+                        })
+                        .sort((a, b) => a - b)
+                        .slice(0, 2);
+                    if (distances.length > 0) {
+                        distSpan.textContent = `📍 ${(distances[0]/100*0.5).toFixed(1)} км`;
+                    }
+                    stationEl.appendChild(distSpan);
+
+                    stationEl.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const id = parseInt(this.dataset.id);
+                        if (selectedTool === 'select') {
+                            startDrag(e, id);
+                        } else if (selectedTool === 'line') {
+                            handleLineClick(id);
+                        }
+                    });
+
+                    stationEl.addEventListener('dblclick', function(e) {
+                        e.stopPropagation();
+                        const id = parseInt(this.dataset.id);
+                        if (confirm(`Удалить станцию "${stations.find(s => s.id === id)?.name}"?`)) {
+                            deleteStation(id);
+                        }
+                    });
+
+                    canvas.appendChild(stationEl);
+                });
+
+                if (stations.length === 0) {
+                    emptyState.style.display = 'flex';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+
+                updateWatermark();
+                updateStats();
+            }
+
+            function startDrag(e, id) {
+                const station = stations.find(s => s.id === id);
+                if (!station) return;
+
+                isDragging = true;
+                dragTarget = id;
+                selectedStationId = id;
+
+                const rect = canvas.getBoundingClientRect();
+                dragOffsetX = e.clientX - rect.left - station.x;
+                dragOffsetY = e.clientY - rect.top - station.y;
+
+                document.querySelectorAll('.station').forEach(el => {
+                    el.classList.toggle('dragging', parseInt(el.dataset.id) === id);
+                });
+
+                canvas.style.cursor = 'grabbing';
+            }
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging || dragTarget === null) return;
+
+                const rect = canvas.getBoundingClientRect();
+                let x = e.clientX - rect.left - dragOffsetX;
+                let y = e.clientY - rect.top - dragOffsetY;
+
+                const clampedX = Math.max(20, Math.min(rect.width - 20, x));
+                const clampedY = Math.max(20, Math.min(rect.height - 20, y));
+
+                const snapped = getSnapped(clampedX, clampedY);
+
+                const station = stations.find(s => s.id === dragTarget);
+                if (station) {
+                    station.x = snapped.x;
+                    station.y = snapped.y;
+                    renderMap();
+                    updateStationsList();
+                    updateLineSelects();
+                    updatePreview();
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging && dragTarget !== null) {
+                    saveHistory();
+                }
+                isDragging = false;
+                dragTarget = null;
+                canvas.style.cursor = selectedTool === 'select' ? 'default' :
+                    selectedTool === 'station' ? 'crosshair' : 'pointer';
+                document.querySelectorAll('.station').forEach(el => {
+                    el.classList.remove('dragging');
+                });
+            });
+
+            function selectStation(id) {
+                selectedStationId = id;
+                document.querySelectorAll('.station').forEach(el => {
+                    const isSelected = parseInt(el.dataset.id) === id;
+                    el.style.boxShadow = isSelected ?
+                        `0 0 40px ${stations.find(s => s.id === id)?.color || '#FFD700'}80` :
+                        `0 0 25px ${stations.find(s => s.id === el.dataset.id)?.color || '#FFD700'}40`;
+                    el.style.transform = isSelected ?
+                        'translate(-50%, -50%) scale(1.2)' :
+                        'translate(-50%, -50%) scale(1)';
+                });
+            }
+
+            function handleLineClick(id) {
+                if (lineStartStation === null) {
+                    lineStartStation = id;
+                    selectStation(id);
+                    document.querySelectorAll('.station').forEach(el => {
+                        if (parseInt(el.dataset.id) === id) {
+                            el.style.boxShadow = '0 0 50px #FFD70080';
+                            el.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                        }
+                    });
+                } else if (lineStartStation !== id) {
+                    const from = lineStartStation;
+                    const to = id;
+                    const color = lineColor;
+                    const name = document.getElementById('lineName').value || 'Линия';
+
+                    const exists = lines.some(l =>
+                        (l.from === from && l.to === to) || (l.from === to && l.to === from)
+                    );
+
+                    if (!exists) {
+                        lines.push({ from, to, color, name });
+                        saveHistory();
+                        renderMap();
+                        updateStationsList();
+                        updateLineSelects();
+                        updatePreview();
+                    } else {
+                        alert('⚠️ Линия между этими станциями уже существует');
+                    }
+
+                    lineStartStation = null;
+                    document.querySelectorAll('.station').forEach(el => {
+                        el.style.boxShadow = `0 0 25px ${stations.find(s => s.id == el.dataset.id)?.color || '#FFD700'}40`;
+                        el.style.transform = 'translate(-50%, -50%) scale(1)';
+                    });
+                } else {
+                    lineStartStation = null;
+                    document.querySelectorAll('.station').forEach(el => {
+                        el.style.boxShadow = `0 0 25px ${stations.find(s => s.id == el.dataset.id)?.color || '#FFD700'}40`;
+                        el.style.transform = 'translate(-50%, -50%) scale(1)';
+                    });
+                }
+            }
+
+            function addStation(name, color) {
+                const rect = canvas.getBoundingClientRect();
+                const padding = 50;
+                let x = padding + Math.random() * (rect.width - padding * 2);
+                let y = padding + Math.random() * (rect.height - padding * 2);
+                const snapped = getSnapped(x, y);
+
+                const newStation = {
+                    id: stationIdCounter++,
+                    name: name || 'Новая станция',
+                    x: Math.round(snapped.x),
+                    y: Math.round(snapped.y),
+                    color: color || stationColor
+                };
+
+                stations.push(newStation);
+                saveHistory();
+                renderMap();
+                updateStationsList();
+                updateLineSelects();
+                updatePreview();
+                selectStation(newStation.id);
+
+                const nameInput = document.getElementById('stationName');
+                const match = nameInput.value.match(/^(.+?)(\d+)$/);
+                if (match) {
+                    nameInput.value = match[1] + (parseInt(match[2]) + 1);
+                } else {
+                    nameInput.value = nameInput.value + ' 2';
+                }
+            }
+
+            function addLine(fromId, toId, color, name) {
+                if (fromId === toId) {
+                    alert('⚠️ Нельзя соединить станцию саму с собой');
+                    return;
+                }
+                if (!stations.some(s => s.id === fromId) || !stations.some(s => s.id === toId)) {
+                    alert('⚠️ Одна из станций не найдена');
+                    return;
+                }
+
+                const exists = lines.some(l =>
+                    (l.from === fromId && l.to === toId) || (l.from === toId && l.to === fromId)
+                );
+
+                if (exists) {
+                    alert('⚠️ Линия между этими станциями уже существует');
+                    return;
+                }
+
+                lines.push({ from: fromId, to: toId, color: color || lineColor, name: name || 'Линия' });
+                saveHistory();
+                renderMap();
+                updateStationsList();
+                updateLineSelects();
+                updatePreview();
+            }
+
+            function deleteStation(id) {
+                lines = lines.filter(l => l.from !== id && l.to !== id);
+                stations = stations.filter(s => s.id !== id);
+                saveHistory();
+                renderMap();
+                updateStationsList();
+                updateLineSelects();
+                updatePreview();
+                if (selectedStationId === id) selectedStationId = null;
+            }
+
+            function saveHistory() {
+                const snapshot = {
+                    stations: JSON.parse(JSON.stringify(stations)),
+                    lines: JSON.parse(JSON.stringify(lines)),
+                    stationIdCounter: stationIdCounter
+                };
+                history.push(snapshot);
+                if (history.length > maxHistory) {
+                    history.shift();
+                }
+            }
+
+            function undoHistory() {
+                if (history.length === 0) {
+                    alert('⚠️ Нет действий для отмены');
+                    return;
+                }
+                const snapshot = history.pop();
+                stations = snapshot.stations;
+                lines = snapshot.lines;
+                stationIdCounter = snapshot.stationIdCounter;
+                renderMap();
+                updateStationsList();
+                updateLineSelects();
+                updatePreview();
+            }
+
+            function updateStationsList() {
+                if (stations.length === 0) {
+                    stationsList.innerHTML = '<div class="empty-stations">Нет станций</div>';
+                    return;
+                }
+
+                stationsList.innerHTML = stations.map(station => `
+                        <div class="station-item" data-id="${station.id}">
+                            <span class="station-color" style="background: ${station.color}"></span>
+                            <span class="station-name">${station.name}</span>
+                            <button class="station-delete" data-id="${station.id}" title="Удалить">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `).join('');
+
+                stationsList.querySelectorAll('.station-delete').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = parseInt(this.dataset.id);
+                        const name = stations.find(s => s.id === id)?.name || 'Станция';
+                        if (confirm(`Удалить станцию "${name}"?`)) {
+                            deleteStation(id);
+                        }
+                    });
+                });
+
+                stationsList.querySelectorAll('.station-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        selectStation(id);
+                        const el = canvas.querySelector(`.station[data-id="${id}"]`);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                });
+            }
+
+            function updateLineSelects() {
+                const options = stations.map(s =>
+                    `<option value="${s.id}">${s.name}</option>`
+                ).join('');
+
+                lineFrom.innerHTML = `<option value="">— первая —</option>${options}`;
+                lineTo.innerHTML = `<option value="">— вторая —</option>${options}`;
+            }
+
+            function updatePreview() {
+                if (stations.length === 0) {
+                    previewContainer.innerHTML = `
+                            <div style="color: var(--text-disabled); text-align: center; padding: 20px;">
+                                <i class="fas fa-map-marked-alt" style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
+                                <p>Добавьте станции и линии, чтобы увидеть предпросмотр</p>
+                            </div>
+                        `;
+                    return;
+                }
+
+                let html = `<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center;">`;
+
+                stations.forEach((s, i) => {
+                    html += `
+                            <div style="display: flex; align-items: center; gap: 6px; background: var(--bg-card); padding: 4px 10px 4px 4px; border-radius: 50px; border: 1px solid var(--border);">
+                                <span style="width: 12px; height: 12px; border-radius: 50%; background: ${s.color}; display: inline-block; box-shadow: 0 0 12px ${s.color}40;"></span>
+                                <span style="font-size: 0.75rem; font-weight: 600;">${s.name}</span>
+                                <span style="font-size: 0.6rem; color: var(--text-disabled);">#${i + 1}</span>
+                            </div>
+                        `;
+                });
+
+                if (lines.length > 0) {
+                    html += `<div style="display: flex; flex-wrap: wrap; gap: 4px; width: 100%; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);">`;
+                    lines.forEach((l, i) => {
+                        const from = stations.find(s => s.id === l.from);
+                        const to = stations.find(s => s.id === l.to);
+                        if (from && to) {
+                            html += `
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--text-secondary);">
+                                        <span style="display: inline-block; width: 14px; height: 3px; background: ${l.color}; border-radius: 2px;"></span>
+                                        ${l.name || `Линия ${i + 1}`}: ${from.name} → ${to.name}
+                                    </span>
+                                `;
+                        }
+                    });
+                    html += `</div>`;
+                }
+
+                html += `</div>`;
+                previewContainer.innerHTML = html;
+            }
+
+            function loadTemplate(name) {
+                const template = TEMPLATES[name];
+                if (!template) return;
+
+                if (stations.length > 0 || lines.length > 0) {
+                    if (!confirm('Загрузить шаблон? Текущая карта будет заменена.')) return;
+                }
+
+                stations = JSON.parse(JSON.stringify(template.stations));
+                lines = JSON.parse(JSON.stringify(template.lines));
+                stationIdCounter = stations.length;
+                // Назначаем ID если их нет
+                stations.forEach((s, i) => {
+                    if (s.id === undefined) s.id = i;
+                });
+                if (stationIdCounter === 0) stationIdCounter = stations.length;
+
+                saveHistory();
+                renderMap();
+                updateStationsList();
+                updateLineSelects();
+                updatePreview();
+            }
+
+            function clearMap() {
+                if (stations.length === 0 && lines.length === 0) {
+                    alert('Карта уже пуста');
+                    return;
+                }
+                if (confirm('Очистить все станции и линии?')) {
+                    stations = [];
+                    lines = [];
+                    stationIdCounter = 0;
+                    selectedStationId = null;
+                    lineStartStation = null;
+                    saveHistory();
+                    renderMap();
+                    updateStationsList();
+                    updateLineSelects();
+                    updatePreview();
+                }
+            }
+
+            // ============================================================
+            // ===== ЭКСПОРТ =====
+            // ============================================================
+
+            function exportImage(format) {
+                if (stations.length === 0) {
+                    alert('⚠️ Добавьте хотя бы одну станцию');
+                    return;
+                }
+
+                const scale = format === 'jpeg' ? 1 : 2;
+                html2canvas(canvas, {
+                    backgroundColor: getComputedStyle(canvas).backgroundColor,
+                    scale: scale,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    const ext = format === 'jpeg' ? 'jpg' : 'png';
+                    const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+                    link.download = `metro-map.${ext}`;
+                    link.href = canvas.toDataURL(mime, 0.95);
+                    link.click();
+                }).catch(() => {
+                    alert('❌ Ошибка экспорта. Попробуйте позже.');
+                });
+            }
+
+            function exportPDF() {
+                if (stations.length === 0) {
+                    alert('⚠️ Добавьте хотя бы одну станцию');
+                    return;
+                }
+
+                const element = canvas.cloneNode(true);
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.top = '-9999px';
+                document.body.appendChild(element);
+
+                html2pdf()
+                    .set({
+                        margin: 10,
+                        filename: 'metro-map.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, logging: false },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                    })
+                    .from(element)
+                    .save()
+                    .then(() => {
+                        document.body.removeChild(element);
+                    })
+                    .catch(() => {
+                        document.body.removeChild(element);
+                        alert('❌ Ошибка экспорта PDF');
+                    });
+            }
+
+            function saveProject() {
+                const data = {
+                    version: '1.0',
+                    stations: stations,
+                    lines: lines,
+                    stationIdCounter: stationIdCounter,
+                    author: authorInput.value.trim() || 'Метро New',
+                    date: new Date().toISOString()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.download = `metro-project-${new Date().toISOString().slice(0,10)}.json`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }
+
+            function loadProject(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!data.stations || !data.lines) {
+                            alert('❌ Неверный формат файла');
+                            return;
+                        }
+                        stations = data.stations;
+                        lines = data.lines;
+                        stationIdCounter = data.stationIdCounter || stations.length;
+                        if (data.author) authorInput.value = data.author;
+                        saveHistory();
+                        renderMap();
+                        updateStationsList();
+                        updateLineSelects();
+                        updatePreview();
+                        alert('✅ Проект загружен!');
+                    } catch (err) {
+                        alert('❌ Ошибка загрузки файла');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            function generateShareLink() {
+                const data = {
+                    stations: stations,
+                    lines: lines,
+                    author: authorInput.value.trim() || 'Метро New'
+                };
+                const encoded = encodeURIComponent(JSON.stringify(data));
+                const url = window.location.origin + window.location.pathname + '?map=' + encoded;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('✅ Ссылка скопирована!');
+                }).catch(() => {
+                    prompt('Скопируйте ссылку:', url);
+                });
+            }
+
+            function loadFromURL() {
+                const params = new URLSearchParams(window.location.search);
+                const mapData = params.get('map');
+                if (mapData) {
+                    try {
+                        const data = JSON.parse(decodeURIComponent(mapData));
+                        if (data.stations && data.lines) {
+                            stations = data.stations;
+                            lines = data.lines;
+                            stationIdCounter = stations.length;
+                            if (data.author) authorInput.value = data.author;
+                            renderMap();
+                            updateStationsList();
+                            updateLineSelects();
+                            updatePreview();
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            function copyImageToClipboard() {
+                if (stations.length === 0) {
+                    alert('⚠️ Добавьте хотя бы одну станцию');
+                    return;
+                }
+
+                html2canvas(canvas, {
+                    backgroundColor: getComputedStyle(canvas).backgroundColor,
+                    scale: 1.5,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    canvas.toBlob(function(blob) {
+                        navigator.clipboard.write([
+                            new ClipboardItem({ 'image/png': blob })
+                        ]).then(() => {
+                            alert('✅ Изображение скопировано в буфер!');
+                        }).catch(() => {
+                            alert('❌ Не удалось скопировать изображение');
+                        });
+                    });
+                });
+            }
+
+            // ============================================================
+            // ===== ОБРАБОТЧИКИ =====
+            // ============================================================
+
+            // Инструменты
+            document.querySelectorAll('.map-toolbar button[data-tool]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.map-toolbar button[data-tool]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedTool = this.dataset.tool;
+                    lineStartStation = null;
+                    canvas.style.cursor = selectedTool === 'select' ? 'default' :
+                        selectedTool === 'station' ? 'crosshair' : 'pointer';
+                });
+            });
+
+            // Клик по канвасу
+            canvas.addEventListener('click', function(e) {
+                if (selectedTool === 'station' && !isDragging) {
+                    const rect = canvas.getBoundingClientRect();
+                    let x = e.clientX - rect.left;
+                    let y = e.clientY - rect.top;
+                    const snapped = getSnapped(x, y);
+
+                    const name = document.getElementById('stationName').value || 'Новая станция';
+                    const color = stationColor;
+
+                    const newStation = {
+                        id: stationIdCounter++,
+                        name: name,
+                        x: Math.round(snapped.x),
+                        y: Math.round(snapped.y),
+                        color: color
+                    };
+
+                    stations.push(newStation);
+                    saveHistory();
+                    renderMap();
+                    updateStationsList();
+                    updateLineSelects();
+                    updatePreview();
+                    selectStation(newStation.id);
+
+                    const nameInput = document.getElementById('stationName');
+                    const match = nameInput.value.match(/^(.+?)(\d+)$/);
+                    if (match) {
+                        nameInput.value = match[1] + (parseInt(match[2]) + 1);
+                    } else {
+                        nameInput.value = nameInput.value + ' 2';
+                    }
+                }
+            });
+
+            // Сетка
+            document.getElementById('toggleGrid').addEventListener('click', function() {
+                showGrid = !showGrid;
+                gridOverlay.classList.toggle('visible', showGrid);
+                this.classList.toggle('active', showGrid);
+            });
+
+            // Статистика
+            document.getElementById('toggleStats').addEventListener('click', function() {
+                showStats = !showStats;
+                statsOverlay.classList.toggle('visible', showStats);
+                this.classList.toggle('active', showStats);
+                updateStats();
+            });
+
+            // Фон
+            bgSelect.addEventListener('change', function() {
+                setBackground(this.value);
+            });
+
+            // Добавить станцию
+            document.getElementById('addStationBtn').addEventListener('click', function() {
+                const name = document.getElementById('stationName').value || 'Новая станция';
+                addStation(name, stationColor);
+            });
+
+            // Добавить линию
+            document.getElementById('addLineBtn').addEventListener('click', function() {
+                const from = parseInt(lineFrom.value);
+                const to = parseInt(lineTo.value);
+                const color = lineColor;
+                const name = document.getElementById('lineName').value || 'Линия';
+
+                if (!from || !to) {
+                    alert('⚠️ Выберите две станции для соединения');
+                    return;
+                }
+
+                addLine(from, to, color, name);
+            });
+
+            // Очистить
+            document.getElementById('clearMap').addEventListener('click', clearMap);
+
+            // Отменить
+            document.getElementById('undoMap').addEventListener('click', undoHistory);
+
+            // Сбросить всё
+            document.getElementById('resetMap').addEventListener('click', function() {
+                if (confirm('⚠️ Вы уверены, что хотите сбросить все изменения?')) {
+                    initMap();
+                }
+            });
+
+            // Авторство
+            authorInput.addEventListener('input', updateWatermark);
+
+            // Шаблоны
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    loadTemplate(this.dataset.template);
+                });
+            });
+
+            // Экспорт PNG
+            document.getElementById('exportPNG').addEventListener('click', function() {
+                exportImage('png');
+            });
+
+            // Экспорт JPEG
+            document.getElementById('exportJPEG').addEventListener('click', function() {
+                exportImage('jpeg');
+            });
+
+            // Экспорт PDF
+            document.getElementById('exportPDF').addEventListener('click', exportPDF);
+
+            // Экспорт SVG
+            document.getElementById('exportSVG').addEventListener('click', function() {
+                if (stations.length === 0) {
+                    alert('⚠️ Добавьте хотя бы одну станцию');
+                    return;
+                }
+
+                let svg =
+                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.clientWidth} ${canvas.clientHeight}" width="${canvas.clientWidth}" height="${canvas.clientHeight}">`;
+                svg +=
+                    `<rect width="100%" height="100%" fill="${getComputedStyle(canvas).backgroundColor}"/>`;
+
+                lines.forEach(line => {
+                    const from = stations.find(s => s.id === line.from);
+                    const to = stations.find(s => s.id === line.to);
+                    if (from && to) {
+                        svg +=
+                            `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="${line.color}" stroke-width="4" stroke-linecap="round"/>`;
+                        const midX = (from.x + to.x) / 2;
+                        const midY = (from.y + to.y) / 2 - 14;
+                        svg +=
+                            `<text x="${midX}" y="${midY}" text-anchor="middle" fill="${line.color}" font-size="10" font-weight="600">${line.name || ''}</text>`;
+                    }
+                });
+
+                stations.forEach((station, index) => {
+                    svg +=
+                        `<circle cx="${station.x}" cy="${station.y}" r="14" fill="${station.color}" stroke="#fff" stroke-width="2.5"/>`;
+                    svg +=
+                        `<text x="${station.x}" y="${station.y + 4}" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">${index + 1}</text>`;
+                    svg +=
+                        `<text x="${station.x}" y="${station.y - 24}" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">${station.name}</text>`;
+                });
+
+                const author = authorInput.value.trim() || 'Метро New';
+                svg +=
+                    `<text x="${canvas.clientWidth - 16}" y="${canvas.clientHeight - 12}" text-anchor="end" fill="rgba(255,255,255,0.2)" font-size="10">© ${author}</text>`;
+                svg += `</svg>`;
+
+                const blob = new Blob([svg], { type: 'image/svg+xml' });
+                const link = document.createElement('a');
+                link.download = 'metro-map.svg';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                URL.revokeObjectURL(link.href);
+            });
+
+            // Сохранить проект
+            document.getElementById('saveProject').addEventListener('click', saveProject);
+
+            // Загрузить проект
+            document.getElementById('loadProject').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    loadProject(this.files[0]);
+                }
+                this.value = '';
+            });
+
+            // Ссылка
+            document.getElementById('shareLink').addEventListener('click', generateShareLink);
+
+            // Копировать предпросмотр
+            document.getElementById('copyPreview').addEventListener('click', function() {
+                const text = previewContainer.textContent.trim();
+                if (text && text !== 'Добавьте станции и линии, чтобы увидеть предпросмотр') {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('✅ Предпросмотр скопирован!');
+                    }).catch(() => {
+                        prompt('Скопируйте вручную:', text);
+                    });
+                } else {
+                    alert('⚠️ Сначала добавьте станции');
+                }
+            });
+
+            // Копировать изображение
+            document.getElementById('copyImage').addEventListener('click', copyImageToClipboard);
+
+            // Поделиться
+            document.getElementById('sharePreview').addEventListener('click', function() {
+                const url = window.location.href;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Моя карта метро',
+                        text: 'Смотри какую карту метро я создал!',
+                        url: url
+                    }).catch(() => {});
+                } else {
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('✅ Ссылка скопирована!');
+                    }).catch(() => {
+                        prompt('Скопируйте ссылку:', url);
+                    });
+                }
+            });
+
+            // Enter для полей
+            document.getElementById('stationName').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('addStationBtn').click();
+                }
+            });
+
+            document.getElementById('lineName').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('addLineBtn').click();
+                }
+            });
+
+            // ===== ЗАПУСК =====
+            loadFromURL();
+            initMap();
+
+        });
+    </script>
+
+</body>
+</html>
