@@ -21,6 +21,2570 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 
+    <!-- DOMPurify — обязателен для безопасного рендера Markdown → HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #0052a3;
+            --secondary: #FFD700;
+            --dark: #202124;
+            --light: #ffffff;
+            --gray: #5f6368;
+            --gray-light: #f8f9fa;
+            --gray-border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #fbbc04;
+            --danger: #d93025;
+            --info: #1a73e8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.15);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.2);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f2f5;
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ===== НАВИГАЦИЯ ===== */
+        .top-nav {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .logo-text span {
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nav-btn i {
+            font-size: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .logout-btn:hover {
+            background: var(--gray-light);
+            color: var(--danger);
+        }
+
+        /* ===== ОСНОВНАЯ ПАНЕЛЬ ===== */
+        .admin-panel {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .panel-header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .panel-body {
+            padding: 30px;
+        }
+
+        /* ===== ВКЛАДКИ ===== */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--gray-border);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 22px;
+            background: none;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            transition: all 0.2s;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .tab-btn:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0,102,204,0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== СТАТИСТИКА ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        /* ===== ФОРМА ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .form-main {
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .form-sidebar {
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--gray-border);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* ===== КАТЕГОРИИ ===== */
+        .toggle-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 12px;
+            background: white;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .toggle-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* ===== ЧЕКБОКСЫ ===== */
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        /* ===== ПРЕВЬЮ ===== */
+        .preview-card {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .preview-header {
+            background: var(--gray-light);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--gray-border);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .preview-body {
+            padding: 15px;
+        }
+
+        .preview-news {
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .preview-image {
+            height: 130px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .preview-category {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Подпись/источник фото — по нижнему краю картинки */
+        .image-caption {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 16px 10px 5px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.65));
+            color: #fff;
+            font-size: 0.65rem;
+            text-align: right;
+        }
+
+        .preview-content {
+            padding: 15px;
+        }
+
+        .preview-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .preview-excerpt {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* ===== ПОИСК / ФИЛЬТРЫ / ПАГИНАЦИЯ ===== */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: 10px 15px;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus { outline: none; border-color: var(--primary); }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            background: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .pagination span {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* ===== БАННЕР ЧЕРНОВИКА ===== */
+        .draft-banner {
+            display: none;
+            background: #fef7e0;
+            border: 1px solid var(--warning);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .draft-banner.active { display: flex; }
+
+        /* ===== ЗАГРУЗКА ФАЙЛА ИЗОБРАЖЕНИЯ ===== */
+        .upload-progress {
+            height: 6px;
+            background: var(--gray-border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .upload-progress.active { display: block; }
+
+        .upload-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.2s;
+        }
+
+        /* ===== БЛОК "СКОПИРОВАТЬ ДЛЯ СОЦСЕТЕЙ" ===== */
+        .share-box {
+            background: var(--gray-light);
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-top: 18px;
+        }
+
+        .share-box textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            resize: vertical;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        /* ===== КНОПКИ ===== */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0f7b2e;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+        }
+
+        /* ===== ТАБЛИЦЫ ===== */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-border);
+        }
+
+        th {
+            background: var(--gray-light);
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(0,102,204,0.03);
+        }
+
+        .status-badge {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-published {
+            background: #e6f4ea;
+            color: var(--success);
+        }
+
+        .status-draft {
+            background: #fef7e0;
+            color: #b45f06;
+        }
+
+        .status-pending {
+            background: #fef7e0;
+            color: #b45f06;
+        }
+
+        .status-approved {
+            background: #e6f4ea;
+            color: var(--success);
+        }
+
+        .status-banned {
+            background: #fce8e6;
+            color: var(--danger);
+        }
+
+        /* ===== МОДАЛЬНОЕ ОКНО ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--gray-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--gray-border);
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        /* ===== УВЕДОМЛЕНИЯ ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            z-index: 9999;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* ===== ЗАГРУЗКА ===== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== ПУСТОЙ СОСТОЯНИЕ ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* ===== АДАПТИВНОСТЬ ===== */
+        @media (max-width: 992px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-links {
+                justify-content: center;
+            }
+
+            .user-info {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .tabs {
+                justify-content: center;
+            }
+
+            .tab-btn {
+                font-size: 0.8rem;
+                padding: 8px 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .panel-body {
+                padding: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
+            }
+
+            .form-main, .form-sidebar {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== ЗАГРУЗКА ===== -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Загрузка...</p>
+    </div>
+
+    <!-- ===== НАВИГАЦИЯ ===== -->
+    <div class="container">
+        <div class="top-nav">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">Метро <span>New</span></div>
+            </div>
+
+            <div class="nav-links">
+                <button class="nav-btn active" data-tab="dashboard" onclick="showTab('dashboard')">
+                    <i class="fas fa-chart-line"></i> Дашборд
+                </button>
+                <button class="nav-btn" data-tab="create" onclick="showTab('create')">
+                    <i class="fas fa-plus-circle"></i> Создать
+                </button>
+                <button class="nav-btn" data-tab="newslist" onclick="showTab('newslist')">
+                    <i class="fas fa-list"></i> Все новости
+                </button>
+                <button class="nav-btn" data-tab="moderation" onclick="showTab('moderation')">
+                    <i class="fas fa-comments"></i> Модерация
+                </button>
+                <button class="nav-btn" data-tab="users" onclick="showTab('users')">
+                    <i class="fas fa-users"></i> Пользователи
+                </button>
+                <button class="nav-btn" data-tab="bans" onclick="showTab('bans')">
+                    <i class="fas fa-ban"></i> Баны
+                </button>
+            </div>
+
+            <div class="user-info">
+                <span id="userName">Администратор</span>
+                <div class="user-avatar" id="userAvatar">A</div>
+                <button class="logout-btn" onclick="logout()" title="Выйти">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== ОСНОВНАЯ ПАНЕЛЬ ===== -->
+        <div class="admin-panel">
+            <div class="panel-header">
+                <div>
+                    <h1 id="panelTitle"><i class="fas fa-chart-line"></i> Панель управления</h1>
+                    <p id="panelSubtitle">Управление контентом и модерация</p>
+                </div>
+                <div id="panelActions"></div>
+            </div>
+
+            <div class="panel-body">
+
+                <!-- ===== ВКЛАДКА: ДАШБОРД ===== -->
+                <div class="tab-content active" id="tab-dashboard">
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statNews">-</div>
+                            <div class="stat-label">📰 Всего новостей</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statToday">-</div>
+                            <div class="stat-label">📅 За сегодня</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statViews">-</div>
+                            <div class="stat-label">👁️ Просмотров</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statComments">-</div>
+                            <div class="stat-label">💬 Комментариев</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statUsers">-</div>
+                            <div class="stat-label">👥 Пользователей</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statBanned">-</div>
+                            <div class="stat-label">🚫 Забаненных</div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--gray-light); border-radius: var(--radius-md); padding: 20px; text-align: center;">
+                        <p style="color: var(--gray);">👋 Добро пожаловать в админ-панель Метро New</p>
+                        <p style="color: var(--gray); font-size: 0.9rem;">Используйте меню выше для управления контентом</p>
+                    </div>
+                </div>
+
+                <!-- ===== ВКЛАДКА: СОЗДАТЬ ===== -->
+                <div class="tab-content" id="tab-create">
+
+                    <!-- Баннер восстановления черновика -->
+                    <div class="draft-banner" id="draftBanner">
+                        <span id="draftBannerText"><i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i> Найден несохранённый черновик</span>
+                        <div style="display:flex; gap:10px;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="discardDraft()">Отклонить</button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="restoreDraft()">Восстановить</button>
+                        </div>
+                    </div>
+
+                    <form id="newsForm">
+                        <div class="form-grid">
+                            <!-- Левая колонка -->
+                            <div class="form-main">
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-info-circle"></i> Основная информация</h3>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-heading"></i> Заголовок *</label>
+                                        <input type="text" class="form-control" id="newsTitle" placeholder="Например: Открытие новой станции">
+                                        <div class="form-text">Максимум 100 символов</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-align-left"></i> Краткое описание *</label>
+                                        <textarea class="form-control" id="newsExcerpt" rows="3" placeholder="Краткое описание новости"></textarea>
+                                        <div class="form-text">Максимум 200 символов</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-image"></i> URL изображения</label>
+                                        <input type="url" class="form-control" id="newsImage" placeholder="https://example.com/image.jpg">
+                                        <div class="form-text">Если не указано, будет использован градиент</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-copyright"></i> Источник изображения</label>
+                                        <input type="text" class="form-control" id="newsImageSource" placeholder="Например: фото © Иванов И. / mos.ru">
+                                        <div class="form-text">Будет показано подписью внизу изображения — указывайте, откуда взяли фото</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-upload"></i> Или загрузить файл в хранилище</label>
+                                        <input type="file" class="form-control" id="newsImageFile" accept="image/*">
+                                        <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+                                        <div class="form-text" id="uploadStatus">После загрузки ссылка появится в поле «URL изображения» выше</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-align-right"></i> Полный текст *</h3>
+                                    <div class="form-group">
+                                        <textarea id="newsContent" class="form-control" style="display: none;"></textarea>
+                                        <div id="markdownEditor"></div>
+                                        <div class="form-text">Поддерживает Markdown разметку</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Правая колонка -->
+                            <div class="form-sidebar">
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-tag"></i> Категория *</h3>
+                                    <div class="toggle-group" id="categoryGroup">
+                                        <div class="toggle-btn active" data-category="announcement" onclick="selectCategory('announcement')">
+                                            <i class="fas fa-bullhorn"></i> Анонс
+                                        </div>
+                                        <div class="toggle-btn" data-category="update" onclick="selectCategory('update')">
+                                            <i class="fas fa-sync-alt"></i> Обновление
+                                        </div>
+                                        <div class="toggle-btn" data-category="important" onclick="selectCategory('important')">
+                                            <i class="fas fa-exclamation-circle"></i> Важное
+                                        </div>
+                                        <div class="toggle-btn" data-category="event" onclick="selectCategory('event')">
+                                            <i class="fas fa-calendar-alt"></i> Событие
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="newsCategory" value="announcement">
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-tags"></i> Дополнительно</h3>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-certificate"></i> Метка (badge)</label>
+                                        <input type="text" class="form-control" id="newsBadge" placeholder="🔥 Горячее, Новое">
+                                    </div>
+
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="newsImportant">
+                                            <span><i class="fas fa-star" style="color: #ffc107;"></i> Важная</span>
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="newsPublish" checked>
+                                            <span><i class="fas fa-globe"></i> Опубликовать</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-clock"></i> Дата публикации</h3>
+                                    <div class="form-group">
+                                        <input type="datetime-local" class="form-control" id="newsDate">
+                                        <div class="form-text">Если не указано — текущее время</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-hashtag"></i> Теги</h3>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="newsTags" placeholder="метро, обновление">
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="form-section-title"><i class="fas fa-eye"></i> Быстрый просмотр</h3>
+                                    <div class="preview-card">
+                                        <div class="preview-header"><i class="fas fa-newspaper"></i> Как будет выглядеть</div>
+                                        <div class="preview-body">
+                                            <div class="preview-news">
+                                                <div class="preview-image">
+                                                    <span class="preview-badge" id="previewBadge">Новое</span>
+                                                    <span class="preview-category" id="previewCategory">
+                                                        <i class="fas fa-bullhorn"></i> Анонс
+                                                    </span>
+                                                    <span class="image-caption" id="previewCaption" style="display:none;"></span>
+                                                </div>
+                                                <div class="preview-content">
+                                                    <div class="preview-title" id="previewTitle">Заголовок новости</div>
+                                                    <div class="preview-excerpt" id="previewExcerpt">Краткое описание...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-outline" onclick="previewNews()">
+                                <i class="fas fa-eye"></i> Предпросмотр
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="saveAsDraft()">
+                                <i class="fas fa-save"></i> Черновик
+                            </button>
+                            <button type="submit" class="btn btn-success" id="publishBtn">
+                                <i class="fas fa-check-circle"></i> Опубликовать
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ===== ВКЛАДКА: ВСЕ НОВОСТИ ===== -->
+                <div class="tab-content" id="tab-newslist">
+                    <div class="toolbar">
+                        <input type="text" class="search-input" id="newsSearch" placeholder="🔍 Поиск по заголовку (на текущей странице)...">
+                        <select class="filter-select" id="newsStatusFilter">
+                            <option value="all">Все статусы</option>
+                            <option value="published">Опубликовано</option>
+                            <option value="draft">Черновики</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary btn-sm" onclick="loadNewsList('first')">
+                                <i class="fas fa-sync-alt"></i> Обновить
+                            </button>
+                        </div>
+                        <span style="color: var(--gray); font-size: 0.9rem;" id="newsCount">Загрузка...</span>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Заголовок</th>
+                                    <th>Категория</th>
+                                    <th>👁️</th>
+                                    <th>Статус</th>
+                                    <th>Дата</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="newsList">
+                                <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray);">
+                                    <div class="spinner" style="margin:0 auto;"></div> Загрузка...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="btn btn-outline btn-sm" id="newsPrevBtn" onclick="loadNewsList('prev')" disabled>
+                            <i class="fas fa-chevron-left"></i> Назад
+                        </button>
+                        <span id="newsPageInfo">Страница 1</span>
+                        <button class="btn btn-outline btn-sm" id="newsNextBtn" onclick="loadNewsList('next')">
+                            Вперёд <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="form-text" style="text-align:center; margin-top:8px;">
+                        Список подгружается порциями по 10 записей — так админка не читает всю коллекцию сразу и не создаёт лишнюю нагрузку/расходы на Firestore.
+                    </div>
+                </div>
+
+                <!-- ===== ВКЛАДКА: МОДЕРАЦИЯ ===== -->
+                <div class="tab-content" id="tab-moderation">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadComments()">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-clock"></i> На модерации</h3>
+                        <div id="pendingCommentsList"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-check-circle"></i> Одобренные</h3>
+                        <div id="approvedCommentsList"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-flag"></i> Жалобы</h3>
+                        <div id="complaintsList"></div>
+                    </div>
+                </div>
+
+                <!-- ===== ВКЛАДКА: ПОЛЬЗОВАТЕЛИ ===== -->
+                <div class="tab-content" id="tab-users">
+                    <div class="toolbar">
+                        <input type="text" class="search-input" id="usersSearch" placeholder="🔍 Поиск по имени или UID...">
+                    </div>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadUsers()">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>UID</th>
+                                    <th>Имя</th>
+                                    <th>Комментариев</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersList">
+                                <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--gray);">
+                                    <div class="spinner" style="margin:0 auto;"></div> Загрузка...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== ВКЛАДКА: БАНЫ ===== -->
+                <div class="tab-content" id="tab-bans">
+                    <div class="toolbar">
+                        <input type="text" class="search-input" id="bannedSearch" placeholder="🔍 Поиск по имени, UID или причине...">
+                    </div>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadBanned()">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-ban"></i> Забаненные пользователи</h3>
+                        <div id="bannedList"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-plus-circle"></i> Забанить пользователя</h3>
+                        <div class="form-row" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div class="form-group" style="flex:1; min-width:200px;">
+                                <label>UID пользователя *</label>
+                                <input type="text" class="form-control" id="banUid" placeholder="UID из Firebase">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width:150px;">
+                                <label>Имя</label>
+                                <input type="text" class="form-control" id="banName" placeholder="Имя">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width:150px;">
+                                <label>Причина</label>
+                                <input type="text" class="form-control" id="banReason" placeholder="Причина бана">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width:120px;">
+                                <label>Длительность</label>
+                                <select class="form-control" id="banDuration">
+                                    <option value="1d">1 день</option>
+                                    <option value="3d">3 дня</option>
+                                    <option value="7d">7 дней</option>
+                                    <option value="30d">30 дней</option>
+                                    <option value="permanent" selected>Навсегда</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" id="banSubmitBtn" onclick="banUser()">
+                            <i class="fas fa-gavel"></i> Забанить
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО ПРЕДПРОСМОТРА ===== -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-eye"></i> Предпросмотр</h3>
+                <button class="modal-close" onclick="closePreview()">&times;</button>
+            </div>
+            <div class="modal-body" id="previewContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePreview()">Закрыть</button>
+                <button class="btn btn-success" onclick="publishNews()">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО УСПЕХА ===== -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: var(--success);"><i class="fas fa-check-circle"></i> Успешно!</h3>
+                <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="successMessage"></div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeSuccessModal()">Закрыть</button>
+                <button class="btn btn-primary" onclick="createAnother()">
+                    <i class="fas fa-plus"></i> Создать ещё
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== КАСТОМНОЕ ОКНО ПОДТВЕРЖДЕНИЯ (замена нативного confirm()) ===== -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3 id="confirmTitle"><i class="fas fa-question-circle"></i> Подтверждение</h3>
+                <button class="modal-close" onclick="resolveConfirm(false)">&times;</button>
+            </div>
+            <div class="modal-body" id="confirmMessage"></div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="resolveConfirm(false)">Отмена</button>
+                <button class="btn btn-danger" onclick="resolveConfirm(true)">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== FIREBASE =====
+        firebase.initializeApp({
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        });
+
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        let simplemde = null;
+        let currentCategory = 'announcement';
+
+        // Базовый URL публичной страницы новости — ПОДСТАВЬТЕ СВОЙ АДРЕС
+        const SITE_BASE_URL = 'https://kirill12633.github.io/Metro.New.Official/ru/news.html?id=';
+
+        // ===== ПРОВЕРКА АВТОРИЗАЦИИ =====
+        // ВАЖНО: это только UX-проверка ("залогинен -> показать панель").
+        // Реальная защита данных должна быть в Firestore Security Rules
+        // (см. отдельный файл firestore.rules) — иначе любой залогиненный
+        // пользователь сможет писать/удалять данные напрямую через консоль браузера.
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userName').textContent = user.email || 'Администратор';
+                document.getElementById('userAvatar').textContent = (user.email || 'A')[0].toUpperCase();
+                loadStats();
+                loadNewsList('first');
+                loadComments();
+                loadUsers();
+                loadBanned();
+                checkForDraft();
+            } else {
+                window.location.href = 'admin-login.html';
+            }
+        });
+
+        // ===== ИНИЦИАЛИЗАЦИЯ EDITOR =====
+        document.addEventListener('DOMContentLoaded', function() {
+            simplemde = new SimpleMDE({
+                element: document.getElementById('newsContent'),
+                spellChecker: false,
+                placeholder: 'Напишите текст новости... Используйте Markdown',
+                toolbar: [
+                    'bold', 'italic', 'heading', '|',
+                    'quote', 'code', '|',
+                    'unordered-list', 'ordered-list', '|',
+                    'link', 'image', '|',
+                    'preview', 'side-by-side', 'fullscreen'
+                ],
+                status: ['lines', 'words']
+            });
+
+            // Обновление превью
+            document.getElementById('newsTitle').addEventListener('input', () => { updatePreview(); scheduleDraftAutosave(); });
+            document.getElementById('newsExcerpt').addEventListener('input', () => { updatePreview(); scheduleDraftAutosave(); });
+            document.getElementById('newsBadge').addEventListener('input', () => { updatePreview(); scheduleDraftAutosave(); });
+            document.getElementById('newsImageSource').addEventListener('input', () => { updatePreview(); scheduleDraftAutosave(); });
+            document.getElementById('newsImage').addEventListener('input', scheduleDraftAutosave);
+            document.getElementById('newsTags').addEventListener('input', scheduleDraftAutosave);
+            simplemde.codemirror.on('change', scheduleDraftAutosave);
+
+            // Загрузка изображения файлом в Firebase Storage
+            document.getElementById('newsImageFile').addEventListener('change', handleImageUpload);
+
+            // Дата по умолчанию
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('newsDate').value = now.toISOString().slice(0, 16);
+
+            // Поиск/фильтры
+            document.getElementById('newsSearch').addEventListener('input', filterNewsRows);
+            document.getElementById('newsStatusFilter').addEventListener('change', filterNewsRows);
+            document.getElementById('usersSearch').addEventListener('input', filterUsersRows);
+            document.getElementById('bannedSearch').addEventListener('input', filterBannedRows);
+
+            updatePreview();
+        });
+
+        // ===== ВКЛАДКИ =====
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById('tab-' + tab).classList.add('active');
+            const navBtn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+            if (navBtn) navBtn.classList.add('active');
+
+            const titles = {
+                dashboard: ['Панель управления', 'Управление контентом и модерация'],
+                create: ['Создание новости', 'Заполните форму для публикации'],
+                newslist: ['Все новости', 'Управление существующими новостями'],
+                moderation: ['Модерация', 'Управление комментариями и жалобами'],
+                users: ['Пользователи', 'Управление пользователями'],
+                bans: ['Баны', 'Управление забаненными пользователями']
+            };
+
+            const icons = {
+                dashboard: 'fa-chart-line', create: 'fa-plus-circle', newslist: 'fa-list',
+                moderation: 'fa-comments', users: 'fa-users', bans: 'fa-ban'
+            };
+
+            const [title, subtitle] = titles[tab] || ['Панель управления', ''];
+            document.getElementById('panelTitle').innerHTML =
+                `<i class="fas ${icons[tab] || 'fa-chart-line'}"></i> ${title}`;
+            document.getElementById('panelSubtitle').textContent = subtitle;
+
+            // Обновляем данные при переключении
+            if (tab === 'dashboard') loadStats();
+            if (tab === 'newslist') loadNewsList('first');
+            if (tab === 'moderation') { loadComments(); loadComplaints(); }
+            if (tab === 'users') loadUsers();
+            if (tab === 'bans') loadBanned();
+        }
+
+        // ===== ВЫБОР КАТЕГОРИИ =====
+        function selectCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === category) btn.classList.add('active');
+            });
+            document.getElementById('newsCategory').value = category;
+            updatePreview();
+        }
+
+        // ===== ОБНОВЛЕНИЕ ПРЕВЬЮ =====
+        function updatePreview() {
+            const title = document.getElementById('newsTitle').value || 'Заголовок новости';
+            const excerpt = document.getElementById('newsExcerpt').value || 'Краткое описание...';
+            const badge = document.getElementById('newsBadge').value || 'Новое';
+            const category = document.getElementById('newsCategory').value;
+            const imageSource = document.getElementById('newsImageSource').value.trim();
+
+            const categoryNames = {
+                'announcement': 'Анонс',
+                'update': 'Обновление',
+                'important': 'Важное',
+                'event': 'Событие'
+            };
+
+            const categoryIcons = {
+                'announcement': 'fa-bullhorn',
+                'update': 'fa-sync-alt',
+                'important': 'fa-exclamation-circle',
+                'event': 'fa-calendar-alt'
+            };
+
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewExcerpt').textContent = excerpt;
+            document.getElementById('previewBadge').textContent = badge;
+            document.getElementById('previewCategory').innerHTML =
+                `<i class="fas ${categoryIcons[category]}"></i> ${categoryNames[category]}`;
+
+            const captionEl = document.getElementById('previewCaption');
+            if (imageSource) {
+                captionEl.textContent = '© ' + imageSource;
+                captionEl.style.display = 'block';
+            } else {
+                captionEl.style.display = 'none';
+            }
+        }
+
+        // ===== ЗАГРУЗКА ИЗОБРАЖЕНИЯ В FIREBASE STORAGE =====
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('Можно загружать только изображения', 'error');
+                e.target.value = '';
+                return;
+            }
+            if (file.size > 8 * 1024 * 1024) {
+                showToast('Файл больше 8 МБ — загрузите изображение меньшего размера', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            const storage = firebase.storage();
+            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const ref = storage.ref('news-images/' + Date.now() + '_' + safeName);
+            const task = ref.put(file);
+
+            const progressWrap = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const status = document.getElementById('uploadStatus');
+            progressWrap.classList.add('active');
+
+            task.on('state_changed', snap => {
+                const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                progressBar.style.width = pct + '%';
+                status.textContent = `Загрузка: ${pct}%`;
+            }, err => {
+                showToast('Ошибка загрузки файла: ' + err.message, 'error');
+                progressWrap.classList.remove('active');
+            }, async () => {
+                try {
+                    const url = await task.snapshot.ref.getDownloadURL();
+                    document.getElementById('newsImage').value = url;
+                    status.textContent = '✅ Файл загружен и подставлен в поле URL';
+                    progressWrap.classList.remove('active');
+                    updatePreview();
+                    scheduleDraftAutosave();
+                } catch (err) {
+                    showToast('Не удалось получить ссылку на файл', 'error');
+                }
+            });
+        }
+
+        // ===== ПРЕДПРОСМОТР =====
+        function previewNews() {
+            const title = document.getElementById('newsTitle').value;
+            const excerpt = document.getElementById('newsExcerpt').value;
+            const content = simplemde.value();
+            const category = document.getElementById('newsCategory').value;
+            const badge = document.getElementById('newsBadge').value;
+            const important = document.getElementById('newsImportant').checked;
+            const tags = document.getElementById('newsTags').value;
+            const imageSource = document.getElementById('newsImageSource').value.trim();
+
+            if (!title || !excerpt || !content) {
+                showToast('Заполните заголовок, описание и текст', 'error');
+                return;
+            }
+
+            const categoryNames = {
+                'announcement': 'Анонс',
+                'update': 'Обновление',
+                'important': 'Важное',
+                'event': 'Событие'
+            };
+
+            const categoryIcons = {
+                'announcement': 'fa-bullhorn',
+                'update': 'fa-sync-alt',
+                'important': 'fa-exclamation-circle',
+                'event': 'fa-calendar-alt'
+            };
+
+            // ВАЖНО: рендер Markdown идёт через DOMPurify.sanitize — без этого
+            // произвольный HTML/скрипт в тексте новости выполнился бы в браузере.
+            const renderedContent = DOMPurify.sanitize(simplemde.options.previewRender(content));
+
+            const previewHTML = `
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div style="height: 200px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); position: relative; border-radius: var(--radius-md); margin-bottom: 20px; overflow:hidden;">
+                        ${badge ? `<span style="position: absolute; top: 15px; left: 15px; background: var(--secondary); color: var(--dark); padding: 6px 18px; border-radius: 30px; font-weight: 700;">${escapeHtml(badge)}</span>` : ''}
+                        <span style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 6px 18px; border-radius: 30px;">
+                            <i class="fas ${categoryIcons[category]}"></i> ${categoryNames[category]}
+                        </span>
+                        ${imageSource ? `<span style="position:absolute; left:0; right:0; bottom:0; padding:20px 12px 6px; background:linear-gradient(transparent, rgba(0,0,0,0.65)); color:#fff; font-size:0.7rem; text-align:right;">© ${escapeHtml(imageSource)}</span>` : ''}
+                    </div>
+
+                    <h1 style="color: var(--primary); margin-bottom: 15px;">${escapeHtml(title)}</h1>
+
+                    ${important ? '<p style="background: #fef7e0; color: #b45f06; padding: 10px; border-radius: var(--radius-sm); margin-bottom: 15px;"><i class="fas fa-star" style="color: #ffc107;"></i> Важная новость</p>' : ''}
+
+                    <div style="background: var(--gray-light); padding: 15px 20px; border-radius: var(--radius-md); margin-bottom: 20px;">
+                        <p style="color: var(--gray);">${escapeHtml(excerpt)}</p>
+                    </div>
+
+                    <div style="line-height: 1.8;">${renderedContent}</div>
+
+                    ${tags ? `
+                        <div style="margin-top: 30px;">
+                            ${tags.split(',').map(tag => `<span style="display: inline-block; padding: 4px 14px; background: var(--gray-light); border-radius: 20px; margin-right: 8px; font-size: 0.8rem;">#${escapeHtml(tag.trim())}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('previewContent').innerHTML = previewHTML;
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // ===== ПОКАЗАТЬ/СКРЫТЬ ЗАГРУЗКУ =====
+        function showLoading(text = 'Загрузка...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // ===== СОХРАНЕНИЕ НОВОСТИ =====
+        async function saveNews(status) {
+            const title = document.getElementById('newsTitle').value.trim();
+            const excerpt = document.getElementById('newsExcerpt').value.trim();
+            const content = simplemde.value();
+            const category = document.getElementById('newsCategory').value;
+            const image = document.getElementById('newsImage').value.trim();
+            const imageSource = document.getElementById('newsImageSource').value.trim();
+            const badge = document.getElementById('newsBadge').value.trim();
+            const important = document.getElementById('newsImportant').checked;
+            const tags = document.getElementById('newsTags').value;
+            const publishDate = document.getElementById('newsDate').value;
+
+            if (!title || !excerpt || !content) {
+                showToast('Заполните заголовок, описание и текст', 'error');
+                return;
+            }
+
+            if (title.length > 100) {
+                showToast('Заголовок не более 100 символов', 'error');
+                return;
+            }
+
+            if (excerpt.length > 200) {
+                showToast('Описание не более 200 символов', 'error');
+                return;
+            }
+
+            // Простая клиентская защита от повторной отправки подряд.
+            // Реальный rate limit всё равно должен стоять в Security Rules / Cloud Functions.
+            const publishBtn = document.getElementById('publishBtn');
+            publishBtn.disabled = true;
+            setTimeout(() => { publishBtn.disabled = false; }, 3000);
+
+            showLoading(status === 'published' ? 'Публикация...' : 'Сохранение...');
+
+            try {
+                const newsData = {
+                    title,
+                    excerpt,
+                    content,
+                    category,
+                    badge: badge || null,
+                    important,
+                    status,
+                    views: 0,
+                    likeCount: 0,
+                    fireCount: 0,
+                    thumbsCount: 0,
+                    wowCount: 0,
+                    tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (image) newsData.image = image;
+                if (imageSource) newsData.imageSource = imageSource;
+
+                if (publishDate) {
+                    newsData.createdAt = firebase.firestore.Timestamp.fromDate(new Date(publishDate));
+                } else {
+                    newsData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                }
+
+                const docRef = await db.collection('news').add(newsData);
+
+                hideLoading();
+                discardDraft(); // черновик сохранён в Firestore — локальный автосейв больше не нужен
+
+                let shareBoxHtml = '';
+                if (status === 'published') {
+                    const articleUrl = SITE_BASE_URL + docRef.id;
+                    const shareText = `${title}\n\n${excerpt}\n\nЧитать полностью: ${articleUrl}`;
+                    shareBoxHtml = `
+                        <div class="share-box">
+                            <label style="font-weight:600; margin-bottom:8px; display:block;"><i class="fas fa-share-alt"></i> Текст для соцсетей</label>
+                            <textarea id="shareText" readonly>${escapeHtml(shareText)}</textarea>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="copyShareText()"><i class="fas fa-copy"></i> Скопировать</button>
+                        </div>`;
+                }
+
+                document.getElementById('successMessage').innerHTML = `
+                    <p style="text-align: center; font-size: 1.1rem;">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success); display: block; margin-bottom: 15px;"></i>
+                        Новость успешно ${status === 'published' ? 'опубликована' : 'сохранена как черновик'}!
+                    </p>
+                    <p style="text-align: center; color: var(--gray);">ID: ${docRef.id}</p>
+                    ${shareBoxHtml}
+                `;
+                document.getElementById('successModal').classList.add('active');
+
+            } catch (error) {
+                hideLoading();
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        function copyShareText() {
+            const ta = document.getElementById('shareText');
+            if (!ta) return;
+            ta.select();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(ta.value)
+                    .then(() => showToast('Текст скопирован в буфер обмена'))
+                    .catch(() => legacyCopy(ta));
+            } else {
+                legacyCopy(ta);
+            }
+        }
+
+        function legacyCopy(ta) {
+            try {
+                document.execCommand('copy');
+                showToast('Текст скопирован в буфер обмена');
+            } catch (e) {
+                showToast('Не удалось скопировать — выделите текст вручную', 'error');
+            }
+        }
+
+        function saveAsDraft() {
+            saveNews('draft');
+        }
+
+        function publishNews() {
+            closePreview();
+            saveNews('published');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
+
+        function createAnother() {
+            closeSuccessModal();
+            document.getElementById('newsForm').reset();
+            if (simplemde) simplemde.value('');
+            document.getElementById('newsCategory').value = 'announcement';
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === 'announcement') btn.classList.add('active');
+            });
+            document.getElementById('newsPublish').checked = true;
+            document.getElementById('newsImageSource').value = '';
+            document.getElementById('uploadStatus').textContent = 'После загрузки ссылка появится в поле «URL изображения» выше';
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('newsDate').value = now.toISOString().slice(0, 16);
+            updatePreview();
+        }
+
+        // ===== АВТОСОХРАНЕНИЕ ЧЕРНОВИКА (localStorage) =====
+        const DRAFT_KEY = 'metroNewsDraft';
+        let draftAutosaveTimer = null;
+
+        function collectDraftData() {
+            return {
+                title: document.getElementById('newsTitle').value,
+                excerpt: document.getElementById('newsExcerpt').value,
+                content: simplemde ? simplemde.value() : '',
+                image: document.getElementById('newsImage').value,
+                imageSource: document.getElementById('newsImageSource').value,
+                badge: document.getElementById('newsBadge').value,
+                important: document.getElementById('newsImportant').checked,
+                tags: document.getElementById('newsTags').value,
+                category: document.getElementById('newsCategory').value,
+                savedAt: Date.now()
+            };
+        }
+
+        function scheduleDraftAutosave() {
+            clearTimeout(draftAutosaveTimer);
+            draftAutosaveTimer = setTimeout(() => {
+                try {
+                    localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraftData()));
+                } catch (e) { /* локальное хранилище недоступно/переполнено — молча игнорируем */ }
+            }, 1200);
+        }
+
+        function checkForDraft() {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            if (!raw) return;
+            try {
+                const d = JSON.parse(raw);
+                if (d.title || d.excerpt || d.content) {
+                    const when = new Date(d.savedAt).toLocaleString('ru-RU');
+                    document.getElementById('draftBannerText').innerHTML =
+                        `<i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i> Найден несохранённый черновик от ${when}`;
+                    document.getElementById('draftBanner').classList.add('active');
+                }
+            } catch (e) { /* битые данные — игнорируем */ }
+        }
+
+        function restoreDraft() {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            if (raw) {
+                try {
+                    const d = JSON.parse(raw);
+                    document.getElementById('newsTitle').value = d.title || '';
+                    document.getElementById('newsExcerpt').value = d.excerpt || '';
+                    document.getElementById('newsImage').value = d.image || '';
+                    document.getElementById('newsImageSource').value = d.imageSource || '';
+                    document.getElementById('newsBadge').value = d.badge || '';
+                    document.getElementById('newsImportant').checked = !!d.important;
+                    document.getElementById('newsTags').value = d.tags || '';
+                    selectCategory(d.category || 'announcement');
+                    if (simplemde) simplemde.value(d.content || '');
+                    updatePreview();
+                    showTab('create');
+                } catch (e) { /* игнорируем */ }
+            }
+            discardDraft();
+        }
+
+        function discardDraft() {
+            localStorage.removeItem(DRAFT_KEY);
+            document.getElementById('draftBanner').classList.remove('active');
+        }
+
+        // ===== ОБРАБОТКА ФОРМЫ =====
+        document.getElementById('newsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveNews('published');
+        });
+
+        // ===== СТАТИСТИКА =====
+        async function loadStats() {
+            try {
+                const newsSnap = await db.collection('news').get();
+                const commentsSnap = await db.collection('comments').get();
+                const bansSnap = await db.collection('banned_users').get();
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let totalViews = 0;
+                let todayCount = 0;
+                const users = new Set();
+
+                newsSnap.forEach(doc => {
+                    const data = doc.data();
+                    totalViews += data.views || 0;
+                    if (data.createdAt?.toDate) {
+                        if (data.createdAt.toDate() >= today) todayCount++;
+                    }
+                });
+
+                commentsSnap.forEach(doc => {
+                    if (doc.data().authorId) users.add(doc.data().authorId);
+                });
+
+                document.getElementById('statNews').textContent = newsSnap.size;
+                document.getElementById('statToday').textContent = todayCount;
+                document.getElementById('statViews').textContent = totalViews;
+                document.getElementById('statComments').textContent = commentsSnap.size;
+                document.getElementById('statUsers').textContent = users.size || '—';
+                document.getElementById('statBanned').textContent = bansSnap.size;
+
+            } catch (error) {
+                console.error('Ошибка статистики:', error);
+                showToast('Не удалось загрузить статистику — проверьте правила доступа Firestore', 'error');
+            }
+        }
+
+        // ===== СПИСОК НОВОСТЕЙ (с пагинацией по 10 записей) =====
+        const NEWS_PAGE_SIZE = 10;
+        let newsPageCursors = [null]; // курсор "startAfter" перед каждой страницей
+        let newsCurrentPage = 0;
+        let newsHasMore = false;
+
+        async function loadNewsList(direction = 'first') {
+            const tbody = document.getElementById('newsList');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;"><div class="spinner" style="margin:0 auto;"></div></td></tr>';
+
+            if (direction === 'first') {
+                newsPageCursors = [null];
+                newsCurrentPage = 0;
+            } else if (direction === 'next') {
+                newsCurrentPage++;
+            } else if (direction === 'prev' && newsCurrentPage > 0) {
+                newsCurrentPage--;
+            }
+
+            try {
+                let query = db.collection('news').orderBy('createdAt', 'desc');
+                const cursor = newsPageCursors[newsCurrentPage];
+                if (cursor) query = query.startAfter(cursor);
+
+                // Берём на 1 запись больше, чтобы понять, есть ли следующая страница
+                const snapshot = await query.limit(NEWS_PAGE_SIZE + 1).get();
+                const docs = snapshot.docs;
+                newsHasMore = docs.length > NEWS_PAGE_SIZE;
+                const pageDocs = docs.slice(0, NEWS_PAGE_SIZE);
+
+                if (pageDocs.length && newsPageCursors.length === newsCurrentPage + 1) {
+                    newsPageCursors.push(pageDocs[pageDocs.length - 1]);
+                }
+
+                renderNewsRows(pageDocs);
+
+                document.getElementById('newsPageInfo').textContent = `Страница ${newsCurrentPage + 1}`;
+                document.getElementById('newsPrevBtn').disabled = newsCurrentPage === 0;
+                document.getElementById('newsNextBtn').disabled = !newsHasMore;
+                document.getElementById('newsCount').textContent = `Показано записей: ${pageDocs.length}`;
+
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--danger);">Ошибка загрузки</td></tr>`;
+                console.error(error);
+            }
+        }
+
+        function renderNewsRows(docs) {
+            const tbody = document.getElementById('newsList');
+
+            if (!docs.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray);">Новостей пока нет</td></tr>';
+                return;
+            }
+
+            let html = '';
+            docs.forEach(doc => {
+                const n = doc.data();
+                const status = n.status === 'published' ? 'Опубликовано' : 'Черновик';
+                const statusClass = n.status === 'published' ? 'status-published' : 'status-draft';
+                const date = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ru-RU') : '—';
+
+                html += `
+                    <tr data-news-id="${doc.id}" data-status="${n.status || 'draft'}">
+                        <td><strong>${escapeHtml(n.title || 'Без названия')}</strong></td>
+                        <td>${escapeHtml(n.category || '—')}</td>
+                        <td>${n.views || 0}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-action="edit" title="Редактировать">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-action="delete" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Делегирование кликов — избегаем сборки onclick-строк из данных новости
+        document.getElementById('newsList').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const row = btn.closest('tr');
+            const id = row.dataset.newsId;
+            if (btn.dataset.action === 'edit') editNews(id);
+            if (btn.dataset.action === 'delete') await deleteNews(id);
+        });
+
+        function filterNewsRows() {
+            const q = document.getElementById('newsSearch').value.trim().toLowerCase();
+            const statusFilter = document.getElementById('newsStatusFilter').value;
+            document.querySelectorAll('#newsList tr[data-news-id]').forEach(row => {
+                const title = row.querySelector('td strong')?.textContent.toLowerCase() || '';
+                const matchesText = !q || title.includes(q);
+                const matchesStatus = statusFilter === 'all' || row.dataset.status === statusFilter;
+                row.style.display = (matchesText && matchesStatus) ? '' : 'none';
+            });
+        }
+
+        function editNews(id) {
+            showTab('create');
+            showToast('Загрузка новости для редактирования...');
+            db.collection('news').doc(id).get().then(doc => {
+                if (!doc.exists) return;
+                const n = doc.data();
+                document.getElementById('newsTitle').value = n.title || '';
+                document.getElementById('newsImage').value = n.image || '';
+                document.getElementById('newsImageSource').value = n.imageSource || '';
+                document.getElementById('newsExcerpt').value = n.excerpt || '';
+                document.getElementById('newsBadge').value = n.badge || '';
+                document.getElementById('newsImportant').checked = n.important || false;
+                document.getElementById('newsTags').value = (n.tags || []).join(', ');
+                document.getElementById('newsCategory').value = n.category || 'announcement';
+                selectCategory(n.category || 'announcement');
+                if (simplemde) simplemde.value(n.content || '');
+                updatePreview();
+                showToast('Редактирование: ' + n.title);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }).catch(() => showToast('Ошибка загрузки', 'error'));
+        }
+
+        async function deleteNews(id) {
+            const ok = await customConfirm('Удалить эту новость безвозвратно?', 'Удаление новости');
+            if (!ok) return;
+            try {
+                await db.collection('news').doc(id).delete();
+                showToast('Новость удалена');
+                loadNewsList('first');
+                loadStats();
+            } catch (error) {
+                showToast('Ошибка удаления', 'error');
+            }
+        }
+
+        // ===== КОММЕНТАРИИ =====
+        async function loadComments() {
+            try {
+                const commentsSnap = await db.collection('comments').orderBy('createdAt', 'desc').get();
+
+                const newsMap = {};
+                const newsSnap = await db.collection('news').get();
+                newsSnap.forEach(doc => { newsMap[doc.id] = doc.data().title; });
+
+                const pendingRows = [];
+                const approvedRows = [];
+
+                commentsSnap.forEach(doc => {
+                    const c = doc.data();
+                    const newsTitle = newsMap[c.newsId] || c.newsId || 'Новость удалена';
+                    const authorName = c.author || 'Гость';
+
+                    // Данные пользователя идут ТОЛЬКО в data-атрибуты (экранированные),
+                    // а не в собранную вручную JS-строку внутри onclick — это и закрывает XSS.
+                    const row = `
+                        <tr data-comment-id="${doc.id}" data-author-id="${escapeHtml(c.authorId || '')}" data-author-name="${escapeHtml(authorName)}">
+                            <td><strong>${escapeHtml(newsTitle)}</strong></td>
+                            <td style="max-width:200px;">${escapeHtml((c.text || '').substring(0, 80))}</td>
+                            <td>${escapeHtml(authorName)}</td>
+                            <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString('ru-RU') : '—'}</td>
+                            <td>
+                                ${c.status === 'pending' ? `<button class="btn btn-success btn-sm" data-action="approve" title="Одобрить"><i class="fas fa-check"></i></button>` : ''}
+                                <button class="btn btn-danger btn-sm" data-action="delete-comment" title="Удалить"><i class="fas fa-trash"></i></button>
+                                ${c.authorId ? `<button class="btn btn-warning btn-sm" data-action="ban" title="Забанить автора"><i class="fas fa-ban"></i></button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+
+                    if (c.status === 'pending') pendingRows.push(row); else approvedRows.push(row);
+                });
+
+                document.getElementById('pendingCommentsList').innerHTML = pendingRows.length ?
+                    `<div class="table-wrapper"><table><thead><tr><th>Новость</th><th>Текст</th><th>Автор</th><th>Дата</th><th>Действия</th></tr></thead><tbody>${pendingRows.join('')}</tbody></table></div>` :
+                    '<div class="empty-state"><i class="fas fa-check-circle"></i>Нет комментариев на модерации</div>';
+
+                document.getElementById('approvedCommentsList').innerHTML = approvedRows.length ?
+                    `<div class="table-wrapper"><table><thead><tr><th>Новость</th><th>Текст</th><th>Автор</th><th>Дата</th><th>Действия</th></tr></thead><tbody>${approvedRows.join('')}</tbody></table></div>` :
+                    '<div class="empty-state"><i class="fas fa-comment-slash"></i>Нет одобренных комментариев</div>';
+
+            } catch (error) {
+                console.error('Ошибка загрузки комментариев:', error);
+                showToast('Модерация недоступна: проверьте правила доступа коллекции comments в Firestore', 'error');
+            }
+        }
+
+        // Единая точка обработки кликов по комментариям — без построения JS из пользовательских данных
+        ['pendingCommentsList', 'approvedCommentsList'].forEach(id => {
+            document.getElementById(id).addEventListener('click', async (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const row = btn.closest('tr');
+                const commentId = row.dataset.commentId;
+                const authorId = row.dataset.authorId;
+                const authorName = row.dataset.authorName;
+
+                if (btn.dataset.action === 'approve') await approveComment(commentId);
+                if (btn.dataset.action === 'delete-comment') await deleteComment(commentId);
+                if (btn.dataset.action === 'ban') await banFromComment(authorId, authorName);
+            });
+        });
+
+        async function approveComment(id) {
+            try {
+                await db.collection('comments').doc(id).update({ status: 'approved' });
+                showToast('Комментарий одобрен');
+                loadComments();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        async function deleteComment(id) {
+            const ok = await customConfirm('Удалить этот комментарий?', 'Удаление комментария');
+            if (!ok) return;
+            try {
+                await db.collection('comments').doc(id).delete();
+                showToast('Комментарий удалён');
+                loadComments();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        async function banFromComment(uid, name) {
+            if (!uid) { showToast('У этого автора нет UID — забанить нельзя', 'error'); return; }
+            const ok = await customConfirm(`Забанить пользователя «${name}»?`, 'Бан пользователя');
+            if (!ok) return;
+            try {
+                await db.collection('banned_users').doc(uid).set({
+                    name: name || 'Неизвестный',
+                    reason: 'Нарушение правил',
+                    duration: 'permanent',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast(`Пользователь ${name} забанен`);
+                loadBanned();
+                loadComments();
+                loadStats();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        // ===== ЖАЛОБЫ =====
+        async function loadComplaints() {
+            try {
+                const snapshot = await db.collection('complaints').orderBy('createdAt', 'desc').get();
+                const container = document.getElementById('complaintsList');
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-flag"></i>Жалоб нет</div>';
+                    return;
+                }
+
+                let html = `<div class="table-wrapper"><table><thead><tr><th>Текст</th><th>ID комментария</th><th>Дата</th><th>Действия</th></tr></thead><tbody>`;
+                snapshot.forEach(doc => {
+                    const c = doc.data();
+                    html += `
+                        <tr data-complaint-id="${doc.id}">
+                            <td>${escapeHtml(c.text || '—')}</td>
+                            <td><code>${escapeHtml(c.commentId || '—')}</code></td>
+                            <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString('ru-RU') : '—'}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" data-action="resolve"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-danger btn-sm" data-action="delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Ошибка загрузки жалоб:', error);
+                showToast('Жалобы недоступны: проверьте правила доступа коллекции complaints', 'error');
+            }
+        }
+
+        document.getElementById('complaintsList').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const id = btn.closest('tr').dataset.complaintId;
+            if (btn.dataset.action === 'resolve') await resolveComplaint(id);
+            if (btn.dataset.action === 'delete') await deleteComplaint(id);
+        });
+
+        async function resolveComplaint(id) {
+            try {
+                await db.collection('complaints').doc(id).update({ status: 'resolved' });
+                showToast('Жалоба обработана');
+                loadComplaints();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        async function deleteComplaint(id) {
+            const ok = await customConfirm('Удалить эту жалобу?', 'Удаление жалобы');
+            if (!ok) return;
+            try {
+                await db.collection('complaints').doc(id).delete();
+                showToast('Жалоба удалена');
+                loadComplaints();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        // ===== ПОЛЬЗОВАТЕЛИ =====
+        async function loadUsers() {
+            const tbody = document.getElementById('usersList');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;"><div class="spinner" style="margin:0 auto;"></div></td></tr>';
+
+            try {
+                const commentsSnap = await db.collection('comments').get();
+                const bansSnap = await db.collection('banned_users').get();
+                const bannedIds = new Set();
+                bansSnap.forEach(doc => bannedIds.add(doc.id));
+
+                const usersMap = {};
+                commentsSnap.forEach(doc => {
+                    const c = doc.data();
+                    if (c.authorId) {
+                        if (!usersMap[c.authorId]) {
+                            usersMap[c.authorId] = { name: c.author || 'Неизвестный', count: 0 };
+                        }
+                        usersMap[c.authorId].count++;
+                    }
+                });
+
+                const users = Object.entries(usersMap).sort((a, b) => b[1].count - a[1].count);
+
+                if (!users.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--gray);">Нет активных пользователей</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                users.forEach(([uid, data]) => {
+                    const isBanned = bannedIds.has(uid);
+                    html += `
+                        <tr data-uid="${escapeHtml(uid)}" data-name="${escapeHtml(data.name)}">
+                            <td><code>${escapeHtml(uid)}</code></td>
+                            <td>${escapeHtml(data.name)}</td>
+                            <td>${data.count}</td>
+                            <td><span class="status-badge ${isBanned ? 'status-banned' : 'status-approved'}">${isBanned ? '🚫 Забанен' : '✅ Активен'}</span></td>
+                            <td>
+                                ${isBanned ?
+                                    `<button class="btn btn-success btn-sm" data-action="unban" title="Разбанить"><i class="fas fa-undo"></i></button>` :
+                                    `<button class="btn btn-danger btn-sm" data-action="ban" title="Забанить"><i class="fas fa-ban"></i></button>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--danger);">Ошибка загрузки</td></tr>`;
+                console.error(error);
+            }
+        }
+
+        document.getElementById('usersList').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const row = btn.closest('tr');
+            const uid = row.dataset.uid;
+            const name = row.dataset.name;
+            if (btn.dataset.action === 'unban') await unbanUser(uid);
+            if (btn.dataset.action === 'ban') await banUserDirect(uid, name);
+        });
+
+        function filterUsersRows() {
+            const q = document.getElementById('usersSearch').value.trim().toLowerCase();
+            document.querySelectorAll('#usersList tr[data-uid]').forEach(row => {
+                const text = (row.dataset.uid + ' ' + row.dataset.name).toLowerCase();
+                row.style.display = !q || text.includes(q) ? '' : 'none';
+            });
+        }
+
+        async function banUserDirect(uid, name) {
+            const ok = await customConfirm(`Забанить пользователя «${name}»?`, 'Бан пользователя');
+            if (!ok) return;
+            try {
+                await db.collection('banned_users').doc(uid).set({
+                    name: name || 'Неизвестный',
+                    reason: 'Нарушение правил',
+                    duration: 'permanent',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast(`Пользователь ${name} забанен`);
+                loadUsers();
+                loadBanned();
+                loadStats();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        // ===== БАНЫ =====
+        async function loadBanned() {
+            const container = document.getElementById('bannedList');
+
+            try {
+                const snapshot = await db.collection('banned_users').get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle" style="color:var(--success);"></i>Забаненных пользователей нет</div>';
+                    return;
+                }
+
+                let html = `<div class="table-wrapper"><table><thead><tr><th>UID</th><th>Имя</th><th>Причина</th><th>Длительность</th><th>Дата</th><th>Действия</th></tr></thead><tbody>`;
+                snapshot.forEach(doc => {
+                    const b = doc.data();
+                    const searchBlob = `${doc.id} ${b.name || ''} ${b.reason || ''}`.toLowerCase();
+                    html += `
+                        <tr data-uid="${escapeHtml(doc.id)}" data-search="${escapeHtml(searchBlob)}">
+                            <td><code>${escapeHtml(doc.id)}</code></td>
+                            <td>${escapeHtml(b.name || '—')}</td>
+                            <td>${escapeHtml(b.reason || '—')}</td>
+                            <td>${escapeHtml(b.duration || '—')}</td>
+                            <td>${b.createdAt?.toDate ? b.createdAt.toDate().toLocaleString('ru-RU') : '—'}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" data-action="unban"><i class="fas fa-undo"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerHTML = '<div style="color:var(--danger);padding:20px;">Ошибка загрузки — проверьте правила доступа коллекции banned_users в Firestore</div>';
+                console.error(error);
+            }
+        }
+
+        document.getElementById('bannedList').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-action="unban"]');
+            if (!btn) return;
+            const uid = btn.closest('tr').dataset.uid;
+            await unbanUser(uid);
+        });
+
+        function filterBannedRows() {
+            const q = document.getElementById('bannedSearch').value.trim().toLowerCase();
+            document.querySelectorAll('#bannedList tr[data-uid]').forEach(row => {
+                const text = row.dataset.search || '';
+                row.style.display = !q || text.includes(q) ? '' : 'none';
+            });
+        }
+
+        async function unbanUser(uid) {
+            const ok = await customConfirm(`Разбанить пользователя ${uid}?`, 'Разбан пользователя');
+            if (!ok) return;
+            try {
+                await db.collection('banned_users').doc(uid).delete();
+                showToast('Пользователь разбанен');
+                loadBanned();
+                loadUsers();
+                loadStats();
+            } catch (error) {
+                showToast('Ошибка', 'error');
+            }
+        }
+
+        async function banUser() {
+            const uid = document.getElementById('banUid').value.trim();
+            const name = document.getElementById('banName').value.trim();
+            const reason = document.getElementById('banReason').value.trim() || 'Нарушение правил';
+            const duration = document.getElementById('banDuration').value;
+
+            if (!uid) {
+                showToast('Введите UID пользователя', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('banSubmitBtn');
+            btn.disabled = true;
+            setTimeout(() => { btn.disabled = false; }, 2000); // простая защита от случайных повторных кликов
+
+            try {
+                await db.collection('banned_users').doc(uid).set({
+                    name: name || 'Неизвестный',
+                    reason: reason,
+                    duration: duration,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast(`Пользователь ${uid} забанен`);
+                document.getElementById('banUid').value = '';
+                document.getElementById('banName').value = '';
+                document.getElementById('banReason').value = '';
+                loadBanned();
+                loadStats();
+            } catch (error) {
+                showToast('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        // ===== КАСТОМНОЕ ПОДТВЕРЖДЕНИЕ (замена confirm()) =====
+        let _confirmResolve = null;
+
+        function customConfirm(message, title = 'Подтверждение') {
+            document.getElementById('confirmTitle').innerHTML = `<i class="fas fa-question-circle"></i> ${escapeHtml(title)}`;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').classList.add('active');
+            return new Promise(resolve => { _confirmResolve = resolve; });
+        }
+
+        function resolveConfirm(result) {
+            document.getElementById('confirmModal').classList.remove('active');
+            if (_confirmResolve) {
+                _confirmResolve(result);
+                _confirmResolve = null;
+            }
+        }
+
+        // ===== УТИЛИТЫ =====
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        function showToast(msg, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const t = document.createElement('div');
+            t.className = 'toast ' + type;
+            t.textContent = msg;
+            document.body.appendChild(t);
+
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(-50%) translateY(20px)';
+                t.style.transition = 'all 0.3s ease';
+                setTimeout(() => t.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'admin-login.html';
+            });
+        }
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        console.log('🚇 Metro New Admin Panel loaded');
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — Метро New</title>
+
+    <!-- Иконки -->
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+
+    <!-- SimpleMDE для Markdown -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
     <!-- DOMPurify -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
