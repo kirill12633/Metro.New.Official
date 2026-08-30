@@ -37,15 +37,10 @@
     <meta name="permissions-policy" content="geolocation=(), microphone=(), camera=()" />
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
 
-    <!-- ===== CSP ===== -->
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';
-        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline';
-        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-        img-src 'self' data: https://encrypted-tbn0.gstatic.com https://s.magecdn.com;
-        connect-src 'self';
-    ">
+    <!-- ===== Firebase SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -312,13 +307,23 @@
             font-weight: 700;
             text-decoration: none;
             transition: all 0.25s;
-            box-shadow: 0 4px 20px var(--blue-glow);
             font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .login-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 35px var(--blue-glow);
+            box-shadow: 0 8px 35px rgba(77, 148, 255, 0.4);
+        }
+
+        .login-btn.logout-btn {
+            background: linear-gradient(135deg, var(--red), #d93025);
+        }
+
+        .login-btn.logout-btn:hover {
+            box-shadow: 0 8px 35px rgba(242, 139, 130, 0.4);
         }
 
         .burger-menu {
@@ -402,6 +407,320 @@
         .dropdown-content a:hover {
             background: var(--bg-card-hover);
             color: var(--text-primary);
+        }
+
+        /* ===== ADMIN PANEL ===== */
+        .admin-panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .admin-panel.visible {
+            display: block;
+        }
+
+        .admin-panel h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-panel h2 i {
+            font-size: 1.1rem;
+        }
+
+        .admin-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .admin-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #d93025;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(242, 139, 130, 0.3);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #1e8e4e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(52, 168, 83, 0.3);
+        }
+
+        .admin-status {
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 12px;
+        }
+
+        .admin-status .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ===== DRAG & DROP ===== */
+        .tool-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .tool-card.drag-over {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-lg);
+            transform: scale(1.02);
+        }
+
+        .tool-card .drag-handle {
+            display: none;
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            cursor: grab;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .admin-panel.visible .tool-card .drag-handle {
+            display: block;
+        }
+
+        .tool-card .drag-handle:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .tool-card .admin-actions {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 50px;
+            gap: 6px;
+        }
+
+        .admin-panel.visible .tool-card .admin-actions {
+            display: flex;
+        }
+
+        .tool-card .admin-actions button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-card .admin-actions .edit-btn:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .tool-card .admin-actions .delete-btn:hover {
+            background: var(--red-light);
+            color: var(--red);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--red);
+        }
+
+        .modal form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal form label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .modal form input,
+        .modal form textarea,
+        .modal form select {
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .modal form input:focus,
+        .modal form textarea:focus,
+        .modal form select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .modal form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal form .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .modal form .form-actions button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .modal form .form-actions .btn-submit {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .modal form .form-actions .btn-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .modal form .form-actions .btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .modal form .form-actions .btn-cancel:hover {
+            background: var(--bg-card-hover);
         }
 
         /* ===== ОСНОВНОЙ КОНТЕНТ ===== */
@@ -536,14 +855,19 @@
             transition: opacity 0.3s;
         }
 
-        .tool-card:hover {
+        .tool-card:hover:not(.placeholder)::before {
+            opacity: 1;
+        }
+
+        .tool-card:hover:not(.placeholder) {
             transform: translateY(-6px);
             border-color: var(--accent);
             box-shadow: 0 12px 40px var(--accent-glow);
         }
 
-        .tool-card:hover::before {
-            opacity: 1;
+        .tool-card.placeholder {
+            cursor: default;
+            opacity: 0.5;
         }
 
         .tool-card .tool-icon {
@@ -560,7 +884,7 @@
             transition: all 0.3s;
         }
 
-        .tool-card:hover .tool-icon {
+        .tool-card:hover:not(.placeholder) .tool-icon {
             transform: scale(1.1) rotate(-5deg);
             background: var(--accent);
             color: #14151f;
@@ -613,7 +937,7 @@
             transition: all 0.3s;
         }
 
-        .tool-card:hover .tool-arrow {
+        .tool-card:hover:not(.placeholder) .tool-arrow {
             color: var(--accent);
             transform: translateX(4px);
         }
@@ -681,6 +1005,15 @@
             .tool-card {
                 padding: 20px;
             }
+
+            .admin-controls {
+                flex-direction: column;
+            }
+
+            .admin-controls button {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         @media (max-width: 480px) {
@@ -695,6 +1028,10 @@
             .search-tools .search-box input {
                 font-size: 0.9rem;
                 padding: 10px 0;
+            }
+
+            .modal {
+                padding: 20px;
             }
         }
 
@@ -1074,7 +1411,7 @@
                         </div>
                     </div>
 
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a>
+                    <button id="authBtn" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span></button>
                 </div>
             </nav>
         </div>
@@ -1090,6 +1427,19 @@
                     <p>Полезные сервисы для разработчиков и игроков Roblox</p>
                 </div>
 
+                <!-- ===== ADMIN PANEL ===== -->
+                <div class="admin-panel" id="adminPanel">
+                    <h2><i class="fas fa-crown" style="color: var(--accent);"></i> Панель управления инструментами</h2>
+                    <div class="admin-controls">
+                        <button class="btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить инструмент</button>
+                        <button class="btn-danger" onclick="resetTools()"><i class="fas fa-undo"></i> Сбросить</button>
+                        <button class="btn-success" onclick="saveOrder()"><i class="fas fa-save"></i> Сохранить порядок</button>
+                    </div>
+                    <div class="admin-status" id="adminStatus">
+                        <i class="fas fa-info-circle"></i> Перетаскивайте карточки для изменения порядка. <span class="highlight">Только для администраторов</span>
+                    </div>
+                </div>
+
                 <!-- ===== ПОИСК ===== -->
                 <div class="search-tools">
                     <div class="search-box">
@@ -1103,58 +1453,61 @@
                 </div>
 
                 <!-- ===== СЕТКА ИНСТРУМЕНТОВ ===== -->
-                <div class="tools-grid" id="toolsGrid">
-
-                    <!-- ===== ИНСТРУМЕНТ 1: Калькулятор дохода ===== -->
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/" class="tool-card" data-tags="калькулятор доход разработчик роблокс">
-                        <span class="tool-arrow"><i class="fas fa-arrow-right"></i></span>
-                        <div class="tool-icon">💰</div>
-                        <div class="tool-title">Калькулятор дохода разработчика Roblox</div>
-                        <div class="tool-description">Узнайте свой потенциальный заработок, рассчитайте окупаемость и получите полезные советы</div>
-                        <div class="tool-meta">
-                            <span class="tag active">🔥 Популярный</span>
-                            <span class="tag">Roblox</span>
-                            <span class="tag">Калькулятор</span>
-                        </div>
-                    </a>
-
-                    <!-- ===== ИНСТРУМЕНТ 2: (Место для нового) ===== -->
-                    <div class="tool-card" style="cursor:default; opacity:0.5;" data-tags="">
-                        <span class="tool-arrow"><i class="fas fa-plus"></i></span>
-                        <div class="tool-icon" style="background: var(--bg-secondary); color: var(--text-tertiary);">🔧</div>
-                        <div class="tool-title" style="color: var(--text-tertiary);">Скоро здесь появится новый инструмент</div>
-                        <div class="tool-description" style="color: var(--text-tertiary);">Мы работаем над новыми полезными сервисами для вас</div>
-                        <div class="tool-meta">
-                            <span class="tag" style="border-color: var(--border-light);">Скоро</span>
-                        </div>
-                    </div>
-
-                    <!-- ===== ИНСТРУМЕНТ 3: (Место для нового) ===== -->
-                    <div class="tool-card" style="cursor:default; opacity:0.5;" data-tags="">
-                        <span class="tool-arrow"><i class="fas fa-plus"></i></span>
-                        <div class="tool-icon" style="background: var(--bg-secondary); color: var(--text-tertiary);">🔧</div>
-                        <div class="tool-title" style="color: var(--text-tertiary);">Скоро здесь появится новый инструмент</div>
-                        <div class="tool-description" style="color: var(--text-tertiary);">Мы работаем над новыми полезными сервисами для вас</div>
-                        <div class="tool-meta">
-                            <span class="tag" style="border-color: var(--border-light);">Скоро</span>
-                        </div>
-                    </div>
-
-                    <!-- ===== ИНСТРУМЕНТ 4: (Место для нового) ===== -->
-                    <div class="tool-card" style="cursor:default; opacity:0.5;" data-tags="">
-                        <span class="tool-arrow"><i class="fas fa-plus"></i></span>
-                        <div class="tool-icon" style="background: var(--bg-secondary); color: var(--text-tertiary);">🔧</div>
-                        <div class="tool-title" style="color: var(--text-tertiary);">Скоро здесь появится новый инструмент</div>
-                        <div class="tool-description" style="color: var(--text-tertiary);">Мы работаем над новыми полезными сервисами для вас</div>
-                        <div class="tool-meta">
-                            <span class="tag" style="border-color: var(--border-light);">Скоро</span>
-                        </div>
-                    </div>
-
-                </div>
+                <div class="tools-grid" id="toolsGrid"></div>
             </section>
         </div>
     </main>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-plus"></i> Добавить инструмент</h3>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="toolForm" onsubmit="saveTool(event)">
+                <input type="hidden" id="editId" value="">
+
+                <div class="form-group">
+                    <label for="toolTitle">Название *</label>
+                    <input type="text" id="toolTitle" placeholder="Например: Калькулятор дохода" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolIcon">Иконка (emoji) *</label>
+                    <input type="text" id="toolIcon" placeholder="💰" required maxlength="2" />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolDescription">Описание *</label>
+                    <textarea id="toolDescription" placeholder="Краткое описание инструмента" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolLink">Ссылка *</label>
+                    <input type="url" id="toolLink" placeholder="https://example.com/tool" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolTags">Теги (через запятую)</label>
+                    <input type="text" id="toolTags" placeholder="калькулятор, доход, роблокс" />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolPopular">Популярный</label>
+                    <select id="toolPopular">
+                        <option value="0">Нет</option>
+                        <option value="1">Да (🔥)</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit"><i class="fas fa-save"></i> <span id="submitBtnText">Сохранить</span></button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -1250,169 +1603,612 @@
 
     <!-- ===== SCRIPTS ===== -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===== ТЕМА =====
-            const THEME_KEY = 'metro_new_theme';
-            const root = document.documentElement;
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
 
-            function applyTheme(theme) {
-                root.setAttribute('data-theme', theme);
-            }
+        // ===== INIT FIREBASE =====
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            function getInitialTheme() {
-                const saved = localStorage.getItem(THEME_KEY);
-                if (saved === 'light' || saved === 'dark') return saved;
-                return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-            }
+        // ===== STATE =====
+        let currentUser = null;
+        let isAdmin = false;
+        let toolsData = [];
+        let draggedIndex = null;
 
-            let currentTheme = getInitialTheme();
-            applyTheme(currentTheme);
+        // ===== DOM REFS =====
+        const toolsGrid = document.getElementById('toolsGrid');
+        const adminPanel = document.getElementById('adminPanel');
+        const authBtn = document.getElementById('authBtn');
+        const authText = document.getElementById('authText');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const toolForm = document.getElementById('toolForm');
+        const editId = document.getElementById('editId');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtnText = document.getElementById('submitBtnText');
 
-            const themeToggle = document.getElementById('themeToggle');
-            themeToggle.addEventListener('click', () => {
-                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                applyTheme(currentTheme);
-                localStorage.setItem(THEME_KEY, currentTheme);
-            });
+        // ===== AUTH =====
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
 
-            if (!localStorage.getItem(THEME_KEY)) {
-                window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-                    if (!localStorage.getItem(THEME_KEY)) {
-                        currentTheme = e.matches ? 'light' : 'dark';
-                        applyTheme(currentTheme);
+            if (user) {
+                // Check if user is in admins collection
+                try {
+                    const doc = await db.collection('admins').doc(user.uid).get();
+                    isAdmin = doc.exists;
+
+                    if (isAdmin) {
+                        authText.textContent = 'Админ';
+                        authBtn.classList.add('logout-btn');
+                        authBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span id="authText">Выйти</span>`;
+                        adminPanel.classList.add('visible');
+                        loadTools();
+                    } else {
+                        authText.textContent = 'Войти';
+                        authBtn.classList.remove('logout-btn');
+                        authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
+                        adminPanel.classList.remove('visible');
+                        loadTools();
                     }
+                } catch (error) {
+                    console.error('Ошибка проверки прав:', error);
+                    isAdmin = false;
+                    adminPanel.classList.remove('visible');
+                    loadTools();
+                }
+            } else {
+                authText.textContent = 'Войти';
+                authBtn.classList.remove('logout-btn');
+                authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
+                adminPanel.classList.remove('visible');
+                loadTools();
+            }
+        });
+
+        authBtn.addEventListener('click', () => {
+            if (currentUser) {
+                auth.signOut();
+            } else {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                auth.signInWithPopup(provider).catch(error => {
+                    console.error('Ошибка входа:', error);
+                    alert('Ошибка входа: ' + error.message);
                 });
             }
+        });
 
-            window.addEventListener('storage', (e) => {
-                if (e.key === THEME_KEY && (e.newValue === 'light' || e.newValue === 'dark')) {
-                    currentTheme = e.newValue;
-                    applyTheme(currentTheme);
+        // ===== LOAD TOOLS =====
+        async function loadTools() {
+            try {
+                const snapshot = await db.collection('tools').orderBy('order').get();
+
+                if (snapshot.empty) {
+                    // Если коллекция пуста, создаём дефолтные инструменты
+                    await createDefaultTools();
+                    return;
+                }
+
+                toolsData = [];
+                snapshot.forEach(doc => {
+                    toolsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderTools();
+                updateStats();
+            } catch (error) {
+                console.error('Ошибка загрузки инструментов:', error);
+                // Пробуем создать дефолтные
+                await createDefaultTools();
+            }
+        }
+
+        // ===== CREATE DEFAULT TOOLS =====
+        async function createDefaultTools() {
+            const defaults = [{
+                title: 'Калькулятор дохода разработчика Roblox',
+                icon: '💰',
+                description: 'Узнайте свой потенциальный заработок, рассчитайте окупаемость и получите полезные советы',
+                link: 'https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/',
+                tags: 'калькулятор, доход, разработчик, роблокс',
+                popular: true,
+                order: 0
+            }, {
+                title: 'Скоро здесь появится новый инструмент',
+                icon: '🔧',
+                description: 'Мы работаем над новыми полезными сервисами для вас',
+                link: '#',
+                tags: 'скоро',
+                popular: false,
+                order: 1,
+                placeholder: true
+            }, {
+                title: 'Скоро здесь появится новый инструмент',
+                icon: '🔧',
+                description: 'Мы работаем над новыми полезными сервисами для вас',
+                link: '#',
+                tags: 'скоро',
+                popular: false,
+                order: 2,
+                placeholder: true
+            }, {
+                title: 'Скоро здесь появится новый инструмент',
+                icon: '🔧',
+                description: 'Мы работаем над новыми полезными сервисами для вас',
+                link: '#',
+                tags: 'скоро',
+                popular: false,
+                order: 3,
+                placeholder: true
+            }];
+
+            const batch = db.batch();
+            defaults.forEach(tool => {
+                const doc = db.collection('tools').doc();
+                batch.set(doc, tool);
+            });
+
+            await batch.commit();
+            loadTools();
+        }
+
+        // ===== RENDER TOOLS =====
+        function renderTools() {
+            if (!toolsData || toolsData.length === 0) {
+                toolsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                        <i class="fas fa-tools" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: 16px;"></i>
+                        <p>Нет доступных инструментов</p>
+                        ${isAdmin ? '<p style="margin-top: 8px; font-size: 0.9rem;">Нажмите "Добавить инструмент" чтобы создать первый</p>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            toolsData.forEach((tool, index) => {
+                const isPlaceholder = tool.placeholder || false;
+                const popularTag = tool.popular ? `<span class="tag active">🔥 Популярный</span>` : '';
+                const tagsArray = tool.tags ? tool.tags.split(',').map(t => t.trim()) : [];
+                const tagsHtml = tagsArray.filter(t => t).map(t =>
+                    `<span class="tag">${t}</span>`
+                ).join('');
+
+                html += `
+                    <div class="tool-card ${isPlaceholder ? 'placeholder' : ''}" 
+                         data-index="${index}"
+                         draggable="${isAdmin && !isPlaceholder}"
+                         data-tags="${tool.tags || ''}"
+                         data-link="${tool.link || '#'}">
+                        <span class="tool-arrow"><i class="fas ${isPlaceholder ? 'fa-plus' : 'fa-arrow-right'}"></i></span>
+                        <div class="tool-icon" style="${isPlaceholder ? 'background: var(--bg-secondary); color: var(--text-tertiary);' : ''}">${tool.icon || '🔧'}</div>
+                        <div class="tool-title" style="${isPlaceholder ? 'color: var(--text-tertiary);' : ''}">${tool.title || 'Без названия'}</div>
+                        <div class="tool-description" style="${isPlaceholder ? 'color: var(--text-tertiary);' : ''}">${tool.description || ''}</div>
+                        <div class="tool-meta">
+                            ${popularTag}
+                            ${tagsHtml}
+                            ${isPlaceholder ? `<span class="tag" style="border-color: var(--border-light);">Скоро</span>` : ''}
+                        </div>
+                        ${isAdmin && !isPlaceholder ? `
+                            <div class="admin-actions">
+                                <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('${tool.id}')" title="Редактировать">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="delete-btn" onclick="event.stopPropagation(); deleteTool('${tool.id}')" title="Удалить">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="drag-handle" title="Перетащить для изменения порядка">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            toolsGrid.innerHTML = html;
+
+            // Обработчики кликов
+            document.querySelectorAll('.tool-card:not(.placeholder)').forEach(card => {
+                const link = card.dataset.link;
+                if (link && link !== '#') {
+                    card.addEventListener('click', function(e) {
+                        if (e.target.closest('.admin-actions') || e.target.closest('.drag-handle')) return;
+                        window.open(link, '_blank');
+                    });
                 }
             });
 
-            // ===== БУРГЕР =====
-            const burger = document.getElementById('burgerMenu');
-            const navLinks = document.getElementById('navLinks');
-            burger.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-            });
+            // Drag & Drop
+            if (isAdmin) {
+                setupDragAndDrop();
+            }
+        }
 
-            document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 992) {
-                        navLinks.classList.remove('active');
-                    }
+        // ===== DRAG & DROP =====
+        function setupDragAndDrop() {
+            const cards = document.querySelectorAll('.tool-card:not(.placeholder)');
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('dragenter', handleDragEnter);
+                card.addEventListener('dragleave', handleDragLeave);
+                card.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            const card = e.target.closest('.tool-card');
+            if (!card || card.classList.contains('placeholder')) return;
+
+            draggedIndex = parseInt(card.dataset.index);
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedIndex);
+        }
+
+        function handleDragEnd(e) {
+            const card = e.target.closest('.tool-card');
+            if (card) card.classList.remove('dragging');
+            document.querySelectorAll('.tool-card.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            const card = e.target.closest('.tool-card');
+            if (card && !card.classList.contains('dragging')) {
+                card.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const card = e.target.closest('.tool-card');
+            if (card) card.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetCard = e.target.closest('.tool-card');
+            if (!targetCard || targetCard.classList.contains('placeholder')) return;
+
+            const targetIndex = parseInt(targetCard.dataset.index);
+            if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+            // Перемещаем элемент в массиве
+            const [movedItem] = toolsData.splice(draggedIndex, 1);
+            toolsData.splice(targetIndex, 0, movedItem);
+
+            // Обновляем порядок
+            toolsData.forEach((tool, idx) => tool.order = idx);
+
+            renderTools();
+            updateStats();
+
+            // Автосохранение порядка
+            saveOrder();
+        }
+
+        // ===== SAVE ORDER =====
+        async function saveOrder() {
+            if (!isAdmin || !currentUser) return;
+
+            try {
+                const batch = db.batch();
+                toolsData.forEach(tool => {
+                    const ref = db.collection('tools').doc(tool.id);
+                    batch.update(ref, { order: tool.order });
                 });
+                await batch.commit();
+                showAdminStatus('Порядок сохранён! ✅', 'success');
+            } catch (error) {
+                console.error('Ошибка сохранения порядка:', error);
+                showAdminStatus('Ошибка сохранения порядка ❌', 'error');
+            }
+        }
+
+        // ===== SHOW ADMIN STATUS =====
+        function showAdminStatus(message, type = 'info') {
+            const status = document.getElementById('adminStatus');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            status.innerHTML = `${icon} ${message}`;
+            setTimeout(() => {
+                status.innerHTML =
+                    `<i class="fas fa-info-circle"></i> Перетаскивайте карточки для изменения порядка. <span class="highlight">Только для администраторов</span>`;
+            }, 3000);
+        }
+
+        // ===== FILTER TOOLS =====
+        function filterTools() {
+            const query = document.getElementById('searchTools').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.tool-card');
+            const clearBtn = document.getElementById('clearSearch');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const tags = card.dataset.tags || '';
+                const title = card.querySelector('.tool-title')?.textContent?.toLowerCase() || '';
+                const desc = card.querySelector('.tool-description')?.textContent?.toLowerCase() || '';
+
+                const match = !query ||
+                    tags.includes(query) ||
+                    title.includes(query) ||
+                    desc.includes(query);
+
+                card.style.display = match ? '' : 'none';
+                if (match) visible++;
             });
 
-            // ===== ДРОПДАУН =====
-            const dropdownOther = document.getElementById('dropdownOther');
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            dropdownBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownOther.classList.toggle('open');
-            });
-            document.addEventListener('click', function(e) {
-                if (!dropdownOther.contains(e.target)) {
-                    dropdownOther.classList.remove('open');
-                }
-            });
+            document.getElementById('visibleCount').textContent = visible;
+            document.getElementById('totalCount').textContent = cards.length;
 
-            // ===== СОЦСЕТИ "ЕЩЁ" =====
-            const socialMoreWrap = document.getElementById('socialMoreWrap');
-            const socialMoreBtn = document.getElementById('socialMoreBtn');
-            const socialMoreBackdrop = document.getElementById('socialMoreBackdrop');
+            if (query.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+        }
 
-            if (socialMoreWrap && socialMoreBtn) {
-                socialMoreBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    socialMoreWrap.classList.toggle('open');
-                });
+        function clearSearch() {
+            document.getElementById('searchTools').value = '';
+            filterTools();
+            document.getElementById('searchTools').focus();
+        }
 
-                if (socialMoreBackdrop) {
-                    socialMoreBackdrop.addEventListener('click', function() {
-                        socialMoreWrap.classList.remove('open');
+        function updateStats() {
+            const cards = document.querySelectorAll('.tool-card');
+            document.getElementById('totalCount').textContent = cards.length;
+            document.getElementById('visibleCount').textContent = cards.length;
+        }
+
+        // ===== MODAL =====
+        function openAddModal() {
+            if (!isAdmin) return;
+            editId.value = '';
+            modalTitle.innerHTML = '<i class="fas fa-plus"></i> Добавить инструмент';
+            submitBtnText.textContent = 'Сохранить';
+            document.getElementById('toolTitle').value = '';
+            document.getElementById('toolIcon').value = '🔧';
+            document.getElementById('toolDescription').value = '';
+            document.getElementById('toolLink').value = '';
+            document.getElementById('toolTags').value = '';
+            document.getElementById('toolPopular').value = '0';
+            modalOverlay.classList.add('active');
+        }
+
+        function openEditModal(id) {
+            if (!isAdmin) return;
+            const tool = toolsData.find(t => t.id === id);
+            if (!tool) return;
+
+            editId.value = id;
+            modalTitle.innerHTML = '<i class="fas fa-pen"></i> Редактировать инструмент';
+            submitBtnText.textContent = 'Обновить';
+            document.getElementById('toolTitle').value = tool.title || '';
+            document.getElementById('toolIcon').value = tool.icon || '🔧';
+            document.getElementById('toolDescription').value = tool.description || '';
+            document.getElementById('toolLink').value = tool.link || '';
+            document.getElementById('toolTags').value = tool.tags || '';
+            document.getElementById('toolPopular').value = tool.popular ? '1' : '0';
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        // Закрытие по клику на фон
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ===== SAVE TOOL =====
+        async function saveTool(e) {
+            e.preventDefault();
+            if (!isAdmin || !currentUser) return;
+
+            const id = editId.value;
+            const title = document.getElementById('toolTitle').value.trim();
+            const icon = document.getElementById('toolIcon').value.trim() || '🔧';
+            const description = document.getElementById('toolDescription').value.trim();
+            const link = document.getElementById('toolLink').value.trim();
+            const tags = document.getElementById('toolTags').value.trim();
+            const popular = document.getElementById('toolPopular').value === '1';
+
+            if (!title || !description || !link) {
+                alert('Пожалуйста, заполните все обязательные поля');
+                return;
+            }
+
+            try {
+                const data = {
+                    title,
+                    icon,
+                    description,
+                    link,
+                    tags,
+                    popular,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (id) {
+                    // Обновление
+                    await db.collection('tools').doc(id).update(data);
+                } else {
+                    // Добавление
+                    const order = toolsData.length;
+                    await db.collection('tools').add({
+                        ...data,
+                        order,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
 
-                document.addEventListener('click', function(e) {
-                    if (!socialMoreWrap.contains(e.target)) {
-                        socialMoreWrap.classList.remove('open');
-                    }
-                });
+                closeModal();
+                loadTools();
+                showAdminStatus(id ? 'Инструмент обновлён ✅' : 'Инструмент добавлен ✅', 'success');
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                alert('Ошибка сохранения: ' + error.message);
+            }
+        }
 
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        socialMoreWrap.classList.remove('open');
-                    }
+        // ===== DELETE TOOL =====
+        async function deleteTool(id) {
+            if (!isAdmin || !currentUser) return;
+
+            if (!confirm('Вы уверены, что хотите удалить этот инструмент?')) return;
+
+            try {
+                await db.collection('tools').doc(id).delete();
+                loadTools();
+                showAdminStatus('Инструмент удалён 🗑️', 'success');
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                alert('Ошибка удаления: ' + error.message);
+            }
+        }
+
+        // ===== RESET TOOLS =====
+        async function resetTools() {
+            if (!isAdmin || !currentUser) return;
+
+            if (!confirm('⚠️ Это действие удалит все инструменты и создаст стандартный набор. Продолжить?')) return;
+
+            try {
+                // Удаляем все документы
+                const snapshot = await db.collection('tools').get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                // Создаём дефолтные
+                await createDefaultTools();
+                showAdminStatus('Инструменты сброшены к стандартным 🔄', 'success');
+            } catch (error) {
+                console.error('Ошибка сброса:', error);
+                alert('Ошибка сброса: ' + error.message);
+            }
+        }
+
+        // ===== THEME =====
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
+        }
+
+        function getInitialTheme() {
+            const saved = localStorage.getItem(THEME_KEY);
+            if (saved === 'light' || saved === 'dark') return saved;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        if (!localStorage.getItem(THEME_KEY)) {
+            window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+                if (!localStorage.getItem(THEME_KEY)) {
+                    currentTheme = e.matches ? 'light' : 'dark';
+                    applyTheme(currentTheme);
+                }
+            });
+        }
+
+        // ===== BURGER =====
+        const burger = document.getElementById('burgerMenu');
+        const navLinks = document.getElementById('navLinks');
+        burger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    navLinks.classList.remove('active');
+                }
+            });
+        });
+
+        // ===== DROPDOWN =====
+        const dropdownOther = document.getElementById('dropdownOther');
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        dropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownOther.classList.toggle('open');
+        });
+        document.addEventListener('click', function(e) {
+            if (!dropdownOther.contains(e.target)) {
+                dropdownOther.classList.remove('open');
+            }
+        });
+
+        // ===== SOCIAL MORE =====
+        const socialMoreWrap = document.getElementById('socialMoreWrap');
+        const socialMoreBtn = document.getElementById('socialMoreBtn');
+        const socialMoreBackdrop = document.getElementById('socialMoreBackdrop');
+
+        if (socialMoreWrap && socialMoreBtn) {
+            socialMoreBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                socialMoreWrap.classList.toggle('open');
+            });
+
+            if (socialMoreBackdrop) {
+                socialMoreBackdrop.addEventListener('click', function() {
+                    socialMoreWrap.classList.remove('open');
                 });
             }
 
-            // ===== ТЕКУЩИЙ ГОД =====
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-            // ===== ПОИСК ИНСТРУМЕНТОВ =====
-            const searchInput = document.getElementById('searchTools');
-            const clearBtn = document.getElementById('clearSearch');
-            const tools = document.querySelectorAll('.tool-card');
-            const visibleCount = document.getElementById('visibleCount');
-            const totalCount = document.getElementById('totalCount');
-
-            // Обновляем общее количество
-            totalCount.textContent = tools.length;
-            visibleCount.textContent = tools.length;
-
-            window.filterTools = function() {
-                const query = searchInput.value.toLowerCase().trim();
-                let visible = 0;
-
-                tools.forEach(tool => {
-                    const tags = tool.dataset.tags || '';
-                    const title = tool.querySelector('.tool-title')?.textContent?.toLowerCase() || '';
-                    const desc = tool.querySelector('.tool-description')?.textContent?.toLowerCase() || '';
-
-                    const match = !query ||
-                        tags.includes(query) ||
-                        title.includes(query) ||
-                        desc.includes(query);
-
-                    tool.style.display = match ? '' : 'none';
-                    if (match) visible++;
-                });
-
-                visibleCount.textContent = visible;
-
-                // Показываем/скрываем кнопку очистки
-                if (query.length > 0) {
-                    clearBtn.classList.add('visible');
-                } else {
-                    clearBtn.classList.remove('visible');
-                }
-            };
-
-            window.clearSearch = function() {
-                searchInput.value = '';
-                filterTools();
-                searchInput.focus();
-            };
-
-            // Поиск при вводе
-            searchInput.addEventListener('input', filterTools);
-
-            // Поиск по Enter
-            searchInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    filterTools();
+            document.addEventListener('click', function(e) {
+                if (!socialMoreWrap.contains(e.target)) {
+                    socialMoreWrap.classList.remove('open');
                 }
             });
 
-            console.log('🛠️ Страница инструментов загружена');
-            console.log('📌 Всего инструментов:', tools.length);
-        });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    socialMoreWrap.classList.remove('open');
+                }
+            });
+        }
+
+        // ===== YEAR =====
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ===== INIT =====
+        // Загружаем инструменты при загрузке (если не загрузились через auth)
+        if (!currentUser) {
+            loadTools();
+        }
+
+        console.log('🛠️ Страница инструментов с админ-панелью загружена');
+        console.log('📌 Firebase подключён, авторизация через Google');
     </script>
 
 </body>
