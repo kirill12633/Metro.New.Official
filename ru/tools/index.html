@@ -41,6 +41,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
+    <!-- ===== Firebase SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+
     <style>
         /* ===== БАЗОВЫЕ ПЕРЕМЕННЫЕ ===== */
         :root {
@@ -397,6 +402,327 @@
             color: var(--text-primary);
         }
 
+        /* ===== ADMIN PANEL ===== */
+        .admin-panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .admin-panel.visible {
+            display: block;
+        }
+
+        .admin-panel .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .admin-panel h2 {
+            font-size: 1.3rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-panel h2 i {
+            font-size: 1.1rem;
+        }
+
+        .admin-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .admin-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #d93025;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(242, 139, 130, 0.3);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #1e8e4e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(52, 168, 83, 0.3);
+        }
+
+        .admin-status {
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 12px;
+        }
+
+        .admin-status .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ===== DRAG & DROP ===== */
+        .tool-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .tool-card.drag-over {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-lg);
+            transform: scale(1.02);
+        }
+
+        .tool-card .drag-handle {
+            display: none;
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            cursor: grab;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .admin-panel.visible .tool-card .drag-handle {
+            display: block;
+        }
+
+        .tool-card .drag-handle:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .tool-card .admin-actions {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 50px;
+            gap: 6px;
+        }
+
+        .admin-panel.visible .tool-card .admin-actions {
+            display: flex;
+        }
+
+        .tool-card .admin-actions button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-card .admin-actions .edit-btn:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .tool-card .admin-actions .delete-btn:hover {
+            background: var(--red-light);
+            color: var(--red);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--red);
+        }
+
+        .modal form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal form label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .modal form input,
+        .modal form textarea,
+        .modal form select {
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .modal form input:focus,
+        .modal form textarea:focus,
+        .modal form select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .modal form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal form .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .modal form .form-actions button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .modal form .form-actions .btn-submit {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .modal form .form-actions .btn-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .modal form .form-actions .btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .modal form .form-actions .btn-cancel:hover {
+            background: var(--bg-card-hover);
+        }
+
         /* ===== ОСНОВНОЙ КОНТЕНТ ===== */
         .tools-page {
             padding: 30px 0 50px;
@@ -501,7 +827,7 @@
             box-shadow: 0 0 0 3px var(--accent-light);
         }
 
-        /* ===== ПОИСК ИНСТРУМЕНТОВ ===== */
+        /* ===== ПОИСК ===== */
         .search-tools {
             max-width: 600px;
             margin: 0 auto 20px;
@@ -749,7 +1075,6 @@
             opacity: 0.5;
         }
 
-        /* ===== АНИМИРОВАННЫЕ ИКОНКИ ===== */
         .tool-card .tool-icon {
             width: 56px;
             height: 56px;
@@ -889,6 +1214,20 @@
             .sort-controls {
                 justify-content: center;
             }
+
+            .admin-panel .admin-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-controls {
+                flex-direction: column;
+            }
+
+            .admin-controls button {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         @media (max-width: 768px) {
@@ -898,6 +1237,10 @@
 
             .tool-card {
                 padding: 20px;
+            }
+
+            .skeleton-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -918,6 +1261,10 @@
             .filter-chip {
                 font-size: 0.7rem;
                 padding: 4px 12px;
+            }
+
+            .modal {
+                padding: 20px;
             }
         }
 
@@ -1231,39 +1578,6 @@
             padding-top: 20px;
             border-top: 1px solid var(--border);
         }
-
-        /* ===== АДАПТИВ FOOTER ===== */
-        @media (max-width: 992px) {
-            .footer-top {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            .footer-links {
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .footer-links {
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .footer-links {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-        }
-
-        /* ===== АДАПТИВ ДЛЯ SKELETON ===== */
-        @media (max-width: 768px) {
-            .skeleton-grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
@@ -1304,7 +1618,7 @@
                         </div>
                     </div>
 
-                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a>
+                    <button id="authBtn" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span></button>
                 </div>
             </nav>
         </div>
@@ -1320,6 +1634,21 @@
                     <p>Полезные сервисы для разработчиков и игроков Roblox</p>
                 </div>
 
+                <!-- ===== ADMIN PANEL ===== -->
+                <div class="admin-panel" id="adminPanel">
+                    <div class="admin-header">
+                        <h2><i class="fas fa-crown" style="color: var(--accent);"></i> Панель управления</h2>
+                        <div class="admin-controls">
+                            <button class="btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить</button>
+                            <button class="btn-danger" onclick="resetTools()"><i class="fas fa-undo"></i> Сбросить</button>
+                            <button class="btn-success" onclick="saveOrder()"><i class="fas fa-save"></i> Сохранить порядок</button>
+                        </div>
+                    </div>
+                    <div class="admin-status" id="adminStatus">
+                        <i class="fas fa-info-circle"></i> Перетаскивайте карточки для изменения порядка. <span class="highlight">Только для администраторов</span>
+                    </div>
+                </div>
+
                 <!-- ===== ПОИСК ===== -->
                 <div class="search-tools">
                     <div class="search-box">
@@ -1333,7 +1662,7 @@
                     <div class="search-stats" id="searchStats">Показано <span id="visibleCount">0</span> из <span id="totalCount">0</span> инструментов</div>
                 </div>
 
-                <!-- ===== ФИЛЬТРЫ И СОРТИРОВКА ===== -->
+                <!-- ===== ФИЛЬТРЫ ===== -->
                 <div class="filters-section">
                     <div class="filter-tags" id="filterTags">
                         <button class="filter-chip active" data-filter="all">Все</button>
@@ -1354,7 +1683,7 @@
                     </div>
                 </div>
 
-                <!-- ===== SKELETON LOADING ===== -->
+                <!-- ===== SKELETON ===== -->
                 <div class="skeleton-grid" id="skeletonGrid">
                     <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div>
                     <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div>
@@ -1362,11 +1691,72 @@
                     <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div>
                 </div>
 
-                <!-- ===== СЕТКА ИНСТРУМЕНТОВ ===== -->
+                <!-- ===== СЕТКА ===== -->
                 <div class="tools-grid" id="toolsGrid" style="display:none;"></div>
             </section>
         </div>
     </main>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-plus"></i> Добавить инструмент</h3>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="toolForm" onsubmit="saveTool(event)">
+                <input type="hidden" id="editId" value="">
+
+                <div class="form-group">
+                    <label for="toolTitle">Название *</label>
+                    <input type="text" id="toolTitle" placeholder="Например: Калькулятор дохода" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolIcon">Иконка (emoji) *</label>
+                    <input type="text" id="toolIcon" placeholder="💰" required maxlength="2" />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolDescription">Описание *</label>
+                    <textarea id="toolDescription" placeholder="Краткое описание инструмента" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolLink">Ссылка *</label>
+                    <input type="url" id="toolLink" placeholder="https://example.com/tool" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolTags">Теги (через запятую)</label>
+                    <input type="text" id="toolTags" placeholder="калькулятор, доход, роблокс" />
+                </div>
+
+                <div class="form-group">
+                    <label for="toolCategory">Категория</label>
+                    <select id="toolCategory">
+                        <option value="finance">💰 Финансы</option>
+                        <option value="utility">🔧 Утилиты</option>
+                        <option value="gameplay">🎮 Геймплей</option>
+                        <option value="other">📦 Другое</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolPopular">Популярный</label>
+                    <select id="toolPopular">
+                        <option value="0">Нет</option>
+                        <option value="1">Да (🔥)</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit"><i class="fas fa-save"></i> <span id="submitBtnText">Сохранить</span></button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- ===== FOOTER ===== -->
     <footer>
@@ -1462,415 +1852,792 @@
 
     <!-- ===== SCRIPTS ===== -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===== ТЕМА =====
-            const THEME_KEY = 'metro_new_theme';
-            const root = document.documentElement;
+        // ===== FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
 
-            function applyTheme(theme) {
-                root.setAttribute('data-theme', theme);
-            }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            function getInitialTheme() {
-                const saved = localStorage.getItem(THEME_KEY);
-                if (saved === 'light' || saved === 'dark') return saved;
-                return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-            }
+        // ===== STATE =====
+        let currentUser = null;
+        let isAdmin = false;
+        let toolsData = [];
+        let draggedIndex = null;
+        let currentFilter = 'all';
+        let currentSort = 'default';
 
-            let currentTheme = getInitialTheme();
-            applyTheme(currentTheme);
+        // ===== DOM REFS =====
+        const toolsGrid = document.getElementById('toolsGrid');
+        const skeletonGrid = document.getElementById('skeletonGrid');
+        const adminPanel = document.getElementById('adminPanel');
+        const authBtn = document.getElementById('authBtn');
+        const authText = document.getElementById('authText');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const toolForm = document.getElementById('toolForm');
+        const editId = document.getElementById('editId');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const searchInput = document.getElementById('searchTools');
+        const clearBtn = document.getElementById('clearSearch');
+        const suggestionsContainer = document.getElementById('searchSuggestions');
+        const visibleCount = document.getElementById('visibleCount');
+        const totalCount = document.getElementById('totalCount');
+        const filterChips = document.querySelectorAll('.filter-chip');
+        const sortSelect = document.getElementById('sortSelect');
 
-            const themeToggle = document.getElementById('themeToggle');
-            themeToggle.addEventListener('click', () => {
-                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                applyTheme(currentTheme);
-                localStorage.setItem(THEME_KEY, currentTheme);
-            });
+        // ===== AUTH =====
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
 
-            if (!localStorage.getItem(THEME_KEY)) {
-                window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-                    if (!localStorage.getItem(THEME_KEY)) {
-                        currentTheme = e.matches ? 'light' : 'dark';
-                        applyTheme(currentTheme);
+            if (user) {
+                try {
+                    const doc = await db.collection('admins').doc(user.uid).get();
+                    isAdmin = doc.exists;
+
+                    if (isAdmin) {
+                        authText.textContent = 'Админ';
+                        authBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span id="authText">Выйти</span>`;
+                        adminPanel.classList.add('visible');
+                        loadTools();
+                    } else {
+                        authText.textContent = 'Войти';
+                        authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
+                        adminPanel.classList.remove('visible');
+                        loadTools();
                     }
-                });
-            }
-
-            // ===== БУРГЕР =====
-            const burger = document.getElementById('burgerMenu');
-            const navLinks = document.getElementById('navLinks');
-            burger.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-            });
-
-            document.querySelectorAll('.nav-links a, .dropdown-content a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 992) {
-                        navLinks.classList.remove('active');
-                    }
-                });
-            });
-
-            // ===== ДРОПДАУН =====
-            const dropdownOther = document.getElementById('dropdownOther');
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            dropdownBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownOther.classList.toggle('open');
-            });
-            document.addEventListener('click', function(e) {
-                if (!dropdownOther.contains(e.target)) {
-                    dropdownOther.classList.remove('open');
+                } catch (error) {
+                    console.error('Ошибка проверки прав:', error);
+                    isAdmin = false;
+                    adminPanel.classList.remove('visible');
+                    loadTools();
                 }
-            });
+            } else {
+                authText.textContent = 'Войти';
+                authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
+                adminPanel.classList.remove('visible');
+                loadTools();
+            }
+        });
 
-            // ===== СОЦСЕТИ "ЕЩЁ" =====
-            const socialMoreWrap = document.getElementById('socialMoreWrap');
-            const socialMoreBtn = document.getElementById('socialMoreBtn');
-            const socialMoreBackdrop = document.getElementById('socialMoreBackdrop');
-
-            if (socialMoreWrap && socialMoreBtn) {
-                socialMoreBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    socialMoreWrap.classList.toggle('open');
-                });
-
-                if (socialMoreBackdrop) {
-                    socialMoreBackdrop.addEventListener('click', function() {
-                        socialMoreWrap.classList.remove('open');
-                    });
-                }
-
-                document.addEventListener('click', function(e) {
-                    if (!socialMoreWrap.contains(e.target)) {
-                        socialMoreWrap.classList.remove('open');
-                    }
-                });
-
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        socialMoreWrap.classList.remove('open');
-                    }
+        authBtn.addEventListener('click', () => {
+            if (currentUser) {
+                auth.signOut();
+            } else {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                auth.signInWithPopup(provider).catch(error => {
+                    console.error('Ошибка входа:', error);
+                    showToast('Ошибка входа: ' + error.message, 'error');
                 });
             }
+        });
 
-            // ===== ТЕКУЩИЙ ГОД =====
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        // ===== LOAD TOOLS =====
+        async function loadTools() {
+            showSkeleton();
 
-            // ===== ДАННЫЕ ИНСТРУМЕНТОВ =====
-            const toolsData = [{
-                id: '1',
+            try {
+                const snapshot = await db.collection('tools').orderBy('order').get();
+
+                if (snapshot.empty) {
+                    await createDefaultTools();
+                    return;
+                }
+
+                toolsData = [];
+                snapshot.forEach(doc => {
+                    toolsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderTools(toolsData);
+                updateStats(toolsData);
+                hideSkeleton();
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                // Если ошибка, пробуем локальные данные
+                if (toolsData.length === 0) {
+                    createDefaultTools();
+                }
+            }
+        }
+
+        // ===== CREATE DEFAULT TOOLS =====
+        async function createDefaultTools() {
+            const defaults = [{
                 title: 'Калькулятор дохода разработчика Roblox',
                 icon: '💰',
                 description: 'Узнайте свой потенциальный заработок, рассчитайте окупаемость и получите полезные советы',
                 link: 'https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/',
-                tags: ['калькулятор', 'доход', 'разработчик', 'роблокс', 'финансы'],
+                tags: 'калькулятор, доход, разработчик, роблокс, финансы',
+                category: 'finance',
                 popular: true,
-                category: 'finance'
+                order: 0
             }, {
-                id: '2',
                 title: 'Конвертер валют Robux → USD',
                 icon: '💱',
-                description: 'Узнайте сколько стоят ваши Robux в долларах, евро и других валютах по актуальному курсу',
+                description: 'Узнайте сколько стоят ваши Robux в долларах, евро и других валютах',
                 link: '#',
-                tags: ['конвертер', 'валюта', 'robux', 'деньги', 'финансы'],
+                tags: 'конвертер, валюта, robux, деньги, финансы',
+                category: 'finance',
                 popular: false,
-                category: 'finance'
+                order: 1
             }, {
-                id: '3',
                 title: 'Генератор никнеймов для Roblox',
                 icon: '🎮',
                 description: 'Сгенерируйте уникальный и запоминающийся ник для Roblox с разными стилями',
                 link: '#',
-                tags: ['генератор', 'никнейм', 'имя', 'стиль', 'геймплей'],
+                tags: 'генератор, никнейм, имя, стиль, геймплей',
+                category: 'gameplay',
                 popular: false,
-                category: 'gameplay'
+                order: 2
             }, {
-                id: '4',
-                title: 'Таймер до следующего обновления',
-                icon: '⏰',
-                description: 'Отслеживайте время до выхода новых обновлений, ивентов и акций в Metro New',
-                link: '#',
-                tags: ['таймер', 'события', 'обновления', 'утилиты'],
-                popular: false,
-                category: 'utility'
-            }, {
-                id: '5',
                 title: 'Статус серверов Metro New',
                 icon: '🟢',
                 description: 'Проверьте текущий статус всех серверов игры в реальном времени',
                 link: '#',
-                tags: ['статус', 'сервер', 'онлайн', 'утилиты'],
+                tags: 'статус, сервер, онлайн, утилиты',
+                category: 'utility',
                 popular: true,
-                category: 'utility'
-            }, {
-                id: '6',
-                title: 'Рандомайзер предметов',
-                icon: '🎲',
-                description: 'Случайный выбор предмета для вашего инвентаря или квеста',
-                link: '#',
-                tags: ['рандомайзер', 'предметы', 'лут', 'геймплей'],
-                popular: false,
-                category: 'gameplay'
-            }, {
-                id: '7',
-                title: 'Калькулятор опыта и уровней',
-                icon: '📈',
-                description: 'Рассчитайте сколько опыта нужно для следующего уровня в игре',
-                link: '#',
-                tags: ['калькулятор', 'опыт', 'уровень', 'xp', 'финансы'],
-                popular: false,
-                category: 'finance'
+                order: 3
             }];
 
-            // ===== ЭЛЕМЕНТЫ =====
-            const toolsGrid = document.getElementById('toolsGrid');
-            const skeletonGrid = document.getElementById('skeletonGrid');
-            const searchInput = document.getElementById('searchTools');
-            const clearBtn = document.getElementById('clearSearch');
-            const suggestionsContainer = document.getElementById('searchSuggestions');
-            const visibleCount = document.getElementById('visibleCount');
-            const totalCount = document.getElementById('totalCount');
-            const filterChips = document.querySelectorAll('.filter-chip');
-            const sortSelect = document.getElementById('sortSelect');
-
-            let currentFilter = 'all';
-            let currentSort = 'default';
-            let filteredTools = [...toolsData];
-
-            // ===== SKELETON =====
-            function showSkeleton() {
-                skeletonGrid.style.display = 'grid';
-                toolsGrid.style.display = 'none';
-            }
-
-            function hideSkeleton() {
-                skeletonGrid.style.display = 'none';
-                toolsGrid.style.display = 'grid';
-            }
-
-            // ===== RENDER TOOLS =====
-            function renderTools(tools) {
-                if (!tools || tools.length === 0) {
-                    toolsGrid.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-secondary);">
-                            <i class="fas fa-search" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: 16px;"></i>
-                            <p>Инструменты не найдены</p>
-                            <p style="margin-top: 8px; font-size: 0.9rem;">Попробуйте изменить фильтры или поиск</p>
-                        </div>
-                    `;
-                    updateStats(tools);
-                    return;
-                }
-
-                let html = '';
-                tools.forEach((tool, index) => {
-                    const tagsHtml = tool.tags.map(t =>
-                        `<span class="tag">${t}</span>`
-                    ).join('');
-
-                    const popularTag = tool.popular ? `<span class="tag active">🔥 Популярный</span>` : '';
-
-                    html += `
-                        <div class="tool-card" 
-                             data-id="${tool.id}"
-                             data-tags="${tool.tags.join(', ')}"
-                             data-category="${tool.category || ''}"
-                             data-link="${tool.link || '#'}"
-                             style="animation-delay: ${index * 0.05}s;">
-                            <span class="tool-arrow"><i class="fas fa-arrow-right"></i></span>
-                            <div class="tool-icon">${tool.icon || '🔧'}</div>
-                            <div class="tool-title">${tool.title}</div>
-                            <div class="tool-description">${tool.description}</div>
-                            <div class="tool-meta">
-                                ${popularTag}
-                                ${tagsHtml}
-                            </div>
-                        </div>
-                    `;
+            try {
+                const batch = db.batch();
+                defaults.forEach(tool => {
+                    const doc = db.collection('tools').doc();
+                    batch.set(doc, tool);
                 });
+                await batch.commit();
+                loadTools();
+            } catch (error) {
+                console.error('Ошибка создания дефолтных:', error);
+                // Используем локальные данные
+                toolsData = defaults.map((t, i) => ({ ...t, id: `local-${i}` }));
+                renderTools(toolsData);
+                updateStats(toolsData);
+                hideSkeleton();
+            }
+        }
 
-                toolsGrid.innerHTML = html;
-
-                // Обработчики кликов
-                document.querySelectorAll('.tool-card').forEach(card => {
-                    const link = card.dataset.link;
-                    if (link && link !== '#') {
-                        card.addEventListener('click', function() {
-                            window.open(link, '_blank');
-                        });
-                    }
-                });
-
+        // ===== RENDER TOOLS =====
+        function renderTools(tools) {
+            if (!tools || tools.length === 0) {
+                toolsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                        <i class="fas fa-tools" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: 16px;"></i>
+                        <p>Нет доступных инструментов</p>
+                        ${isAdmin ? '<p style="margin-top: 8px; font-size: 0.9rem;">Нажмите "Добавить" чтобы создать первый</p>' : ''}
+                    </div>
+                `;
                 updateStats(tools);
+                return;
             }
 
-            // ===== UPDATE STATS =====
-            function updateStats(tools) {
-                const total = tools ? tools.length : 0;
-                totalCount.textContent = total;
-                visibleCount.textContent = total;
-            }
+            let html = '';
+            tools.forEach((tool, index) => {
+                const tagsArray = tool.tags ? tool.tags.split(',').map(t => t.trim()) : [];
+                const tagsHtml = tagsArray.filter(t => t).map(t =>
+                    `<span class="tag">${t}</span>`
+                ).join('');
 
-            // ===== FILTERS & SORT =====
-            function applyFiltersAndSort() {
-                const query = searchInput.value.toLowerCase().trim();
+                const popularTag = tool.popular ? `<span class="tag active">🔥 Популярный</span>` : '';
 
-                // Фильтрация
-                let filtered = [...toolsData];
+                html += `
+                    <div class="tool-card" 
+                         data-id="${tool.id}"
+                         data-index="${index}"
+                         draggable="${isAdmin}"
+                         data-tags="${tool.tags || ''}"
+                         data-category="${tool.category || ''}"
+                         data-link="${tool.link || '#'}"
+                         style="animation-delay: ${index * 0.05}s;">
+                        <span class="tool-arrow"><i class="fas fa-arrow-right"></i></span>
+                        <div class="tool-icon">${tool.icon || '🔧'}</div>
+                        <div class="tool-title">${tool.title}</div>
+                        <div class="tool-description">${tool.description}</div>
+                        <div class="tool-meta">
+                            ${popularTag}
+                            ${tagsHtml}
+                        </div>
+                        ${isAdmin ? `
+                            <div class="admin-actions">
+                                <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('${tool.id}')" title="Редактировать">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="delete-btn" onclick="event.stopPropagation(); deleteTool('${tool.id}')" title="Удалить">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="drag-handle" title="Перетащить">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
 
-                // Поиск
-                if (query) {
-                    filtered = filtered.filter(tool => {
-                        const searchable = [
-                            tool.title,
-                            tool.description,
-                            ...tool.tags
-                        ].join(' ').toLowerCase();
-                        return searchable.includes(query);
+            toolsGrid.innerHTML = html;
+
+            // Клики по карточкам
+            document.querySelectorAll('.tool-card').forEach(card => {
+                const link = card.dataset.link;
+                if (link && link !== '#') {
+                    card.addEventListener('click', function(e) {
+                        if (e.target.closest('.admin-actions') || e.target.closest('.drag-handle')) return;
+                        window.open(link, '_blank');
                     });
                 }
+            });
 
-                // Фильтр по категории
-                if (currentFilter !== 'all') {
-                    if (currentFilter === 'popular') {
-                        filtered = filtered.filter(t => t.popular);
-                    } else if (currentFilter === 'new') {
-                        // Имитация новых (первые 2)
-                        filtered = filtered.slice(0, 2);
-                    } else {
-                        filtered = filtered.filter(t => t.category === currentFilter);
+            // Drag & Drop
+            if (isAdmin) {
+                setupDragAndDrop();
+            }
+
+            updateStats(tools);
+            hideSkeleton();
+        }
+
+        // ===== DRAG & DROP =====
+        function setupDragAndDrop() {
+            const cards = document.querySelectorAll('.tool-card');
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('dragenter', handleDragEnter);
+                card.addEventListener('dragleave', handleDragLeave);
+                card.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            const card = e.target.closest('.tool-card');
+            if (!card) return;
+
+            draggedIndex = parseInt(card.dataset.index);
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedIndex);
+        }
+
+        function handleDragEnd(e) {
+            const card = e.target.closest('.tool-card');
+            if (card) card.classList.remove('dragging');
+            document.querySelectorAll('.tool-card.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            const card = e.target.closest('.tool-card');
+            if (card && !card.classList.contains('dragging')) {
+                card.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const card = e.target.closest('.tool-card');
+            if (card) card.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetCard = e.target.closest('.tool-card');
+            if (!targetCard) return;
+
+            const targetIndex = parseInt(targetCard.dataset.index);
+            if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+            // Перемещение в массиве
+            const [movedItem] = toolsData.splice(draggedIndex, 1);
+            toolsData.splice(targetIndex, 0, movedItem);
+
+            // Обновление порядка
+            toolsData.forEach((tool, idx) => tool.order = idx);
+
+            applyFiltersAndSort();
+            showAdminStatus('Порядок изменён. Нажмите "Сохранить порядок"', 'info');
+        }
+
+        // ===== SAVE ORDER =====
+        async function saveOrder() {
+            if (!isAdmin || !currentUser) {
+                showToast('Только для администраторов', 'error');
+                return;
+            }
+
+            try {
+                const batch = db.batch();
+                toolsData.forEach(tool => {
+                    if (tool.id && !tool.id.startsWith('local-')) {
+                        const ref = db.collection('tools').doc(tool.id);
+                        batch.update(ref, { order: tool.order });
                     }
-                }
+                });
+                await batch.commit();
+                showAdminStatus('✅ Порядок сохранён!', 'success');
+                showToast('✅ Порядок сохранён!', 'success');
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showAdminStatus('❌ Ошибка сохранения порядка', 'error');
+                showToast('❌ Ошибка сохранения', 'error');
+            }
+        }
 
-                // Сортировка
-                if (currentSort === 'popular') {
-                    filtered.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
-                } else if (currentSort === 'new') {
-                    // Имитация новых (обратный порядок)
-                    filtered.reverse();
-                } else if (currentSort === 'alphabet') {
-                    filtered.sort((a, b) => a.title.localeCompare(b.title));
-                }
+        // ===== SHOW ADMIN STATUS =====
+        function showAdminStatus(message, type = 'info') {
+            const status = document.getElementById('adminStatus');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            status.innerHTML = `${icon} ${message}`;
+            setTimeout(() => {
+                status.innerHTML =
+                    `<i class="fas fa-info-circle"></i> Перетаскивайте карточки для изменения порядка. <span class="highlight">Только для администраторов</span>`;
+            }, 3000);
+        }
 
-                filteredTools = filtered;
-                renderTools(filtered);
+        // ===== FILTERS & SORT =====
+        function applyFiltersAndSort() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            let filtered = [...toolsData];
+
+            // Поиск
+            if (query) {
+                filtered = filtered.filter(tool => {
+                    const searchable = [
+                        tool.title || '',
+                        tool.description || '',
+                        tool.tags || ''
+                    ].join(' ').toLowerCase();
+                    return searchable.includes(query);
+                });
             }
 
-            // ===== SEARCH WITH SUGGESTIONS =====
-            const searchSuggestions = ['калькулятор', 'доход', 'роблокс', 'конвертер', 'статистика', 'генератор', 'таймер',
-                'рандомайзер', 'опыт', 'уровень', 'сервер', 'статус'
-            ];
-
-            function handleSearchInput() {
-                const value = searchInput.value.toLowerCase().trim();
-                const clearBtn = document.getElementById('clearSearch');
-
-                if (value.length > 0) {
-                    clearBtn.classList.add('visible');
-                    showSuggestions(value);
+            // Фильтр
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'popular') {
+                    filtered = filtered.filter(t => t.popular);
+                } else if (currentFilter === 'new') {
+                    filtered = filtered.slice(0, 2);
                 } else {
-                    clearBtn.classList.remove('visible');
-                    hideSuggestions();
+                    filtered = filtered.filter(t => t.category === currentFilter);
                 }
-
-                applyFiltersAndSort();
             }
 
-            function showSuggestions(query) {
-                const matches = searchSuggestions.filter(s =>
-                    s.includes(query) && s !== query
+            // Сортировка
+            if (currentSort === 'popular') {
+                filtered.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
+            } else if (currentSort === 'new') {
+                filtered.reverse();
+            } else if (currentSort === 'alphabet') {
+                filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+            }
+
+            renderTools(filtered);
+        }
+
+        // ===== SEARCH =====
+        const searchSuggestions = ['калькулятор', 'доход', 'роблокс', 'конвертер', 'статистика', 'генератор', 'таймер',
+            'рандомайзер', 'опыт', 'уровень', 'сервер', 'статус', 'финансы', 'утилиты', 'геймплей'
+        ];
+
+        function handleSearchInput() {
+            const value = searchInput.value.toLowerCase().trim();
+
+            if (value.length > 0) {
+                clearBtn.classList.add('visible');
+                showSuggestions(value);
+            } else {
+                clearBtn.classList.remove('visible');
+                hideSuggestions();
+            }
+
+            applyFiltersAndSort();
+        }
+
+        function showSuggestions(query) {
+            const matches = searchSuggestions.filter(s =>
+                s.includes(query) && s !== query
+            );
+
+            if (matches.length === 0) {
+                hideSuggestions();
+                return;
+            }
+
+            let html = '';
+            matches.forEach(s => {
+                const highlighted = s.replace(new RegExp(query, 'gi'), match =>
+                    `<span class="highlight">${match}</span>`
                 );
-
-                if (matches.length === 0) {
-                    hideSuggestions();
-                    return;
-                }
-
-                let html = '';
-                matches.forEach(s => {
-                    const highlighted = s.replace(new RegExp(query, 'gi'), match =>
-                        `<span class="highlight">${match}</span>`
-                    );
-                    html += `
-                        <div class="suggestion-item" onclick="selectSuggestion('${s}')">
-                            <i class="fas fa-search"></i>
-                            ${highlighted}
-                        </div>
-                    `;
-                });
-
-                suggestionsContainer.innerHTML = html;
-                suggestionsContainer.classList.add('active');
-            }
-
-            function hideSuggestions() {
-                suggestionsContainer.classList.remove('active');
-            }
-
-            function selectSuggestion(text) {
-                searchInput.value = text;
-                hideSuggestions();
-                applyFiltersAndSort();
-            }
-
-            // ===== CLEAR SEARCH =====
-            function clearSearch() {
-                searchInput.value = '';
-                hideSuggestions();
-                document.getElementById('clearSearch').classList.remove('visible');
-                applyFiltersAndSort();
-                searchInput.focus();
-            }
-
-            // ===== FILTER CHIPS =====
-            filterChips.forEach(chip => {
-                chip.addEventListener('click', function() {
-                    filterChips.forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.filter;
-                    applyFiltersAndSort();
-                });
+                html += `
+                    <div class="suggestion-item" onclick="selectSuggestion('${s}')">
+                        <i class="fas fa-search"></i>
+                        ${highlighted}
+                    </div>
+                `;
             });
 
-            // ===== SORT =====
-            sortSelect.addEventListener('change', function() {
-                currentSort = this.value;
+            suggestionsContainer.innerHTML = html;
+            suggestionsContainer.classList.add('active');
+        }
+
+        function hideSuggestions() {
+            suggestionsContainer.classList.remove('active');
+        }
+
+        function selectSuggestion(text) {
+            searchInput.value = text;
+            hideSuggestions();
+            applyFiltersAndSort();
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            hideSuggestions();
+            clearBtn.classList.remove('visible');
+            applyFiltersAndSort();
+            searchInput.focus();
+        }
+
+        // ===== FILTER CHIPS =====
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', function() {
+                filterChips.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
                 applyFiltersAndSort();
             });
-
-            // ===== INIT =====
-            function init() {
-                showSkeleton();
-
-                // Имитация загрузки
-                setTimeout(() => {
-                    hideSkeleton();
-                    renderTools(toolsData);
-                    updateStats(toolsData);
-                }, 800);
-            }
-
-            // Делаем функции глобальными для inline onclick
-            window.clearSearch = clearSearch;
-            window.selectSuggestion = selectSuggestion;
-            window.applyFiltersAndSort = applyFiltersAndSort;
-            window.handleSearchInput = handleSearchInput;
-
-            // Клик вне suggestions
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.search-tools')) {
-                    hideSuggestions();
-                }
-            });
-
-            init();
-
-            console.log('🛠️ Страница инструментов обновлена');
-            console.log('📌 Добавлены: анимированные иконки, skeleton-загрузка, фильтры, сортировка, подсказки');
         });
+
+        // ===== SORT =====
+        sortSelect.addEventListener('change', function() {
+            currentSort = this.value;
+            applyFiltersAndSort();
+        });
+
+        // ===== UPDATE STATS =====
+        function updateStats(tools) {
+            const total = tools ? tools.length : 0;
+            totalCount.textContent = total;
+            visibleCount.textContent = total;
+        }
+
+        // ===== SKELETON =====
+        function showSkeleton() {
+            skeletonGrid.style.display = 'grid';
+            toolsGrid.style.display = 'none';
+        }
+
+        function hideSkeleton() {
+            skeletonGrid.style.display = 'none';
+            toolsGrid.style.display = 'grid';
+        }
+
+        // ===== MODAL =====
+        function openAddModal() {
+            if (!isAdmin) {
+                showToast('Только для администраторов', 'error');
+                return;
+            }
+            editId.value = '';
+            modalTitle.innerHTML = '<i class="fas fa-plus"></i> Добавить инструмент';
+            submitBtnText.textContent = 'Сохранить';
+            document.getElementById('toolTitle').value = '';
+            document.getElementById('toolIcon').value = '🔧';
+            document.getElementById('toolDescription').value = '';
+            document.getElementById('toolLink').value = '';
+            document.getElementById('toolTags').value = '';
+            document.getElementById('toolCategory').value = 'finance';
+            document.getElementById('toolPopular').value = '0';
+            modalOverlay.classList.add('active');
+        }
+
+        function openEditModal(id) {
+            if (!isAdmin) return;
+            const tool = toolsData.find(t => t.id === id);
+            if (!tool) return;
+
+            editId.value = id;
+            modalTitle.innerHTML = '<i class="fas fa-pen"></i> Редактировать инструмент';
+            submitBtnText.textContent = 'Обновить';
+            document.getElementById('toolTitle').value = tool.title || '';
+            document.getElementById('toolIcon').value = tool.icon || '🔧';
+            document.getElementById('toolDescription').value = tool.description || '';
+            document.getElementById('toolLink').value = tool.link || '';
+            document.getElementById('toolTags').value = tool.tags || '';
+            document.getElementById('toolCategory').value = tool.category || 'finance';
+            document.getElementById('toolPopular').value = tool.popular ? '1' : '0';
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ===== SAVE TOOL =====
+        async function saveTool(e) {
+            e.preventDefault();
+            if (!isAdmin || !currentUser) {
+                showToast('Только для администраторов', 'error');
+                return;
+            }
+
+            const id = editId.value;
+            const title = document.getElementById('toolTitle').value.trim();
+            const icon = document.getElementById('toolIcon').value.trim() || '🔧';
+            const description = document.getElementById('toolDescription').value.trim();
+            const link = document.getElementById('toolLink').value.trim();
+            const tags = document.getElementById('toolTags').value.trim();
+            const category = document.getElementById('toolCategory').value;
+            const popular = document.getElementById('toolPopular').value === '1';
+
+            if (!title || !description || !link) {
+                showToast('Заполните все обязательные поля', 'error');
+                return;
+            }
+
+            try {
+                const data = {
+                    title,
+                    icon,
+                    description,
+                    link,
+                    tags,
+                    category,
+                    popular,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (id && !id.startsWith('local-')) {
+                    await db.collection('tools').doc(id).update(data);
+                    showToast('✅ Инструмент обновлён!', 'success');
+                } else {
+                    const order = toolsData.length;
+                    const docRef = await db.collection('tools').add({
+                        ...data,
+                        order,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showToast('✅ Инструмент добавлен!', 'success');
+                }
+
+                closeModal();
+                loadTools();
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showToast('❌ Ошибка сохранения: ' + error.message, 'error');
+            }
+        }
+
+        // ===== DELETE TOOL =====
+        async function deleteTool(id) {
+            if (!isAdmin || !currentUser) return;
+            if (!confirm('Удалить этот инструмент?')) return;
+
+            try {
+                if (id && !id.startsWith('local-')) {
+                    await db.collection('tools').doc(id).delete();
+                }
+                showToast('🗑️ Инструмент удалён', 'success');
+                loadTools();
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                showToast('❌ Ошибка удаления', 'error');
+            }
+        }
+
+        // ===== RESET TOOLS =====
+        async function resetTools() {
+            if (!isAdmin || !currentUser) return;
+            if (!confirm('⚠️ Удалить все инструменты и создать стандартный набор?')) return;
+
+            try {
+                const snapshot = await db.collection('tools').get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                await createDefaultTools();
+                showToast('🔄 Инструменты сброшены', 'success');
+            } catch (error) {
+                console.error('Ошибка сброса:', error);
+                showToast('❌ Ошибка сброса', 'error');
+            }
+        }
+
+        // ===== TOAST =====
+        function showToast(message, type = 'info', duration = 3000) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            toast.innerHTML = `
+                <i class="fas ${icons[type] || icons.info}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '24px',
+                right: '24px',
+                padding: '14px 20px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                color: 'var(--text-primary)',
+                fontFamily: 'Montserrat, sans-serif',
+                fontSize: '0.9rem',
+                boxShadow: 'var(--shadow-xl)',
+                zIndex: '9999',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                animation: 'modalIn 0.3s ease',
+                maxWidth: '400px'
+            });
+
+            if (type === 'success') {
+                toast.style.borderColor = 'var(--green)';
+                toast.style.boxShadow = '0 8px 30px rgba(52,168,83,0.3)';
+            } else if (type === 'error') {
+                toast.style.borderColor = 'var(--red)';
+                toast.style.boxShadow = '0 8px 30px rgba(242,139,130,0.3)';
+            }
+
+            const closeBtn = toast.querySelector('button');
+            if (closeBtn) {
+                Object.assign(closeBtn.style, {
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    padding: '4px'
+                });
+                closeBtn.addEventListener('mouseenter', () => closeBtn.style.color = 'var(--red)');
+                closeBtn.addEventListener('mouseleave', () => closeBtn.style.color = 'var(--text-secondary)');
+            }
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(20px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, duration);
+        }
+
+        // ===== THEME =====
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
+        }
+
+        function getInitialTheme() {
+            const saved = localStorage.getItem(THEME_KEY);
+            if (saved === 'light' || saved === 'dark') return saved;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        // ===== BURGER =====
+        document.getElementById('burgerMenu').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // ===== DROPDOWN =====
+        document.getElementById('dropdownBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropdownOther').classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('dropdownOther').contains(e.target)) {
+                document.getElementById('dropdownOther').classList.remove('open');
+            }
+        });
+
+        // ===== SOCIAL MORE =====
+        document.getElementById('socialMoreBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('socialMoreWrap').classList.toggle('open');
+        });
+
+        document.getElementById('socialMoreBackdrop').addEventListener('click', function() {
+            document.getElementById('socialMoreWrap').classList.remove('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('socialMoreWrap').contains(e.target)) {
+                document.getElementById('socialMoreWrap').classList.remove('open');
+            }
+        });
+
+        // ===== YEAR =====
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ===== INIT =====
+        // Глобальные функции для inline onclick
+        window.openAddModal = openAddModal;
+        window.openEditModal = openEditModal;
+        window.closeModal = closeModal;
+        window.saveTool = saveTool;
+        window.deleteTool = deleteTool;
+        window.resetTools = resetTools;
+        window.saveOrder = saveOrder;
+        window.applyFiltersAndSort = applyFiltersAndSort;
+        window.handleSearchInput = handleSearchInput;
+        window.selectSuggestion = selectSuggestion;
+        window.clearSearch = clearSearch;
+        window.showToast = showToast;
+
+        // Загружаем инструменты
+        loadTools();
+
+        console.log('🛠️ Страница инструментов с админ-панелью загружена');
+        console.log('📌 Firebase подключён, авторизация через Google');
+        console.log('📌 Для входа как админ: добавьте uid в коллекцию "admins"');
     </script>
 
 </body>
