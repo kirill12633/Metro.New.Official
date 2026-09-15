@@ -1,0 +1,2465 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Holidays — Праздники мира</title>
+
+    <meta
+        name="description"
+        content="Календарь праздников мира. Сегодняшние, ближайшие и праздничные даты по странам."
+    >
+
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #17181c;
+            --muted: #737781;
+            --border: #e7e8ed;
+            --primary: #5b5ce2;
+            --primary-soft: #eef0ff;
+            --danger: #e34d59;
+            --shadow: 0 8px 30px rgba(0, 0, 0, .06);
+        }
+
+        [data-theme="dark"] {
+            --bg: #111216;
+            --card: #191a20;
+            --text: #f5f5f7;
+            --muted: #9699a4;
+            --border: #292b33;
+            --primary: #7778ff;
+            --primary-soft: #252641;
+            --danger: #ff6874;
+            --shadow: 0 8px 30px rgba(0, 0, 0, .25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            transition: background .2s, color .2s;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .container {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+
+            background: color-mix(
+                in srgb,
+                var(--card) 92%,
+                transparent
+            );
+
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-inner {
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            color: var(--text);
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+            background: var(--primary-soft);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+
+            border: 1px solid var(--border);
+            border-radius: 11px;
+
+            background: var(--card);
+            color: var(--text);
+        }
+
+        /* HERO */
+
+        .hero {
+            padding: 48px 0 28px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 18px;
+        }
+
+        .hero-main,
+        .today-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-main {
+            padding: 34px;
+        }
+
+        .hero-main h1 {
+            font-size: clamp(32px, 5vw, 54px);
+            line-height: 1.05;
+            letter-spacing: -1.8px;
+            margin-bottom: 14px;
+        }
+
+        .hero-main p {
+            color: var(--muted);
+            max-width: 600px;
+        }
+
+        .today-card {
+            padding: 26px;
+        }
+
+        .eyebrow {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .today-date {
+            font-size: 25px;
+            font-weight: 800;
+            margin: 8px 0;
+        }
+
+        .today-count {
+            color: var(--muted);
+        }
+
+        /* SEARCH */
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin: 0 0 20px;
+        }
+
+        .search {
+            flex: 1;
+            position: relative;
+        }
+
+        .search input {
+            width: 100%;
+            height: 48px;
+
+            padding: 0 16px 0 44px;
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            outline: none;
+            background: var(--card);
+            color: var(--text);
+        }
+
+        .search input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .year-select {
+            height: 48px;
+
+            padding: 0 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            background: var(--card);
+            color: var(--text);
+            outline: none;
+        }
+
+        /* FILTERS */
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .filter {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            background: var(--card);
+            color: var(--muted);
+
+            padding: 7px 13px;
+            font-size: 13px;
+        }
+
+        .filter.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* SECTION */
+
+        section {
+            padding: 22px 0;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+
+            margin-bottom: 14px;
+        }
+
+        .section-title h2 {
+            font-size: 22px;
+        }
+
+        .section-title span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* HOLIDAY GRID */
+
+        .holiday-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 12px;
+        }
+
+        .holiday-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 17px;
+            transition: transform .15s, border-color .15s;
+        }
+
+        .holiday-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .holiday-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .holiday-date {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .favorite {
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .favorite.active {
+            color: #e6a500;
+        }
+
+        .holiday-card h3 {
+            font-size: 17px;
+            margin-bottom: 7px;
+        }
+
+        .holiday-country {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .category {
+            display: inline-block;
+
+            padding: 4px 8px;
+
+            border-radius: 7px;
+            background: var(--primary-soft);
+
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .details {
+            width: 100%;
+            margin-top: 13px;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            padding: 8px;
+
+            background: transparent;
+            color: var(--text);
+
+            font-size: 13px;
+        }
+
+        /* CALENDAR */
+
+        .calendar-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .calendar-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-head h3 {
+            text-transform: capitalize;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 6px;
+        }
+
+        .calendar-nav button {
+            width: 34px;
+            height: 34px;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            background: var(--card);
+            color: var(--text);
+        }
+
+        .weekdays,
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .weekday {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            padding: 5px;
+        }
+
+        .calendar-day {
+            min-height: 62px;
+
+            border: 1px solid transparent;
+            border-radius: 10px;
+
+            background: transparent;
+            color: var(--text);
+
+            position: relative;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .calendar-day:hover {
+            background: var(--primary-soft);
+        }
+
+        .calendar-day.today {
+            border-color: var(--primary);
+        }
+
+        .calendar-day.has-holiday {
+            background: var(--primary-soft);
+        }
+
+        .day-number {
+            font-weight: 700;
+        }
+
+        .holiday-dot {
+            position: absolute;
+            right: 7px;
+            bottom: 7px;
+
+            min-width: 17px;
+            height: 17px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+
+            font-size: 9px;
+        }
+
+        /* COUNTRIES */
+
+        .countries {
+            display: grid;
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+
+            gap: 9px;
+        }
+
+        .country {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: var(--card);
+            color: var(--text);
+
+            padding: 13px;
+
+            text-align: left;
+        }
+
+        .country:hover {
+            border-color: var(--primary);
+        }
+
+        .country-flag {
+            font-size: 22px;
+            margin-right: 7px;
+        }
+
+        .country-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* ERROR REPORT */
+
+        .report {
+            margin: 30px 0;
+
+            padding: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .report h3 {
+            margin-bottom: 3px;
+        }
+
+        .report p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .report-button {
+            flex-shrink: 0;
+
+            border: 0;
+            border-radius: 10px;
+
+            padding: 10px 15px;
+
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+        }
+
+        /* EMPTY */
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+
+            background: var(--card);
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+        }
+
+        /* MODAL */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+
+            display: none;
+            place-items: center;
+
+            padding: 20px;
+
+            background: rgba(0, 0, 0, .5);
+        }
+
+        .modal.active {
+            display: grid;
+        }
+
+        .modal-content {
+            width: min(520px, 100%);
+
+            max-height: 90vh;
+            overflow: auto;
+
+            background: var(--card);
+            color: var(--text);
+
+            border-radius: 20px;
+            padding: 25px;
+
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+
+            width: 34px;
+            height: 34px;
+
+            border: 0;
+            border-radius: 9px;
+
+            background: var(--primary-soft);
+            color: var(--text);
+        }
+
+        .modal-content h2 {
+            margin: 12px 0 8px;
+            padding-right: 35px;
+        }
+
+        .modal-content p {
+            color: var(--muted);
+            margin-top: 15px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            padding: 30px 0 45px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 800px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .holiday-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .countries {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 560px) {
+            .container {
+                width: min(100% - 20px, 1120px);
+            }
+
+            .hero {
+                padding-top: 25px;
+            }
+
+            .hero-main {
+                padding: 24px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .year-select {
+                width: 100%;
+            }
+
+            .holiday-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .countries {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .calendar-day {
+                min-height: 48px;
+                padding: 6px;
+            }
+
+            .holiday-dot {
+                width: 15px;
+                height: 15px;
+                right: 4px;
+                bottom: 4px;
+            }
+
+            .report {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .report-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="container header-inner">
+
+        <a class="logo" href="#">
+            <span class="logo-icon">🎉</span>
+            <span>Holidays</span>
+        </a>
+
+        <div class="header-actions">
+            <button
+                class="icon-button"
+                id="themeButton"
+                title="Тема"
+                aria-label="Изменить тему"
+            >
+                🌙
+            </button>
+        </div>
+
+    </div>
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero">
+        <div class="container hero-grid">
+
+            <div class="hero-main">
+                <div class="eyebrow">
+                    Holidays worldwide
+                </div>
+
+                <h1>
+                    Праздники<br>
+                    мира в одном месте
+                </h1>
+
+                <p>
+                    Узнавай, какие праздники сегодня,
+                    ищи даты по странам и планируй
+                    будущие праздники.
+                </p>
+            </div>
+
+            <div class="today-card">
+                <div class="eyebrow">
+                    Сегодня
+                </div>
+
+                <div
+                    class="today-date"
+                    id="todayDate"
+                >
+                    Загрузка...
+                </div>
+
+                <div
+                    class="today-count"
+                    id="todayCount"
+                >
+                    Проверяем праздники...
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <div class="container">
+
+        <!-- SEARCH -->
+
+        <div class="toolbar">
+
+            <div class="search">
+                <span class="search-icon">🔎</span>
+
+                <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Поиск праздника или страны..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <select
+                id="yearSelect"
+                class="year-select"
+            ></select>
+
+        </div>
+
+
+        <!-- FILTERS -->
+
+        <div class="filters">
+
+            <button
+                class="filter active"
+                data-category="all"
+            >
+                Все
+            </button>
+
+            <button
+                class="filter"
+                data-category="national"
+            >
+                Государственные
+            </button>
+
+            <button
+                class="filter"
+                data-category="religious"
+            >
+                Религиозные
+            </button>
+
+            <button
+                class="filter"
+                data-category="international"
+            >
+                Международные
+            </button>
+
+            <button
+                class="filter"
+                data-category="cultural"
+            >
+                Культурные
+            </button>
+
+        </div>
+
+
+        <!-- TODAY -->
+
+        <section>
+            <div class="section-title">
+                <h2>🎉 Сегодня</h2>
+                <span id="todayLabel"></span>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="todayHolidays"
+            ></div>
+        </section>
+
+
+        <!-- CALENDAR -->
+
+        <section>
+            <div class="section-title">
+                <h2>📅 Календарь</h2>
+            </div>
+
+            <div class="calendar-box">
+
+                <div class="calendar-head">
+
+                    <h3 id="calendarTitle">
+                        Загрузка...
+                    </h3>
+
+                    <div class="calendar-nav">
+
+                        <button id="prevMonth">
+                            ‹
+                        </button>
+
+                        <button id="nextMonth">
+                            ›
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="weekdays">
+                    <div class="weekday">Пн</div>
+                    <div class="weekday">Вт</div>
+                    <div class="weekday">Ср</div>
+                    <div class="weekday">Чт</div>
+                    <div class="weekday">Пт</div>
+                    <div class="weekday">Сб</div>
+                    <div class="weekday">Вс</div>
+                </div>
+
+                <div
+                    class="calendar"
+                    id="calendar"
+                ></div>
+
+            </div>
+        </section>
+
+
+        <!-- SELECTED DATE -->
+
+        <section id="selectedSection" hidden>
+
+            <div class="section-title">
+                <h2 id="selectedTitle">
+                    Праздники
+                </h2>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="selectedHolidays"
+            ></div>
+
+        </section>
+
+
+        <!-- COUNTRIES -->
+
+        <section>
+
+            <div class="section-title">
+                <h2>🌍 Страны</h2>
+                <span>
+                    Выберите страну
+                </span>
+            </div>
+
+            <div
+                class="countries"
+                id="countries"
+            ></div>
+
+        </section>
+
+
+        <!-- COUNTRY HOLIDAYS -->
+
+        <section id="countrySection" hidden>
+
+            <div class="section-title">
+                <h2 id="countryTitle">
+                    Праздники страны
+                </h2>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="countryHolidays"
+            ></div>
+
+        </section>
+
+
+        <!-- UPCOMING -->
+
+        <section>
+
+            <div class="section-title">
+                <h2>🔜 Ближайшие праздники</h2>
+                <span>
+                    Следующие 10
+                </span>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="upcomingHolidays"
+            ></div>
+
+        </section>
+
+
+        <!-- SEARCH RESULTS -->
+
+        <section
+            id="searchSection"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2>🔎 Результаты поиска</h2>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="searchResults"
+            ></div>
+
+        </section>
+
+
+        <!-- FAVORITES -->
+
+        <section>
+
+            <div class="section-title">
+                <h2>⭐ Избранное</h2>
+                <span>
+                    Сохраняется на этом устройстве
+                </span>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="favorites"
+            ></div>
+
+        </section>
+
+
+        <!-- REPORT -->
+
+        <div class="report">
+
+            <div>
+                <h3>
+                    ❓ Нет праздника или ошибка?
+                </h3>
+
+                <p>
+                    Сообщите нам, если нашли
+                    неправильную или отсутствующую информацию.
+                </p>
+            </div>
+
+            <button
+                class="report-button"
+                id="reportButton"
+            >
+                Сообщить об ошибке
+            </button>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer>
+    Holidays · Праздники мира
+</footer>
+
+
+<!-- MODAL -->
+
+<div
+    class="modal"
+    id="modal"
+    aria-hidden="true"
+>
+    <div
+        class="modal-content"
+        id="modalContent"
+    ></div>
+</div>
+
+
+<script>
+
+    /* =========================================
+       CONFIG
+    ========================================= */
+
+    const DATA_FOLDER = "./data/";
+
+    const COUNTRY_FILES = [
+        "LV.json",
+        "EE.json",
+        "LT.json",
+        "RU.json",
+        "US.json",
+        "GB.json",
+        "DE.json",
+        "FR.json",
+        "JP.json",
+        "CN.json"
+    ];
+
+
+    /* =========================================
+       STATE
+    ========================================= */
+
+    const state = {
+        holidays: [],
+        countries: [],
+        year: new Date().getFullYear(),
+        month: new Date().getMonth(),
+        category: "all",
+        search: "",
+        favorites: JSON.parse(
+            localStorage.getItem("holidayFavorites") || "[]"
+        ),
+        theme:
+            localStorage.getItem("holidayTheme") ||
+            "light"
+    };
+
+
+    /* =========================================
+       ELEMENTS
+    ========================================= */
+
+    const $ = selector =>
+        document.querySelector(selector);
+
+    const $$ = selector =>
+        document.querySelectorAll(selector);
+
+
+    /* =========================================
+       INIT
+    ========================================= */
+
+    async function init() {
+
+        applyTheme();
+
+        setupYears();
+
+        setupEvents();
+
+        updateTodayDate();
+
+        await loadData();
+
+        renderAll();
+
+    }
+
+
+    /* =========================================
+       LOAD JSON
+    ========================================= */
+
+    async function loadData() {
+
+        const results =
+            await Promise.allSettled(
+                COUNTRY_FILES.map(file =>
+                    fetch(DATA_FOLDER + file)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(
+                                    `Не удалось загрузить ${file}`
+                                );
+                            }
+
+                            return response.json();
+                        })
+                )
+            );
+
+        results.forEach((result, index) => {
+
+            if (result.status !== "fulfilled") {
+                console.warn(
+                    COUNTRY_FILES[index],
+                    result.reason
+                );
+
+                return;
+            }
+
+            const data = result.value;
+
+            /*
+                Поддерживаются два варианта JSON:
+
+                1.
+                {
+                    "country": {...},
+                    "holidays": [...]
+                }
+
+                2.
+                [...]
+            */
+
+            if (Array.isArray(data)) {
+
+                state.holidays.push(
+                    ...data.map(holiday => ({
+                        ...holiday,
+                        countryCode:
+                            holiday.countryCode ||
+                            COUNTRY_FILES[index]
+                                .replace(".json", "")
+                    }))
+                );
+
+            } else {
+
+                if (data.country) {
+                    state.countries.push(
+                        data.country
+                    );
+                }
+
+                if (Array.isArray(data.holidays)) {
+
+                    state.holidays.push(
+                        ...data.holidays.map(
+                            holiday => ({
+                                ...holiday,
+                                countryCode:
+                                    holiday.countryCode ||
+                                    data.country?.code ||
+                                    COUNTRY_FILES[index]
+                                        .replace(".json", "")
+                            })
+                        )
+                    );
+                }
+
+            }
+
+        });
+
+        /*
+            Если страны находятся
+            непосредственно в holiday JSON.
+        */
+
+        buildCountries();
+
+    }
+
+
+    /* =========================================
+       COUNTRIES
+    ========================================= */
+
+    function buildCountries() {
+
+        const map = new Map();
+
+        state.countries.forEach(country => {
+            if (country.code) {
+                map.set(country.code, country);
+            }
+        });
+
+        state.holidays.forEach(holiday => {
+
+            const code = holiday.countryCode;
+
+            if (!code || map.has(code)) return;
+
+            map.set(code, {
+                code,
+                name:
+                    holiday.countryName ||
+                    code,
+                flag:
+                    holiday.flag ||
+                    "🌍"
+            });
+
+        });
+
+        state.countries =
+            [...map.values()];
+    }
+
+
+    /* =========================================
+       RENDER ALL
+    ========================================= */
+
+    function renderAll() {
+
+        renderToday();
+
+        renderCalendar();
+
+        renderCountries();
+
+        renderUpcoming();
+
+        renderFavorites();
+
+    }
+
+
+    /* =========================================
+       TODAY
+    ========================================= */
+
+    function getTodayString() {
+
+        const now = new Date();
+
+        return formatDate(now);
+
+    }
+
+
+    function updateTodayDate() {
+
+        const now = new Date();
+
+        $("#todayDate").textContent =
+            now.toLocaleDateString(
+                "ru-RU",
+                {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        $("#todayLabel").textContent =
+            now.toLocaleDateString(
+                "ru-RU",
+                {
+                    weekday: "long"
+                }
+            );
+
+    }
+
+
+    function renderToday() {
+
+        const today =
+            getTodayString();
+
+        const list =
+            getFilteredHolidays()
+                .filter(
+                    holiday =>
+                        holiday.date === today
+                );
+
+        $("#todayCount").textContent =
+            list.length
+                ? `${list.length} ${plural(
+                    list.length,
+                    "праздник",
+                    "праздника",
+                    "праздников"
+                )}`
+                : "Сегодня праздников нет";
+
+        renderHolidayList(
+            $("#todayHolidays"),
+            list
+        );
+
+    }
+
+
+    /* =========================================
+       CALENDAR
+    ========================================= */
+
+    function renderCalendar() {
+
+        const date =
+            new Date(
+                state.year,
+                state.month,
+                1
+            );
+
+        $("#calendarTitle").textContent =
+            date.toLocaleDateString(
+                "ru-RU",
+                {
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        const calendar =
+            $("#calendar");
+
+        calendar.innerHTML = "";
+
+        const firstDay =
+            new Date(
+                state.year,
+                state.month,
+                1
+            );
+
+        let start =
+            firstDay.getDay() - 1;
+
+        if (start < 0) {
+            start = 6;
+        }
+
+        const days =
+            new Date(
+                state.year,
+                state.month + 1,
+                0
+            ).getDate();
+
+        for (let i = 0; i < start; i++) {
+
+            const empty =
+                document.createElement("div");
+
+            calendar.appendChild(empty);
+
+        }
+
+        for (let day = 1; day <= days; day++) {
+
+            const date =
+                new Date(
+                    state.year,
+                    state.month,
+                    day
+                );
+
+            const dateString =
+                formatDate(date);
+
+            const holidays =
+                state.holidays.filter(
+                    holiday =>
+                        holiday.date ===
+                        dateString
+                );
+
+            const button =
+                document.createElement("button");
+
+            button.className =
+                "calendar-day";
+
+            if (isToday(date)) {
+                button.classList.add("today");
+            }
+
+            if (holidays.length) {
+                button.classList.add(
+                    "has-holiday"
+                );
+            }
+
+            button.innerHTML = `
+                <span class="day-number">
+                    ${day}
+                </span>
+
+                ${
+                    holidays.length
+                        ? `<span class="holiday-dot">
+                            ${holidays.length}
+                           </span>`
+                        : ""
+                }
+            `;
+
+            button.addEventListener(
+                "click",
+                () => {
+                    showDateHolidays(
+                        dateString,
+                        holidays
+                    );
+                }
+            );
+
+            calendar.appendChild(button);
+
+        }
+
+    }
+
+
+    function showDateHolidays(
+        date,
+        holidays
+    ) {
+
+        const section =
+            $("#selectedSection");
+
+        section.hidden = false;
+
+        $("#selectedTitle").textContent =
+            new Date(date + "T00:00:00")
+                .toLocaleDateString(
+                    "ru-RU",
+                    {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+        renderHolidayList(
+            $("#selectedHolidays"),
+            holidays
+        );
+
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    /* =========================================
+       COUNTRIES
+    ========================================= */
+
+    function renderCountries() {
+
+        const container =
+            $("#countries");
+
+        container.innerHTML = "";
+
+        state.countries
+            .sort(
+                (a, b) =>
+                    (a.name || "")
+                        .localeCompare(
+                            b.name || "",
+                            "ru"
+                        )
+            )
+            .forEach(country => {
+
+                const button =
+                    document.createElement("button");
+
+                button.className =
+                    "country";
+
+                button.innerHTML = `
+                    <span class="country-flag">
+                        ${country.flag || "🌍"}
+                    </span>
+
+                    <span class="country-name">
+                        ${country.name || country.code}
+                    </span>
+                `;
+
+                button.addEventListener(
+                    "click",
+                    () =>
+                        showCountry(
+                            country.code
+                        )
+                );
+
+                container.appendChild(button);
+
+            });
+
+    }
+
+
+    function showCountry(code) {
+
+        const country =
+            state.countries.find(
+                item =>
+                    item.code === code
+            );
+
+        const holidays =
+            state.holidays.filter(
+                holiday =>
+                    holiday.countryCode === code
+            );
+
+        $("#countrySection").hidden =
+            false;
+
+        $("#countryTitle").textContent =
+            `${country?.flag || "🌍"} ${
+                country?.name || code
+            }`;
+
+        renderHolidayList(
+            $("#countryHolidays"),
+            holidays
+        );
+
+        $("#countrySection")
+            .scrollIntoView({
+                behavior: "smooth"
+            });
+
+    }
+
+
+    /* =========================================
+       UPCOMING
+    ========================================= */
+
+    function renderUpcoming() {
+
+        const today =
+            getTodayString();
+
+        const list =
+            getFilteredHolidays()
+                .filter(
+                    holiday =>
+                        holiday.date >= today
+                )
+                .sort(
+                    (a, b) =>
+                        a.date.localeCompare(
+                            b.date
+                        )
+                )
+                .slice(0, 10);
+
+        renderHolidayList(
+            $("#upcomingHolidays"),
+            list
+        );
+
+    }
+
+
+    /* =========================================
+       FAVORITES
+    ========================================= */
+
+    function renderFavorites() {
+
+        const list =
+            state.holidays.filter(
+                holiday =>
+                    state.favorites.includes(
+                        holiday.id
+                    )
+            );
+
+        renderHolidayList(
+            $("#favorites"),
+            list
+        );
+
+    }
+
+
+    function toggleFavorite(id) {
+
+        const index =
+            state.favorites.indexOf(id);
+
+        if (index === -1) {
+
+            state.favorites.push(id);
+
+        } else {
+
+            state.favorites.splice(
+                index,
+                1
+            );
+
+        }
+
+        localStorage.setItem(
+            "holidayFavorites",
+            JSON.stringify(
+                state.favorites
+            )
+        );
+
+        renderAll();
+
+    }
+
+
+    /* =========================================
+       HOLIDAY CARDS
+    ========================================= */
+
+    function renderHolidayList(
+        container,
+        holidays
+    ) {
+
+        if (!holidays.length) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    Праздников не найдено.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            holidays
+                .map(
+                    holiday =>
+                        createHolidayCard(
+                            holiday
+                        )
+                )
+                .join("");
+
+        container
+            .querySelectorAll(
+                "[data-favorite]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+                        toggleFavorite(
+                            button.dataset.favorite
+                        );
+
+                    }
+                );
+
+            });
+
+        container
+            .querySelectorAll(
+                "[data-details]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () =>
+                        openModal(
+                            button.dataset.details
+                        )
+                );
+
+            });
+
+    }
+
+
+    function createHolidayCard(
+        holiday
+    ) {
+
+        const country =
+            state.countries.find(
+                item =>
+                    item.code ===
+                    holiday.countryCode
+            );
+
+        const favorite =
+            state.favorites.includes(
+                holiday.id
+            );
+
+        return `
+            <article class="holiday-card">
+
+                <div class="holiday-top">
+
+                    <span class="holiday-date">
+                        ${formatDisplayDate(
+                            holiday.date
+                        )}
+                    </span>
+
+                    <button
+                        class="favorite ${
+                            favorite
+                                ? "active"
+                                : ""
+                        }"
+                        data-favorite="${
+                            holiday.id
+                        }"
+                        aria-label="Избранное"
+                    >
+                        ${
+                            favorite
+                                ? "★"
+                                : "☆"
+                        }
+                    </button>
+
+                </div>
+
+                <h3>
+                    ${escapeHtml(
+                        holiday.name ||
+                        "Без названия"
+                    )}
+                </h3>
+
+                <div class="holiday-country">
+                    ${country?.flag || "🌍"}
+                    ${escapeHtml(
+                        country?.name ||
+                        holiday.countryCode ||
+                        ""
+                    )}
+                </div>
+
+                ${
+                    holiday.category
+                        ? `
+                            <span class="category">
+                                ${escapeHtml(
+                                    getCategoryName(
+                                        holiday.category
+                                    )
+                                )}
+                            </span>
+                        `
+                        : ""
+                }
+
+                <button
+                    class="details"
+                    data-details="${
+                        holiday.id
+                    }"
+                >
+                    Подробнее
+                </button>
+
+            </article>
+        `;
+
+    }
+
+
+    /* =========================================
+       MODAL
+    ========================================= */
+
+    function openModal(id) {
+
+        const holiday =
+            state.holidays.find(
+                item =>
+                    item.id === id
+            );
+
+        if (!holiday) return;
+
+        const country =
+            state.countries.find(
+                item =>
+                    item.code ===
+                    holiday.countryCode
+            );
+
+        $("#modalContent").innerHTML = `
+
+            <button
+                class="modal-close"
+                id="closeModal"
+            >
+                ×
+            </button>
+
+            <div class="eyebrow">
+                ${country?.flag || "🌍"}
+                ${escapeHtml(
+                    country?.name ||
+                    holiday.countryCode ||
+                    ""
+                )}
+            </div>
+
+            <h2>
+                ${escapeHtml(
+                    holiday.name ||
+                    "Праздник"
+                )}
+            </h2>
+
+            <div>
+                📅 ${formatDisplayDate(
+                    holiday.date
+                )}
+            </div>
+
+            ${
+                holiday.category
+                    ? `
+                        <div style="margin-top:10px">
+                            <span class="category">
+                                ${escapeHtml(
+                                    getCategoryName(
+                                        holiday.category
+                                    )
+                                )}
+                            </span>
+                        </div>
+                    `
+                    : ""
+            }
+
+            ${
+                holiday.description
+                    ? `
+                        <p>
+                            ${escapeHtml(
+                                holiday.description
+                            )}
+                        </p>
+                    `
+                    : `
+                        <p>
+                            Подробное описание
+                            этого праздника пока
+                            не добавлено.
+                        </p>
+                    `
+            }
+
+        `;
+
+        $("#modal").classList.add("active");
+
+        $("#modal").setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        $("#closeModal")
+            .addEventListener(
+                "click",
+                closeModal
+            );
+
+    }
+
+
+    function closeModal() {
+
+        $("#modal").classList.remove(
+            "active"
+        );
+
+        $("#modal").setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+    }
+
+
+    $("#modal").addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                $("#modal")
+            ) {
+                closeModal();
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       SEARCH
+    ========================================= */
+
+    function search() {
+
+        const query =
+            state.search
+                .trim()
+                .toLowerCase();
+
+        const section =
+            $("#searchSection");
+
+        if (!query) {
+
+            section.hidden = true;
+            return;
+
+        }
+
+        const results =
+            getFilteredHolidays()
+                .filter(holiday => {
+
+                    const country =
+                        state.countries.find(
+                            item =>
+                                item.code ===
+                                holiday.countryCode
+                        );
+
+                    return (
+                        holiday.name
+                            ?.toLowerCase()
+                            .includes(query) ||
+
+                        holiday.description
+                            ?.toLowerCase()
+                            .includes(query) ||
+
+                        country?.name
+                            ?.toLowerCase()
+                            .includes(query)
+                    );
+
+                });
+
+        section.hidden = false;
+
+        renderHolidayList(
+            $("#searchResults"),
+            results
+        );
+
+    }
+
+
+    /* =========================================
+       FILTERS
+    ========================================= */
+
+    function getFilteredHolidays() {
+
+        return state.holidays.filter(
+            holiday => {
+
+                if (
+                    state.category !==
+                    "all" &&
+                    holiday.category !==
+                    state.category
+                ) {
+                    return false;
+                }
+
+                return true;
+
+            }
+        );
+
+    }
+
+
+    /* =========================================
+       EVENTS
+    ========================================= */
+
+    function setupEvents() {
+
+        $("#prevMonth")
+            .addEventListener(
+                "click",
+                () => {
+
+                    state.month--;
+
+                    if (state.month < 0) {
+                        state.month = 11;
+                        state.year--;
+                    }
+
+                    renderCalendar();
+
+                }
+            );
+
+        $("#nextMonth")
+            .addEventListener(
+                "click",
+                () => {
+
+                    state.month++;
+
+                    if (state.month > 11) {
+                        state.month = 0;
+                        state.year++;
+                    }
+
+                    renderCalendar();
+
+                }
+            );
+
+
+        $("#searchInput")
+            .addEventListener(
+                "input",
+                event => {
+
+                    state.search =
+                        event.target.value;
+
+                    search();
+
+                }
+            );
+
+
+        $$(".filter")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        $$(".filter")
+                            .forEach(
+                                item =>
+                                    item.classList
+                                        .remove(
+                                            "active"
+                                        )
+                            );
+
+                        button.classList.add(
+                            "active"
+                        );
+
+                        state.category =
+                            button.dataset.category;
+
+                        renderAll();
+
+                        search();
+
+                    }
+                );
+
+            });
+
+
+        $("#yearSelect")
+            .addEventListener(
+                "change",
+                event => {
+
+                    state.year =
+                        Number(
+                            event.target.value
+                        );
+
+                    state.month =
+                        new Date().getMonth();
+
+                    renderCalendar();
+
+                }
+            );
+
+
+        $("#themeButton")
+            .addEventListener(
+                "click",
+                toggleTheme
+            );
+
+
+        $("#reportButton")
+            .addEventListener(
+                "click",
+                reportError
+            );
+
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key === "Escape"
+                ) {
+                    closeModal();
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================
+       YEAR
+    ========================================= */
+
+    function setupYears() {
+
+        const select =
+            $("#yearSelect");
+
+        const current =
+            new Date().getFullYear();
+
+        for (
+            let year = current - 5;
+            year <= current + 10;
+            year++
+        ) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value = year;
+            option.textContent = year;
+
+            if (year === current) {
+                option.selected = true;
+            }
+
+            select.appendChild(option);
+
+        }
+
+    }
+
+
+    /* =========================================
+       THEME
+    ========================================= */
+
+    function applyTheme() {
+
+        document.documentElement
+            .dataset.theme =
+            state.theme;
+
+        $("#themeButton").textContent =
+            state.theme === "dark"
+                ? "☀️"
+                : "🌙";
+
+    }
+
+
+    function toggleTheme() {
+
+        state.theme =
+            state.theme === "dark"
+                ? "light"
+                : "dark";
+
+        localStorage.setItem(
+            "holidayTheme",
+            state.theme
+        );
+
+        applyTheme();
+
+    }
+
+
+    /* =========================================
+       REPORT
+    ========================================= */
+
+    function reportError() {
+
+        const subject =
+            encodeURIComponent(
+                "Ошибка на странице Holidays"
+            );
+
+        const body =
+            encodeURIComponent(`
+Здравствуйте!
+
+Я нашёл ошибку или отсутствующий праздник на странице Holidays.
+
+Праздник:
+Страна:
+Дата:
+
+Описание проблемы:
+
+
+Спасибо!
+            `.trim());
+
+        window.location.href =
+            `mailto:metro.new.help@gmail.com?subject=${subject}&body=${body}`;
+
+    }
+
+
+    /* =========================================
+       HELPERS
+    ========================================= */
+
+    function formatDate(date) {
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+
+    }
+
+
+    function formatDisplayDate(
+        dateString
+    ) {
+
+        if (!dateString) {
+            return "";
+        }
+
+        const date =
+            new Date(
+                dateString + "T00:00:00"
+            );
+
+        return date.toLocaleDateString(
+            "ru-RU",
+            {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    }
+
+
+    function isToday(date) {
+
+        const today =
+            new Date();
+
+        return (
+            date.getFullYear() ===
+                today.getFullYear() &&
+
+            date.getMonth() ===
+                today.getMonth() &&
+
+            date.getDate() ===
+                today.getDate()
+        );
+
+    }
+
+
+    function plural(
+        number,
+        one,
+        few,
+        many
+    ) {
+
+        const n =
+            Math.abs(number) % 100;
+
+        const n1 = n % 10;
+
+        if (
+            n > 10 &&
+            n < 20
+        ) {
+            return many;
+        }
+
+        if (n1 > 1 && n1 < 5) {
+            return few;
+        }
+
+        if (n1 === 1) {
+            return one;
+        }
+
+        return many;
+
+    }
+
+
+    function getCategoryName(
+        category
+    ) {
+
+        const names = {
+            national: "Государственный",
+            religious: "Религиозный",
+            international: "Международный",
+            cultural: "Культурный"
+        };
+
+        return (
+            names[category] ||
+            category
+        );
+
+    }
+
+
+    function escapeHtml(
+        value
+    ) {
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
+
+    }
+
+
+    /* =========================================
+       START
+    ========================================= */
+
+    init();
+
+</script>
+
+</body>
+</html>
+
