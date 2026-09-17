@@ -57,6 +57,2140 @@
             --blue-hover: #7aacff;
             --blue-light: rgba(77, 148, 255, 0.15);
             --green: #34a853;
+            --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82;
+            --red-light: rgba(242, 139, 130, 0.15);
+            --border: #253460;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+            --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+            --input-bg: #182444;
+            --input-border: #253460;
+            --scrollbar-thumb: #2d3d6b;
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f6fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #eef1f9;
+            --text-primary: #14151f;
+            --text-secondary: #565f7a;
+            --text-tertiary: #8890a8;
+            --accent: #e6c200;
+            --accent-hover: #c2a300;
+            --accent-light: rgba(230, 194, 0, 0.12);
+            --accent-glow: rgba(230, 194, 0, 0.18);
+            --blue: #0066CC;
+            --blue-hover: #0052a3;
+            --blue-light: rgba(0, 102, 204, 0.1);
+            --green: #1e8e4e;
+            --green-light: rgba(30, 142, 78, 0.1);
+            --red: #d93025;
+            --red-light: rgba(217, 48, 37, 0.1);
+            --border: #e2e6f0;
+            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
+            --shadow-xl: 0 24px 60px rgba(20, 22, 40, 0.16);
+            --input-bg: #f4f6fb;
+            --input-border: #e2e6f0;
+            --scrollbar-thumb: #d1d6e6;
+            color-scheme: light;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--blue) 8%, transparent) 0%, transparent 60%);
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        .container { width: 92%; max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* HEADER */
+        header {
+            background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+        .logo a {
+            display: flex; align-items: center; gap: 12px;
+            text-decoration: none; color: var(--text-primary);
+            font-weight: 800; font-size: 1.6rem;
+        }
+
+        .logo-icon {
+            width: 44px; height: 44px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        .nav-links>a {
+            color: var(--text-secondary); text-decoration: none;
+            font-weight: 600; font-size: 1rem;
+            padding: 8px 18px; border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .nav-links>a:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .nav-links>a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .theme-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            position: relative; width: 42px; height: 42px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text-secondary); font-size: 1.1rem;
+            cursor: pointer; transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+
+        .theme-toggle .fa-sun { opacity: 0; transform: rotate(90deg) scale(0.3); }
+        [data-theme="light"] .theme-toggle .fa-sun { opacity: 1; transform: rotate(0deg) scale(1); color: var(--accent); }
+        [data-theme="light"] .theme-toggle .fa-moon { opacity: 0; transform: rotate(-90deg) scale(0.3); }
+
+        .login-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 22px;
+            background: linear-gradient(135deg, var(--blue), var(--blue-hover));
+            border-radius: 999px; color: #fff !important;
+            font-weight: 700; text-decoration: none;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(77, 148, 255, 0.3);
+            font-size: 0.95rem;
+        }
+
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 35px rgba(77, 148, 255, 0.4); }
+
+        .burger-menu {
+            display: none; font-size: 1.6rem;
+            background: none; border: none;
+            color: var(--text-primary); cursor: pointer;
+        }
+
+        .dropdown { position: relative; }
+
+        .dropdown>button {
+            background: transparent; border: none;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600; font-size: 1rem;
+            padding: 8px 18px; border-radius: var(--radius);
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .dropdown>button:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .dropdown>button i { font-size: 0.7rem; transition: transform 0.25s; }
+        .dropdown.open>button i { transform: rotate(180deg); }
+
+        .dropdown-content {
+            display: none; position: absolute;
+            top: calc(100% + 8px); left: 0;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); min-width: 200px;
+            padding: 8px 0; box-shadow: var(--shadow); z-index: 100;
+        }
+
+        .dropdown.open .dropdown-content { display: block; }
+
+        .dropdown-content a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 18px; color: var(--text-secondary);
+            text-decoration: none; font-weight: 500; font-size: 0.95rem;
+        }
+
+        .dropdown-content a i { width: 20px; color: var(--accent); }
+        .dropdown-content a:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .dropdown-content a.active { color: var(--accent); }
+
+        /* PAGE */
+        .page { padding: 30px 0 50px; }
+
+        .page-header { text-align: center; margin-bottom: 24px; }
+
+        .page-header h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 10px;
+            display: inline-flex; align-items: center; gap: 14px;
+        }
+
+        .page-header h1 i { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+
+        .page-header p {
+            color: var(--text-secondary); font-size: 1rem;
+            max-width: 640px; margin: 0 auto 12px;
+        }
+
+        .wiki-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px; background: var(--bg-card);
+            border: 1px solid var(--border); border-radius: 999px;
+            color: var(--text-secondary); text-decoration: none;
+            font-weight: 600; font-size: 0.85rem;
+            transition: all 0.25s; margin-top: 6px;
+        }
+
+        .wiki-link:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .wiki-link i { color: var(--accent); }
+
+        /* TABS */
+        .tabs {
+            display: flex; gap: 6px; flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            box-shadow: var(--shadow);
+            max-width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab {
+            padding: 10px 22px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+
+        .tab.active {
+            background: var(--accent);
+            color: #14151f;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .tab .badge {
+            background: rgba(0,0,0,0.2);
+            color: inherit;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .tab.active .badge { background: rgba(0,0,0,0.25); color: #fff; }
+
+        /* SEARCH PANEL */
+        .search-panel {
+            max-width: 720px;
+            margin: 0 auto 20px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 12px 6px 24px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-lg);
+        }
+
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-box input::placeholder { color: var(--text-tertiary); }
+
+        .search-box button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 8px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            position: relative;
+        }
+
+        .search-box button:hover { color: var(--accent); background: var(--bg-secondary); }
+        .search-box .clear-btn { display: none; }
+        .search-box .clear-btn.visible { display: inline-flex; }
+        .search-box .clear-btn:hover { color: var(--red); }
+
+        .search-box .filters-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .search-box .filters-toggle:hover,
+        .search-box .filters-toggle.active {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filters-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: var(--red);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* FILTERS PANEL */
+        .filters-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, margin-top 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            margin-top: 0;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            opacity: 0;
+        }
+
+        .filters-panel.open {
+            max-height: 1200px;
+            margin-top: 12px;
+            padding: 20px;
+            opacity: 1;
+        }
+
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+
+        .filter-group .label {
+            font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-tertiary);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .filter-group .label i { color: var(--accent); }
+
+        .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.25s;
+            white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .filter-chip:hover { border-color: var(--accent); color: var(--text-primary); }
+        .filter-chip.active {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filters-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 14px;
+            margin-top: 4px;
+            border-top: 1px solid var(--border);
+        }
+
+        .filters-actions button {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 999px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .filters-reset {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .filters-reset:hover {
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .filters-apply {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .filters-apply:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        /* ACTIONS */
+        .actions-row {
+            display: flex; gap: 12px;
+            justify-content: center; flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.25s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .action-btn.active {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .action-btn i { font-size: 1rem; }
+
+        /* GRID */
+        .radio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .radio-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            display: flex; flex-direction: column; gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: var(--shadow);
+            position: relative; overflow: hidden;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .radio-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            opacity: 0; transition: opacity 0.3s;
+        }
+
+        .radio-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 40px var(--accent-glow);
+        }
+
+        .radio-card:hover::before { opacity: 1; }
+
+        .radio-card.playing {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--accent-light) 100%);
+        }
+
+        .radio-card.playing::before { opacity: 1; }
+
+        .card-btns {
+            position: absolute;
+            top: 10px; right: 10px;
+            display: flex; gap: 6px;
+            z-index: 2;
+        }
+
+        .card-btns button {
+            width: 30px; height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .card-btns button:hover { color: var(--accent); border-color: var(--accent); }
+        .card-btns button.active { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+        .card-btns .report-btn:hover { color: var(--red); border-color: var(--red); }
+        .card-btns .share-btn:hover { color: var(--blue); border-color: var(--blue); }
+
+        .radio-icon-wrap {
+            width: 100%; aspect-ratio: 1 / 1;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; font-size: 2.4rem;
+            color: var(--accent);
+            position: relative;
+        }
+
+        .radio-icon-wrap img {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+        }
+
+        .radio-icon-wrap .play-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.25s;
+            color: #fff; font-size: 2rem;
+        }
+
+        .radio-card:hover .radio-icon-wrap .play-overlay { opacity: 1; }
+        .radio-card.playing .radio-icon-wrap .play-overlay { opacity: 1; background: rgba(255, 215, 0, 0.25); }
+
+        .radio-name {
+            font-size: 0.95rem; font-weight: 700;
+            color: var(--text-primary); line-height: 1.3;
+            overflow: hidden; text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            min-height: 2.6em;
+            padding-right: 60px;
+        }
+
+        .radio-meta {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            font-size: 0.7rem; color: var(--text-tertiary);
+            align-items: center;
+        }
+
+        .radio-meta .country-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px;
+            background: var(--bg-secondary);
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .radio-meta .genre-tag {
+            display: inline-flex; align-items: center;
+            padding: 2px 8px;
+            background: var(--blue-light);
+            color: var(--blue);
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .radio-meta .bitrate-tag {
+            display: inline-flex; align-items: center;
+            padding: 2px 8px;
+            background: var(--green-light);
+            color: var(--green);
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        /* LOADER / EMPTY */
+        .loader {
+            grid-column: 1 / -1;
+            text-align: center; padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loader .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty {
+            grid-column: 1 / -1;
+            text-align: center; padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty i { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; display: block; }
+
+        /* PLAYER */
+        .player-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: color-mix(in srgb, var(--bg-card) 96%, transparent);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.4);
+            padding: 12px 0;
+            z-index: 998;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .player-bar.visible { transform: translateY(0); }
+
+        .player-inner {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 16px; align-items: center;
+        }
+
+        .player-cover {
+            width: 52px; height: 52px;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+            color: var(--accent); font-size: 1.4rem;
+        }
+
+        .player-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+        .player-info { min-width: 0; }
+
+        .player-name {
+            font-size: 0.95rem; font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .player-sub {
+            font-size: 0.75rem; color: var(--text-tertiary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .player-track {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            display: none;
+        }
+
+        .player-track.visible { display: block; }
+
+        .player-controls {
+            display: flex; align-items: center;
+            gap: 12px; flex-shrink: 0;
+        }
+
+        .player-btn {
+            width: 42px; height: 42px;
+            border-radius: 50%; border: none;
+            background: var(--accent);
+            color: #14151f; font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.25s;
+            flex-shrink: 0;
+        }
+
+        .player-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.08);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .player-btn.secondary {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            width: 38px; height: 38px;
+            font-size: 0.9rem;
+        }
+
+        .player-btn.secondary:hover { color: var(--accent); }
+
+        .volume-wrap { display: flex; align-items: center; gap: 8px; }
+
+        .volume-wrap i {
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 20px; text-align: center;
+        }
+
+        .volume-wrap i:hover { color: var(--accent); }
+
+        input[type="range"].volume-slider {
+            -webkit-appearance: none; appearance: none;
+            width: 100px; height: 4px;
+            background: var(--border);
+            border-radius: 4px; outline: none; cursor: pointer;
+        }
+
+        input[type="range"].volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 14px; height: 14px;
+            background: var(--accent); border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        input[type="range"].volume-slider::-moz-range-thumb {
+            width: 14px; height: 14px;
+            background: var(--accent); border-radius: 50%;
+            cursor: pointer; border: none;
+        }
+
+        /* SOURCES */
+        .sources-section {
+            margin-top: 30px;
+            padding: 32px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .sources-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sources-header i { font-size: 1.5rem; color: var(--accent); }
+        .sources-header h3 { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px; margin-bottom: 24px;
+        }
+
+        .source-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+            transition: all 0.25s;
+        }
+
+        .source-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .source-icon {
+            width: 44px; height: 44px;
+            border-radius: var(--radius);
+            background: var(--accent-light);
+            color: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .source-card h4 { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+        .source-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+
+        .source-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: var(--blue-light);
+            color: var(--blue);
+            border-radius: 999px;
+            font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            align-self: flex-start;
+        }
+
+        .source-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: var(--accent); text-decoration: none;
+            font-size: 0.85rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .source-link:hover { color: var(--accent-hover); transform: translateX(3px); }
+        .source-link i { font-size: 0.7rem; }
+
+        .disclaimer {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 16px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--red);
+            border-radius: var(--radius);
+        }
+
+        .disclaimer i { color: var(--red); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+        .disclaimer p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+        .disclaimer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .disclaimer a:hover { text-decoration: underline; }
+
+        /* FOOTER */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 44px 0 28px;
+            margin-top: 40px;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px; margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .footer-brand { display: flex; flex-direction: column; gap: 16px; }
+        .footer-brand .logo-icon { width: 60px; height: 60px; }
+
+        .footer-brand .brand-name {
+            font-size: 1.8rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-brand p { color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; }
+
+        .footer-social { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+        .footer-social a {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.2rem; transition: all 0.25s;
+            text-decoration: none;
+        }
+
+        .footer-social a:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .footer-social a img.social-icon-img {
+            width: 20px; height: 20px;
+            object-fit: cover; border-radius: 50%;
+        }
+
+        .footer-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        .footer-col h4 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 6px; }
+
+        .footer-col ul a {
+            color: var(--text-secondary); text-decoration: none;
+            font-weight: 500; display: inline-flex;
+            align-items: center; gap: 8px; font-size: 0.9rem;
+        }
+
+        .footer-col ul a:hover { color: var(--accent); }
+        .footer-col ul a i { width: 16px; font-size: 0.8rem; }
+
+        .footer-bottom {
+            display: flex; align-items: center; justify-content: center;
+            gap: 18px; flex-wrap: wrap;
+            color: var(--text-secondary); font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 100px; right: 24px;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-xl);
+            z-index: 9999;
+            display: flex; align-items: center; gap: 12px;
+            max-width: 400px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .toast.error { border-color: var(--red); }
+        .toast.success { border-color: var(--green); }
+
+        /* RESPONSIVE */
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+
+            .nav-links {
+                display: none; width: 100%;
+                flex-direction: column;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 16px; margin-top: 10px; gap: 4px;
+            }
+
+            .nav-links.active { display: flex; }
+            .nav-links>a { padding: 10px 14px; width: 100%; }
+            .dropdown { width: 100%; }
+            .dropdown>button { width: 100%; justify-content: flex-start; padding: 10px 14px; }
+            .dropdown-content { position: static; border: none; background: color-mix(in srgb, var(--text-primary) 4%, transparent); box-shadow: none; padding: 0 0 0 16px; margin-top: 4px; }
+            .nav-right { order: -1; }
+
+            .sources-grid { grid-template-columns: 1fr; }
+            .footer-top { grid-template-columns: 1fr; }
+            .footer-links { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .radio-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+            .player-inner { grid-template-columns: auto 1fr auto; gap: 10px; }
+            .player-cover { width: 44px; height: 44px; }
+            .volume-wrap { display: none; }
+            .player-btn { width: 38px; height: 38px; }
+            .tabs { padding: 4px; }
+            .tab { padding: 8px 16px; font-size: 0.8rem; }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 1.6rem; gap: 8px; }
+            .radio-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .radio-card { padding: 12px; }
+            .radio-name { font-size: 0.85rem; padding-right: 50px; }
+            .footer-links { grid-template-columns: 1fr; }
+            .player-sub { display: none; }
+            .card-btns button { width: 26px; height: 26px; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">
+                            <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                        </span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+
+                <div class="nav-right">
+                    <button class="burger-menu" id="burgerMenu" aria-label="Открыть меню">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Прочее <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/radio/" class="active"><i class="fas fa-broadcast-tower"></i> Мировое радио</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                        </div>
+                    </div>
+
+                    <a id="authBtn" class="login-btn" href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/">
+                        <i class="fas fa-sign-in-alt"></i> <span>Войти</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="container">
+            <section class="page">
+
+                <div class="page-header">
+                    <h1><i class="fas fa-broadcast-tower"></i> Мировое радио</h1>
+                    <p>Собрание радиостанций со всего мира. Музыка, новости, спорт и ток-шоу — прямо в браузере.</p>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki/site/?id=IvloL7vPGvaKaxPFszwZ" target="_blank" rel="noopener noreferrer" class="wiki-link">
+                        <i class="fas fa-book"></i> Подробнее в Wiki
+                    </a>
+                </div>
+
+                <!-- TABS -->
+                <div class="tabs" id="tabs">
+                    <button class="tab active" data-tab="all"><i class="fas fa-globe"></i> Все</button>
+                    <button class="tab" data-tab="popular"><i class="fas fa-fire"></i> Топ-50</button>
+                    <button class="tab" data-tab="new"><i class="fas fa-sparkles"></i> Новые</button>
+                    <button class="tab" data-tab="history"><i class="fas fa-history"></i> История <span class="badge" id="historyCount">0</span></button>
+                    <button class="tab" data-tab="favorites"><i class="fas fa-star"></i> Избранное <span class="badge" id="favCount">0</span></button>
+                </div>
+
+                <!-- SEARCH + FILTERS -->
+                <div class="search-panel">
+                    <div class="search-box">
+                        <i class="fas fa-search" style="color: var(--text-tertiary);"></i>
+                        <input type="text" id="searchInput" placeholder="Поиск станции..." oninput="handleSearch()">
+                        <button class="clear-btn" id="clearSearch" onclick="clearSearch()" aria-label="Очистить">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="filters-toggle" id="filtersToggle" onclick="toggleFiltersPanel()" title="Фильтры">
+                            <i class="fas fa-sliders-h"></i>
+                            <span class="filters-badge" id="filtersBadge" style="display:none;">0</span>
+                        </button>
+                    </div>
+
+                    <div class="filters-panel" id="filtersPanel">
+                        <div class="filter-group">
+                            <div class="label"><i class="fas fa-globe"></i> Континент</div>
+                            <div class="filter-chips" id="continentChips">
+                                <button class="filter-chip active" data-continent="all">Все</button>
+                                <button class="filter-chip" data-continent="europe">🇪🇺 Европа</button>
+                                <button class="filter-chip" data-continent="asia">🌏 Азия</button>
+                                <button class="filter-chip" data-continent="america">🌎 Америка</button>
+                                <button class="filter-chip" data-continent="africa">🌍 Африка</button>
+                                <button class="filter-chip" data-continent="oceania">🌊 Океания</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="label"><i class="fas fa-music"></i> Жанр</div>
+                            <div class="filter-chips" id="genreChips">
+                                <button class="filter-chip active" data-genre="all">Все</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="label"><i class="fas fa-language"></i> Язык</div>
+                            <div class="filter-chips" id="langChips">
+                                <button class="filter-chip active" data-lang="all">Все</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="label"><i class="fas fa-signal"></i> Качество</div>
+                            <div class="filter-chips" id="bitrateChips">
+                                <button class="filter-chip active" data-bitrate="0">Любое</button>
+                                <button class="filter-chip" data-bitrate="128">128+ kbps</button>
+                                <button class="filter-chip" data-bitrate="192">192+ kbps</button>
+                                <button class="filter-chip" data-bitrate="320">320 kbps</button>
+                            </div>
+                        </div>
+
+                        <div class="filters-actions">
+                            <button class="filters-reset" onclick="resetAllFilters()">
+                                <i class="fas fa-undo"></i> Сбросить все
+                            </button>
+                            <button class="filters-apply" onclick="toggleFiltersPanel()">
+                                <i class="fas fa-check"></i> Применить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="actions-row">
+                    <button class="action-btn" onclick="playRandom()">
+                        <i class="fas fa-dice"></i> Случайная
+                    </button>
+                    <button class="action-btn" id="safeModeBtn" onclick="toggleSafeMode()">
+                        <i class="fas fa-shield-alt"></i> Safe-mode: <span id="safeModeState">ВКЛ</span>
+                    </button>
+                </div>
+
+                <!-- GRID -->
+                <div class="radio-grid" id="radioGrid">
+                    <div class="loader">
+                        <div class="spinner"></div>
+                        <p>Загружаем радиостанции...</p>
+                    </div>
+                </div>
+
+                <!-- SOURCES -->
+                <div class="sources-section">
+                    <div class="sources-header">
+                        <i class="fas fa-broadcast-tower"></i>
+                        <h3>Источники и подробнее о радио</h3>
+                    </div>
+
+                    <div class="sources-grid">
+                        <div class="source-card">
+                            <div class="source-icon"><i class="fas fa-database"></i></div>
+                            <h4>Radio-Browser.info</h4>
+                            <p>Открытая база радиостанций со всего мира. Более 50 000 станций из 200+ стран.</p>
+                            <span class="source-tag">Публичный API</span>
+                            <a href="https://www.radio-browser.info/" target="_blank" rel="noopener noreferrer" class="source-link">
+                                Перейти <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+
+                        <div class="source-card">
+                            <div class="source-icon"><i class="fas fa-globe"></i></div>
+                            <h4>Мировое радио</h4>
+                            <p>Собрание радиостанций со всех континентов: музыка, новости, спорт, ток-шоу.</p>
+                            <span class="source-tag">Мультиязычное</span>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki/site/?id=IvloL7vPGvaKaxPFszwZ" target="_blank" rel="noopener noreferrer" class="source-link">
+                                Wiki <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+
+                        <div class="source-card">
+                            <div class="source-icon"><i class="fas fa-code"></i></div>
+                            <h4>Открытые данные</h4>
+                            <p>Все данные о станциях доступны через открытый API. Без регистрации и ключей.</p>
+                            <span class="source-tag">Бесплатно</span>
+                            <a href="https://api.radio-browser.info/" target="_blank" rel="noopener noreferrer" class="source-link">
+                                Документация <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="disclaimer">
+                        <i class="fas fa-info-circle"></i>
+                        <p>
+                            Если вы правообладатель и не хотите, чтобы ваша радиостанция отображалась на сайте —
+                            напишите нам на <a href="mailto:metro.new.help@gmail.com">metro.new.help@gmail.com</a>,
+                            и мы удалим её.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- PLAYER -->
+    <div class="player-bar" id="playerBar">
+        <div class="container">
+            <div class="player-inner">
+                <div class="player-cover" id="playerCover">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <div class="player-info">
+                    <div class="player-name" id="playerName">Выберите станцию</div>
+                    <div class="player-sub" id="playerSub">—</div>
+                    <div class="player-track" id="playerTrack"></div>
+                </div>
+                <div class="player-controls">
+                    <button class="player-btn secondary" id="stopBtn" onclick="stopRadio()" title="Стоп">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                    <button class="player-btn" id="playBtn" onclick="togglePlay()" title="Play/Pause">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="volume-wrap">
+                        <i class="fas fa-volume-up" id="muteBtn" onclick="toggleMute()"></i>
+                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="radioAudio" crossorigin="anonymous"></audio>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-icon">
+                        <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                    </div>
+                    <div class="brand-name">Метро New</div>
+                    <p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+                    <div class="footer-social">
+                        <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
+                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
+                        </a>
+                        <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>О нас</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сообщество</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Правовые документы</h4>
+                        <ul>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Политика возврата</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Политика авторских прав</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines"><i class="fas fa-globe"></i> Правила сайта</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Контакты</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Форма обратной связи</a></li>
+                            <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Техническая поддержка</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Полезные ссылки</h4>
+                        <ul>
+                            <li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Все игры</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> База знаний</a></li>
+                            <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус сервисов</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© <span id="currentYear"></span> Metro New. Все права защищены.</p>
+                <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== API =====
+        const API_BASE = 'https://de1.api.radio-browser.info/json';
+        const ADULT_TAGS = ['adult', 'sex', 'erotic', '18+', 'xxx', 'porn'];
+
+        // ===== CONTINENTS =====
+        const CONTINENTS = {
+            'RU': 'europe', 'UA': 'europe', 'BY': 'europe', 'KZ': 'asia',
+            'DE': 'europe', 'FR': 'europe', 'GB': 'europe', 'IT': 'europe',
+            'ES': 'europe', 'PT': 'europe', 'NL': 'europe', 'BE': 'europe',
+            'CH': 'europe', 'AT': 'europe', 'PL': 'europe', 'CZ': 'europe',
+            'SK': 'europe', 'HU': 'europe', 'RO': 'europe', 'BG': 'europe',
+            'GR': 'europe', 'HR': 'europe', 'RS': 'europe', 'SE': 'europe',
+            'NO': 'europe', 'FI': 'europe', 'DK': 'europe', 'IE': 'europe',
+            'IS': 'europe', 'EE': 'europe', 'LV': 'europe', 'LT': 'europe',
+            'SI': 'europe', 'MD': 'europe', 'AL': 'europe', 'MK': 'europe',
+            'US': 'america', 'CA': 'america', 'MX': 'america', 'BR': 'america',
+            'AR': 'america', 'CL': 'america', 'CO': 'america', 'PE': 'america',
+            'VE': 'america', 'EC': 'america', 'UY': 'america', 'PY': 'america',
+            'BO': 'america', 'CU': 'america', 'DO': 'america', 'GT': 'america',
+            'CN': 'asia', 'JP': 'asia', 'KR': 'asia', 'IN': 'asia',
+            'TH': 'asia', 'VN': 'asia', 'ID': 'asia', 'MY': 'asia',
+            'SG': 'asia', 'PH': 'asia', 'TR': 'asia', 'IL': 'asia',
+            'AE': 'asia', 'SA': 'asia', 'IR': 'asia', 'IQ': 'asia',
+            'PK': 'asia', 'BD': 'asia', 'LK': 'asia', 'NP': 'asia',
+            'EG': 'africa', 'ZA': 'africa', 'NG': 'africa', 'KE': 'africa',
+            'MA': 'africa', 'DZ': 'africa', 'TN': 'africa', 'LY': 'africa',
+            'AU': 'oceania', 'NZ': 'oceania', 'FJ': 'oceania'
+        };
+
+        const GENRE_ICONS = {
+            'rock': '🎸', 'pop': '🎤', 'jazz': '🎷', 'news': '📰',
+            'classical': '🎻', 'dance': '💃', 'electronic': '🎧',
+            'hiphop': '🎤', 'hip-hop': '🎤', 'rap': '🎤',
+            'metal': '🤘', 'punk': '🎸', 'reggae': '🌴',
+            'blues': '🎺', 'country': '🤠', 'folk': '🪕',
+            'oldies': '📻', 'retro': '📻', 'top': '🔥',
+            'sport': '⚽', 'talk': '🗣', 'house': '🏠',
+            'techno': '🎛', 'trance': '🌀', 'ambient': '🌌',
+            'chillout': '😌', 'lounge': '🍸', 'latin': '💃',
+            'salsa': '💃', 'tango': '💃', 'opera': '🎭',
+            'kids': '🧸', 'comedy': '😂', 'culture': '🏛',
+            '80s': '📼', '90s': '💿', '00s': '📱'
+        };
+
+        const LANG_FLAGS = {
+            'russian': '🇷🇺', 'english': '🇬🇧', 'german': '🇩🇪',
+            'french': '🇫🇷', 'spanish': '🇪🇸', 'italian': '🇮🇹',
+            'portuguese': '🇵🇹', 'polish': '🇵🇱', 'ukrainian': '🇺🇦',
+            'turkish': '🇹🇷', 'chinese': '🇨🇳', 'japanese': '🇯🇵',
+            'korean': '🇰🇷', 'arabic': '🇸🇦', 'dutch': '🇳🇱',
+            'swedish': '🇸🇪', 'norwegian': '🇳🇴', 'finnish': '🇫🇮',
+            'danish': '🇩🇰', 'czech': '🇨🇿', 'greek': '🇬🇷',
+            'hungarian': '🇭🇺', 'romanian': '🇷🇴', 'hebrew': '🇮🇱'
+        };
+
+        const COUNTRY_FLAGS = {
+            'RU': '🇷🇺', 'US': '🇺🇸', 'GB': '🇬🇧', 'DE': '🇩🇪', 'FR': '🇫🇷',
+            'IT': '🇮🇹', 'ES': '🇪🇸', 'UA': '🇺🇦', 'BY': '🇧🇾', 'KZ': '🇰🇿',
+            'JP': '🇯🇵', 'CN': '🇨🇳', 'KR': '🇰🇷', 'IN': '🇮🇳', 'BR': '🇧🇷',
+            'CA': '🇨🇦', 'AU': '🇦🇺', 'NL': '🇳🇱', 'PL': '🇵🇱', 'TR': '🇹🇷',
+            'SE': '🇸🇪', 'NO': '🇳🇴', 'FI': '🇫🇮', 'DK': '🇩🇰', 'CH': '🇨🇭',
+            'AT': '🇦🇹', 'BE': '🇧🇪', 'PT': '🇵🇹', 'GR': '🇬🇷', 'CZ': '🇨🇿',
+            'AR': '🇦🇷', 'MX': '🇲🇽', 'ZA': '🇿🇦', 'EG': '🇪🇬', 'IL': '🇮🇱',
+            'AE': '🇦🇪', 'SA': '🇸🇦', 'TH': '🇹🇭', 'VN': '🇻🇳', 'ID': '🇮🇩',
+            'RO': '🇷🇴', 'HU': '🇭🇺', 'BG': '🇧🇬', 'RS': '🇷🇸', 'HR': '🇭🇷',
+            'SK': '🇸🇰', 'SI': '🇸🇮', 'IE': '🇮🇪', 'IS': '🇮🇸', 'NZ': '🇳🇿'
+        };
+
+        // ===== STATE =====
+        let allStations = [];
+        let filteredStations = [];
+        let currentStation = null;
+        let currentTab = 'all';
+        let currentContinent = 'all';
+        let currentGenre = 'all';
+        let currentLang = 'all';
+        let minBitrate = 0;
+        let searchQuery = '';
+        let safeMode = localStorage.getItem('metro_radio_safe') !== 'off';
+        let favorites = JSON.parse(localStorage.getItem('metro_radio_fav') || '[]');
+        let hiddenStations = JSON.parse(localStorage.getItem('metro_radio_hidden') || '[]');
+        let history = JSON.parse(localStorage.getItem('metro_radio_history') || '[]');
+
+        // ===== DOM =====
+        const gridEl = document.getElementById('radioGrid');
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearch');
+        const tabsEl = document.getElementById('tabs');
+        const continentChips = document.getElementById('continentChips');
+        const genreChips = document.getElementById('genreChips');
+        const langChips = document.getElementById('langChips');
+        const bitrateChips = document.getElementById('bitrateChips');
+        const favCount = document.getElementById('favCount');
+        const historyCount = document.getElementById('historyCount');
+        const safeModeState = document.getElementById('safeModeState');
+        const safeModeBtn = document.getElementById('safeModeBtn');
+        const playerBar = document.getElementById('playerBar');
+        const playerName = document.getElementById('playerName');
+        const playerSub = document.getElementById('playerSub');
+        const playerCover = document.getElementById('playerCover');
+        const playBtn = document.getElementById('playBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const audio = document.getElementById('radioAudio');
+
+        // Init safe mode UI
+        safeModeState.textContent = safeMode ? 'ВКЛ' : 'ВЫКЛ';
+        safeModeBtn.classList.toggle('active', safeMode);
+
+        // ===== LOAD =====
+        async function loadStations() {
+            gridEl.innerHTML = `
+                <div class="loader">
+                    <div class="spinner"></div>
+                    <p>Загружаем радиостанции...</p>
+                </div>
+            `;
+
+            try {
+                const url = `${API_BASE}/stations/topclick/800?hidebroken=true`;
+                const response = await fetch(url, {
+                    headers: { 'User-Agent': 'MetroNewRadio/1.0' }
+                });
+
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                const data = await response.json();
+
+                allStations = data
+                    .filter(s => s.url_resolved || s.url)
+                    .filter(s => !hiddenStations.includes(s.stationuuid))
+                    .map(s => ({
+                        id: s.stationuuid,
+                        name: s.name || 'Без названия',
+                        url: s.url_resolved || s.url,
+                        favicon: s.favicon || '',
+                        country: s.country || '',
+                        countryCode: s.countrycode || '',
+                        tags: (s.tags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean).slice(0, 3),
+                        allTags: (s.tags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean),
+                        language: (s.language || '').toLowerCase(),
+                        bitrate: s.bitrate || 0,
+                        codec: s.codec || '',
+                        votes: s.votes || 0,
+                        clickcount: s.clickcount || 0,
+                        lastCheckOk: s.lastcheckok === 1,
+                        changeUuid: s.changeuuid || ''
+                    }))
+                    .filter(s => s.lastCheckOk);
+
+                buildFilters();
+                applyFilters();
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                gridEl.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Не удалось загрузить радиостанции</p>
+                        <p style="font-size:0.85rem;margin-top:8px;">Попробуйте обновить страницу</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== BUILD FILTERS =====
+        function buildFilters() {
+            const genreCount = {};
+            allStations.forEach(s => {
+                s.allTags.forEach(t => {
+                    if (t && t.length < 20) {
+                        genreCount[t] = (genreCount[t] || 0) + 1;
+                    }
+                });
+            });
+
+            const topGenres = Object.entries(genreCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 15)
+                .map(([g]) => g);
+
+            genreChips.innerHTML = '<button class="filter-chip active" data-genre="all">Все</button>' +
+                topGenres.map(g => {
+                    const icon = GENRE_ICONS[g] || '';
+                    return `<button class="filter-chip" data-genre="${g}">${icon ? icon + ' ' : ''}${capitalize(g)}</button>`;
+                }).join('');
+
+            const langCount = {};
+            allStations.forEach(s => {
+                if (s.language) {
+                    s.language.split(',').forEach(l => {
+                        const lg = l.trim().toLowerCase();
+                        if (lg && lg.length < 20) langCount[lg] = (langCount[lg] || 0) + 1;
+                    });
+                }
+            });
+
+            const topLangs = Object.entries(langCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 12)
+                .map(([l]) => l);
+
+            langChips.innerHTML = '<button class="filter-chip active" data-lang="all">Все</button>' +
+                topLangs.map(l => {
+                    const flag = LANG_FLAGS[l] || '🌐';
+                    return `<button class="filter-chip" data-lang="${l}">${flag} ${capitalize(l)}</button>`;
+                }).join('');
+
+            bindChipHandlers(continentChips, 'continent', v => { currentContinent = v; applyFilters(); });
+            bindChipHandlers(genreChips, 'genre', v => { currentGenre = v; applyFilters(); });
+            bindChipHandlers(langChips, 'lang', v => { currentLang = v; applyFilters(); });
+            bindChipHandlers(bitrateChips, 'bitrate', v => { minBitrate = Number(v); applyFilters(); });
+        }
+
+        function bindChipHandlers(container, dataAttr, callback) {
+            container.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    container.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    callback(chip.dataset[dataAttr]);
+                    updateFiltersBadge();
+                });
+            });
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        // ===== FILTERS PANEL =====
+        function toggleFiltersPanel() {
+            const panel = document.getElementById('filtersPanel');
+            const toggle = document.getElementById('filtersToggle');
+            panel.classList.toggle('open');
+            toggle.classList.toggle('active', panel.classList.contains('open'));
+        }
+
+        function resetAllFilters() {
+            continentChips.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            continentChips.querySelector('[data-continent="all"]').classList.add('active');
+            currentContinent = 'all';
+
+            genreChips.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            genreChips.querySelector('[data-genre="all"]').classList.add('active');
+            currentGenre = 'all';
+
+            langChips.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            langChips.querySelector('[data-lang="all"]').classList.add('active');
+            currentLang = 'all';
+
+            bitrateChips.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            bitrateChips.querySelector('[data-bitrate="0"]').classList.add('active');
+            minBitrate = 0;
+
+            searchInput.value = '';
+            searchQuery = '';
+            clearBtn.classList.remove('visible');
+
+            updateFiltersBadge();
+            applyFilters();
+            showToast('Фильтры сброшены', 'info');
+        }
+
+        function updateFiltersBadge() {
+            let count = 0;
+            if (currentContinent !== 'all') count++;
+            if (currentGenre !== 'all') count++;
+            if (currentLang !== 'all') count++;
+            if (minBitrate > 0) count++;
+
+            const badge = document.getElementById('filtersBadge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // ===== FILTER =====
+        function applyFilters() {
+            let result = [...allStations];
+
+            if (safeMode) {
+                result = result.filter(s => !s.allTags.some(t => ADULT_TAGS.some(a => t.includes(a))));
+            }
+
+            if (currentTab === 'favorites') {
+                result = result.filter(s => favorites.includes(s.id));
+            } else if (currentTab === 'history') {
+                result = result.filter(s => history.includes(s.id));
+                result.sort((a, b) => history.indexOf(a.id) - history.indexOf(b.id));
+            } else if (currentTab === 'popular') {
+                result.sort((a, b) => (b.clickcount || 0) - (a.clickcount || 0));
+            } else if (currentTab === 'new') {
+                result.sort((a, b) => (b.changeUuid || '').localeCompare(a.changeUuid || ''));
+            }
+
+            if (currentContinent !== 'all') {
+                result = result.filter(s => CONTINENTS[s.countryCode] === currentContinent);
+            }
+
+            if (currentGenre !== 'all') {
+                result = result.filter(s => s.allTags.some(t => t.includes(currentGenre)));
+            }
+
+            if (currentLang !== 'all') {
+                result = result.filter(s => s.language.includes(currentLang));
+            }
+
+            if (minBitrate > 0) {
+                result = result.filter(s => s.bitrate >= minBitrate);
+            }
+
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                result = result.filter(s =>
+                    s.name.toLowerCase().includes(q) ||
+                    s.country.toLowerCase().includes(q) ||
+                    s.allTags.some(t => t.includes(q))
+                );
+            }
+
+            filteredStations = result;
+            renderGrid();
+            updateCounts();
+            updateFiltersBadge();
+        }
+
+        // ===== RENDER =====
+        function renderGrid() {
+            if (filteredStations.length === 0) {
+                let msg = 'Станции не найдены';
+                if (currentTab === 'favorites') msg = 'В избранном пусто';
+                else if (currentTab === 'history') msg = 'История пуста';
+                gridEl.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-broadcast-tower"></i>
+                        <p>${msg}</p>
+                        <p style="font-size:0.85rem;margin-top:8px;">Попробуйте изменить фильтры</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const toShow = filteredStations.slice(0, 100);
+
+            gridEl.innerHTML = toShow.map((s, i) => {
+                const isFav = favorites.includes(s.id);
+                const isPlaying = currentStation && currentStation.id === s.id;
+                const flag = COUNTRY_FLAGS[s.countryCode] || '🌐';
+                const mainTag = s.tags[0] ? capitalize(s.tags[0]) : '';
+                const genreIcon = GENRE_ICONS[s.tags[0]] || '';
+                const favicon = s.favicon && s.favicon.startsWith('http')
+                    ? `<img src="${escapeAttr(s.favicon)}" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-broadcast-tower\\'></i>';" />`
+                    : '<i class="fas fa-broadcast-tower"></i>';
+
+                return `
+                    <div class="radio-card ${isPlaying ? 'playing' : ''}" 
+                         onclick="playStation('${s.id}')"
+                         style="animation-delay:${Math.min(i * 0.02, 0.5)}s;">
+                        <div class="card-btns">
+                            <button class="share-btn" onclick="event.stopPropagation(); shareStation('${s.id}')" title="Поделиться">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            <button class="fav-btn ${isFav ? 'active' : ''}" 
+                                    onclick="event.stopPropagation(); toggleFav('${s.id}')"
+                                    title="${isFav ? 'Убрать из избранного' : 'В избранное'}">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="report-btn" onclick="event.stopPropagation(); reportStation('${s.id}')" title="Не работает">
+                                <i class="fas fa-flag"></i>
+                            </button>
+                        </div>
+                        <div class="radio-icon-wrap">
+                            ${favicon}
+                            <div class="play-overlay">
+                                <i class="fas ${isPlaying ? 'fa-volume-up' : 'fa-play'}"></i>
+                            </div>
+                        </div>
+                        <div class="radio-name">${escapeHtml(s.name)}</div>
+                        <div class="radio-meta">
+                            ${s.countryCode ? `<span class="country-tag">${flag} ${s.countryCode}</span>` : ''}
+                            ${mainTag ? `<span class="genre-tag">${genreIcon ? genreIcon + ' ' : ''}${escapeHtml(mainTag)}</span>` : ''}
+                            ${s.bitrate ? `<span class="bitrate-tag">${s.bitrate}k</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (filteredStations.length > 100) {
+                gridEl.insertAdjacentHTML('beforeend', `
+                    <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-tertiary);font-size:0.85rem;">
+                        Показано 100 из ${filteredStations.length}. Уточните фильтры.
+                    </div>
+                `);
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeAttr(str) {
+            return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        // ===== PLAY =====
+        function playStation(id) {
+            const station = allStations.find(s => s.id === id);
+            if (!station) return;
+
+            if (currentStation && currentStation.id === id) {
+                togglePlay();
+                return;
+            }
+
+            currentStation = station;
+            audio.src = station.url;
+            audio.volume = volumeSlider.value / 100;
+            audio.play().then(() => {
+                updatePlayerUI();
+                updatePlayingCards();
+                addToHistory(id);
+            }).catch(error => {
+                console.error('Ошибка воспроизведения:', error);
+                showToast('Не удалось воспроизвести станцию', 'error');
+                autoplayNext();
+            });
+        }
+
+        function autoplayNext() {
+            if (filteredStations.length < 2) return;
+            const idx = filteredStations.findIndex(s => s.id === currentStation?.id);
+            const next = filteredStations[(idx + 1) % filteredStations.length];
+            if (next && next.id !== currentStation?.id) {
+                showToast('Станция не работает, играем следующую...', 'info');
+                setTimeout(() => playStation(next.id), 800);
+            }
+        }
+
+        function togglePlay() {
+            if (!currentStation) return;
+            if (audio.paused) {
+                audio.play().catch(() => {
+                    showToast('Ошибка воспроизведения', 'error');
+                    autoplayNext();
+                });
+            } else {
+                audio.pause();
+            }
+        }
+
+        function stopRadio() {
+            audio.pause();
+            audio.src = '';
+            currentStation = null;
+            playerBar.classList.remove('visible');
+            updatePlayingCards();
+        }
+
+        function addToHistory(id) {
+            history = history.filter(h => h !== id);
+            history.unshift(id);
+            history = history.slice(0, 10);
+            localStorage.setItem('metro_radio_history', JSON.stringify(history));
+            updateCounts();
+        }
+
+        // ===== PLAYER UI =====
+        function updatePlayerUI() {
+            if (!currentStation) return;
+
+            playerBar.classList.add('visible');
+            playerName.textContent = currentStation.name;
+
+            const flag = COUNTRY_FLAGS[currentStation.countryCode] || '🌐';
+            const parts = [];
+            if (currentStation.country) parts.push(`${flag} ${currentStation.country}`);
+            if (currentStation.bitrate) parts.push(`${currentStation.bitrate} kbps`);
+            if (currentStation.codec) parts.push(currentStation.codec);
+            playerSub.textContent = parts.join(' · ') || '—';
+
+            const favicon = currentStation.favicon && currentStation.favicon.startsWith('http')
+                ? `<img src="${escapeAttr(currentStation.favicon)}" alt="" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-broadcast-tower\\'></i>';" />`
+                : '<i class="fas fa-broadcast-tower"></i>';
+            playerCover.innerHTML = favicon;
+
+            updatePlayIcon();
+        }
+
+        function updatePlayIcon() {
+            const icon = playBtn.querySelector('i');
+            icon.className = audio.paused ? 'fas fa-play' : 'fas fa-pause';
+        }
+
+        function updatePlayingCards() {
+            document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('playing'));
+            if (currentStation) {
+                const index = filteredStations.findIndex(s => s.id === currentStation.id);
+                if (index >= 0 && index < 100) {
+                    const card = gridEl.children[index];
+                    if (card) card.classList.add('playing');
+                }
+            }
+        }
+
+        // ===== AUDIO EVENTS =====
+        audio.addEventListener('play', updatePlayIcon);
+        audio.addEventListener('pause', updatePlayIcon);
+        audio.addEventListener('error', () => {
+            showToast('Ошибка воспроизведения', 'error');
+            autoplayNext();
+        });
+
+        // ===== VOLUME =====
+        volumeSlider.addEventListener('input', () => {
+            audio.volume = volumeSlider.value / 100;
+            updateMuteIcon();
+        });
+
+        function toggleMute() {
+            audio.muted = !audio.muted;
+            updateMuteIcon();
+        }
+
+        function updateMuteIcon() {
+            if (audio.muted || audio.volume === 0) muteBtn.className = 'fas fa-volume-mute';
+            else if (audio.volume < 0.5) muteBtn.className = 'fas fa-volume-down';
+            else muteBtn.className = 'fas fa-volume-up';
+        }
+
+        // ===== FAVORITES =====
+        function toggleFav(id) {
+            const idx = favorites.indexOf(id);
+            if (idx >= 0) {
+                favorites.splice(idx, 1);
+                showToast('Убрано из избранного', 'info');
+            } else {
+                favorites.push(id);
+                showToast('Добавлено в избранное ⭐', 'success');
+            }
+            localStorage.setItem('metro_radio_fav', JSON.stringify(favorites));
+            updateCounts();
+            renderGrid();
+        }
+
+        // ===== SHARE =====
+        function shareStation(id) {
+            const station = allStations.find(s => s.id === id);
+            if (!station) return;
+
+            const shareData = {
+                title: station.name,
+                text: `🎧 Слушаю ${station.name} на Metro New Radio`,
+                url: window.location.href + '#' + id
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).then(() => {
+                    showToast('Спасибо за репост! 🔗', 'success');
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(shareData.url).then(() => {
+                    showToast('Ссылка скопирована 🔗', 'success');
+                }).catch(() => {
+                    showToast('Не удалось скопировать', 'error');
+                });
+            }
+        }
+
+        // ===== REPORT =====
+        function reportStation(id) {
+            const station = allStations.find(s => s.id === id);
+            if (!station) return;
+
+            if (!confirm(`Скрыть «${station.name}»? Она больше не будет отображаться.`)) return;
+
+            hiddenStations.push(id);
+            localStorage.setItem('metro_radio_hidden', JSON.stringify(hiddenStations));
+
+            if (currentStation && currentStation.id === id) stopRadio();
+
+            allStations = allStations.filter(s => s.id !== id);
+            applyFilters();
+            showToast('Станция скрыта', 'info');
+        }
+
+        // ===== SAFE MODE =====
+        function toggleSafeMode() {
+            safeMode = !safeMode;
+            safeModeState.textContent = safeMode ? 'ВКЛ' : 'ВЫКЛ';
+            safeModeBtn.classList.toggle('active', safeMode);
+            localStorage.setItem('metro_radio_safe', safeMode ? 'on' : 'off');
+            applyFilters();
+            showToast(safeMode ? 'Safe-mode включён 🛡' : 'Safe-mode выключен', 'info');
+        }
+
+        // ===== COUNT =====
+        function updateCounts() {
+            favCount.textContent = favorites.length;
+            historyCount.textContent = history.length;
+        }
+
+        // ===== TABS =====
+        tabsEl.addEventListener('click', e => {
+            const tab = e.target.closest('.tab');
+            if (!tab) return;
+
+            tabsEl.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentTab = tab.dataset.tab;
+            applyFilters();
+        });
+
+        // ===== SEARCH =====
+        function handleSearch() {
+            searchQuery = searchInput.value.trim();
+            if (searchQuery) clearBtn.classList.add('visible');
+            else clearBtn.classList.remove('visible');
+            applyFilters();
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            searchQuery = '';
+            clearBtn.classList.remove('visible');
+            applyFilters();
+        }
+
+        // ===== RANDOM =====
+        function playRandom() {
+            if (filteredStations.length === 0) {
+                showToast('Нет станций для выбора', 'error');
+                return;
+            }
+            const random = filteredStations[Math.floor(Math.random() * filteredStations.length)];
+            playStation(random.id);
+        }
+
+        // ===== TOAST =====
+        function showToast(message, type = 'info', duration = 2500) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            toast.innerHTML = `
+                <i class="fas ${icons[type] || icons.info}"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), duration);
+        }
+
+        // ===== THEME =====
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+
+        function applyTheme(theme) { root.setAttribute('data-theme', theme); }
+
+        function getInitialTheme() {
+            const saved = localStorage.getItem(THEME_KEY);
+            if (saved === 'light' || saved === 'dark') return saved;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        // ===== BURGER =====
+        document.getElementById('burgerMenu').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // ===== DROPDOWN =====
+        document.getElementById('dropdownBtn').addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropdownOther').classList.toggle('open');
+        });
+
+        document.addEventListener('click', e => {
+            if (!document.getElementById('dropdownOther').contains(e.target)) {
+                document.getElementById('dropdownOther').classList.remove('open');
+            }
+        });
+
+        // ===== HOTKEYS =====
+        document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+            else if (e.key === 'm' || e.key === 'M') toggleMute();
+            else if (e.key === 'r' || e.key === 'R') playRandom();
+            else if (e.key === 's' || e.key === 'S') stopRadio();
+        });
+
+        // ===== YEAR =====
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ===== HASH =====
+        function checkHash() {
+            const hash = window.location.hash.slice(1);
+            if (hash && hash.length > 20) {
+                const station = allStations.find(s => s.id === hash);
+                if (station) {
+                    setTimeout(() => playStation(hash), 500);
+                }
+            }
+        }
+
+        // ===== GLOBAL =====
+        window.playStation = playStation;
+        window.togglePlay = togglePlay;
+        window.stopRadio = stopRadio;
+        window.toggleMute = toggleMute;
+        window.toggleFav = toggleFav;
+        window.shareStation = shareStation;
+        window.reportStation = reportStation;
+        window.toggleSafeMode = toggleSafeMode;
+        window.playRandom = playRandom;
+        window.handleSearch = handleSearch;
+        window.clearSearch = clearSearch;
+        window.toggleFiltersPanel = toggleFiltersPanel;
+        window.resetAllFilters = resetAllFilters;
+
+        // ===== INIT =====
+        loadStations().then(() => checkHash());
+        updateCounts();
+
+        console.log('📻 Мировое радио v2 загружено');
+        console.log('📌 API: radio-browser.info');
+        console.log('📌 Фильтры в панели поиска');
+    </script>
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Мировое радио — Metro New</title>
+
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta name="description" content="Мировое радио Metro New — радиостанции со всего мира. Поиск, фильтры, история, избранное." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kirill12633.github.io/Metro.New.Official/ru/tools/radio/" />
+
+    <meta property="og:title" content="Мировое радио — Metro New" />
+    <meta property="og:description" content="Слушайте радио со всего мира прямо на сайте Metro New." />
+    <meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <meta property="og:url" content="https://kirill12633.github.io/Metro.New.Official/ru/tools/radio/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Metro New" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Мировое радио — Metro New" />
+    <meta name="twitter:description" content="Слушайте радио со всего мира прямо на сайте Metro New." />
+    <meta name="twitter:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta name="permissions-policy" content="geolocation=(), microphone=(), camera=()" />
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --accent: #FFD700;
+            --accent-hover: #ffe14d;
+            --accent-light: rgba(255, 215, 0, 0.15);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --blue: #4d94ff;
+            --blue-hover: #7aacff;
+            --blue-light: rgba(77, 148, 255, 0.15);
+            --green: #34a853;
             --red: #f28b82;
             --red-light: rgba(242, 139, 130, 0.15);
             --border: #253460;
