@@ -43,7 +43,6 @@
 
     <!-- ===== Firebase SDK ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
 
     <style>
@@ -302,7 +301,7 @@
             gap: 8px;
             padding: 8px 22px;
             background: linear-gradient(135deg, var(--blue), var(--blue-hover));
-            border-radius: 50px;
+            border-radius: 999px;
             color: #fff !important;
             font-weight: 700;
             text-decoration: none;
@@ -773,7 +772,7 @@
 
         .filter-chip {
             padding: 6px 16px;
-            border-radius: 50px;
+            border-radius: 999px;
             border: 1px solid var(--border);
             background: transparent;
             color: var(--text-secondary);
@@ -840,7 +839,7 @@
             gap: 12px;
             background: var(--bg-card);
             border: 2px solid var(--border);
-            border-radius: 50px;
+            border-radius: 999px;
             padding: 6px 20px 6px 24px;
             transition: all 0.3s;
             box-shadow: var(--shadow);
@@ -1123,7 +1122,7 @@
             display: inline-block;
             padding: 2px 10px;
             background: var(--bg-secondary);
-            border-radius: 12px;
+            border-radius: 999px;
             font-weight: 500;
             border: 1px solid var(--border-light);
         }
@@ -1618,7 +1617,9 @@
                         </div>
                     </div>
 
-                    <button id="authBtn" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span></button>
+                    <a id="authBtn" class="login-btn" href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/">
+                        <i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>
+                    </a>
                 </div>
             </nav>
         </div>
@@ -1863,8 +1864,13 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
+
+        // ===== AUTH (вход по ссылке) =====
+        // Авторизация теперь происходит на отдельной странице:
+        // https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/
+        // Права администратора определяются через Firebase Firestore (коллекция admins)
+        // после возврата пользователя с страницы входа.
 
         // ===== STATE =====
         let currentUser = null;
@@ -1878,8 +1884,6 @@
         const toolsGrid = document.getElementById('toolsGrid');
         const skeletonGrid = document.getElementById('skeletonGrid');
         const adminPanel = document.getElementById('adminPanel');
-        const authBtn = document.getElementById('authBtn');
-        const authText = document.getElementById('authText');
         const modalOverlay = document.getElementById('modalOverlay');
         const toolForm = document.getElementById('toolForm');
         const editId = document.getElementById('editId');
@@ -1892,53 +1896,6 @@
         const totalCount = document.getElementById('totalCount');
         const filterChips = document.querySelectorAll('.filter-chip');
         const sortSelect = document.getElementById('sortSelect');
-
-        // ===== AUTH =====
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-
-            if (user) {
-                try {
-                    const doc = await db.collection('admins').doc(user.uid).get();
-                    isAdmin = doc.exists;
-
-                    if (isAdmin) {
-                        authText.textContent = 'Админ';
-                        authBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span id="authText">Выйти</span>`;
-                        adminPanel.classList.add('visible');
-                        loadTools();
-                    } else {
-                        authText.textContent = 'Войти';
-                        authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
-                        adminPanel.classList.remove('visible');
-                        loadTools();
-                    }
-                } catch (error) {
-                    console.error('Ошибка проверки прав:', error);
-                    isAdmin = false;
-                    adminPanel.classList.remove('visible');
-                    loadTools();
-                }
-            } else {
-                authText.textContent = 'Войти';
-                authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
-                adminPanel.classList.remove('visible');
-                loadTools();
-            }
-        });
-
-        authBtn.addEventListener('click', () => {
-            if (currentUser) {
-                auth.signOut();
-            } else {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account' });
-                auth.signInWithPopup(provider).catch(error => {
-                    console.error('Ошибка входа:', error);
-                    showToast('Ошибка входа: ' + error.message, 'error');
-                });
-            }
-        });
 
         // ===== LOAD TOOLS =====
         async function loadTools() {
@@ -2175,7 +2132,7 @@
 
         // ===== SAVE ORDER =====
         async function saveOrder() {
-            if (!isAdmin || !currentUser) {
+            if (!isAdmin) {
                 showToast('Только для администраторов', 'error');
                 return;
             }
@@ -2396,7 +2353,7 @@
         // ===== SAVE TOOL =====
         async function saveTool(e) {
             e.preventDefault();
-            if (!isAdmin || !currentUser) {
+            if (!isAdmin) {
                 showToast('Только для администраторов', 'error');
                 return;
             }
@@ -2450,7 +2407,7 @@
 
         // ===== DELETE TOOL =====
         async function deleteTool(id) {
-            if (!isAdmin || !currentUser) return;
+            if (!isAdmin) return;
             if (!confirm('Удалить этот инструмент?')) return;
 
             try {
@@ -2467,7 +2424,7 @@
 
         // ===== RESET TOOLS =====
         async function resetTools() {
-            if (!isAdmin || !currentUser) return;
+            if (!isAdmin) return;
             if (!confirm('⚠️ Удалить все инструменты и создать стандартный набор?')) return;
 
             try {
@@ -2636,9 +2593,14 @@
         loadTools();
 
         console.log('🛠️ Страница инструментов с админ-панелью загружена');
-        console.log('📌 Firebase подключён, авторизация через Google');
-        console.log('📌 Для входа как админ: добавьте uid в коллекцию "admins"');
+        console.log('📌 Firebase Firestore подключён');
+        console.log('📌 Вход по ссылке: /ru/auth/signup/');
     </script>
 
+    <!-- ===== ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ ===== -->
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
 </body>
 </html>
