@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Трансляции — Metro New International</title>
+
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta name="description" content="Metro New International — live-трансляции проекта." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kirill12633.github.io/Metro.New.Official/ru/broadcasts/" />
+
+    <meta property="og:title" content="Трансляции — Metro New International" />
+    <meta property="og:description" content="Live-трансляции проекта Metro New." />
+    <meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <meta property="og:url" content="https://kirill12633.github.io/Metro.New.Official/ru/broadcasts/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Metro New" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Трансляции — Metro New International" />
+    <meta name="twitter:description" content="Live-трансляции проекта Metro New." />
+    <meta name="twitter:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta name="permissions-policy" content="geolocation=(), microphone=(), camera=()" />
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --accent: #FFD700;
+            --accent-hover: #ffe14d;
+            --accent-light: rgba(255, 215, 0, 0.15);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --blue: #4d94ff;
+            --blue-hover: #7aacff;
+            --blue-light: rgba(77, 148, 255, 0.15);
+            --green: #34a853;
+            --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82;
+            --red-light: rgba(242, 139, 130, 0.15);
+            --border: #253460;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+            --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+            --input-bg: #182444;
+            --input-border: #253460;
+            --scrollbar-thumb: #2d3d6b;
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f6fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #eef1f9;
+            --text-primary: #14151f;
+            --text-secondary: #565f7a;
+            --text-tertiary: #8890a8;
+            --accent: #e6c200;
+            --accent-hover: #c2a300;
+            --accent-light: rgba(230, 194, 0, 0.12);
+            --accent-glow: rgba(230, 194, 0, 0.18);
+            --blue: #0066CC;
+            --blue-hover: #0052a3;
+            --blue-light: rgba(0, 102, 204, 0.1);
+            --green: #1e8e4e;
+            --red: #d93025;
+            --red-light: rgba(217, 48, 37, 0.1);
+            --border: #e2e6f0;
+            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
+            --shadow-xl: 0 24px 60px rgba(20, 22, 40, 0.16);
+            --input-bg: #f4f6fb;
+            --input-border: #e2e6f0;
+            --scrollbar-thumb: #d1d6e6;
+            color-scheme: light;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--blue) 8%, transparent) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        .container { width: 92%; max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* ===== HEADER ===== */
+        header {
+            background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        .nav-links>a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .nav-links>a:hover {
+            color: var(--text-primary);
+            background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+        }
+
+        .nav-links>a.active {
+            color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 8%, transparent);
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+
+        .theme-toggle .fa-sun { opacity: 0; transform: rotate(90deg) scale(0.3); }
+        [data-theme="light"] .theme-toggle .fa-sun { opacity: 1; transform: rotate(0deg) scale(1); color: var(--accent); }
+        [data-theme="light"] .theme-toggle .fa-moon { opacity: 0; transform: rotate(-90deg) scale(0.3); }
+
+        .login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 22px;
+            background: linear-gradient(135deg, var(--blue), var(--blue-hover));
+            border-radius: 999px;
+            color: #fff !important;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(77, 148, 255, 0.3);
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 35px rgba(77, 148, 255, 0.4); }
+
+        .burger-menu {
+            display: none;
+            font-size: 1.6rem;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .dropdown { position: relative; }
+
+        .dropdown>button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown>button:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .dropdown>button i { font-size: 0.7rem; transition: transform 0.25s; }
+        .dropdown.open>button i { transform: rotate(180deg); }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-width: 200px;
+            padding: 8px 0;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .dropdown.open .dropdown-content { display: block; }
+
+        .dropdown-content a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-content a i { width: 20px; color: var(--accent); }
+        .dropdown-content a:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+        /* ===== ADMIN PANEL ===== */
+        .admin-panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .admin-panel.visible { display: block; }
+
+        .admin-panel .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .admin-panel h2 {
+            font-size: 1.3rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-controls { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        .admin-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--accent); color: #14151f; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 20px var(--accent-glow); }
+
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:hover { background: #d93025; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(242, 139, 130, 0.3); }
+
+        .admin-status {
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .admin-status .highlight { color: var(--accent); font-weight: 600; }
+
+        /* Кнопки админа на карточке */
+        .broadcast-card .admin-actions {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .admin-panel.visible .broadcast-card .admin-actions { display: flex; }
+
+        .broadcast-card .admin-actions button {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+        }
+
+        .broadcast-card .admin-actions .edit-btn:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .broadcast-card .admin-actions .delete-btn:hover {
+            background: var(--red-light);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        /* ===== PAGE ===== */
+        .page { padding: 30px 0 50px; }
+
+        .page-header { text-align: center; margin-bottom: 30px; }
+
+        .page-header .translit {
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            font-weight: 500;
+            letter-spacing: 3px;
+            color: var(--text-secondary);
+            text-transform: lowercase;
+            margin-bottom: 10px;
+            opacity: 0.85;
+        }
+
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+
+        /* ===== SEARCH ===== */
+        .search-tools { max-width: 600px; margin: 0 auto 20px; position: relative; }
+
+        .search-tools .search-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 20px 6px 24px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .search-tools .search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-lg);
+        }
+
+        .search-tools .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-tools .search-box input::placeholder { color: var(--text-tertiary); }
+
+        .search-tools .search-box button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 6px;
+        }
+
+        .search-tools .search-box button:hover { color: var(--accent); }
+
+        .search-tools .search-box .clear-btn { display: none; }
+        .search-tools .search-box .clear-btn.visible { display: block; }
+        .search-tools .search-box .clear-btn:hover { color: var(--red); }
+
+        .search-stats { text-align: center; margin-top: 12px; font-size: 0.85rem; color: var(--text-tertiary); }
+
+        /* ===== LIST ===== */
+        .broadcasts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .broadcast-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 22px 24px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .broadcast-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .broadcast-card:hover {
+            transform: translateX(6px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 40px var(--accent-glow);
+        }
+
+        .broadcast-card:hover::before { opacity: 1; }
+
+        .broadcast-card.is-live {
+            border-color: var(--red);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 139, 130, 0.08) 100%);
+        }
+
+        .broadcast-card.is-live::before {
+            background: var(--red);
+            opacity: 1;
+            animation: pulseLive 1.5s infinite;
+        }
+
+        @keyframes pulseLive {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .broadcast-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius);
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: var(--accent);
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .broadcast-card:hover .broadcast-icon {
+            transform: scale(1.1) rotate(-5deg);
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .broadcast-card.is-live .broadcast-icon {
+            background: var(--red-light);
+            color: var(--red);
+        }
+
+        .broadcast-info { min-width: 0; }
+
+        .broadcast-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .broadcast-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .broadcast-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .broadcast-meta span { display: inline-flex; align-items: center; gap: 6px; }
+        .broadcast-meta i { color: var(--accent); font-size: 0.75rem; }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            background: var(--red);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            animation: pulseBadge 1.5s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(242, 139, 130, 0.7); }
+            50% { box-shadow: 0 0 0 8px rgba(242, 139, 130, 0); }
+        }
+
+        .live-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+
+        .planned-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            background: var(--blue-light);
+            color: var(--blue);
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid var(--blue);
+        }
+
+        .ended-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+        }
+
+        .broadcast-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .btn-watch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--red), #d93025);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(242, 139, 130, 0.3);
+        }
+
+        .btn-watch:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(242, 139, 130, 0.5); }
+
+        .btn-details {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .btn-details:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+        /* ===== EMPTY ===== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-xl);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-state h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p { font-size: 0.95rem; color: var(--text-tertiary); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            max-width: 720px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.9) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .modal-header h3 i { color: var(--accent); }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover { color: var(--red); }
+
+        /* Form */
+        .modal form { display: flex; flex-direction: column; gap: 14px; }
+
+        .modal form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal form .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .modal form label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .modal form label .req { color: var(--red); }
+
+        .modal form input,
+        .modal form textarea,
+        .modal form select {
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .modal form input:focus,
+        .modal form textarea:focus,
+        .modal form select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .modal form textarea { resize: vertical; min-height: 80px; }
+
+        .modal form .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .modal form .form-actions button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 999px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex: 1;
+            min-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal form .form-actions .btn-submit {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .modal form .form-actions .btn-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .modal form .form-actions .btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .modal form .form-actions .btn-cancel:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+        /* Details */
+        .details-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--accent);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .details-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .details-item .icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .details-item .info { display: flex; flex-direction: column; min-width: 0; }
+
+        .details-item .label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .details-item .value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .modal-actions button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 999px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+            min-width: 140px;
+        }
+
+        .btn-watch-large {
+            background: linear-gradient(135deg, var(--red), #d93025);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(242, 139, 130, 0.3);
+        }
+
+        .btn-watch-large:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(242, 139, 130, 0.5); }
+
+        .btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-cancel:hover { border-color: var(--accent) !important; color: var(--accent); }
+
+        /* Player */
+        .player-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            max-width: 960px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalIn 0.25s ease;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .player-header h3 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .player-frame iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .player-info {
+            margin-top: 16px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .player-info span { display: inline-flex; align-items: center; gap: 8px; }
+        .player-info i { color: var(--accent); }
+
+        /* ===== LANGUAGES ===== */
+        .languages-section {
+            margin-top: 20px;
+            padding: 28px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .languages-section h3 {
+            font-size: 1.15rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .languages-section p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
+
+        .lang-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+
+        .lang-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .lang-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .lang-chip.active {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .lang-chip .flag { font-size: 1.1rem; line-height: 1; }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 44px 0 28px;
+            margin-top: 40px;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .footer-brand { display: flex; flex-direction: column; gap: 16px; }
+        .footer-brand .logo-icon { width: 60px; height: 60px; }
+
+        .footer-brand .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-brand p { color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; }
+
+        .footer-social { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+        .footer-social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: all 0.25s;
+            text-decoration: none;
+        }
+
+        .footer-social a:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .footer-social a img.social-icon-img {
+            width: 20px;
+            height: 20px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .footer-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        .footer-col h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 6px; }
+
+        .footer-col ul a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .footer-col ul a:hover { color: var(--accent); }
+        .footer-col ul a i { width: 16px; font-size: 0.8rem; }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== ADAPTIVE ===== */
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 16px;
+                margin-top: 10px;
+                gap: 4px;
+            }
+
+            .nav-links.active { display: flex; }
+            .nav-links>a { padding: 10px 14px; width: 100%; }
+            .dropdown { width: 100%; }
+            .dropdown>button { width: 100%; justify-content: flex-start; padding: 10px 14px; }
+            .dropdown-content { position: static; border: none; background: color-mix(in srgb, var(--text-primary) 4%, transparent); box-shadow: none; padding: 0 0 0 16px; margin-top: 4px; }
+            .nav-right { order: -1; }
+
+            .broadcast-card { grid-template-columns: auto 1fr; gap: 14px; }
+
+            .broadcast-actions { grid-column: 1 / -1; justify-content: stretch; }
+            .broadcast-actions button { flex: 1; justify-content: center; }
+
+            .admin-panel .admin-header { flex-direction: column; align-items: stretch; }
+            .admin-controls { flex-direction: column; }
+            .admin-controls button { width: 100%; justify-content: center; }
+
+            .footer-top { grid-template-columns: 1fr; }
+            .footer-links { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .broadcast-card { padding: 18px; }
+            .broadcast-icon { width: 44px; height: 44px; font-size: 1.3rem; }
+            .broadcast-title { font-size: 1rem; }
+            .footer-links { grid-template-columns: 1fr; }
+            .page-header .translit { font-size: 0.85rem; letter-spacing: 2px; }
+            .details-grid { grid-template-columns: 1fr; }
+            .modal { padding: 20px; }
+            .modal form .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">
+                            <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                        </span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+
+                <div class="nav-right">
+                    <button class="burger-menu" id="burgerMenu" aria-label="Открыть меню">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/">Инструменты</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/broadcasts/" class="active">Трансляции</a>
+
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Прочее <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                        </div>
+                    </div>
+
+                    <button id="authBtn" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span></button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+        <div class="container">
+            <section class="page">
+
+                <div class="page-header">
+                    <div class="translit">metro new international</div>
+                    <h1><i class="fas fa-satellite-dish"></i> Трансляции</h1>
+                    <p>Live-стримы и записи проекта Metro New International. Смотрите в прямом эфире или в записи.</p>
+                </div>
+
+                <!-- ===== ADMIN PANEL ===== -->
+                <div class="admin-panel" id="adminPanel">
+                    <div class="admin-header">
+                        <h2><i class="fas fa-crown"></i> Панель управления</h2>
+                        <div class="admin-controls">
+                            <button class="btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить трансляцию</button>
+                            <button class="btn-danger" onclick="resetAll()"><i class="fas fa-undo"></i> Очистить всё</button>
+                        </div>
+                    </div>
+                    <div class="admin-status" id="adminStatus">
+                        <i class="fas fa-info-circle"></i> Вы вошли как администратор. <span class="highlight">Добавляйте, редактируйте и удаляйте трансляции.</span>
+                    </div>
+                </div>
+
+                <div class="search-tools">
+                    <div class="search-box">
+                        <i class="fas fa-search" style="color: var(--text-tertiary);"></i>
+                        <input type="text" id="searchInput" placeholder="Поиск трансляций..." oninput="handleSearch()">
+                        <button class="clear-btn" id="clearSearch" onclick="clearSearch()" aria-label="Очистить">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="search-stats">
+                        Показано <span id="visibleCount">0</span> из <span id="totalCount">0</span> трансляций
+                    </div>
+                </div>
+
+                <div class="broadcasts-list" id="broadcastsList"></div>
+
+                <div class="languages-section">
+                    <h3><i class="fas fa-globe"></i> Языки трансляций</h3>
+                    <p>Metro New International вещает на нескольких языках. Выберите язык для фильтрации.</p>
+                    <div class="lang-grid" id="langGrid">
+                        <button class="lang-chip active" data-lang="all"><span class="flag">🌐</span> Все языки</button>
+                        <button class="lang-chip" data-lang="ru"><span class="flag">🇷🇺</span> Русский</button>
+                        <button class="lang-chip" data-lang="en"><span class="flag">🇬🇧</span> English</button>
+                        <button class="lang-chip" data-lang="de"><span class="flag">🇩🇪</span> Deutsch</button>
+                        <button class="lang-chip" data-lang="fr"><span class="flag">🇫🇷</span> Français</button>
+                        <button class="lang-chip" data-lang="es"><span class="flag">🇪🇸</span> Español</button>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- ===== PLAYER MODAL ===== -->
+    <div class="modal-overlay" id="playerOverlay">
+        <div class="player-modal">
+            <div class="player-header">
+                <h3 id="playerTitle"><i class="fas fa-tv"></i> Трансляция</h3>
+                <button class="modal-close" onclick="closePlayer()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="player-frame">
+                <iframe id="playerIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div class="player-info" id="playerInfo"></div>
+        </div>
+    </div>
+
+    <!-- ===== DETAILS MODAL ===== -->
+    <div class="modal-overlay" id="detailsOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="detailsTitle"><i class="fas fa-info-circle"></i> Подробнее</h3>
+                <button class="modal-close" onclick="closeDetails()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="detailsBody"></div>
+            <div class="modal-actions" id="detailsActions"></div>
+        </div>
+    </div>
+
+    <!-- ===== EDIT MODAL ===== -->
+    <div class="modal-overlay" id="editOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="editTitle"><i class="fas fa-plus"></i> Добавить трансляцию</h3>
+                <button class="modal-close" onclick="closeEdit()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editForm" onsubmit="saveBroadcast(event)">
+                <input type="hidden" id="editId" value="">
+
+                <div class="form-group">
+                    <label for="fTitle">Название <span class="req">*</span></label>
+                    <input type="text" id="fTitle" placeholder="Metro New International #12" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="fDesc">Описание</label>
+                    <textarea id="fDesc" placeholder="Краткое описание трансляции"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fDate">Дата <span class="req">*</span></label>
+                        <input type="text" id="fDate" placeholder="16.09.2026" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="fTime">Время</label>
+                        <input type="text" id="fTime" placeholder="19:00 МСК" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fStatus">Статус <span class="req">*</span></label>
+                        <select id="fStatus" required>
+                            <option value="planned">📅 Запланировано</option>
+                            <option value="live">🔴 В эфире (LIVE)</option>
+                            <option value="ended">✅ Завершено</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fLang">Язык <span class="req">*</span></label>
+                        <select id="fLang" required>
+                            <option value="ru">🇷🇺 Русский</option>
+                            <option value="en">🇬🇧 English</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                            <option value="pt">🇵🇹 Português</option>
+                            <option value="pl">🇵🇱 Polski</option>
+                            <option value="tr">🇹🇷 Türkçe</option>
+                            <option value="uk">🇺🇦 Українська</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fYoutube">YouTube ID <span class="req">*</span></label>
+                    <input type="text" id="fYoutube" placeholder="dQw4w9WgXcQ (часть ссылки после v=)" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="fOrder">Порядок (число, больше = выше)</label>
+                    <input type="number" id="fOrder" placeholder="0" value="0" />
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit"><i class="fas fa-save"></i> <span id="submitBtnText">Сохранить</span></button>
+                    <button type="button" class="btn-cancel" onclick="closeEdit()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-icon">
+                        <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                    </div>
+                    <div class="brand-name">Метро New</div>
+                    <p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+                    <div class="footer-social">
+                        <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
+                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
+                        </a>
+                        <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>О нас</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Команда</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Документы</h4>
+                        <ul>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Конфиденциальность</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Соглашение</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Авторские права</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Контакты</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Обратная связь</a></li>
+                            <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Поддержка</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Полезное</h4>
+                        <ul>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-tools"></i> Инструменты</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/broadcasts/"><i class="fas fa-satellite-dish"></i> Трансляции</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a></li>
+                            <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© <span id="currentYear"></span> Metro New. Все права защищены.</p>
+                <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ===== FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+            authDomain: "metro-new-admin.firebaseapp.com",
+            projectId: "metro-new-admin",
+            storageBucket: "metro-new-admin.firebasestorage.app",
+            messagingSenderId: "769002010414",
+            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const COLLECTION = 'metronew_int_live';
+
+        // ===== STATE =====
+        let currentUser = null;
+        let isAdmin = false;
+        let broadcastsData = [];
+        let currentLang = 'all';
+        let searchQuery = '';
+
+        // ===== DOM =====
+        const listEl = document.getElementById('broadcastsList');
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearch');
+        const visibleCount = document.getElementById('visibleCount');
+        const totalCount = document.getElementById('totalCount');
+        const playerOverlay = document.getElementById('playerOverlay');
+        const playerIframe = document.getElementById('playerIframe');
+        const playerTitle = document.getElementById('playerTitle');
+        const playerInfo = document.getElementById('playerInfo');
+        const detailsOverlay = document.getElementById('detailsOverlay');
+        const detailsTitle = document.getElementById('detailsTitle');
+        const detailsBody = document.getElementById('detailsBody');
+        const detailsActions = document.getElementById('detailsActions');
+        const editOverlay = document.getElementById('editOverlay');
+        const editTitle = document.getElementById('editTitle');
+        const editForm = document.getElementById('editForm');
+        const editId = document.getElementById('editId');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminStatus = document.getElementById('adminStatus');
+        const authBtn = document.getElementById('authBtn');
+        const authText = document.getElementById('authText');
+        const langGrid = document.getElementById('langGrid');
+
+        const LANG_FLAGS = {
+            ru: '🇷🇺', en: '🇬🇧', de: '🇩🇪', fr: '🇫🇷', es: '🇪🇸',
+            it: '🇮🇹', pt: '🇵🇹', pl: '🇵🇱', tr: '🇹🇷', uk: '🇺🇦'
+        };
+
+        const LANG_NAMES = {
+            ru: 'Русский', en: 'English', de: 'Deutsch', fr: 'Français',
+            es: 'Español', it: 'Italiano', pt: 'Português', pl: 'Polski',
+            tr: 'Türkçe', uk: 'Українська'
+        };
+
+        // ===== AUTH =====
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+
+            if (user) {
+                try {
+                    const doc = await db.collection('admins').doc(user.uid).get();
+                    isAdmin = doc.exists;
+
+                    if (isAdmin) {
+                        authText.textContent = 'Админ';
+                        authBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> <span id="authText">Выйти</span>`;
+                        adminPanel.classList.add('visible');
+                    } else {
+                        authText.textContent = 'Войти';
+                        authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
+                        adminPanel.classList.remove('visible');
+                    }
+                    loadBroadcasts();
+                } catch (error) {
+                    console.error('Ошибка проверки прав:', error);
+                    isAdmin = false;
+                    adminPanel.classList.remove('visible');
+                    loadBroadcasts();
+                }
+            } else {
+                isAdmin = false;
+                authText.textContent = 'Войти';
+                authBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="authText">Войти</span>`;
+                adminPanel.classList.remove('visible');
+                loadBroadcasts();
+            }
+        });
+
+        authBtn.addEventListener('click', () => {
+            if (currentUser) {
+                auth.signOut();
+            } else {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                auth.signInWithPopup(provider).catch(error => {
+                    console.error('Ошибка входа:', error);
+                    showToast('Ошибка входа: ' + error.message, 'error');
+                });
+            }
+        });
+
+        // ===== LOAD =====
+        async function loadBroadcasts() {
+            try {
+                const snapshot = await db.collection(COLLECTION).orderBy('order', 'desc').get();
+
+                broadcastsData = [];
+                snapshot.forEach(doc => {
+                    broadcastsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                broadcastsData.sort((a, b) => {
+                    const order = { live: 0, planned: 1, ended: 2 };
+                    const ao = order[a.status] ?? 3;
+                    const bo = order[b.status] ?? 3;
+                    if (ao !== bo) return ao - bo;
+                    return (b.order ?? 0) - (a.order ?? 0);
+                });
+
+                renderBroadcasts();
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                broadcastsData = [];
+                renderBroadcasts();
+            }
+        }
+
+        // ===== RENDER =====
+        function renderBroadcasts() {
+            let filtered = [...broadcastsData];
+
+            if (currentLang !== 'all') {
+                filtered = filtered.filter(b => b.language === currentLang);
+            }
+
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(b =>
+                    (b.title || '').toLowerCase().includes(q) ||
+                    (b.description || '').toLowerCase().includes(q) ||
+                    (b.date || '').toLowerCase().includes(q)
+                );
+            }
+
+            totalCount.textContent = broadcastsData.length;
+            visibleCount.textContent = filtered.length;
+
+            if (broadcastsData.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-satellite-dish"></i>
+                        <h3>Трансляций пока нет</h3>
+                        <p>Здесь появятся live-стримы и записи проекта Metro New International.</p>
+                        ${isAdmin ? '<p style="margin-top:10px;color:var(--accent);font-weight:600;">Нажмите «Добавить трансляцию» выше</p>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте изменить поиск или выбрать другой язык.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = filtered.map((b, i) => renderCard(b, i)).join('');
+        }
+
+        function renderCard(b, index) {
+            const isLive = b.status === 'live';
+            const isPlanned = b.status === 'planned';
+            const flag = LANG_FLAGS[b.language] || '🌐';
+
+            const statusBadge = isLive
+                ? `<span class="live-badge"><span class="dot"></span> LIVE</span>`
+                : isPlanned
+                    ? `<span class="planned-badge"><i class="fas fa-clock"></i> Скоро</span>`
+                    : `<span class="ended-badge"><i class="fas fa-check"></i> Завершено</span>`;
+
+            const icon = isLive ? '📡' : isPlanned ? '📅' : '📺';
+
+            return `
+                <div class="broadcast-card ${isLive ? 'is-live' : ''}" style="animation-delay: ${index * 0.05}s;">
+                    ${isAdmin ? `
+                        <div class="admin-actions">
+                            <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('${b.id}')" title="Редактировать">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteBroadcast('${b.id}')" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                    <div class="broadcast-icon">${icon}</div>
+                    <div class="broadcast-info">
+                        <div class="broadcast-title">
+                            ${escapeHtml(b.title || 'Без названия')}
+                            ${statusBadge}
+                        </div>
+                        <div class="broadcast-desc">${escapeHtml(b.description || '')}</div>
+                        <div class="broadcast-meta">
+                            <span><i class="fas fa-calendar"></i> ${escapeHtml(b.date || '—')}</span>
+                            ${b.time ? `<span><i class="fas fa-clock"></i> ${escapeHtml(b.time)}</span>` : ''}
+                            <span><i class="fas fa-globe"></i> ${flag} ${(b.language || 'ru').toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="broadcast-actions">
+                        <button class="btn-watch" onclick="openPlayer('${b.id}')">
+                            <i class="fas fa-play"></i> Смотреть
+                        </button>
+                        <button class="btn-details" onclick="openDetails('${b.id}')">
+                            <i class="fas fa-info-circle"></i> Подробнее
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ===== PLAYER =====
+        function openPlayer(id) {
+            const item = broadcastsData.find(b => b.id === id);
+            if (!item) return;
+
+            if (!item.youtubeId) {
+                showToast('У этой трансляции нет видео', 'error');
+                return;
+            }
+
+            const embedUrl = `https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&rel=0`;
+            playerIframe.src = embedUrl;
+            playerTitle.innerHTML = `<i class="fas fa-tv"></i> ${escapeHtml(item.title)}`;
+            playerInfo.innerHTML = `
+                <span><i class="fas fa-calendar"></i> ${escapeHtml(item.date || '—')}</span>
+                ${item.time ? `<span><i class="fas fa-clock"></i> ${escapeHtml(item.time)}</span>` : ''}
+                <span><i class="fas fa-globe"></i> ${(item.language || 'ru').toUpperCase()}</span>
+            `;
+            playerOverlay.classList.add('active');
+        }
+
+        function closePlayer() {
+            playerOverlay.classList.remove('active');
+            playerIframe.src = '';
+        }
+
+        playerOverlay.addEventListener('click', e => {
+            if (e.target === playerOverlay) closePlayer();
+        });
+
+        // ===== DETAILS =====
+        function openDetails(id) {
+            const item = broadcastsData.find(b => b.id === id);
+            if (!item) return;
+
+            const isLive = item.status === 'live';
+            const isPlanned = item.status === 'planned';
+
+            const statusText = isLive ? '🔴 LIVE'
+                : isPlanned ? '📅 Запланировано'
+                : '✅ Завершено';
+
+            const flag = LANG_FLAGS[item.language] || '🌐';
+            const langName = LANG_NAMES[item.language] || (item.language || 'ru').toUpperCase();
+
+            detailsTitle.innerHTML = `<i class="fas fa-info-circle"></i> ${escapeHtml(item.title || 'Трансляция')}`;
+
+            detailsBody.innerHTML = `
+                ${item.description ? `<div class="details-desc">${escapeHtml(item.description)}</div>` : ''}
+                <div class="details-grid">
+                    <div class="details-item">
+                        <div class="icon"><i class="fas fa-signal"></i></div>
+                        <div class="info">
+                            <span class="label">Статус</span>
+                            <span class="value">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="details-item">
+                        <div class="icon"><i class="fas fa-calendar"></i></div>
+                        <div class="info">
+                            <span class="label">Дата</span>
+                            <span class="value">${escapeHtml(item.date || '—')}</span>
+                        </div>
+                    </div>
+                    <div class="details-item">
+                        <div class="icon"><i class="fas fa-clock"></i></div>
+                        <div class="info">
+                            <span class="label">Время</span>
+                            <span class="value">${escapeHtml(item.time || '—')}</span>
+                        </div>
+                    </div>
+                    <div class="details-item">
+                        <div class="icon"><i class="fas fa-globe"></i></div>
+                        <div class="info">
+                            <span class="label">Язык</span>
+                            <span class="value">${flag} ${langName}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            detailsActions.innerHTML = `
+                ${item.youtubeId ? `
+                    <button class="btn-watch-large" onclick="closeDetails(); openPlayer('${item.id}')">
+                        <i class="fas fa-play"></i> Смотреть
+                    </button>
+                ` : ''}
+                <button class="btn-cancel" onclick="closeDetails()">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            `;
+
+            detailsOverlay.classList.add('active');
+        }
+
+        function closeDetails() { detailsOverlay.classList.remove('active'); }
+
+        detailsOverlay.addEventListener('click', e => {
+            if (e.target === detailsOverlay) closeDetails();
+        });
+
+        // ===== EDIT MODAL =====
+        function openAddModal() {
+            if (!isAdmin) {
+                showToast('Только для администраторов', 'error');
+                return;
+            }
+            editId.value = '';
+            editTitle.innerHTML = '<i class="fas fa-plus"></i> Добавить трансляцию';
+            submitBtnText.textContent = 'Сохранить';
+            document.getElementById('fTitle').value = '';
+            document.getElementById('fDesc').value = '';
+            document.getElementById('fDate').value = '';
+            document.getElementById('fTime').value = '';
+            document.getElementById('fStatus').value = 'planned';
+            document.getElementById('fLang').value = 'ru';
+            document.getElementById('fYoutube').value = '';
+            document.getElementById('fOrder').value = '0';
+            editOverlay.classList.add('active');
+        }
+
+        function openEditModal(id) {
+            if (!isAdmin) return;
+            const item = broadcastsData.find(b => b.id === id);
+            if (!item) return;
+
+            editId.value = id;
+            editTitle.innerHTML = '<i class="fas fa-pen"></i> Редактировать трансляцию';
+            submitBtnText.textContent = 'Обновить';
+            document.getElementById('fTitle').value = item.title || '';
+            document.getElementById('fDesc').value = item.description || '';
+            document.getElementById('fDate').value = item.date || '';
+            document.getElementById('fTime').value = item.time || '';
+            document.getElementById('fStatus').value = item.status || 'planned';
+            document.getElementById('fLang').value = item.language || 'ru';
+            document.getElementById('fYoutube').value = item.youtubeId || '';
+            document.getElementById('fOrder').value = item.order ?? 0;
+            editOverlay.classList.add('active');
+        }
+
+        function closeEdit() { editOverlay.classList.remove('active'); }
+
+        editOverlay.addEventListener('click', e => {
+            if (e.target === editOverlay) closeEdit();
+        });
+
+        // ===== SAVE =====
+        async function saveBroadcast(e) {
+            e.preventDefault();
+            if (!isAdmin) {
+                showToast('Только для администраторов', 'error');
+                return;
+            }
+
+            const id = editId.value;
+            const data = {
+                title: document.getElementById('fTitle').value.trim(),
+                description: document.getElementById('fDesc').value.trim(),
+                date: document.getElementById('fDate').value.trim(),
+                time: document.getElementById('fTime').value.trim(),
+                status: document.getElementById('fStatus').value,
+                language: document.getElementById('fLang').value,
+                youtubeId: document.getElementById('fYoutube').value.trim(),
+                order: Number(document.getElementById('fOrder').value) || 0,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (!data.title || !data.date || !data.youtubeId) {
+                showToast('Заполните все обязательные поля', 'error');
+                return;
+            }
+
+            try {
+                if (id) {
+                    await db.collection(COLLECTION).doc(id).update(data);
+                    showToast('✅ Трансляция обновлена!', 'success');
+                } else {
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection(COLLECTION).add(data);
+                    showToast('✅ Трансляция добавлена!', 'success');
+                }
+                closeEdit();
+                loadBroadcasts();
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showToast('❌ Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        // ===== DELETE =====
+        async function deleteBroadcast(id) {
+            if (!isAdmin) return;
+            if (!confirm('Удалить эту трансляцию?')) return;
+
+            try {
+                await db.collection(COLLECTION).doc(id).delete();
+                showToast('🗑️ Трансляция удалена', 'success');
+                loadBroadcasts();
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                showToast('❌ Ошибка удаления', 'error');
+            }
+        }
+
+        // ===== RESET =====
+        async function resetAll() {
+            if (!isAdmin) return;
+            if (!confirm('⚠️ Удалить ВСЕ трансляции? Это действие нельзя отменить.')) return;
+
+            try {
+                const snapshot = await db.collection(COLLECTION).get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                showToast('🔄 Все трансляции удалены', 'success');
+                loadBroadcasts();
+            } catch (error) {
+                console.error('Ошибка сброса:', error);
+                showToast('❌ Ошибка сброса', 'error');
+            }
+        }
+
+        // ===== SEARCH =====
+        function handleSearch() {
+            searchQuery = searchInput.value.trim();
+            if (searchQuery) clearBtn.classList.add('visible');
+            else clearBtn.classList.remove('visible');
+            renderBroadcasts();
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            searchQuery = '';
+            clearBtn.classList.remove('visible');
+            renderBroadcasts();
+            searchInput.focus();
+        }
+
+        // ===== LANG FILTER =====
+        langGrid.addEventListener('click', e => {
+            const chip = e.target.closest('.lang-chip');
+            if (!chip) return;
+
+            langGrid.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentLang = chip.dataset.lang;
+            renderBroadcasts();
+        });
+
+        // ===== TOAST =====
+        function showToast(message, type = 'info', duration = 3000) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            toast.innerHTML = `
+                <i class="fas ${icons[type] || icons.info}"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '24px',
+                right: '24px',
+                padding: '14px 20px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                color: 'var(--text-primary)',
+                fontFamily: 'Montserrat, sans-serif',
+                fontSize: '0.9rem',
+                boxShadow: 'var(--shadow-xl)',
+                zIndex: '9999',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                maxWidth: '400px'
+            });
+
+            if (type === 'error') toast.style.borderColor = 'var(--red)';
+            if (type === 'success') toast.style.borderColor = 'var(--green)';
+
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), duration);
+        }
+
+        // ===== THEME =====
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+
+        function applyTheme(theme) { root.setAttribute('data-theme', theme); }
+
+        function getInitialTheme() {
+            const saved = localStorage.getItem(THEME_KEY);
+            if (saved === 'light' || saved === 'dark') return saved;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        // ===== BURGER =====
+        document.getElementById('burgerMenu').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // ===== DROPDOWN =====
+        document.getElementById('dropdownBtn').addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropdownOther').classList.toggle('open');
+        });
+
+        document.addEventListener('click', e => {
+            if (!document.getElementById('dropdownOther').contains(e.target)) {
+                document.getElementById('dropdownOther').classList.remove('open');
+            }
+        });
+
+        // ===== ESC =====
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                closePlayer();
+                closeDetails();
+                closeEdit();
+            }
+        });
+
+        // ===== YEAR =====
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ===== GLOBAL =====
+        window.openPlayer = openPlayer;
+        window.closePlayer = closePlayer;
+        window.openDetails = openDetails;
+        window.closeDetails = closeDetails;
+        window.openAddModal = openAddModal;
+        window.openEditModal = openEditModal;
+        window.closeEdit = closeEdit;
+        window.saveBroadcast = saveBroadcast;
+        window.deleteBroadcast = deleteBroadcast;
+        window.resetAll = resetAll;
+        window.handleSearch = handleSearch;
+        window.clearSearch = clearSearch;
+
+        console.log('📡 Страница трансляций + админка загружена');
+        console.log('📌 Коллекция Firestore:', COLLECTION);
+        console.log('📌 Для админа: uid должен быть в коллекции "admins"');
+    </script>
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+</body>
+</html>
