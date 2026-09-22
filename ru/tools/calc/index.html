@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Калькуляторы и таймеры — Metro New</title>
+
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta name="description" content="Калькулятор, калькулятор дат, конвертер единиц и таймер — всё в одном инструменте Metro New." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kirill12633.github.io/Metro.New.Official/ru/tools/calc/" />
+
+    <meta property="og:title" content="Калькуляторы и таймеры — Metro New" />
+    <meta property="og:description" content="Калькулятор, даты, конвертер единиц и таймер в одном месте." />
+    <meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <meta property="og:url" content="https://kirill12633.github.io/Metro.New.Official/ru/tools/calc/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Metro New" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Калькуляторы и таймеры — Metro New" />
+    <meta name="twitter:description" content="Калькулятор, даты, конвертер единиц и таймер в одном месте." />
+    <meta name="twitter:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta name="permissions-policy" content="geolocation=(), microphone=(), camera=()" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            --bg-primary: #0d1526;
+            --bg-secondary: #131c33;
+            --bg-card: #182444;
+            --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa;
+            --text-secondary: #a6b0cc;
+            --text-tertiary: #77819e;
+            --accent: #FFD700;
+            --accent-hover: #ffe14d;
+            --accent-light: rgba(255, 215, 0, 0.15);
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --blue: #4d94ff;
+            --blue-hover: #7aacff;
+            --blue-light: rgba(77, 148, 255, 0.15);
+            --green: #34a853;
+            --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82;
+            --red-light: rgba(242, 139, 130, 0.15);
+            --orange: #ff9800;
+            --border: #253460;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+            --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+            --scrollbar-thumb: #2d3d6b;
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f6fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #eef1f9;
+            --text-primary: #14151f;
+            --text-secondary: #565f7a;
+            --text-tertiary: #8890a8;
+            --accent: #e6c200;
+            --accent-hover: #c2a300;
+            --accent-light: rgba(230, 194, 0, 0.12);
+            --accent-glow: rgba(230, 194, 0, 0.18);
+            --blue: #0066CC;
+            --blue-hover: #0052a3;
+            --blue-light: rgba(0, 102, 204, 0.1);
+            --green: #1e8e4e;
+            --green-light: rgba(30, 142, 78, 0.1);
+            --red: #d93025;
+            --red-light: rgba(217, 48, 37, 0.1);
+            --border: #e2e6f0;
+            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
+            --shadow-xl: 0 24px 60px rgba(20, 22, 40, 0.16);
+            --scrollbar-thumb: #d1d6e6;
+            color-scheme: light;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--blue) 8%, transparent) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        .container { width: 92%; max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* HEADER */
+        header {
+            background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+        .logo a {
+            display: flex; align-items: center; gap: 12px;
+            text-decoration: none; color: var(--text-primary);
+            font-weight: 800; font-size: 1.6rem;
+        }
+
+        .logo-icon {
+            width: 44px; height: 44px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        .nav-links>a {
+            color: var(--text-secondary); text-decoration: none;
+            font-weight: 600; font-size: 1rem;
+            padding: 8px 18px; border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .nav-links>a:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .nav-links>a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .theme-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            position: relative; width: 42px; height: 42px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text-secondary); font-size: 1.1rem;
+            cursor: pointer; transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+
+        .theme-toggle .fa-sun { opacity: 0; transform: rotate(90deg) scale(0.3); }
+        [data-theme="light"] .theme-toggle .fa-sun { opacity: 1; transform: rotate(0deg) scale(1); color: var(--accent); }
+        [data-theme="light"] .theme-toggle .fa-moon { opacity: 0; transform: rotate(-90deg) scale(0.3); }
+
+        .login-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 22px;
+            background: linear-gradient(135deg, var(--blue), var(--blue-hover));
+            border-radius: 999px; color: #fff !important;
+            font-weight: 700; text-decoration: none;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(77, 148, 255, 0.3);
+            font-size: 0.95rem;
+        }
+
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 35px rgba(77, 148, 255, 0.4); }
+
+        .burger-menu {
+            display: none; font-size: 1.6rem;
+            background: none; border: none;
+            color: var(--text-primary); cursor: pointer;
+        }
+
+        .dropdown { position: relative; }
+
+        .dropdown>button {
+            background: transparent; border: none;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600; font-size: 1rem;
+            padding: 8px 18px; border-radius: var(--radius);
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .dropdown>button:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .dropdown>button i { font-size: 0.7rem; transition: transform 0.25s; }
+        .dropdown.open>button i { transform: rotate(180deg); }
+
+        .dropdown-content {
+            display: none; position: absolute;
+            top: calc(100% + 8px); left: 0;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); min-width: 200px;
+            padding: 8px 0; box-shadow: var(--shadow); z-index: 100;
+        }
+
+        .dropdown.open .dropdown-content { display: block; }
+
+        .dropdown-content a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 18px; color: var(--text-secondary);
+            text-decoration: none; font-weight: 500; font-size: 0.95rem;
+        }
+
+        .dropdown-content a i { width: 20px; color: var(--accent); }
+        .dropdown-content a:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .dropdown-content a.active { color: var(--accent); }
+
+        /* PAGE */
+        .page { padding: 30px 0 50px; }
+
+        .page-header { text-align: center; margin-bottom: 30px; }
+
+        .page-header h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 10px;
+            display: inline-flex; align-items: center; gap: 14px;
+        }
+
+        .page-header h1 i { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+
+        .page-header p {
+            color: var(--text-secondary); font-size: 1rem;
+            max-width: 640px; margin: 0 auto;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex; gap: 6px; flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 24px;
+            padding: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            box-shadow: var(--shadow);
+            max-width: fit-content;
+            margin-left: auto; margin-right: auto;
+        }
+
+        .tab {
+            padding: 10px 22px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.25s;
+            display: inline-flex; align-items: center; gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+
+        .tab.active {
+            background: var(--accent);
+            color: #14151f;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeInUp 0.4s ease; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* MAIN CARD */
+        .main-card {
+            max-width: 720px;
+            margin: 0 auto 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        /* CALCULATOR */
+        .calc-display {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            word-break: break-all;
+            transition: border-color 0.25s;
+        }
+
+        .calc-display:focus-within { border-color: var(--accent); }
+
+        .calc-history {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            min-height: 1.2em;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .calc-current {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            line-height: 1.1;
+            word-break: break-all;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            padding: 20px 8px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 62px;
+        }
+
+        .calc-btn:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .calc-btn:active { transform: translateY(0); }
+
+        .calc-btn.op {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .calc-btn.op:hover { background: var(--accent); color: #14151f; }
+
+        .calc-btn.equal {
+            background: var(--accent);
+            color: #14151f;
+            grid-column: span 2;
+        }
+
+        .calc-btn.equal:hover { background: var(--accent-hover); }
+
+        .calc-btn.fn {
+            background: var(--blue-light);
+            color: var(--blue);
+            border-color: var(--blue);
+            font-size: 0.95rem;
+        }
+
+        .calc-btn.fn:hover { background: var(--blue); color: #fff; }
+
+        .calc-btn.clear {
+            background: var(--red-light);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .calc-btn.clear:hover { background: var(--red); color: #fff; }
+
+        .calc-mode {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .mode-btn.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+        /* DATE CALC */
+        .date-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .date-swap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 12px;
+        }
+
+        .date-swap button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.25s;
+        }
+
+        .date-swap button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: rotate(180deg);
+        }
+
+        .date-result {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .date-result .big {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .date-result .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .date-breakdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .date-breakdown .item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .date-breakdown .num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .date-breakdown .lbl {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* CONVERTER */
+        .conv-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .conv-swap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 12px;
+        }
+
+        .conv-swap button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.25s;
+        }
+
+        .conv-swap button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: rotate(180deg);
+        }
+
+        .conv-result {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .conv-result .big {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .conv-result .lbl {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* TIMER */
+        .timer-display {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .timer-display.running { border-color: var(--green); }
+        .timer-display.finished { border-color: var(--red); animation: pulseTimer 1s infinite; }
+
+        @keyframes pulseTimer {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(242, 139, 130, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(242, 139, 130, 0); }
+        }
+
+        .timer-value {
+            font-size: 4rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            line-height: 1;
+            letter-spacing: 2px;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .timer-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .timer-inputs .form-group input {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .timer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 14px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .timer-presets .preset {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .timer-presets .preset:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* BTNS */
+        .btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 999px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #14151f;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--red-light);
+            color: var(--red);
+            border: 1px solid var(--red);
+        }
+
+        .btn-danger:hover {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: var(--green-light);
+            color: var(--green);
+            border: 1px solid var(--green);
+        }
+
+        .btn-success:hover {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        /* INFO BLOCK */
+        .info-block {
+            max-width: 720px;
+            margin: 24px auto 0;
+            padding: 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .info-block h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-block ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-block li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .info-block li i {
+            color: var(--accent);
+            margin-top: 4px;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-xl);
+            z-index: 9999;
+            display: flex; align-items: center; gap: 12px;
+            max-width: 400px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .toast.error { border-color: var(--red); }
+        .toast.success { border-color: var(--green); }
+
+        /* FOOTER */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 44px 0 28px;
+            margin-top: 40px;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px; margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .footer-brand { display: flex; flex-direction: column; gap: 16px; }
+        .footer-brand .logo-icon { width: 60px; height: 60px; }
+
+        .footer-brand .brand-name {
+            font-size: 1.8rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-brand p { color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; }
+
+        .footer-social { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+        .footer-social a {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.2rem; transition: all 0.25s;
+            text-decoration: none;
+        }
+
+        .footer-social a:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .footer-social a img.social-icon-img {
+            width: 20px; height: 20px;
+            object-fit: cover; border-radius: 50%;
+        }
+
+        .footer-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        .footer-col h4 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 6px; }
+
+        .footer-col ul a {
+            color: var(--text-secondary); text-decoration: none;
+            font-weight: 500; display: inline-flex;
+            align-items: center; gap: 8px; font-size: 0.9rem;
+        }
+
+        .footer-col ul a:hover { color: var(--accent); }
+        .footer-col ul a i { width: 16px; font-size: 0.8rem; }
+
+        .footer-bottom {
+            display: flex; align-items: center; justify-content: center;
+            gap: 18px; flex-wrap: wrap;
+            color: var(--text-secondary); font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+
+            .nav-links {
+                display: none; width: 100%;
+                flex-direction: column;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 16px; margin-top: 10px; gap: 4px;
+            }
+
+            .nav-links.active { display: flex; }
+            .nav-links>a { padding: 10px 14px; width: 100%; }
+            .dropdown { width: 100%; }
+            .dropdown>button { width: 100%; justify-content: flex-start; padding: 10px 14px; }
+            .dropdown-content { position: static; border: none; background: color-mix(in srgb, var(--text-primary) 4%, transparent); box-shadow: none; padding: 0 0 0 16px; margin-top: 4px; }
+            .nav-right { order: -1; }
+
+            .footer-top { grid-template-columns: 1fr; }
+            .footer-links { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .page-header h1 { font-size: 1.6rem; gap: 8px; }
+            .footer-links { grid-template-columns: 1fr; }
+            .tabs { padding: 4px; }
+            .tab { padding: 8px 14px; font-size: 0.8rem; }
+            .main-card { padding: 20px 16px; }
+            .calc-current { font-size: 1.8rem; }
+            .calc-btn { padding: 16px 4px; font-size: 1rem; min-height: 54px; }
+            .timer-value { font-size: 2.6rem; }
+            .date-grid { grid-template-columns: 1fr; }
+            .date-swap { padding: 0; }
+            .conv-grid { grid-template-columns: 1fr; }
+            .conv-swap { padding: 0; }
+            .date-breakdown { grid-template-columns: repeat(2, 1fr); }
+            .timer-inputs { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .actions-row { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">
+                            <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                        </span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+
+                <div class="nav-right">
+                    <button class="burger-menu" id="burgerMenu" aria-label="Открыть меню">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">
+                            Прочее <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/colors/"><i class="fas fa-palette"></i> Палитра цветов</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/password/"><i class="fas fa-key"></i> Генератор паролей</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/calc/" class="active"><i class="fas fa-calculator"></i> Калькуляторы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/radio/"><i class="fas fa-broadcast-tower"></i> Мировое радио</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                        </div>
+                    </div>
+
+                    <a id="authBtn" class="login-btn" href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/">
+                        <i class="fas fa-sign-in-alt"></i> <span>Войти</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="container">
+            <section class="page">
+
+                <div class="page-header">
+                    <h1><i class="fas fa-calculator"></i> Калькуляторы и таймеры</h1>
+                    <p>Обычный калькулятор, разница между датами, конвертер единиц и таймер — всё в одном месте.</p>
+                </div>
+
+                <!-- TABS -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="calc"><i class="fas fa-calculator"></i> Калькулятор</button>
+                    <button class="tab" data-tab="date"><i class="fas fa-calendar-day"></i> Даты</button>
+                    <button class="tab" data-tab="convert"><i class="fas fa-exchange-alt"></i> Конвертер</button>
+                    <button class="tab" data-tab="timer"><i class="fas fa-stopwatch"></i> Таймер</button>
+                </div>
+
+                <!-- ===== TAB 1: CALCULATOR ===== -->
+                <div class="tab-panel active" id="panel-calc">
+                    <div class="main-card">
+
+                        <div class="calc-mode">
+                            <button class="mode-btn active" onclick="setCalcMode('basic', this)">Обычный</button>
+                            <button class="mode-btn" onclick="setCalcMode('scientific', this)">Научный</button>
+                        </div>
+
+                        <div class="calc-display">
+                            <div class="calc-history" id="calcHistory"></div>
+                            <div class="calc-current" id="calcCurrent">0</div>
+                        </div>
+
+                        <!-- Basic -->
+                        <div class="calc-grid" id="calcGridBasic">
+                            <button class="calc-btn clear" onclick="calcClear()">C</button>
+                            <button class="calc-btn fn" onclick="calcBackspace()">⌫</button>
+                            <button class="calc-btn fn" onclick="calcPercent()">%</button>
+                            <button class="calc-btn op" onclick="calcOp('/')">÷</button>
+
+                            <button class="calc-btn" onclick="calcNum('7')">7</button>
+                            <button class="calc-btn" onclick="calcNum('8')">8</button>
+                            <button class="calc-btn" onclick="calcNum('9')">9</button>
+                            <button class="calc-btn op" onclick="calcOp('*')">×</button>
+
+                            <button class="calc-btn" onclick="calcNum('4')">4</button>
+                            <button class="calc-btn" onclick="calcNum('5')">5</button>
+                            <button class="calc-btn" onclick="calcNum('6')">6</button>
+                            <button class="calc-btn op" onclick="calcOp('-')">−</button>
+
+                            <button class="calc-btn" onclick="calcNum('1')">1</button>
+                            <button class="calc-btn" onclick="calcNum('2')">2</button>
+                            <button class="calc-btn" onclick="calcNum('3')">3</button>
+                            <button class="calc-btn op" onclick="calcOp('+')">+</button>
+
+                            <button class="calc-btn" onclick="calcNum('0')" style="grid-column: span 2;">0</button>
+                            <button class="calc-btn" onclick="calcDot()">,</button>
+                            <button class="calc-btn equal" onclick="calcEqual()" style="grid-column: span 1;">=</button>
+                        </div>
+
+                        <!-- Scientific -->
+                        <div class="calc-grid" id="calcGridScientific" style="display:none;">
+                            <button class="calc-btn clear" onclick="calcClear()">C</button>
+                            <button class="calc-btn fn" onclick="calcBackspace()">⌫</button>
+                            <button class="calc-btn fn" onclick="calcFunc('sqrt')">√</button>
+                            <button class="calc-btn op" onclick="calcOp('/')">÷</button>
+
+                            <button class="calc-btn fn" onclick="calcFunc('sin')">sin</button>
+                            <button class="calc-btn fn" onclick="calcFunc('cos')">cos</button>
+                            <button class="calc-btn fn" onclick="calcFunc('tan')">tan</button>
+                            <button class="calc-btn op" onclick="calcOp('*')">×</button>
+
+                            <button class="calc-btn fn" onclick="calcFunc('log')">log</button>
+                            <button class="calc-btn fn" onclick="calcFunc('ln')">ln</button>
+                            <button class="calc-btn fn" onclick="calcFunc('pow')">x²</button>
+                            <button class="calc-btn op" onclick="calcOp('-')">−</button>
+
+                            <button class="calc-btn" onclick="calcNum('7')">7</button>
+                            <button class="calc-btn" onclick="calcNum('8')">8</button>
+                            <button class="calc-btn" onclick="calcNum('9')">9</button>
+                            <button class="calc-btn op" onclick="calcOp('+')">+</button>
+
+                            <button class="calc-btn" onclick="calcNum('4')">4</button>
+                            <button class="calc-btn" onclick="calcNum('5')">5</button>
+                            <button class="calc-btn" onclick="calcNum('6')">6</button>
+                            <button class="calc-btn fn" onclick="calcConst('pi')">π</button>
+
+                            <button class="calc-btn" onclick="calcNum('1')">1</button>
+                            <button class="calc-btn" onclick="calcNum('2')">2</button>
+                            <button class="calc-btn" onclick="calcNum('3')">3</button>
+                            <button class="calc-btn fn" onclick="calcConst('e')">e</button>
+
+                            <button class="calc-btn" onclick="calcNum('0')" style="grid-column: span 2;">0</button>
+                            <button class="calc-btn" onclick="calcDot()">,</button>
+                            <button class="calc-btn equal" onclick="calcEqual()">=</button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ===== TAB 2: DATE ===== -->
+                <div class="tab-panel" id="panel-date">
+                    <div class="main-card">
+
+                        <div class="date-grid">
+                            <div class="form-group">
+                                <label>Дата 1</label>
+                                <input type="date" id="date1">
+                            </div>
+                            <div class="date-swap">
+                                <button onclick="swapDates()" title="Поменять">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>Дата 2</label>
+                                <input type="date" id="date2">
+                            </div>
+                        </div>
+
+                        <div class="date-result">
+                            <div class="big" id="dateResultBig">0</div>
+                            <div class="label" id="dateResultLabel">дней между датами</div>
+
+                            <div class="date-breakdown">
+                                <div class="item">
+                                    <div class="num" id="dateYears">0</div>
+                                    <div class="lbl">Лет</div>
+                                </div>
+                                <div class="item">
+                                    <div class="num" id="dateMonths">0</div>
+                                    <div class="lbl">Месяцев</div>
+                                </div>
+                                <div class="item">
+                                    <div class="num" id="dateWeeks">0</div>
+                                    <div class="lbl">Недель</div>
+                                </div>
+                                <div class="item">
+                                    <div class="num" id="dateDays">0</div>
+                                    <div class="lbl">Дней</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="actions-row">
+                            <button class="btn btn-secondary" onclick="setToday()">
+                                <i class="fas fa-calendar-day"></i> Сегодня
+                            </button>
+                            <button class="btn btn-secondary" onclick="setTomorrow()">
+                                <i class="fas fa-calendar-plus"></i> Завтра
+                            </button>
+                            <button class="btn btn-secondary" onclick="addDays(30)">
+                                <i class="fas fa-calendar-week"></i> +30 дней
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="info-block">
+                        <h3><i class="fas fa-info-circle"></i> Что можно посчитать?</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Сколько дней между двумя датами</li>
+                            <li><i class="fas fa-check"></i> Сколько прошло с какого-то события</li>
+                            <li><i class="fas fa-check"></i> Сколько осталось до важной даты</li>
+                            <li><i class="fas fa-check"></i> Возраст в днях / неделях / месяцах</li>
+                            <li><i class="fas fa-check"></i> Планирование отпуска, проектов, событий</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 3: CONVERT ===== -->
+                <div class="tab-panel" id="panel-convert">
+                    <div class="main-card">
+
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label>Категория</label>
+                            <select id="convCategory" onchange="updateConvUnits()">
+                                <option value="length">📏 Длина</option>
+                                <option value="weight">⚖️ Масса</option>
+                                <option value="temperature">🌡 Температура</option>
+                                <option value="speed">🚀 Скорость</option>
+                                <option value="area">📐 Площадь</option>
+                                <option value="volume">🧪 Объём</option>
+                                <option value="time">⏱ Время</option>
+                            </select>
+                        </div>
+
+                        <div class="conv-grid">
+                            <div class="form-group">
+                                <label>Из</label>
+                                <input type="number" id="convFrom" value="1" step="any">
+                                <select id="convUnitFrom" onchange="convertNow()"></select>
+                            </div>
+                            <div class="conv-swap">
+                                <button onclick="swapConv()" title="Поменять">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>В</label>
+                                <input type="number" id="convTo" readonly>
+                                <select id="convUnitTo" onchange="convertNow()"></select>
+                            </div>
+                        </div>
+
+                        <div class="conv-result">
+                            <div class="big" id="convResultBig">—</div>
+                            <div class="lbl" id="convResultLbl">—</div>
+                        </div>
+
+                    </div>
+
+                    <div class="info-block">
+                        <h3><i class="fas fa-info-circle"></i> Что можно конвертировать?</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Длина: мм, см, м, км, дюймы, футы, мили</li>
+                            <li><i class="fas fa-check"></i> Масса: мг, г, кг, тонны, фунты, унции</li>
+                            <li><i class="fas fa-check"></i> Температура: °C, °F, K</li>
+                            <li><i class="fas fa-check"></i> Скорость: км/ч, м/с, мили/ч, узлы</li>
+                            <li><i class="fas fa-check"></i> Площадь: м², км², сотки, акры, футы²</li>
+                            <li><i class="fas fa-check"></i> Объём: мл, л, м³, галлоны</li>
+                            <li><i class="fas fa-check"></i> Время: сек, мин, часы, дни, недели</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 4: TIMER ===== -->
+                <div class="tab-panel" id="panel-timer">
+                    <div class="main-card">
+
+                        <div class="calc-mode" style="margin-bottom:20px;">
+                            <button class="mode-btn active" onclick="setTimerMode('timer', this)">⏱ Таймер</button>
+                            <button class="mode-btn" onclick="setTimerMode('stopwatch', this)">⏲ Секундомер</button>
+                        </div>
+
+                        <div class="timer-display" id="timerDisplay">
+                            <div class="timer-value" id="timerValue">00:00:00</div>
+                            <div class="timer-label" id="timerLabel">Таймер</div>
+                        </div>
+
+                        <!-- Timer inputs -->
+                        <div id="timerInputsWrap">
+                            <div class="timer-inputs">
+                                <div class="form-group">
+                                    <label>Часы</label>
+                                    <input type="number" id="timerHours" min="0" max="99" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Минуты</label>
+                                    <input type="number" id="timerMinutes" min="0" max="59" value="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>Секунды</label>
+                                    <input type="number" id="timerSeconds" min="0" max="59" value="0">
+                                </div>
+                            </div>
+
+                            <div class="timer-presets">
+                                <button class="preset" onclick="setTimerPreset(1, 0, 0)">1 мин</button>
+                                <button class="preset" onclick="setTimerPreset(5, 0, 0)">5 мин</button>
+                                <button class="preset" onclick="setTimerPreset(10, 0, 0)">10 мин</button>
+                                <button class="preset" onclick="setTimerPreset(15, 0, 0)">15 мин</button>
+                                <button class="preset" onclick="setTimerPreset(30, 0, 0)">30 мин</button>
+                                <button class="preset" onclick="setTimerPreset(1, 0, 0)">1 час</button>
+                            </div>
+                        </div>
+
+                        <div class="actions-row">
+                            <button class="btn btn-primary" id="timerStartBtn" onclick="timerStartPause()">
+                                <i class="fas fa-play"></i> Старт
+                            </button>
+                            <button class="btn btn-secondary" onclick="timerReset()">
+                                <i class="fas fa-redo"></i> Сброс
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="info-block">
+                        <h3><i class="fas fa-info-circle"></i> Для чего таймер?</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Помодоро-техника (25 мин работа, 5 мин отдых)</li>
+                            <li><i class="fas fa-check"></i> Кулинария — не переварить яйца</li>
+                            <li><i class="fas fa-check"></i> Спорт — интервальные тренировки</li>
+                            <li><i class="fas fa-check"></i> Игры — спидраны, гонки</li>
+                            <li><i class="fas fa-check"></i> Учёба — концентрация на задаче</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-icon">
+                        <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                    </div>
+                    <div class="brand-name">Метро New</div>
+                    <p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+                    <div class="footer-social">
+                        <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
+                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
+                        </a>
+                        <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>О нас</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сообщество</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Правовые документы</h4>
+                        <ul>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Политика возврата</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Политика авторских прав</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines"><i class="fas fa-globe"></i> Правила сайта</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Контакты</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Форма обратной связи</a></li>
+                            <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Техническая поддержка</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Полезные ссылки</h4>
+                        <ul>
+                            <li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Все игры</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> База знаний</a></li>
+                            <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус сервисов</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© <span id="currentYear">2026</span> Metro New. Все права защищены.</p>
+                <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== TABS =====
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ============================================
+        // КАЛЬКУЛЯТОР
+        // ============================================
+        let calcCurrentVal = '0';
+        let calcHistoryVal = '';
+        let calcMode = 'basic';
+
+        function calcUpdateDisplay() {
+            document.getElementById('calcCurrent').textContent = calcCurrentVal || '0';
+            document.getElementById('calcHistory').textContent = calcHistoryVal || '';
+        }
+
+        function setCalcMode(mode, btn) {
+            calcMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('calcGridBasic').style.display = mode === 'basic' ? 'grid' : 'none';
+            document.getElementById('calcGridScientific').style.display = mode === 'scientific' ? 'grid' : 'none';
+        }
+
+        function calcNum(n) {
+            if (calcCurrentVal === '0' && n !== '.') calcCurrentVal = n;
+            else calcCurrentVal += n;
+            calcUpdateDisplay();
+        }
+
+        function calcDot() {
+            if (!calcCurrentVal.includes(',')) {
+                calcCurrentVal += ',';
+                calcUpdateDisplay();
+            }
+        }
+
+        function calcClear() {
+            calcCurrentVal = '0';
+            calcHistoryVal = '';
+            calcUpdateDisplay();
+        }
+
+        function calcBackspace() {
+            calcCurrentVal = calcCurrentVal.slice(0, -1) || '0';
+            calcUpdateDisplay();
+        }
+
+        function calcOp(op) {
+            calcHistoryVal = calcCurrentVal + ' ' + op + ' ';
+            calcCurrentVal = '0';
+            calcUpdateDisplay();
+        }
+
+        function calcPercent() {
+            try {
+                const val = parseFloat(calcCurrentVal.replace(',', '.'));
+                calcCurrentVal = String(val / 100).replace('.', ',');
+                calcUpdateDisplay();
+            } catch (e) {}
+        }
+
+        function calcFunc(fn) {
+            try {
+                const val = parseFloat(calcCurrentVal.replace(',', '.'));
+                let result;
+                switch (fn) {
+                    case 'sqrt': result = Math.sqrt(val); break;
+                    case 'sin': result = Math.sin(val); break;
+                    case 'cos': result = Math.cos(val); break;
+                    case 'tan': result = Math.tan(val); break;
+                    case 'log': result = Math.log10(val); break;
+                    case 'ln': result = Math.log(val); break;
+                    case 'pow': result = val * val; break;
+                }
+                calcCurrentVal = String(result).replace('.', ',');
+                calcUpdateDisplay();
+            } catch (e) {}
+        }
+
+        function calcConst(c) {
+            if (c === 'pi') calcCurrentVal = String(Math.PI).replace('.', ',');
+            if (c === 'e') calcCurrentVal = String(Math.E).replace('.', ',');
+            calcUpdateDisplay();
+        }
+
+        function calcEqual() {
+            if (!calcHistoryVal) return;
+            try {
+                const expr = calcHistoryVal + calcCurrentVal;
+                const cleanExpr = expr.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+                const result = Function('"use strict";return (' + cleanExpr + ')')();
+                calcHistoryVal = expr + ' =';
+                calcCurrentVal = String(result).replace('.', ',');
+                calcUpdateDisplay();
+            } catch (e) {
+                calcCurrentVal = 'Ошибка';
+                calcUpdateDisplay();
+            }
+        }
+
+        // Клавиатура
+        document.addEventListener('keydown', e => {
+            if (!document.getElementById('panel-calc').classList.contains('active')) return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            if (/^[0-9]$/.test(e.key)) calcNum(e.key);
+            else if (e.key === ',' || e.key === '.') calcDot();
+            else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') calcOp(e.key);
+            else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calcEqual(); }
+            else if (e.key === 'Backspace') calcBackspace();
+            else if (e.key === 'Escape') calcClear();
+            else if (e.key === '%') calcPercent();
+        });
+
+        calcUpdateDisplay();
+
+        // ============================================
+        // КАЛЬКУЛЯТОР ДАТ
+        // ============================================
+        const date1 = document.getElementById('date1');
+        const date2 = document.getElementById('date2');
+
+        function toISODate(d) {
+            return d.toISOString().split('T')[0];
+        }
+
+        // Инициализация
+        const today = new Date();
+        date1.value = toISODate(today);
+        const nextMonth = new Date(today);
+        nextMonth.setDate(nextMonth.getDate() + 30);
+        date2.value = toISODate(nextMonth);
+
+        function updateDateCalc() {
+            if (!date1.value || !date2.value) return;
+            const d1 = new Date(date1.value);
+            const d2 = new Date(date2.value);
+
+            const diffMs = Math.abs(d2 - d1);
+            const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+            document.getElementById('dateResultBig').textContent = diffDays;
+            document.getElementById('dateResultLabel').textContent =
+                diffDays === 1 ? 'день между датами' : 'дней между датами';
+
+            // Разбивка
+            const start = d1 < d2 ? d1 : d2;
+            const end = d1 < d2 ? d2 : d1;
+
+            let years = end.getFullYear() - start.getFullYear();
+            let months = end.getMonth() - start.getMonth();
+            let days = end.getDate() - start.getDate();
+
+            if (days < 0) {
+                months--;
+                const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+                days += prevMonth.getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            document.getElementById('dateYears').textContent = years;
+            document.getElementById('dateMonths').textContent = months;
+            document.getElementById('dateWeeks').textContent = Math.floor(diffDays / 7);
+            document.getElementById('dateDays').textContent = diffDays;
+        }
+
+        date1.addEventListener('change', updateDateCalc);
+        date2.addEventListener('change', updateDateCalc);
+
+        function swapDates() {
+            const tmp = date1.value;
+            date1.value = date2.value;
+            date2.value = tmp;
+            updateDateCalc();
+        }
+
+        function setToday() {
+            date1.value = toISODate(new Date());
+            updateDateCalc();
+        }
+
+        function setTomorrow() {
+            const t = new Date();
+            t.setDate(t.getDate() + 1);
+            date2.value = toISODate(t);
+            updateDateCalc();
+        }
+
+        function addDays(n) {
+            const base = new Date(date1.value);
+            base.setDate(base.getDate() + n);
+            date2.value = toISODate(base);
+            updateDateCalc();
+        }
+
+        updateDateCalc();
+
+        // ============================================
+        // КОНВЕРТЕР ЕДИНИЦ
+        // ============================================
+        const CONV = {
+            length: {
+                label: 'Длина',
+                units: {
+                    mm: { name: 'Миллиметры', factor: 0.001 },
+                    cm: { name: 'Сантиметры', factor: 0.01 },
+                    m: { name: 'Метры', factor: 1 },
+                    km: { name: 'Километры', factor: 1000 },
+                    in: { name: 'Дюймы', factor: 0.0254 },
+                    ft: { name: 'Футы', factor: 0.3048 },
+                    yd: { name: 'Ярды', factor: 0.9144 },
+                    mi: { name: 'Мили', factor: 1609.344 }
+                }
+            },
+            weight: {
+                label: 'Масса',
+                units: {
+                    mg: { name: 'Миллиграммы', factor: 0.000001 },
+                    g: { name: 'Граммы', factor: 0.001 },
+                    kg: { name: 'Килограммы', factor: 1 },
+                    t: { name: 'Тонны', factor: 1000 },
+                    lb: { name: 'Фунты', factor: 0.453592 },
+                    oz: { name: 'Унции', factor: 0.0283495 }
+                }
+            },
+            temperature: {
+                label: 'Температура',
+                units: {
+                    c: { name: 'Цельсий' },
+                    f: { name: 'Фаренгейт' },
+                    k: { name: 'Кельвин' }
+                }
+            },
+            speed: {
+                label: 'Скорость',
+                units: {
+                    kmh: { name: 'км/ч', factor: 1 },
+                    ms: { name: 'м/с', factor: 3.6 },
+                    mph: { name: 'мили/ч', factor: 1.60934 },
+                    kn: { name: 'Узлы', factor: 1.852 }
+                }
+            },
+            area: {
+                label: 'Площадь',
+                units: {
+                    m2: { name: 'м²', factor: 1 },
+                    km2: { name: 'км²', factor: 1000000 },
+                    cm2: { name: 'см²', factor: 0.0001 },
+                    ga: { name: 'Гектары', factor: 10000 },
+                    sot: { name: 'Сотки', factor: 100 },
+                    ac: { name: 'Акры', factor: 4046.86 },
+                    ft2: { name: 'Футы²', factor: 0.092903 }
+                }
+            },
+            volume: {
+                label: 'Объём',
+                units: {
+                    ml: { name: 'Миллилитры', factor: 0.001 },
+                    l: { name: 'Литры', factor: 1 },
+                    m3: { name: 'м³', factor: 1000 },
+                    gal: { name: 'Галлоны (US)', factor: 3.78541 }
+                }
+            },
+            time: {
+                label: 'Время',
+                units: {
+                    s: { name: 'Секунды', factor: 1 },
+                    min: { name: 'Минуты', factor: 60 },
+                    h: { name: 'Часы', factor: 3600 },
+                    d: { name: 'Дни', factor: 86400 },
+                    w: { name: 'Недели', factor: 604800 }
+                }
+            }
+        };
+
+        const convCategory = document.getElementById('convCategory');
+        const convUnitFrom = document.getElementById('convUnitFrom');
+        const convUnitTo = document.getElementById('convUnitTo');
+        const convFrom = document.getElementById('convFrom');
+        const convTo = document.getElementById('convTo');
+        const convResultBig = document.getElementById('convResultBig');
+        const convResultLbl = document.getElementById('convResultLbl');
+
+        function updateConvUnits() {
+            const cat = CONV[convCategory.value];
+            const units = Object.entries(cat.units);
+            const options = units.map(([key, u]) => `<option value="${key}">${u.name}</option>`).join('');
+            convUnitFrom.innerHTML = options;
+            convUnitTo.innerHTML = options;
+            convUnitFrom.selectedIndex = 0;
+            convUnitTo.selectedIndex = Math.min(1, units.length - 1);
+            convertNow();
+        }
+
+        function convertNow() {
+            const cat = CONV[convCategory.value];
+            const from = cat.units[convUnitFrom.value];
+            const to = cat.units[convUnitTo.value];
+            const val = parseFloat(convFrom.value) || 0;
+
+            let result;
+
+            if (convCategory.value === 'temperature') {
+                let celsius;
+                if (convUnitFrom.value === 'c') celsius = val;
+                else if (convUnitFrom.value === 'f') celsius = (val - 32) * 5 / 9;
+                else if (convUnitFrom.value === 'k') celsius = val - 273.15;
+
+                if (convUnitTo.value === 'c') result = celsius;
+                else if (convUnitTo.value === 'f') result = celsius * 9 / 5 + 32;
+                else if (convUnitTo.value === 'k') result = celsius + 273.15;
+            } else {
+                const base = val * from.factor;
+                result = base / to.factor;
+            }
+
+            const formatted = Number.isInteger(result) ? result : parseFloat(result.toFixed(6));
+            convTo.value = formatted;
+            convResultBig.textContent = formatted + ' ' + to.name.toLowerCase();
+            convResultLbl.textContent = `${val} ${from.name.toLowerCase()} = ${formatted} ${to.name.toLowerCase()}`;
+        }
+
+        convFrom.addEventListener('input', convertNow);
+
+        function swapConv() {
+            const tmp = convUnitFrom.value;
+            convUnitFrom.value = convUnitTo.value;
+            convUnitTo.value = tmp;
+            convertNow();
+        }
+
+        updateConvUnits();
+
+        // ============================================
+        // ТАЙМЕР / СЕКУНДОМЕР
+        // ============================================
+        let timerMode = 'timer';
+        let timerInterval = null;
+        let timerTotal = 0;
+        let timerRemaining = 0;
+        let timerRunning = false;
+        let stopwatchElapsed = 0;
+
+        const timerValue = document.getElementById('timerValue');
+        const timerLabel = document.getElementById('timerLabel');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerInputsWrap = document.getElementById('timerInputsWrap');
+        const timerStartBtn = document.getElementById('timerStartBtn');
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function setTimerMode(mode, btn) {
+            timerMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            timerReset();
+
+            if (mode === 'timer') {
+                timerInputsWrap.style.display = 'block';
+                timerLabel.textContent = 'Таймер';
+                timerStartBtn.innerHTML = '<i class="fas fa-play"></i> Старт';
+            } else {
+                timerInputsWrap.style.display = 'none';
+                timerLabel.textContent = 'Секундомер';
+                timerStartBtn.innerHTML = '<i class="fas fa-play"></i> Старт';
+            }
+        }
+
+        function setTimerPreset(h, m, s) {
+            document.getElementById('timerHours').value = h;
+            document.getElementById('timerMinutes').value = m;
+            document.getElementById('timerSeconds').value = s;
+            updateTimerFromInputs();
+        }
+
+        function updateTimerFromInputs() {
+            const h = parseInt(document.getElementById('timerHours').value) || 0;
+            const m = parseInt(document.getElementById('timerMinutes').value) || 0;
+            const s = parseInt(document.getElementById('timerSeconds').value) || 0;
+            timerTotal = h * 3600 + m * 60 + s;
+            timerRemaining = timerTotal;
+            timerValue.textContent = formatTime(timerRemaining);
+        }
+
+        ['timerHours', 'timerMinutes', 'timerSeconds'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateTimerFromInputs);
+        });
+
+        function timerStartPause() {
+            if (timerMode === 'timer') {
+                if (!timerRunning) {
+                    if (timerRemaining <= 0) {
+                        updateTimerFromInputs();
+                        if (timerRemaining <= 0) {
+                            showToast('Установите время', 'error');
+                            return;
+                        }
+                    }
+                    timerRunning = true;
+                    timerDisplay.classList.add('running');
+                    timerStartBtn.innerHTML = '<i class="fas fa-pause"></i> Пауза';
+                    timerInterval = setInterval(() => {
+                        timerRemaining--;
+                        timerValue.textContent = formatTime(timerRemaining);
+                        if (timerRemaining <= 0) {
+                            clearInterval(timerInterval);
+                            timerRunning = false;
+                            timerDisplay.classList.remove('running');
+                            timerDisplay.classList.add('finished');
+                            timerStartBtn.innerHTML = '<i class="fas fa-play"></i> Старт';
+                            playBeep();
+                            showToast('⏰ Время вышло!', 'success');
+                        }
+                    }, 1000);
+                } else {
+                    timerRunning = false;
+                    clearInterval(timerInterval);
+                    timerDisplay.classList.remove('running');
+                    timerStartBtn.innerHTML = '<i class="fas fa-play"></i> Продолжить';
+                }
+            } else {
+                // Секундомер
+                if (!timerRunning) {
+                    timerRunning = true;
+                    timerDisplay.classList.add('running');
+                    timerStartBtn.innerHTML = '<i class="fas fa-pause"></i> Пауза';
+                    const startTime = Date.now() - stopwatchElapsed * 1000;
+                    timerInterval = setInterval(() => {
+                        stopwatchElapsed = Math.floor((Date.now() - startTime) / 1000);
+                        timerValue.textContent = formatTime(stopwatchElapsed);
+                    }, 100);
+                } else {
+                    timerRunning = false;
+                    clearInterval(timerInterval);
+                    timerDisplay.classList.remove('running');
+                    timerStartBtn.innerHTML = '<i class="fas fa-play"></i> Продолжить';
+                }
+            }
+        }
+
+        function timerReset() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerDisplay.classList.remove('running', 'finished');
+            timerStartBtn.innerHTML = '<i class="fas fa-play"></i> Старт';
+
+            if (timerMode === 'timer') {
+                updateTimerFromInputs();
+                document.getElementById('timerHours').value = 0;
+                document.getElementById('timerMinutes').value = 5;
+                document.getElementById('timerSeconds').value = 0;
+                updateTimerFromInputs();
+            } else {
+                stopwatchElapsed = 0;
+                timerValue.textContent = '00:00:00';
+            }
+        }
+
+        function playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 880;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+                osc.start();
+                osc.stop(ctx.currentTime + 1);
+            } catch (e) {}
+        }
+
+        updateTimerFromInputs();
+
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(message, type = 'info', duration = 2200) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), duration);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        // ===== THEME =====
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+        function applyTheme(t) { root.setAttribute('data-theme', t); }
+        function getInitialTheme() {
+            const s = localStorage.getItem(THEME_KEY);
+            if (s === 'light' || s === 'dark') return s;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        // ===== BURGER =====
+        document.getElementById('burgerMenu').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // ===== DROPDOWN =====
+        document.getElementById('dropdownBtn').addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            document.getElementById('dropdownOther').classList.toggle('open');
+        });
+        document.addEventListener('click', e => {
+            if (!document.getElementById('dropdownOther').contains(e.target)) {
+                document.getElementById('dropdownOther').classList.remove('open');
+            }
+        });
+
+        // ===== YEAR =====
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ===== GLOBAL =====
+        window.setCalcMode = setCalcMode;
+        window.calcNum = calcNum;
+        window.calcDot = calcDot;
+        window.calcClear = calcClear;
+        window.calcBackspace = calcBackspace;
+        window.calcOp = calcOp;
+        window.calcPercent = calcPercent;
+        window.calcFunc = calcFunc;
+        window.calcConst = calcConst;
+        window.calcEqual = calcEqual;
+        window.swapDates = swapDates;
+        window.setToday = setToday;
+        window.setTomorrow = setTomorrow;
+        window.addDays = addDays;
+        window.updateConvUnits = updateConvUnits;
+        window.swapConv = swapConv;
+        window.setTimerMode = setTimerMode;
+        window.timerStartPause = timerStartPause;
+        window.timerReset = timerReset;
+        window.setTimerPreset = setTimerPreset;
+
+       
+    </script>
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+</body>
+</html>
