@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Текстовые инструменты — Metro New</title>
+
+    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta name="description" content="Текстовые инструменты Metro New — регистр, счётчик, реверс, очистка, поиск, кодирование Base64/URL/HEX/HTML." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kirill12633.github.io/Metro.New.Official/ru/tools/text/" />
+
+    <meta property="og:title" content="Текстовые инструменты — Metro New" />
+    <meta property="og:description" content="Регистр, счётчик, реверс, очистка, кодирование — всё в одном." />
+    <meta property="og:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+    <meta property="og:url" content="https://kirill12633.github.io/Metro.New.Official/ru/tools/text/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Metro New" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Текстовые инструменты — Metro New" />
+    <meta name="twitter:description" content="Регистр, счётчик, реверс, очистка, кодирование." />
+    <meta name="twitter:image" content="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" />
+
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta name="permissions-policy" content="geolocation=(), microphone=(), camera=()" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --radius-sm: 8px; --radius: 12px; --radius-lg: 16px; --radius-xl: 20px;
+            --bg-primary: #0d1526; --bg-secondary: #131c33; --bg-card: #182444; --bg-card-hover: #1d2b4f;
+            --text-primary: #f2f4fa; --text-secondary: #a6b0cc; --text-tertiary: #77819e;
+            --accent: #FFD700; --accent-hover: #ffe14d; --accent-light: rgba(255, 215, 0, 0.15); --accent-glow: rgba(255, 215, 0, 0.2);
+            --blue: #4d94ff; --blue-hover: #7aacff; --blue-light: rgba(77, 148, 255, 0.15);
+            --green: #34a853; --green-light: rgba(52, 168, 83, 0.15);
+            --red: #f28b82; --red-light: rgba(242, 139, 130, 0.15);
+            --border: #253460; --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6); --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.7);
+            --scrollbar-thumb: #2d3d6b;
+            color-scheme: dark;
+        }
+        [data-theme="light"] {
+            --bg-primary: #ffffff; --bg-secondary: #f4f6fb; --bg-card: #ffffff; --bg-card-hover: #eef1f9;
+            --text-primary: #14151f; --text-secondary: #565f7a; --text-tertiary: #8890a8;
+            --accent: #e6c200; --accent-hover: #c2a300; --accent-light: rgba(230, 194, 0, 0.12); --accent-glow: rgba(230, 194, 0, 0.18);
+            --blue: #0066CC; --blue-hover: #0052a3; --blue-light: rgba(0, 102, 204, 0.1);
+            --green: #1e8e4e; --green-light: rgba(30, 142, 78, 0.1);
+            --red: #d93025; --red-light: rgba(217, 48, 37, 0.1);
+            --border: #e2e6f0; --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
+            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12); --shadow-xl: 0 24px 60px rgba(20, 22, 40, 0.16);
+            --scrollbar-thumb: #d1d6e6;
+            color-scheme: light;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Montserrat', sans-serif; background-color: var(--bg-primary); color: var(--text-primary);
+            line-height: 1.6; transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: radial-gradient(ellipse at 10% 20%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, color-mix(in srgb, var(--blue) 8%, transparent) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+        .container { width: 92%; max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        header {
+            background: color-mix(in srgb, var(--bg-primary) 92%, transparent); backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 999;
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .logo a { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-primary); font-weight: 800; font-size: 1.6rem; }
+        .logo-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 30px var(--accent-glow); }
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .logo span { background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .nav-links>a { color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 1rem; padding: 8px 18px; border-radius: var(--radius); transition: all 0.2s; }
+        .nav-links>a:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .nav-links>a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .theme-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; overflow: hidden; }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px) scale(1.05); box-shadow: 0 0 18px var(--accent-glow); }
+        .theme-toggle .fa-sun { opacity: 0; transform: rotate(90deg) scale(0.3); }
+        [data-theme="light"] .theme-toggle .fa-sun { opacity: 1; transform: rotate(0deg) scale(1); color: var(--accent); }
+        [data-theme="light"] .theme-toggle .fa-moon { opacity: 0; transform: rotate(-90deg) scale(0.3); }
+        .login-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 22px; background: linear-gradient(135deg, var(--blue), var(--blue-hover)); border-radius: 999px; color: #fff !important; font-weight: 700; text-decoration: none; transition: all 0.25s; box-shadow: 0 4px 20px rgba(77, 148, 255, 0.3); font-size: 0.95rem; }
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 35px rgba(77, 148, 255, 0.4); }
+        .burger-menu { display: none; font-size: 1.6rem; background: none; border: none; color: var(--text-primary); cursor: pointer; }
+        .dropdown { position: relative; }
+        .dropdown>button { background: transparent; border: none; color: var(--text-secondary); font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1rem; padding: 8px 18px; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .dropdown>button:hover { color: var(--text-primary); background: color-mix(in srgb, var(--text-primary) 6%, transparent); }
+        .dropdown>button i { font-size: 0.7rem; transition: transform 0.25s; }
+        .dropdown.open>button i { transform: rotate(180deg); }
+        .dropdown-content { display: none; position: absolute; top: calc(100% + 8px); left: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); min-width: 200px; padding: 8px 0; box-shadow: var(--shadow); z-index: 100; }
+        .dropdown.open .dropdown-content { display: block; }
+        .dropdown-content a { display: flex; align-items: center; gap: 12px; padding: 10px 18px; color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+        .dropdown-content a i { width: 20px; color: var(--accent); }
+        .dropdown-content a:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .dropdown-content a.active { color: var(--accent); }
+
+        .page { padding: 30px 0 50px; }
+        .page-header { text-align: center; margin-bottom: 30px; }
+        .page-header h1 { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 14px; }
+        .page-header h1 i { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+        .page-header p { color: var(--text-secondary); font-size: 1rem; max-width: 640px; margin: 0 auto; }
+
+        .tabs { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; padding: 6px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; box-shadow: var(--shadow); max-width: fit-content; margin-left: auto; margin-right: auto; }
+        .tab { padding: 10px 20px; border-radius: 999px; border: none; background: transparent; color: var(--text-secondary); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .tab:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+        .tab.active { background: var(--accent); color: #14151f; box-shadow: 0 4px 20px var(--accent-glow); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeInUp 0.4s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .main-card { max-width: 900px; margin: 0 auto 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow); }
+
+        /* TEXTAREA */
+        .text-area-wrap { position: relative; margin-bottom: 20px; }
+        .text-area {
+            width: 100%;
+            min-height: 220px;
+            padding: 18px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            outline: none;
+            transition: all 0.25s;
+            resize: vertical;
+        }
+        .text-area:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .tool-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tool-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+        .tool-btn.primary { background: var(--accent); color: #14151f; border-color: var(--accent); }
+        .tool-btn.primary:hover { background: var(--accent-hover); }
+        .tool-btn.danger { border-color: var(--red); color: var(--red); }
+        .tool-btn.danger:hover { background: var(--red); color: #fff; }
+        .tool-btn.success { border-color: var(--green); color: var(--green); }
+        .tool-btn.success:hover { background: var(--green); color: #fff; }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i { color: var(--accent); }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            text-align: center;
+            transition: all 0.25s;
+        }
+        .stat-item:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+            line-height: 1.1;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* FORM */
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-family: 'Montserrat', sans-serif; font-size: 0.95rem; outline: none; transition: all 0.2s; width: 100%; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.2s; user-select: none; margin-bottom: 10px; }
+        .checkbox-item:hover { border-color: var(--accent); }
+        .checkbox-item input[type="checkbox"] { display: none; }
+        .checkbox-item .check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: inline-flex; align-items: center; justify-content: center; color: transparent; font-size: 0.7rem; transition: all 0.2s; flex-shrink: 0; }
+        .checkbox-item input[type="checkbox"]:checked + .check { background: var(--accent); border-color: var(--accent); color: #14151f; }
+        .checkbox-item .text { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+
+        /* WORD FREQ */
+        .word-freq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .word-freq-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+        .word-freq-item:hover { border-color: var(--accent); }
+        .word-freq-item .word {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            flex: 1;
+        }
+        .word-freq-item .count {
+            font-weight: 800;
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+            min-width: 50px;
+            text-align: right;
+        }
+        .word-freq-item .bar {
+            width: 100px;
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .word-freq-item .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            transition: width 0.4s;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; display: block; }
+
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; padding: 14px 20px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif; font-size: 0.9rem;
+            box-shadow: var(--shadow-xl); z-index: 9999;
+            display: flex; align-items: center; gap: 12px;
+            max-width: 400px; animation: fadeInUp 0.3s ease;
+        }
+        .toast.error { border-color: var(--red); }
+        .toast.success { border-color: var(--green); }
+
+        footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 44px 0 28px; margin-top: 40px; }
+        .footer-top { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+        .footer-brand { display: flex; flex-direction: column; gap: 16px; }
+        .footer-brand .logo-icon { width: 60px; height: 60px; }
+        .footer-brand .brand-name { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, var(--text-primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .footer-brand p { color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; }
+        .footer-social { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .footer-social a { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-secondary); font-size: 1.2rem; transition: all 0.25s; text-decoration: none; }
+        .footer-social a:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 25px var(--accent-glow); }
+        .footer-social a img.social-icon-img { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; }
+        .footer-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .footer-col h4 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 6px; }
+        .footer-col ul a { color: var(--text-secondary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .footer-col ul a:hover { color: var(--accent); }
+        .footer-col ul a i { width: 16px; font-size: 0.8rem; }
+        .footer-bottom { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; color: var(--text-secondary); font-size: 0.85rem; padding-top: 20px; border-top: 1px solid var(--border); }
+
+        @media (max-width: 992px) {
+            .burger-menu { display: block; }
+            .nav-links { display: none; width: 100%; flex-direction: column; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 10px; gap: 4px; }
+            .nav-links.active { display: flex; }
+            .nav-links>a { padding: 10px 14px; width: 100%; }
+            .dropdown { width: 100%; }
+            .dropdown>button { width: 100%; justify-content: flex-start; padding: 10px 14px; }
+            .dropdown-content { position: static; border: none; background: color-mix(in srgb, var(--text-primary) 4%, transparent); box-shadow: none; padding: 0 0 0 16px; margin-top: 4px; }
+            .nav-right { order: -1; }
+            .footer-top { grid-template-columns: 1fr; }
+            .footer-links { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .page-header h1 { font-size: 1.6rem; gap: 8px; }
+            .footer-links { grid-template-columns: 1fr; }
+            .tabs { padding: 4px; }
+            .tab { padding: 8px 12px; font-size: 0.75rem; }
+            .main-card { padding: 20px 16px; }
+            .form-row { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .tool-btn { width: 100%; justify-content: center; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-value { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">
+                        <span class="logo-icon">
+                            <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                        </span>
+                        <span>Метро New</span>
+                    </a>
+                </div>
+                <div class="nav-right">
+                    <button class="burger-menu" id="burgerMenu"><i class="fas fa-bars"></i></button>
+                </div>
+                <div class="nav-links" id="navLinks">
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+                    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+                    <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+                    <div class="dropdown" id="dropdownOther">
+                        <button id="dropdownBtn">Прочее <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-content">
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/colors/"><i class="fas fa-palette"></i> Палитра цветов</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/password/"><i class="fas fa-key"></i> Генератор паролей</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/calc/"><i class="fas fa-calculator"></i> Калькуляторы</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/text/" class="active"><i class="fas fa-font"></i> Текстовые инструменты</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/radio/"><i class="fas fa-broadcast-tower"></i> Мировое радио</a>
+                            <a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a>
+                        </div>
+                    </div>
+                    <a id="authBtn" class="login-btn" href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/">
+                        <i class="fas fa-sign-in-alt"></i> <span>Войти</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="page">
+
+                <div class="page-header">
+                    <h1><i class="fas fa-font"></i> Текстовые инструменты</h1>
+                    <p>Регистр, счётчик, реверс, очистка, поиск, кодирование — всё для работы с текстом в браузере.</p>
+                </div>
+
+                <!-- TABS -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="case"><i class="fas fa-font"></i> Регистр</button>
+                    <button class="tab" data-tab="reverse"><i class="fas fa-exchange-alt"></i> Реверс</button>
+                    <button class="tab" data-tab="count"><i class="fas fa-chart-bar"></i> Счётчик</button>
+                    <button class="tab" data-tab="clean"><i class="fas fa-broom"></i> Очистка</button>
+                    <button class="tab" data-tab="find"><i class="fas fa-search"></i> Поиск</button>
+                    <button class="tab" data-tab="encode"><i class="fas fa-code"></i> Кодирование</button>
+                    <button class="tab" data-tab="freq"><i class="fas fa-list-ol"></i> Частота</button>
+                    <button class="tab" data-tab="highlight"><i class="fas fa-highlighter"></i> Подсветка</button>
+                </div>
+
+                <!-- ОБЩЕЕ ПОЛЕ ВВОДА (для регистра, реверса, очистки, поиска) -->
+                <div class="main-card" id="commonInputCard">
+                    <div class="text-area-wrap">
+                        <textarea class="text-area" id="mainText" placeholder="Введите или вставьте текст здесь...">Привет, мир! Это тестовый текст для проверки инструментов. Metro New — проект о метрополитене в Roblox.</textarea>
+                    </div>
+
+                    <div class="toolbar">
+                        <button class="tool-btn" onclick="pasteFromClipboard()">
+                            <i class="fas fa-paste"></i> Вставить
+                        </button>
+                        <button class="tool-btn" onclick="copyMainText()">
+                            <i class="fas fa-copy"></i> Копировать
+                        </button>
+                        <button class="tool-btn danger" onclick="clearMainText()">
+                            <i class="fas fa-trash"></i> Очистить
+                        </button>
+                        <button class="tool-btn" onclick="loadFile()">
+                            <i class="fas fa-file-upload"></i> Загрузить .txt
+                        </button>
+                        <button class="tool-btn" onclick="downloadFile()">
+                            <i class="fas fa-file-download"></i> Скачать .txt
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 1: CASE ===== -->
+                <div class="tab-panel active" id="panel-case">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-font"></i> Преобразование регистра</div>
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="toUpper()"><i class="fas fa-arrow-up"></i> ВЕРХНИЙ</button>
+                            <button class="tool-btn primary" onclick="toLower()"><i class="fas fa-arrow-down"></i> нижний</button>
+                            <button class="tool-btn primary" onclick="toTitle()"><i class="fas fa-heading"></i> Каждое Слово</button>
+                            <button class="tool-btn primary" onclick="toSentence()"><i class="fas fa-paragraph"></i> Предложения</button>
+                            <button class="tool-btn primary" onclick="toInvert()"><i class="fas fa-exchange-alt"></i> ИНВЕРСИЯ</button>
+                            <button class="tool-btn primary" onclick="toToggle()"><i class="fas fa-random"></i> пЕРЕМЕННЫЙ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 2: REVERSE ===== -->
+                <div class="tab-panel" id="panel-reverse">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-exchange-alt"></i> Реверс и сортировка строк</div>
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="reverseText()"><i class="fas fa-backward"></i> Реверс текста</button>
+                            <button class="tool-btn primary" onclick="reverseWords()"><i class="fas fa-sort"></i> Реверс слов</button>
+                            <button class="tool-btn primary" onclick="sortLinesAsc()"><i class="fas fa-sort-alpha-down"></i> А-Я</button>
+                            <button class="tool-btn primary" onclick="sortLinesDesc()"><i class="fas fa-sort-alpha-up"></i> Я-А</button>
+                            <button class="tool-btn primary" onclick="sortByLength()"><i class="fas fa-ruler"></i> По длине</button>
+                            <button class="tool-btn primary" onclick="removeDuplicates()"><i class="fas fa-clone"></i> Убрать дубли</button>
+                            <button class="tool-btn primary" onclick="shuffleLines()"><i class="fas fa-random"></i> Перемешать строки</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 3: COUNT ===== -->
+                <div class="tab-panel" id="panel-count">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-chart-bar"></i> Статистика текста</div>
+                        <div class="stats-grid" id="statsGrid">
+                            <!-- заполняется JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 4: CLEAN ===== -->
+                <div class="tab-panel" id="panel-clean">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-broom"></i> Очистка текста</div>
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="cleanSpaces()"><i class="fas fa-compress"></i> Убрать лишние пробелы</button>
+                            <button class="tool-btn primary" onclick="cleanEmptyLines()"><i class="fas fa-eraser"></i> Убрать пустые строки</button>
+                            <button class="tool-btn primary" onclick="cleanLineBreaks()"><i class="fas fa-align-justify"></i> Убрать переносы</button>
+                            <button class="tool-btn primary" onclick="cleanNonLetters()"><i class="fas fa-font"></i> Только буквы и цифры</button>
+                            <button class="tool-btn primary" onclick="cleanDigits()"><i class="fas fa-ban"></i> Убрать цифры</button>
+                            <button class="tool-btn primary" onclick="cleanLetters()"><i class="fas fa-hashtag"></i> Убрать буквы</button>
+                            <button class="tool-btn primary" onclick="cleanTrim()"><i class="fas fa-crop"></i> Trim</button>
+                            <button class="tool-btn primary" onclick="cleanHtml()"><i class="fas fa-code"></i> Убрать HTML-теги</button>
+                            <button class="tool-btn primary" onclick="cleanPunctuation()"><i class="fas fa-eraser"></i> Убрать пунктуацию</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 5: FIND ===== -->
+                <div class="tab-panel" id="panel-find">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-search"></i> Поиск и замена</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Найти</label>
+                                <input type="text" id="findText" placeholder="Что искать...">
+                            </div>
+                            <div class="form-group">
+                                <label>Заменить на</label>
+                                <input type="text" id="replaceText" placeholder="Чем заменить...">
+                            </div>
+                        </div>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="caseSensitive">
+                            <span class="check"><i class="fas fa-check"></i></span>
+                            <span class="text">Учитывать регистр</span>
+                        </label>
+
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="findReplaceAll()"><i class="fas fa-exchange-alt"></i> Заменить все</button>
+                            <button class="tool-btn" onclick="countMatches()"><i class="fas fa-hashtag"></i> Найти совпадения</button>
+                        </div>
+
+                        <div class="stats-grid" id="findStats" style="margin-top:16px;display:none;">
+                            <div class="stat-item">
+                                <div class="stat-value" id="matchCount">0</div>
+                                <div class="stat-label">Совпадений</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 6: ENCODE ===== -->
+                <div class="tab-panel" id="panel-encode">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-code"></i> Base64 / URL / HEX / HTML</div>
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="b64Encode()"><i class="fas fa-lock"></i> Текст → Base64</button>
+                            <button class="tool-btn primary" onclick="b64Decode()"><i class="fas fa-unlock"></i> Base64 → Текст</button>
+                            <button class="tool-btn primary" onclick="urlEncode()"><i class="fas fa-link"></i> URL encode</button>
+                            <button class="tool-btn primary" onclick="urlDecode()"><i class="fas fa-unlink"></i> URL decode</button>
+                            <button class="tool-btn primary" onclick="hexEncode()"><i class="fas fa-hashtag"></i> Текст → HEX</button>
+                            <button class="tool-btn primary" onclick="hexDecode()"><i class="fas fa-hashtag"></i> HEX → Текст</button>
+                            <button class="tool-btn primary" onclick="htmlEncode()"><i class="fas fa-code"></i> HTML escape</button>
+                            <button class="tool-btn primary" onclick="htmlDecode()"><i class="fas fa-code"></i> HTML unescape</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 7: FREQ ===== -->
+                <div class="tab-panel" id="panel-freq">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-list-ol"></i> Частота слов</div>
+
+                        <div class="form-row" style="margin-bottom:16px;">
+                            <div class="form-group">
+                                <label>Минимальная длина слова</label>
+                                <input type="number" id="freqMinLen" value="3" min="1" max="20">
+                            </div>
+                            <div class="form-group">
+                                <label>Показать топ</label>
+                                <input type="number" id="freqTop" value="20" min="5" max="100">
+                            </div>
+                        </div>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="freqCase">
+                            <span class="check"><i class="fas fa-check"></i></span>
+                            <span class="text">Учитывать регистр</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="freqStop" checked>
+                            <span class="check"><i class="fas fa-check"></i></span>
+                            <span class="text">Исключить стоп-слова (и, в, на, с, по...)</span>
+                        </label>
+
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="calculateFreq()"><i class="fas fa-calculator"></i> Посчитать</button>
+                        </div>
+
+                        <div class="word-freq-list" id="freqList" style="margin-top:16px;">
+                            <div class="empty-state">
+                                <i class="fas fa-list-ol"></i>
+                                <p>Нажмите «Посчитать»</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB 8: HIGHLIGHT ===== -->
+                <div class="tab-panel" id="panel-highlight">
+                    <div class="main-card">
+                        <div class="section-title"><i class="fas fa-highlighter"></i> Подсветка специальных символов</div>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showSpaces" checked>
+                            <span class="check"><i class="fas fa-check"></i></span>
+                            <span class="text">Показать пробелы (·)</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showBreaks" checked>
+                            <span class="check"><i class="fas fa-check"></i></span>
+                            <span class="text">Показать переносы строк (¶)</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showTabs" checked>
+                            <span class="check"><i class="fas fa-check"></i></span>
+                            <span class="text">Показать табы (→)</span>
+                        </label>
+
+                        <div class="toolbar">
+                            <button class="tool-btn primary" onclick="applyHighlight()"><i class="fas fa-eye"></i> Показать</button>
+                        </div>
+
+                        <div class="text-area-wrap" style="margin-top:16px;">
+                            <div class="text-area" id="highlightOutput" style="min-height:220px; white-space:pre-wrap; word-break:break-all; cursor:default;"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-icon">
+                        <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Metro New" loading="lazy" />
+                    </div>
+                    <div class="brand-name">Метро New</div>
+                    <p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+                    <div class="footer-social">
+                        <a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox">
+                            <img class="social-icon-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_5QmtkcWLqiNB5AIKS2M8UY5dobNo9bfjGdb63bXew&s" alt="Roblox" loading="lazy" />
+                        </a>
+                        <a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>О нас</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сообщество</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Правовые документы</h4>
+                        <ul>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Политика возврата</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Политика авторских прав</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines"><i class="fas fa-globe"></i> Правила сайта</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Контакты</h4>
+                        <ul>
+                            <li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Форма обратной связи</a></li>
+                            <li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Техническая поддержка</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Полезные ссылки</h4>
+                        <ul>
+                            <li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Все игры</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> База знаний</a></li>
+                            <li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус сервисов</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li>
+                            <li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© <span id="currentYear">2026</span> Metro New. Все права защищены.</p>
+                <button class="theme-toggle" id="themeToggle" title="Сменить тему">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== TABS =====
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+
+                if (tab.dataset.tab === 'count') updateStats();
+            });
+        });
+
+        // ===== DOM =====
+        const mainText = document.getElementById('mainText');
+
+        // ===== ОБЩИЕ =====
+        function pasteFromClipboard() {
+            navigator.clipboard.readText().then(text => {
+                mainText.value += text;
+                updateStats();
+                showToast('Вставлено из буфера ✅', 'success');
+            }).catch(() => showToast('Не удалось вставить', 'error'));
+        }
+
+        function copyMainText() {
+            copyToClipboard(mainText.value);
+        }
+
+        function clearMainText() {
+            if (!confirm('Очистить текст?')) return;
+            mainText.value = '';
+            updateStats();
+        }
+
+        function loadFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt,text/plain';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    mainText.value = ev.target.result;
+                    updateStats();
+                    showToast('Файл загружен ✅', 'success');
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function downloadFile() {
+            const blob = new Blob([mainText.value], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'metro-new-text.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Файл скачан ✅', 'success');
+        }
+
+        // ===== CASE =====
+        function toUpper() { mainText.value = mainText.value.toUpperCase(); updateStats(); }
+        function toLower() { mainText.value = mainText.value.toLowerCase(); updateStats(); }
+        function toTitle() {
+            mainText.value = mainText.value.replace(/\S+/g, w =>
+                w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+            updateStats();
+        }
+        function toSentence() {
+            mainText.value = mainText.value.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, c => c.toUpperCase());
+            updateStats();
+        }
+        function toInvert() {
+            mainText.value = mainText.value.split('').map(c =>
+                c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('');
+            updateStats();
+        }
+        function toToggle() {
+            mainText.value = mainText.value.split('').map((c, i) =>
+                i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('');
+            updateStats();
+        }
+
+        // ===== REVERSE =====
+        function reverseText() {
+            mainText.value = mainText.value.split('').reverse().join('');
+            updateStats();
+        }
+        function reverseWords() {
+            mainText.value = mainText.value.split(/\s+/).reverse().join(' ');
+            updateStats();
+        }
+        function sortLinesAsc() {
+            mainText.value = mainText.value.split('\n').sort((a, b) => a.localeCompare(b, 'ru')).join('\n');
+            updateStats();
+        }
+        function sortLinesDesc() {
+            mainText.value = mainText.value.split('\n').sort((a, b) => b.localeCompare(a, 'ru')).join('\n');
+            updateStats();
+        }
+        function sortByLength() {
+            mainText.value = mainText.value.split('\n').sort((a, b) => a.length - b.length).join('\n');
+            updateStats();
+        }
+        function removeDuplicates() {
+            const lines = mainText.value.split('\n');
+            const unique = [...new Set(lines)];
+            mainText.value = unique.join('\n');
+            updateStats();
+            showToast(`Удалено дублей: ${lines.length - unique.length}`, 'info');
+        }
+        function shuffleLines() {
+            const lines = mainText.value.split('\n');
+            for (let i = lines.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [lines[i], lines[j]] = [lines[j], lines[i]];
+            }
+            mainText.value = lines.join('\n');
+            updateStats();
+        }
+
+        // ===== COUNT =====
+        function updateStats() {
+            const text = mainText.value;
+            const chars = text.length;
+            const charsNoSpace = text.replace(/\s/g, '').length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const sentences = (text.match(/[.!?]+/g) || []).length;
+            const paragraphs = text.trim() ? text.trim().split(/\n\s*\n/).length : 0;
+            const lines = text.split('\n').length;
+            const uniqueWords = new Set(text.toLowerCase().match(/[а-яёa-z0-9]+/gi) || []).size;
+            const readTime = Math.ceil(words / 200);
+            const speakTime = Math.ceil(words / 150);
+
+            const statsGrid = document.getElementById('statsGrid');
+            if (!statsGrid) return;
+
+            statsGrid.innerHTML = `
+                <div class="stat-item"><div class="stat-value">${chars}</div><div class="stat-label">Символов</div></div>
+                <div class="stat-item"><div class="stat-value">${charsNoSpace}</div><div class="stat-label">Без пробелов</div></div>
+                <div class="stat-item"><div class="stat-value">${words}</div><div class="stat-label">Слов</div></div>
+                <div class="stat-item"><div class="stat-value">${sentences}</div><div class="stat-label">Предложений</div></div>
+                <div class="stat-item"><div class="stat-value">${paragraphs}</div><div class="stat-label">Абзацев</div></div>
+                <div class="stat-item"><div class="stat-value">${lines}</div><div class="stat-label">Строк</div></div>
+                <div class="stat-item"><div class="stat-value">${uniqueWords}</div><div class="stat-label">Уникальных</div></div>
+                <div class="stat-item"><div class="stat-value">${readTime}м</div><div class="stat-label">Чтение</div></div>
+                <div class="stat-item"><div class="stat-value">${speakTime}м</div><div class="stat-label">Речь</div></div>
+            `;
+        }
+
+        mainText.addEventListener('input', updateStats);
+
+        // ===== CLEAN =====
+        function cleanSpaces() {
+            mainText.value = mainText.value.replace(/[ \t]+/g, ' ').replace(/^ +| +$/gm, '');
+            updateStats();
+        }
+        function cleanEmptyLines() {
+            mainText.value = mainText.value.split('\n').filter(l => l.trim()).join('\n');
+            updateStats();
+        }
+        function cleanLineBreaks() {
+            mainText.value = mainText.value.replace(/\n+/g, ' ').replace(/\s+/g, ' ');
+            updateStats();
+        }
+        function cleanNonLetters() {
+            mainText.value = mainText.value.replace(/[^а-яёa-z0-9\s]/gi, '');
+            updateStats();
+        }
+        function cleanDigits() {
+            mainText.value = mainText.value.replace(/[0-9]/g, '');
+            updateStats();
+        }
+        function cleanLetters() {
+            mainText.value = mainText.value.replace(/[а-яёa-z]/gi, '');
+            updateStats();
+        }
+        function cleanTrim() {
+            mainText.value = mainText.value.split('\n').map(l => l.trim()).join('\n').trim();
+            updateStats();
+        }
+        function cleanHtml() {
+            mainText.value = mainText.value.replace(/<[^>]*>/g, '');
+            updateStats();
+        }
+        function cleanPunctuation() {
+            mainText.value = mainText.value.replace(/[.,!?;:—–\-()"'«»\[\]{}]/g, '');
+            updateStats();
+        }
+
+        // ===== FIND =====
+        function findReplaceAll() {
+            const find = document.getElementById('findText').value;
+            const replace = document.getElementById('replaceText').value;
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            if (!find) { showToast('Введите что искать', 'error'); return; }
+
+            const flags = caseSensitive ? 'g' : 'gi';
+            const regex = new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+            const count = (mainText.value.match(regex) || []).length;
+            mainText.value = mainText.value.replace(regex, replace);
+            updateStats();
+            showToast(`Заменено: ${count}`, 'success');
+        }
+
+        function countMatches() {
+            const find = document.getElementById('findText').value;
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            if (!find) { showToast('Введите что искать', 'error'); return; }
+
+            const flags = caseSensitive ? 'g' : 'gi';
+            const regex = new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+            const count = (mainText.value.match(regex) || []).length;
+            document.getElementById('matchCount').textContent = count;
+            document.getElementById('findStats').style.display = 'grid';
+            showToast(`Найдено: ${count}`, 'info');
+        }
+
+        // ===== ENCODE =====
+        function b64Encode() {
+            try {
+                const text = mainText.value;
+                mainText.value = btoa(unescape(encodeURIComponent(text)));
+                updateStats();
+                showToast('Base64: готово ✅', 'success');
+            } catch (e) { showToast('Ошибка кодирования', 'error'); }
+        }
+
+        function b64Decode() {
+            try {
+                const text = mainText.value;
+                mainText.value = decodeURIComponent(escape(atob(text.trim())));
+                updateStats();
+                showToast('Base64: декодировано ✅', 'success');
+            } catch (e) { showToast('Ошибка декодирования', 'error'); }
+        }
+
+        function urlEncode() {
+            mainText.value = encodeURIComponent(mainText.value);
+            updateStats();
+        }
+
+        function urlDecode() {
+            try {
+                mainText.value = decodeURIComponent(mainText.value);
+                updateStats();
+            } catch (e) { showToast('Ошибка декодирования', 'error'); }
+        }
+
+        function hexEncode() {
+            const text = mainText.value;
+            let hex = '';
+            for (let i = 0; i < text.length; i++) {
+                hex += text.charCodeAt(i).toString(16).padStart(4, '0');
+            }
+            mainText.value = hex.toUpperCase();
+            updateStats();
+        }
+
+        function hexDecode() {
+            try {
+                const hex = mainText.value.replace(/\s/g, '');
+                let text = '';
+                for (let i = 0; i < hex.length; i += 4) {
+                    text += String.fromCharCode(parseInt(hex.substr(i, 4), 16));
+                }
+                mainText.value = text;
+                updateStats();
+            } catch (e) { showToast('Ошибка декодирования', 'error'); }
+        }
+
+        function htmlEncode() {
+            mainText.value = mainText.value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            updateStats();
+        }
+
+        function htmlDecode() {
+            mainText.value = mainText.value
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#039;/g, "'");
+            updateStats();
+        }
+
+        // ===== FREQ =====
+        const STOP_WORDS = ['и', 'в', 'на', 'с', 'по', 'за', 'к', 'о', 'об', 'от', 'из', 'у', 'не', 'но', 'а', 'или', 'же', 'бы', 'что', 'как', 'это', 'the', 'a', 'an', 'and', 'or', 'of', 'in', 'on', 'to', 'for', 'is', 'are'];
+
+        function calculateFreq() {
+            const text = mainText.value;
+            const minLen = parseInt(document.getElementById('freqMinLen').value) || 1;
+            const topN = parseInt(document.getElementById('freqTop').value) || 20;
+            const caseSensitive = document.getElementById('freqCase').checked;
+            const excludeStop = document.getElementById('freqStop').checked;
+
+            let words = text.match(/[а-яёa-z0-9]+/gi) || [];
+            if (!caseSensitive) words = words.map(w => w.toLowerCase());
+            words = words.filter(w => w.length >= minLen);
+            if (excludeStop) words = words.filter(w => !STOP_WORDS.includes(w.toLowerCase()));
+
+            const freq = {};
+            words.forEach(w => freq[w] = (freq[w] || 0) + 1);
+
+            const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, topN);
+            const maxCount = sorted[0]?.[1] || 1;
+
+            const listEl = document.getElementById('freqList');
+            if (sorted.length === 0) {
+                listEl.innerHTML = `<div class="empty-state"><i class="fas fa-list-ol"></i><p>Слов не найдено</p></div>`;
+                return;
+            }
+
+            listEl.innerHTML = sorted.map(([word, count]) => `
+                <div class="word-freq-item">
+                    <span class="word">${escapeHtml(word)}</span>
+                    <div class="bar"><div class="bar-fill" style="width:${(count / maxCount) * 100}%"></div></div>
+                    <span class="count">${count}</span>
+                </div>
+            `).join('');
+        }
+
+        // ===== HIGHLIGHT =====
+        function applyHighlight() {
+            const text = mainText.value;
+            const showSpaces = document.getElementById('showSpaces').checked;
+            const showBreaks = document.getElementById('showBreaks').checked;
+            const showTabs = document.getElementById('showTabs').checked;
+
+            let html = escapeHtml(text);
+            if (showTabs) html = html.replace(/\t/g, '<span style="color:var(--blue);background:var(--blue-light);padding:0 2px;border-radius:3px;">→</span>');
+            if (showSpaces) html = html.replace(/ /g, '<span style="color:var(--text-tertiary);background:var(--bg-secondary);padding:0 2px;border-radius:3px;">·</span>');
+            if (showBreaks) html = html.replace(/\n/g, '<span style="color:var(--red);background:var(--red-light);padding:0 2px;border-radius:3px;">¶</span><br>');
+
+            document.getElementById('highlightOutput').innerHTML = html;
+        }
+
+        // ===== UTILS =====
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Скопировано ✅', 'success');
+            }).catch(() => showToast('Не удалось скопировать', 'error'));
+        }
+
+        function showToast(message, type = 'info', duration = 2200) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), duration);
+        }
+
+        // ===== THEME =====
+        const THEME_KEY = 'metro_new_theme';
+        const root = document.documentElement;
+        function applyTheme(t) { root.setAttribute('data-theme', t); }
+        function getInitialTheme() {
+            const s = localStorage.getItem(THEME_KEY);
+            if (s === 'light' || s === 'dark') return s;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        let currentTheme = getInitialTheme();
+        applyTheme(currentTheme);
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            localStorage.setItem(THEME_KEY, currentTheme);
+        });
+
+        // ===== BURGER =====
+        document.getElementById('burgerMenu').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // ===== DROPDOWN =====
+        document.getElementById('dropdownBtn').addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            document.getElementById('dropdownOther').classList.toggle('open');
+        });
+        document.addEventListener('click', e => {
+            if (!document.getElementById('dropdownOther').contains(e.target)) {
+                document.getElementById('dropdownOther').classList.remove('open');
+            }
+        });
+
+        // ===== YEAR =====
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // ===== GLOBAL =====
+        window.pasteFromClipboard = pasteFromClipboard;
+        window.copyMainText = copyMainText;
+        window.clearMainText = clearMainText;
+        window.loadFile = loadFile;
+        window.downloadFile = downloadFile;
+        window.toUpper = toUpper;
+        window.toLower = toLower;
+        window.toTitle = toTitle;
+        window.toSentence = toSentence;
+        window.toInvert = toInvert;
+        window.toToggle = toToggle;
+        window.reverseText = reverseText;
+        window.reverseWords = reverseWords;
+        window.sortLinesAsc = sortLinesAsc;
+        window.sortLinesDesc = sortLinesDesc;
+        window.sortByLength = sortByLength;
+        window.removeDuplicates = removeDuplicates;
+        window.shuffleLines = shuffleLines;
+        window.cleanSpaces = cleanSpaces;
+        window.cleanEmptyLines = cleanEmptyLines;
+        window.cleanLineBreaks = cleanLineBreaks;
+        window.cleanNonLetters = cleanNonLetters;
+        window.cleanDigits = cleanDigits;
+        window.cleanLetters = cleanLetters;
+        window.cleanTrim = cleanTrim;
+        window.cleanHtml = cleanHtml;
+        window.cleanPunctuation = cleanPunctuation;
+        window.findReplaceAll = findReplaceAll;
+        window.countMatches = countMatches;
+        window.b64Encode = b64Encode;
+        window.b64Decode = b64Decode;
+        window.urlEncode = urlEncode;
+        window.urlDecode = urlDecode;
+        window.hexEncode = hexEncode;
+        window.hexDecode = hexDecode;
+        window.htmlEncode = htmlEncode;
+        window.htmlDecode = htmlDecode;
+        window.calculateFreq = calculateFreq;
+        window.applyHighlight = applyHighlight;
+
+        // ===== INIT =====
+        updateStats();
+        applyHighlight();
+
+        
+    </script>
+
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/update-docs.js"></script>
+    <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+</body>
+</html>
