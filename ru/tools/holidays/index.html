@@ -520,6 +520,33 @@
             font-weight: 700;
         }
 
+        /* COUNTRIES PRO */
+        .countries-toolbar { display:flex; gap:10px; margin-bottom:14px; }
+        .country-search { flex:1; height:46px; padding:0 14px; border:1px solid var(--border); border-radius:12px; background:var(--card); color:var(--text); outline:none; }
+        .country-search:focus { border-color:var(--primary); }
+        .country-filter-button { border:1px solid var(--border); border-radius:12px; padding:0 14px; background:var(--card); color:var(--text); }
+        .country-filter-button.active { background:var(--primary); color:white; border-color:var(--primary); }
+        .country-pro { position:relative; display:flex; flex-direction:column; gap:10px; min-height:205px; padding:17px; border:1px solid var(--border); border-radius:16px; background:var(--card); color:var(--text); text-align:left; transition:transform .15s,border-color .15s; }
+        .country-pro:hover { transform:translateY(-2px); border-color:var(--primary); }
+        .country-pro-head { display:flex; align-items:flex-start; gap:10px; padding-right:28px; }
+        .country-pro-flag { font-size:30px; }
+        .country-pro-name { font-size:16px; font-weight:800; }
+        .country-pro-code { color:var(--muted); font-size:11px; margin-top:2px; }
+        .country-star { position:absolute; top:13px; right:13px; border:0; background:transparent; color:var(--muted); font-size:20px; }
+        .country-star.active { color:#e6a500; }
+        .country-next { padding:9px 10px; border-radius:10px; background:var(--primary-soft); font-size:12px; }
+        .country-next strong { display:block; margin-top:2px; }
+        .country-stats { display:flex; flex-wrap:wrap; gap:5px; margin-top:auto; }
+        .country-stat { padding:4px 7px; border-radius:7px; background:var(--bg); color:var(--muted); font-size:10px; }
+        .country-actions { display:flex; gap:7px; }
+        .country-action { flex:1; border:1px solid var(--border); border-radius:9px; padding:7px; background:transparent; color:var(--text); font-size:12px; }
+        .country-action.primary { background:var(--primary); color:white; border-color:var(--primary); }
+        .compare-box { margin-top:14px; padding:18px; border:1px solid var(--border); border-radius:16px; background:var(--card); }
+        .compare-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .compare-country { padding:14px; border-radius:12px; background:var(--bg); }
+        .compare-country h3 { margin-bottom:7px; }
+        .compare-country p { color:var(--muted); font-size:12px; margin-top:4px; }
+        .compare-clear { margin-top:12px; border:0; background:transparent; color:var(--primary); font-size:12px; }
         /* ERROR REPORT */
 
         .report {
@@ -682,6 +709,18 @@
 
             .countries {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .countries-toolbar {
+                flex-direction: column;
+            }
+
+            .country-filter-button {
+                height: 44px;
+            }
+
+            .compare-grid {
+                grid-template-columns: 1fr;
             }
 
             .calendar-day {
@@ -940,10 +979,14 @@
                 </span>
             </div>
 
-            <div
-                class="countries"
-                id="countries"
-            ></div>
+        <div class="countries-toolbar">
+            <input class="country-search" id="countrySearch" type="search" placeholder="🔎 Поиск страны, кода или флага..." autocomplete="off">
+            <button class="country-filter-button" id="countryFavoritesButton" type="button">⭐ Избранные</button>
+        </div>
+
+        <div class="countries" id="countries"></div>
+
+        <div class="compare-box" id="countryCompare" hidden></div>
 
         </section>
 
@@ -1109,7 +1152,13 @@
         ),
         theme:
             localStorage.getItem("holidayTheme") ||
-            "light"
+            "light",
+        countryFavorites: JSON.parse(
+            localStorage.getItem("holidayCountryFavorites") || "[]"
+        ),
+        countryQuery: "",
+        countryFavoritesOnly: false,
+        compareCountries: []
     };
 
 
@@ -1529,51 +1578,70 @@
     ========================================= */
 
     function renderCountries() {
+        const container = $("#countries");
+        const query = state.countryQuery.trim().toLowerCase();
+        const countries = [...state.countries].sort((a,b) => (a.name||"").localeCompare(b.name||"","ru")).filter(country => {
+            const text = ((country.name||"")+" "+(country.code||"")+" "+(country.flag||"")).toLowerCase();
+            if (query && !text.includes(query)) return false;
+            if (state.countryFavoritesOnly && !state.countryFavorites.includes(country.code)) return false;
+            return true;
+        });
+        if (!countries.length) { container.innerHTML = '<div class="empty">Стран не найдено.</div>'; renderCountryCompare(); return; }
+        container.innerHTML = countries.map(createCountryCard).join("");
+        container.querySelectorAll("[data-country-open]").forEach(button => button.addEventListener("click", () => showCountry(button.dataset.countryOpen)));
+        container.querySelectorAll("[data-country-favorite]").forEach(button => button.addEventListener("click", event => { event.stopPropagation(); toggleCountryFavorite(button.dataset.countryFavorite); }));
+        container.querySelectorAll("[data-country-compare]").forEach(button => button.addEventListener("click", event => { event.stopPropagation(); toggleCountryCompare(button.dataset.countryCompare); }));
+        renderCountryCompare();
+    }
 
-        const container =
-            $("#countries");
+    function createCountryCard(country) {
+        const holidays = state.holidays.filter(h => h.countryCode === country.code);
+        const today = getTodayString();
+        const next = holidays.filter(h => h.date >= today).sort((a,b) => a.date.localeCompare(b.date))[0];
+        const counts = { total:holidays.length, national:holidays.filter(h=>h.category==="national").length, religious:holidays.filter(h=>h.category==="religious").length, cultural:holidays.filter(h=>h.category==="cultural").length, international:holidays.filter(h=>h.category==="international").length };
+        const favorite = state.countryFavorites.includes(country.code);
+        const compared = state.compareCountries.includes(country.code);
+        return `<article class="country-pro">
+            <button class="country-star ${favorite ? "active" : ""}" data-country-favorite="${escapeHtml(country.code)}" aria-label="Избранное">${favorite ? "★" : "☆"}</button>
+            <div class="country-pro-head"><span class="country-pro-flag">${country.flag || "🌍"}</span><div><div class="country-pro-name">${escapeHtml(country.name || country.code)}</div><div class="country-pro-code">${escapeHtml(country.code || "")}</div></div></div>
+            <div class="country-next">🎉 Ближайший праздник<strong>${next ? escapeHtml(next.name)+" · "+daysUntil(next.date)+" "+plural(daysUntil(next.date),"день","дня","дней") : "Нет данных"}</strong></div>
+            <div class="country-stats"><span class="country-stat">📊 ${counts.total} всего</span><span class="country-stat">🏛️ ${counts.national}</span><span class="country-stat">⛪ ${counts.religious}</span><span class="country-stat">🎭 ${counts.cultural}</span><span class="country-stat">🌐 ${counts.international}</span></div>
+            <div class="country-actions"><button class="country-action primary" data-country-open="${escapeHtml(country.code)}">📅 Праздники</button><button class="country-action ${compared ? "primary" : ""}" data-country-compare="${escapeHtml(country.code)}">${compared ? "✓ Сравнение" : "⇄ Сравнить"}</button></div>
+        </article>`;
+    }
 
-        container.innerHTML = "";
+    function daysUntil(dateString) {
+        const today = new Date(getTodayString()+"T00:00:00");
+        const date = new Date(dateString+"T00:00:00");
+        return Math.max(0, Math.round((date-today)/86400000));
+    }
 
-        state.countries
-            .sort(
-                (a, b) =>
-                    (a.name || "")
-                        .localeCompare(
-                            b.name || "",
-                            "ru"
-                        )
-            )
-            .forEach(country => {
+    function toggleCountryFavorite(code) {
+        const index = state.countryFavorites.indexOf(code);
+        if (index === -1) state.countryFavorites.push(code); else state.countryFavorites.splice(index,1);
+        localStorage.setItem("holidayCountryFavorites", JSON.stringify(state.countryFavorites));
+        renderCountries();
+    }
 
-                const button =
-                    document.createElement("button");
+    function toggleCountryCompare(code) {
+        const index = state.compareCountries.indexOf(code);
+        if (index !== -1) state.compareCountries.splice(index,1);
+        else { if (state.compareCountries.length >= 2) state.compareCountries.shift(); state.compareCountries.push(code); }
+        renderCountries();
+    }
 
-                button.className =
-                    "country";
-
-                button.innerHTML = `
-                    <span class="country-flag">
-                        ${country.flag || "🌍"}
-                    </span>
-
-                    <span class="country-name">
-                        ${country.name || country.code}
-                    </span>
-                `;
-
-                button.addEventListener(
-                    "click",
-                    () =>
-                        showCountry(
-                            country.code
-                        )
-                );
-
-                container.appendChild(button);
-
-            });
-
+    function renderCountryCompare() {
+        const box = $("#countryCompare");
+        if (state.compareCountries.length !== 2) { box.hidden=true; box.innerHTML=""; return; }
+        const cards = state.compareCountries.map(code => {
+            const country = state.countries.find(c=>c.code===code);
+            const holidays = state.holidays.filter(h=>h.countryCode===code);
+            const next = holidays.filter(h=>h.date>=getTodayString()).sort((a,b)=>a.date.localeCompare(b.date))[0];
+            return {country,total:holidays.length,next,national:holidays.filter(h=>h.category==="national").length,religious:holidays.filter(h=>h.category==="religious").length,cultural:holidays.filter(h=>h.category==="cultural").length,international:holidays.filter(h=>h.category==="international").length};
+        });
+        box.hidden=false;
+        box.innerHTML = `<div class="section-title"><h3>🌐 Сравнение стран</h3><span>2 страны</span></div><div class="compare-grid">${cards.map(item=>`<div class="compare-country"><h3>${item.country.flag||"🌍"} ${escapeHtml(item.country.name||item.country.code)}</h3><p>📅 Праздников: <strong>${item.total}</strong></p><p>🎉 Ближайший: <strong>${item.next?escapeHtml(item.next.name):"—"}</strong></p><p>🏛️ Государственных: ${item.national}</p><p>⛪ Религиозных: ${item.religious}</p><p>🎭 Культурных: ${item.cultural}</p><p>🌐 Международных: ${item.international}</p></div>`).join("")}</div><button class="compare-clear" id="clearCountryCompare">Очистить сравнение</button>`;
+        $("#clearCountryCompare").addEventListener("click",()=>{state.compareCountries=[];renderCountries();});
     }
 
 
@@ -2180,6 +2248,17 @@
                 }
             );
 
+
+        $("#countrySearch").addEventListener("input", event => {
+            state.countryQuery = event.target.value;
+            renderCountries();
+        });
+
+        $("#countryFavoritesButton").addEventListener("click", () => {
+            state.countryFavoritesOnly = !state.countryFavoritesOnly;
+            $("#countryFavoritesButton").classList.toggle("active", state.countryFavoritesOnly);
+            renderCountries();
+        });
 
         $("#themeButton")
             .addEventListener(
