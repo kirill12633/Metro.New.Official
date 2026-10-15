@@ -72,7 +72,7 @@ h1{font-size:clamp(44px,6vw,72px);letter-spacing:-3.8px}
 <header class="header"><div class="wrap headrow">
 <a class="brand" href="#home" aria-label="Metro New — главная"><span class="brandmark">M</span><span>METRO NEW</span></a>
 <nav class="nav" aria-label="Основная навигация">
-<a class="active" href="#home" data-nav="home">Главная</a><a href="#world" data-nav="world">Мир</a><a href="#politics" data-nav="politics">Политика</a><a href="#economy" data-nav="economy">Экономика</a><a href="#technology" data-nav="technology">Технологии</a><a href="#sports" data-nav="sports">Спорт</a><a href="#weather" data-nav="weather">Погода</a><a href="#video" data-nav="video">Видео</a><a href="#about" data-nav="about">О нас</a>
+<a class="active" href="#home" data-nav="home">Главная</a><a href="#world" data-nav="world">Мир</a><a href="#politics" data-nav="politics">Политика</a><a href="#economy" data-nav="economy">Экономика</a><a href="#technology" data-nav="technology">Технологии</a><a href="#sports" data-nav="sports">Спорт</a><a href="#weather-live" data-nav="weather">Погода</a><a href="#video" data-nav="video">Видео</a><a href="#about" data-nav="about">О нас</a>
 </nav>
 <div class="headtools"><button class="toolbtn" id="searchToggle" aria-label="Открыть поиск" title="Поиск">⌕</button><button class="toolbtn" id="themeToggle" aria-label="Переключить тему" title="Переключить тему">◐</button></div>
 <div class="searchbox" id="searchBox"><input id="searchInput" type="search" placeholder="Найти материал…" aria-label="Поиск по материалам"><button id="searchClear">Очистить</button></div>
@@ -195,7 +195,8 @@ filters.forEach(button=>button.addEventListener('click',()=>selectCategory(butto
 document.querySelectorAll('[data-nav]').forEach(link=>link.addEventListener('click',()=>{
  const value=link.dataset.nav;
  document.querySelectorAll('[data-nav]').forEach(node=>node.classList.toggle('active',node===link));
- if(Object.hasOwn(categoryNames,value))selectCategory(value);
+ if(value==='weather'){document.getElementById('weather-live').scrollIntoView({behavior:'smooth',block:'start'});}
+ else if(Object.hasOwn(categoryNames,value))selectCategory(value);
  else if(value==='home'){category='all';query='';input.value='';filters.forEach(button=>button.classList.toggle('active',button.dataset.filter==='all'));render();}
 }));
 document.querySelectorAll('[data-topic]').forEach(link=>link.addEventListener('click',()=>{
