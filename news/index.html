@@ -35,17 +35,9 @@
 <div class="panel-rule"></div><a class="panel-line" href="#sports"><span class="panel-no">04</span><span><strong>Спорт</strong><small>Турниры и спортивные события</small></span></a>
 </aside>
 </section>
-<section class="section" id="latest"><div class="sectionhead"><div><div class="kicker">Новостная лента</div><h2>Материалы Metro New</h2></div><div class="sectiondesc" id="resultCount">Выберите интересующий раздел</div></div>
+<section class="section" id="latest"><div class="sectionhead"><div><div class="kicker">Новостная лента</div><h2>Последние публикации</h2></div><div class="sectiondesc" id="resultCount">Загрузка ленты…</div></div>
 <div class="filters" role="group" aria-label="Фильтр по разделам"><button class="filter active" data-filter="all">Все темы</button><button class="filter" data-filter="world">Мир</button><button class="filter" data-filter="politics">Политика</button><button class="filter" data-filter="economy">Экономика</button><button class="filter" data-filter="technology">Технологии</button><button class="filter" data-filter="sports">Спорт</button><button class="filter" data-filter="weather">Погода</button><button class="filter" data-filter="video">Видео</button></div>
-<div class="storygrid" id="storyGrid">
-<article class="story" data-category="world"><div class="storycat">Мир</div><h3>Международные события</h3><p>Раздел для проверенных новостей и важных событий со всего мира.</p><div class="storyfoot"><span>РАЗДЕЛ МИРА</span><span>↗</span></div></article>
-<article class="story" data-category="politics"><div class="storycat">Политика</div><h3>Политика и общество</h3><p>Решения, общественные процессы и политическая повестка.</p><div class="storyfoot"><span>ПОЛИТИКА</span><span>↗</span></div></article>
-<article class="story" data-category="economy"><div class="storycat">Экономика</div><h3>Экономика и бизнес</h3><p>Компании, рынки, финансы и экономические тенденции.</p><div class="storyfoot"><span>ЭКОНОМИКА</span><span>↗</span></div></article>
-<article class="story" data-category="technology"><div class="storycat">Технологии</div><h3>Технологии и наука</h3><p>Цифровые продукты, научные открытия и инновации.</p><div class="storyfoot"><span>ТЕХНОЛОГИИ</span><span>↗</span></div></article>
-<article class="story" data-category="sports"><div class="storycat">Спорт</div><h3>Спортивная повестка</h3><p>Соревнования, результаты и истории из мира спорта.</p><div class="storyfoot"><span>СПОРТ</span><span>↗</span></div></article>
-<article class="story" data-category="weather"><div class="storycat">Погода</div><h3>Погода и окружающая среда</h3><p>Погодная информация и материалы об окружающем мире.</p><div class="storyfoot"><span>ПОГОДА</span><span>↗</span></div></article>
-<article class="story" data-category="video"><div class="storycat">Видео</div><h3>Видео и специальные материалы</h3><p>Видеосюжеты и визуальные истории Metro New.</p><div class="storyfoot"><span>ВИДЕО</span><span>↗</span></div></article>
-</div><div class="empty" id="emptyState">По вашему запросу ничего не найдено. Попробуйте изменить поиск.</div>
+<div class="storygrid" id="storyGrid" aria-live="polite"></div><div class="empty show" id="emptyState" role="status">Загружаем свежие публикации из новостных источников…</div>
 </section>
 <section class="section" id="topics"><div class="sectionhead"><div><div class="kicker">Навигация</div><h2>Все разделы</h2></div></div><div class="topic-grid">
 <a class="topic" id="world" href="#latest" data-topic="world"><span>01 / МИР</span><strong>Мир</strong><small>Международные события</small></a>
@@ -61,19 +53,134 @@
 <footer class="footer"><div class="wrap footrow"><span class="footbrand">METRO NEW</span><span>Новости • Мир • Люди</span><a href="#home">Наверх ↑</a></div></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-(()=>{const body=document.body;const cards=[...document.querySelectorAll('.story')];const filters=[...document.querySelectorAll('[data-filter]')];const input=document.getElementById('searchInput');const empty=document.getElementById('emptyState');const count=document.getElementById('resultCount');let category='all';let query='';
-function update(){let shown=0;cards.forEach(card=>{const matchesCat=category==='all'||card.dataset.category===category;const matchesText=!query||card.textContent.toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru'));const visible=matchesCat&&matchesText;card.hidden=!visible;if(visible)shown++});empty.classList.toggle('show',shown===0);count.textContent=shown?('Разделов: '+shown):'Ничего не найдено';}
-function selectCategory(value){category=value;filters.forEach(b=>b.classList.toggle('active',b.dataset.filter===value));update();document.getElementById('latest').scrollIntoView({behavior:'smooth',block:'start'});}
-filters.forEach(b=>b.addEventListener('click',()=>selectCategory(b.dataset.filter)));
-document.querySelectorAll('[data-nav]').forEach(a=>a.addEventListener('click',()=>{const value=a.dataset.nav;document.querySelectorAll('[data-nav]').forEach(n=>n.classList.toggle('active',n===a));if(['world','politics','economy','technology','sports','weather','video'].includes(value))selectCategory(value);else if(value==='home'){category='all';filters.forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));query='';input.value='';update();}}));
-document.querySelectorAll('[data-topic]').forEach(a=>a.addEventListener('click',()=>{const value=a.dataset.topic;document.querySelectorAll('[data-nav]').forEach(n=>n.classList.toggle('active',n.dataset.nav===value));category=value;filters.forEach(b=>b.classList.toggle('active',b.dataset.filter===value));update();}));
-document.getElementById('searchToggle').addEventListener('click',()=>{const box=document.getElementById('searchBox');box.classList.toggle('open');if(box.classList.contains('open'))input.focus()});
-input.addEventListener('input',()=>{query=input.value.trim();update();});
-document.getElementById('searchClear').addEventListener('click',()=>{input.value='';query='';update();input.focus()});
-document.getElementById('themeToggle').addEventListener('click',()=>{const dark=body.dataset.theme!=='dark';if(dark)body.dataset.theme='dark';else delete body.dataset.theme;try{localStorage.setItem('metro-new-theme',dark?'dark':'light')}catch(e){}});
+(()=> {
+const body=document.body;
+const grid=document.getElementById('storyGrid');
+const filters=[...document.querySelectorAll('[data-filter]')];
+const input=document.getElementById('searchInput');
+const empty=document.getElementById('emptyState');
+const count=document.getElementById('resultCount');
+let articles=[];
+let category='all';
+let query='';
+let loadFailed=false;
+const categoryNames={world:'Мир',politics:'Политика',economy:'Экономика',technology:'Технологии',sports:'Спорт',weather:'Погода',video:'Видео'};
+const formatDate=value=>{
+ if(!value)return 'Дата не указана';
+ const date=new Date(value);
+ if(Number.isNaN(date.getTime()))return 'Дата не указана';
+ return new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Riga'}).format(date);
+};
+function render(){
+ grid.replaceChildren();
+ const visible=articles.filter(item=>{
+  const catMatch=category==='all'||item.category===category;
+  const haystack=(item.title+' '+item.source+' '+(item.category_label||'')).toLocaleLowerCase('ru');
+  return catMatch&&(!query||haystack.includes(query.toLocaleLowerCase('ru')));
+ });
+ visible.forEach(item=>{
+  const card=document.createElement('article');
+  card.className='story';
+  card.dataset.category=item.category||'world';
+  const cat=document.createElement('div');
+  cat.className='storycat';
+  cat.textContent=item.category_label||categoryNames[item.category]||'Новости';
+  const title=document.createElement('h3');
+  const link=document.createElement('a');
+  link.href=item.url;
+  link.target='_blank';
+  link.rel='noopener noreferrer';
+  link.textContent=item.title;
+  title.append(link);
+  const meta=document.createElement('p');
+  meta.textContent=[item.source,formatDate(item.published_at)].filter(Boolean).join(' · ');
+  const foot=document.createElement('div');
+  foot.className='storyfoot';
+  const source=document.createElement('span');
+  source.textContent=(item.source||'Источник').toLocaleUpperCase('ru');
+  const open=document.createElement('a');
+  open.href=item.url;
+  open.target='_blank';
+  open.rel='noopener noreferrer';
+  open.setAttribute('aria-label','Открыть оригинал: '+item.title);
+  open.textContent='↗';
+  foot.append(source,open);
+  card.append(cat,title,meta,foot);
+  grid.append(card);
+ });
+ count.textContent=visible.length+' публикаций';
+ empty.classList.toggle('show',visible.length===0);
+ if(visible.length===0){
+  empty.replaceChildren();
+  const message=document.createElement('p');
+  message.textContent=loadFailed
+   ?'Не удалось получить ленту. Проверьте позже или повторите загрузку.'
+   :articles.length===0
+    ?'Пока нет доступных публикаций. Лента обновляется автоматически.'
+    :'По этому запросу публикаций нет. Попробуйте другую тему или запрос.';
+  empty.append(message);
+  if(loadFailed){
+   const retry=document.createElement('button');
+   retry.className='filter';
+   retry.textContent='Повторить загрузку';
+   retry.addEventListener('click',loadFeed);
+   empty.append(retry);
+  }
+ }
+}
+function selectCategory(value,scroll=true){
+ category=value;
+ filters.forEach(button=>button.classList.toggle('active',button.dataset.filter===value));
+ render();
+ if(scroll)document.getElementById('latest').scrollIntoView({behavior:'smooth',block:'start'});
+}
+filters.forEach(button=>button.addEventListener('click',()=>selectCategory(button.dataset.filter)));
+document.querySelectorAll('[data-nav]').forEach(link=>link.addEventListener('click',()=>{
+ const value=link.dataset.nav;
+ document.querySelectorAll('[data-nav]').forEach(node=>node.classList.toggle('active',node===link));
+ if(Object.hasOwn(categoryNames,value))selectCategory(value);
+ else if(value==='home'){category='all';query='';input.value='';filters.forEach(button=>button.classList.toggle('active',button.dataset.filter==='all'));render();}
+}));
+document.querySelectorAll('[data-topic]').forEach(link=>link.addEventListener('click',()=>{
+ const value=link.dataset.topic;
+ document.querySelectorAll('[data-nav]').forEach(node=>node.classList.toggle('active',node.dataset.nav===value));
+ selectCategory(value,false);
+}));
+document.getElementById('searchToggle').addEventListener('click',()=>{
+ const box=document.getElementById('searchBox');
+ box.classList.toggle('open');
+ if(box.classList.contains('open'))input.focus();
+});
+input.addEventListener('input',()=>{query=input.value.trim();render();});
+document.getElementById('searchClear').addEventListener('click',()=>{input.value='';query='';render();input.focus();});
+document.getElementById('themeToggle').addEventListener('click',()=>{
+ const dark=body.dataset.theme!=='dark';
+ if(dark)body.dataset.theme='dark';else delete body.dataset.theme;
+ try{localStorage.setItem('metro-new-theme',dark?'dark':'light')}catch(e){}
+});
 try{if(localStorage.getItem('metro-new-theme')==='dark')body.dataset.theme='dark'}catch(e){}
-const now=new Date();document.getElementById('today').textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',year:'numeric'}).format(now);
-update();
+async function loadFeed(){
+ loadFailed=false;
+ empty.classList.add('show');
+ empty.textContent='Загружаем свежие публикации…';
+ count.textContent='Загрузка ленты…';
+ try{
+  const response=await fetch('./news-feed.json?ts='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data.articles))throw new Error('Invalid feed');
+  articles=data.articles.filter(item=>item&&typeof item.title==='string'&&typeof item.url==='string'&&item.url.startsWith('https://'));
+  loadFailed=false;
+  render();
+ }catch(error){
+  console.error('Metro New feed error:',error);
+  articles=[];
+  loadFailed=true;
+  render();
+ }
+}
+document.getElementById('today').textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',year:'numeric'}).format(new Date());
+loadFeed();
 })();
 </script>
 </body>
