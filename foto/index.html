@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мои ссылки</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111827;
+  color: white;
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+}
+h1 { text-align: center; }
+input, button {
+  padding: 12px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+input {
+  width: 100%;
+  background: #263247;
+  color: white;
+}
+button {
+  cursor: pointer;
+  background: #6366f1;
+  color: white;
+}
+li {
+  background: #263247;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+a { color: #a5b4fc; }
+.delete { background: #dc2626; margin-left: 10px; }
+</style>
+</head>
+<body>
+
+<h1>🔗 Мои ссылки</h1>
+
+<input id="name" placeholder="Название ссылки">
+<input id="url" placeholder="https://example.com">
+<button onclick="addLink()">Добавить ссылку</button>
+
+<ul id="links"></ul>
+
+<script>
+let links = JSON.parse(localStorage.getItem("links") || "[]");
+
+function showLinks() {
+  const list = document.getElementById("links");
+  list.innerHTML = "";
+
+  links.forEach((link, index) => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+
+    a.href = link.url;
+    a.textContent = link.name;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    const del = document.createElement("button");
+    del.textContent = "Удалить";
+    del.className = "delete";
+    del.onclick = () => {
+      links.splice(index, 1);
+      save();
+    };
+
+    li.append(a, del);
+    list.appendChild(li);
+  });
+}
+
+function addLink() {
+  const nameInput = document.getElementById("name");
+  const urlInput = document.getElementById("url");
+  let url = urlInput.value.trim();
+  const name = nameInput.value.trim();
+
+  if (!/^https?:\/\//i.test(url)) {
+    alert("Ссылка должна начинаться с https:// или http://");
+    return;
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error();
+    }
+    links.unshift({
+      name: name || parsed.hostname,
+      url: parsed.href
+    });
+    save();
+    nameInput.value = "";
+    urlInput.value = "";
+  } catch {
+    alert("Введи правильную ссылку!");
+  }
+}
+
+function save() {
+  localStorage.setItem("links", JSON.stringify(links));
+  showLinks();
+}
+
+showLinks();
+</script>
+
+</body>
+</html>
