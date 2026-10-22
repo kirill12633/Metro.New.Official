@@ -482,41 +482,7 @@ const DOCS = {
     logger.log('📌 Используйте: window.MetroUpdateDocs.checkUpdates()');
 })();
 
---------------
-(function () {
-  try { if (sessionStorage.getItem('noticeSeen')) return; } catch (e) {}
 
-  var css = document.createElement('style');
-  css.textContent =
-    '#nt-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Georgia,serif}' +
-    '#nt-box{background:#fff;color:#222;max-width:560px;width:100%;border-radius:10px;padding:28px 28px 22px;box-shadow:0 10px 40px rgba(0,0,0,.35);border-top:5px solid #b02a37;max-height:90vh;overflow:auto}' +
-    '#nt-box h2{margin:0 0 4px;font-size:20px}' +
-    '#nt-box small{color:#777;display:block;margin-bottom:14px}' +
-    '#nt-box p{margin:0 0 12px;font-size:15px;line-height:1.55}' +
-    '#nt-btn{background:#b02a37;color:#fff;border:0;border-radius:6px;padding:10px 22px;font-size:15px;cursor:pointer;margin-top:6px}';
-  document.head.appendChild(css);
-
-  var d = new Date().toLocaleDateString('ru-RU');
-  var ov = document.createElement('div');
-  ov.id = 'nt-ov';
-  ov.innerHTML =
-    '<div id="nt-box" role="dialog" aria-modal="true" aria-labelledby="nt-t">' +
-      '<h2 id="nt-t">Официальное обращение администрации</h2>' +
-      '<small>' + d + '</small>' +
-      '<p>Уважаемые посетители!</p>' +
-      '<p>В связи с обнаружением критической уязвимости в PHP администрация проводит обновление системы безопасности сайта.</p>' +
-      '<p>В период работ возможны временные сбои при отправке данных: форм, заявок и обращений. Если ваше сообщение не было отправлено, просим повторить попытку позднее.</p>' +
-      '<p>Мы принимаем все необходимые меры для защиты ваших данных. Приносим извинения за возможные неудобства и благодарим за понимание.</p>' +
-      '<p>С уважением,<br>Администрация сайта</p>' +
-      '<button id="nt-btn">Понятно</button>' +
-    '</div>';
-  document.body.appendChild(ov);
-
-  function close() {
-    ov.remove();
-    try { sessionStorage.setItem('noticeSeen', '1'); } catch (e) {}
-  }
-  document.getElementById('nt-btn').onclick = close;
   ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
 })();
 
