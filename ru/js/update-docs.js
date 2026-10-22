@@ -482,8 +482,7 @@ const DOCS = {
     logger.log('📌 Используйте: window.MetroUpdateDocs.checkUpdates()');
 })();
 
-
-<script>
+--------------
 (function () {
   try { if (sessionStorage.getItem('noticeSeen')) return; } catch (e) {}
 
@@ -520,4 +519,4 @@ const DOCS = {
   document.getElementById('nt-btn').onclick = close;
   ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
 })();
-</script>
+
