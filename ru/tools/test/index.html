@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Фото-шаблон редактор Pro v4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&family=Playfair+Display:wght@700;900&family=Oswald:wght@500;700&family=Bebas+Neue&family=Poppins:wght@600;800&family=Roboto+Condensed:wght@700&family=Lobster&family=Caveat:wght@700&family=Rubik:wght@700;900&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #111; color: #eee;
+    min-height: 100vh; display: flex;
+    justify-content: center; align-items: flex-start; padding: 20px;
+  }
+  .app { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; max-width: 1250px; }
+
+  /* Превью */
+  .preview-wrap { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .template {
+    position: relative; width: 340px; height: 600px;
+    background: #222; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 0 40px rgba(0,0,0,0.6); flex-shrink: 0;
+    transition: width .3s, height .3s;
+  }
+  .template.format-1x1 { width: 380px; height: 380px; }
+  .template.format-4x5 { width: 340px; height: 425px; }
+  .template.format-9x16 { width: 340px; height: 600px; }
+
+  .template img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block; transition: filter .3s;
+  }
+  .template .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0) 60%);
+    pointer-events: none; transition: opacity .3s;
+  }
+
+  .text-block {
+    position: absolute; bottom: 40px; left: 24px; right: 24px; z-index: 2;
+    border-radius: 14px; padding: 0; transition: all .2s;
+  }
+  .text-block.with-plate {
+    background: rgba(0,0,0,0.55);
+    padding: 18px 20px;
+    backdrop-filter: blur(6px);
+  }
+  .title {
+    font-size: 34px; font-weight: 800; line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    word-wrap: break-word; white-space: pre-wrap; color: #fff;
+  }
+  .subtitle {
+    font-size: 16px; margin-top: 10px; opacity: 0.9;
+    font-weight: 500; word-wrap: break-word; white-space: pre-wrap; color: #fff;
+  }
+
+  /* Новость */
+  .news-block {
+    position: absolute; inset: 0; display: none;
+    flex-direction: column; justify-content: flex-end; padding: 24px;
+    z-index: 3;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
+  }
+  .template.show-news .news-block { display: flex; }
+  .template.show-news .text-block { display: none; }
+
+  .slide-main { display: flex; flex-direction: column; gap: 10px; }
+  .news-number {
+    font-size: 13px; font-weight: 700; color: #ff4757;
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .news-tag {
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: #ff4757; margin-bottom: 4px;
+  }
+  .news-title {
+    font-size: 26px; font-weight: 800; line-height: 1.15; color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8); white-space: pre-wrap;
+  }
+  .news-subtitle {
+    font-size: 15px; font-weight: 500; color: #ddd;
+    line-height: 1.4; margin-top: 10px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8); white-space: pre-wrap;
+  }
+  .swipe-hint {
+    font-size: 12px; color: #fff; opacity: 0.7;
+    margin-top: 20px; text-align: right; font-weight: 600;
+  }
+
+  .slide-details { display: flex; flex-direction: column; }
+  .news-list { list-style: none; margin-top: 8px; }
+  .news-list li {
+    font-size: 14px; font-weight: 600; color: #fff;
+    padding: 10px 0 10px 26px; position: relative; line-height: 1.35;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .news-list li:last-child { border-bottom: none; }
+  .news-list li::before {
+    content: ''; position: absolute; left: 4px; top: 16px;
+    width: 9px; height: 9px; background: #ff4757; border-radius: 50%;
+  }
+  .news-list li strong { color: #ff4757; }
+
+  .slide-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .cta-title {
+    font-size: 24px; font-weight: 800; color: #fff;
+    line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.8); white-space: pre-wrap;
+  }
+  .cta-text {
+    font-size: 14px; color: #ddd; line-height: 1.45;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8); white-space: pre-wrap;
+  }
+  .cta-btn {
+    display: inline-block; margin-top: 8px; padding: 12px 22px;
+    background: #ff4757; color: #fff; border-radius: 30px;
+    font-size: 14px; font-weight: 800; letter-spacing: 0.5px;
+    text-transform: uppercase; box-shadow: 0 4px 15px rgba(255,71,87,0.4);
+  }
+  .news-footer {
+    font-size: 12px; font-weight: 700; color: #ff4757;
+    letter-spacing: 1px; text-transform: uppercase; text-align: center;
+    padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 10px;
+  }
+
+  .slide-dots {
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; z-index: 4;
+  }
+  .slide-dots span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.35); transition: .2s;
+  }
+  .slide-dots span.active { background: #ff4757; width: 22px; border-radius: 4px; }
+  .template:not(.show-news) .slide-dots { display: none; }
+
+  /* Кнопки скачивания */
+  .download-buttons { display: flex; gap: 8px; width: 100%; }
+  .download-btn {
+    flex: 1; padding: 14px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: 0.2s; box-shadow: 0 4px 15px rgba(0,206,201,0.3);
+  }
+  .download-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,206,201,0.5); }
+  .download-btn.carousel-btn {
+    background: linear-gradient(135deg, #ff4757, #ff6b81);
+    box-shadow: 0 4px 15px rgba(255,71,87,0.3);
+    display: none;
+  }
+  .download-btn.carousel-btn:hover { box-shadow: 0 6px 20px rgba(255,71,87,0.5); }
+  .download-btn.carousel-btn.visible { display: block; }
+
+  .slide-nav { display: flex; gap: 8px; width: 100%; margin-top: 4px; }
+  .slide-nav button {
+    flex: 1; padding: 10px; border: 1px solid #333;
+    background: #262626; color: #aaa; border-radius: 10px;
+    cursor: pointer; font-size: 12px; font-weight: 700; transition: .2s;
+  }
+  .slide-nav button.active { background: #ff4757; color: #fff; border-color: #ff4757; }
+  .slide-nav button:hover:not(.active) { border-color: #ff4757; color: #fff; }
+
+  /* Панель */
+  .panel {
+    width: 420px; background: #1c1c1c; border-radius: 20px;
+    padding: 24px; box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .panel::-webkit-scrollbar { width: 6px; }
+  .panel::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  .panel h2 { font-size: 18px; margin-bottom: 18px; font-weight: 700; color: #fff; }
+  .panel h3 {
+    font-size: 13px; margin: 18px 0 10px; color: #888;
+    text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 13px; margin-bottom: 6px;
+    color: #aaa; font-weight: 600;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid #333; background: #262626; color: #fff;
+    font-size: 14px; font-family: inherit; resize: vertical; outline: none;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: #6c5ce7; }
+  .field input[type="color"] { height: 42px; padding: 4px; cursor: pointer; }
+  .field input[type="range"] { padding: 0; cursor: pointer; }
+
+  .file-btn {
+    display: block; text-align: center; padding: 12px;
+    background: #6c5ce7; color: #fff; border-radius: 10px;
+    cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s;
+  }
+  .file-btn:hover { background: #5a4bd4; }
+  .file-btn input { display: none; }
+
+  .row { display: flex; gap: 12px; }
+  .row .field { flex: 1; margin-bottom: 0; }
+
+  .format-buttons { display: flex; gap: 8px; }
+  .format-buttons button {
+    flex: 1; padding: 10px 4px; border: 1px solid #333;
+    background: #262626; color: #aaa; border-radius: 10px;
+    cursor: pointer; font-size: 12px; font-weight: 700; transition: .2s;
+  }
+  .format-buttons button.active { background: #6c5ce7; color: #fff; border-color: #6c5ce7; }
+  .format-buttons button:hover:not(.active) { border-color: #6c5ce7; color: #fff; }
+
+  .filter-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .filter-buttons button {
+    padding: 10px 4px; border: 1px solid #333; background: #262626;
+    color: #aaa; border-radius: 10px; cursor: pointer; font-size: 12px;
+    font-weight: 600; transition: .2s;
+  }
+  .filter-buttons button.active { background: #6c5ce7; color: #fff; border-color: #6c5ce7; }
+  .filter-buttons button:hover:not(.active) { border-color: #6c5ce7; color: #fff; }
+
+  .presets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .presets button {
+    padding: 12px 8px; border: 1px solid #333; background: #262626;
+    color: #ddd; border-radius: 10px; cursor: pointer; font-size: 12px;
+    font-weight: 600; transition: .2s; text-align: left;
+  }
+  .presets button:hover { border-color: #6c5ce7; background: #2c2c2c; }
+  .presets button.news-preset { border-color: #ff4757; }
+  .presets button.news-preset:hover { background: #2a1f22; }
+
+  .fonts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+  .fonts-grid button {
+    padding: 10px 8px; border: 1px solid #333; background: #262626;
+    color: #fff; border-radius: 10px; cursor: pointer; font-size: 14px; transition: .2s;
+  }
+  .fonts-grid button:hover { border-color: #6c5ce7; }
+  .fonts-grid button.active { background: #6c5ce7; border-color: #6c5ce7; }
+
+  /* Плашка настройки */
+  .plate-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .plate-row label { flex: 1; font-size: 13px; color: #aaa; font-weight: 600; }
+
+  .security-box {
+    background: #1f2d28; border: 1px solid #2d4a3d;
+    border-radius: 12px; padding: 14px; font-size: 12px;
+    line-height: 1.55; color: #a8d5ba;
+  }
+  .security-box strong { color: #00b894; display: block; margin-bottom: 6px; font-size: 13px; }
+  .security-box p { margin-bottom: 8px; }
+  .security-box p:last-of-type { margin-bottom: 0; }
+  .agree-label {
+    display: flex; align-items: flex-start; gap: 8px;
+    margin-top: 10px; font-size: 12px; color: #ccc; cursor: pointer;
+  }
+  .agree-label input { margin-top: 2px; cursor: pointer; }
+
+  .reset-btn {
+    width: 100%; padding: 12px; margin-top: 18px;
+    border: 1px solid #e74c3c; background: transparent;
+    color: #e74c3c; border-radius: 10px; cursor: pointer;
+    font-weight: 700; font-size: 14px; transition: .2s;
+  }
+  .reset-btn:hover { background: #e74c3c; color: #fff; }
+
+  .note { font-size: 12px; color: #666; text-align: center; margin-top: 14px; line-height: 1.5; }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #00b894; color: #fff; padding: 14px 24px;
+    border-radius: 12px; font-weight: 700; font-size: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4); transition: transform .3s; z-index: 999;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 860px) {
+    .template.format-9x16 { width: 100%; max-width: 340px; height: 560px; }
+    .template.format-1x1 { width: 100%; max-width: 340px; height: 340px; }
+    .template.format-4x5 { width: 100%; max-width: 340px; height: 425px; }
+    .panel { width: 100%; max-width: 420px; }
+    .preview-wrap { width: 100%; max-width: 340px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="preview-wrap">
+    <div class="template format-9x16" id="template">
+      <img id="photo" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800" alt="Фото">
+      <div class="overlay" id="overlay"></div>
+
+      <div class="text-block" id="textBlock">
+        <div class="title" id="title">ТВОЙ ЗАГОЛОВОК</div>
+        <div class="subtitle" id="subtitle">Подпись или текст</div>
+      </div>
+
+      <div class="slide-dots" id="slideDots">
+        <span class="active"></span><span></span><span></span>
+      </div>
+
+      <div class="news-block" id="newsBlock">
+        <div class="slide-main" id="slideMain">
+          <div class="news-number" id="newsNumber">1 / 3 · ГЛАВНОЕ</div>
+          <div class="news-tag" id="newsTag">НОВОСТЬ</div>
+          <div class="news-title" id="newsTitle">Где, когда и по какой цене?</div>
+          <div class="news-subtitle" id="newsSubtitle">В Скансте планируется строительство новой трамвайной линии</div>
+          <div class="swipe-hint" id="swipeHint1">листай →</div>
+        </div>
+
+        <div class="slide-details" id="slideDetails" style="display:none;">
+          <div class="news-number" id="newsNumber2">2 / 3 · ДЕТАЛИ</div>
+          <div class="news-tag" id="newsTag2">ЧТО ИЗВЕСТНО</div>
+          <ul class="news-list" id="newsList">
+            <li><strong>Когда:</strong> строительство стартует в 2025 году</li>
+            <li><strong>Где:</strong> район Скансте, центр Риги</li>
+            <li><strong>Цена:</strong> проезд останется прежним</li>
+          </ul>
+          <div class="swipe-hint" id="swipeHint2">листай →</div>
+        </div>
+
+        <div class="slide-cta" id="slideCta" style="display:none;">
+          <div class="news-number" id="newsNumber3">3 / 3 · ПОДРОБНЕЕ</div>
+          <div class="cta-title" id="ctaTitle">Хочешь знать больше?</div>
+          <div class="cta-text" id="ctaText">Подпишись, чтобы первым узнавать о городских новостях и проектах.</div>
+          <div class="cta-btn" id="ctaBtn">ПОДПИСАТЬСЯ</div>
+          <div class="news-footer" id="newsFooter">Спасибо за внимание</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-nav" id="slideNav" style="display:none;">
+      <button data-slide="0" class="active">1 · Главное</button>
+      <button data-slide="1">2 · Детали</button>
+      <button data-slide="2">3 · Подписка</button>
+    </div>
+
+    <div class="download-buttons">
+      <button class="download-btn" id="downloadBtn">⬇ Скачать</button>
+      <button class="download-btn carousel-btn" id="downloadCarouselBtn">📦 Вся карусель</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>🎨 Редактор v4</h2>
+
+    <div class="field">
+      <label>📷 Загрузить фото</label>
+      <label class="file-btn">
+        Выбрать фото
+        <input type="file" id="fileInput" accept="image/*">
+      </label>
+    </div>
+
+    <h3>Формат</h3>
+    <div class="format-buttons">
+      <button data-format="9x16" class="active">9:16<br><small>Сторис</small></button>
+      <button data-format="1x1">1:1<br><small>Пост</small></button>
+      <button data-format="4x5">4:5<br><small>Лента</small></button>
+    </div>
+
+    <h3>Пресеты</h3>
+    <div class="presets">
+      <button data-preset="quote">💬 Цитата</button>
+      <button data-preset="announce">📢 Анонс</button>
+      <button data-preset="question">❓ Вопрос</button>
+      <button data-preset="minimal">✨ Минимал</button>
+      <button data-preset="beforeAfter">🔄 До/После</button>
+      <button data-preset="checklist">✅ Чек-лист</button>
+      <button data-preset="review">⭐ Отзыв</button>
+      <button data-preset="sale">🔥 Скидка</button>
+      <button data-preset="news" class="news-preset">📰 Новость (3 слайда)</button>
+      <button data-preset="newsCarousel" class="news-preset">📰 Карусель</button>
+    </div>
+
+    <h3>Текст (обычный)</h3>
+    <div class="field">
+      <label>Заголовок</label>
+      <textarea id="titleInput" rows="2">ТВОЙ ЗАГОЛОВОК</textarea>
+    </div>
+    <div class="field">
+      <label>Подпись</label>
+      <input type="text" id="subtitleInput" value="Подпись или текст">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Цвет текста</label>
+        <input type="color" id="colorInput" value="#ffffff">
+      </div>
+      <div class="field">
+        <label>Размер</label>
+        <input type="range" id="sizeInput" min="18" max="56" value="34">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Выравнивание</label>
+      <select id="alignInput">
+        <option value="left">Слева</option>
+        <option value="center">По центру</option>
+        <option value="right">Справа</option>
+      </select>
+    </div>
+
+    <h3>Плашка под текстом</h3>
+    <div class="plate-row">
+      <label>Включить плашку</label>
+      <input type="checkbox" id="plateToggle" style="width:auto;cursor:pointer;">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Цвет плашки</label>
+        <input type="color" id="plateColor" value="#000000">
+      </div>
+      <div class="field">
+        <label>Прозрачность</label>
+        <input type="range" id="plateOpacity" min="0" max="100" value="55">
+      </div>
+    </div>
+
+    <h3>Фильтры</h3>
+    <div class="filter-buttons" id="filterButtons">
+      <button data-filter="none" class="active">Оригинал</button>
+      <button data-filter="grayscale(100%)">Ч/Б</button>
+      <button data-filter="sepia(0.7)">Винтаж</button>
+      <button data-filter="saturate(1.6) contrast(1.1)">Яркий</button>
+      <button data-filter="brightness(1.1) hue-rotate(-15deg)">Тёплый</button>
+      <button data-filter="brightness(0.95) hue-rotate(180deg) saturate(1.3)">Холодный</button>
+    </div>
+
+    <h3>Шрифты</h3>
+    <div class="fonts-grid" id="fontsGrid">
+      <button data-font="'Segoe UI', sans-serif" class="active">Segoe UI</button>
+      <button data-font="'Montserrat', sans-serif" style="font-family:'Montserrat',sans-serif;">Montserrat</button>
+      <button data-font="'Playfair Display', serif" style="font-family:'Playfair Display',serif;">Playfair</button>
+      <button data-font="'Oswald', sans-serif" style="font-family:'Oswald',sans-serif;">Oswald</button>
+      <button data-font="'Bebas Neue', sans-serif" style="font-family:'Bebas Neue',sans-serif;letter-spacing:1px;">Bebas Neue</button>
+      <button data-font="'Poppins', sans-serif" style="font-family:'Poppins',sans-serif;">Poppins</button>
+      <button data-font="'Roboto Condensed', sans-serif" style="font-family:'Roboto Condensed',sans-serif;">Roboto Cond.</button>
+      <button data-font="'Lobster', cursive" style="font-family:'Lobster',cursive;">Lobster</button>
+      <button data-font="'Caveat', cursive" style="font-family:'Caveat',cursive;font-size:16px;">Caveat</button>
+      <button data-font="'Rubik', sans-serif" style="font-family:'Rubik',sans-serif;">Rubik</button>
+      <button data-font="'Unbounded', sans-serif" style="font-family:'Unbounded',sans-serif;font-size:12px;">Unbounded</button>
+      <button data-font="Georgia, serif" style="font-family:Georgia,serif;">Georgia</button>
+    </div>
+
+    <!-- НОВЫЕ ПОЛЯ ДЛЯ РЕДАКТИРОВАНИЯ НОВОСТЕЙ -->
+    <h3>📰 Текст новости (все слайды)</h3>
+    <div class="field">
+      <label>Слайд 1 — метка (1/3 · ГЛАВНОЕ)</label>
+      <input type="text" id="editNumber1" value="1 / 3 · ГЛАВНОЕ">
+    </div>
+    <div class="field">
+      <label>Слайд 1 — тег (НОВОСТЬ)</label>
+      <input type="text" id="editTag1" value="НОВОСТЬ">
+    </div>
+    <div class="field">
+      <label>Слайд 1 — заголовок</label>
+      <textarea id="editTitle1" rows="2">Где, когда и по какой цене?</textarea>
+    </div>
+    <div class="field">
+      <label>Слайд 1 — подзаголовок</label>
+      <textarea id="editSubtitle1" rows="2">В Скансте планируется строительство новой трамвайной линии</textarea>
+    </div>
+    <div class="field">
+      <label>Слайд 1 — подсказка (листай →)</label>
+      <input type="text" id="editHint1" value="листай →">
+    </div>
+
+    <div class="field">
+      <label>Слайд 2 — метка</label>
+      <input type="text" id="editNumber2" value="2 / 3 · ДЕТАЛИ">
+    </div>
+    <div class="field">
+      <label>Слайд 2 — тег</label>
+      <input type="text" id="editTag2" value="ЧТО ИЗВЕСТНО">
+    </div>
+    <div class="field">
+      <label>Слайд 2 — пункт 1</label>
+      <input type="text" id="editItem1" value="Когда: строительство стартует в 2025 году">
+    </div>
+    <div class="field">
+      <label>Слайд 2 — пункт 2</label>
+      <input type="text" id="editItem2" value="Где: район Скансте, центр Риги">
+    </div>
+    <div class="field">
+      <label>Слайд 2 — пункт 3</label>
+      <input type="text" id="editItem3" value="Цена: проезд останется прежним">
+    </div>
+    <div class="field">
+      <label>Слайд 2 — подсказка</label>
+      <input type="text" id="editHint2" value="листай →">
+    </div>
+
+    <div class="field">
+      <label>Слайд 3 — метка</label>
+      <input type="text" id="editNumber3" value="3 / 3 · ПОДРОБНЕЕ">
+    </div>
+    <div class="field">
+      <label>Слайд 3 — заголовок</label>
+      <input type="text" id="editCtaTitle" value="Хочешь знать больше?">
+    </div>
+    <div class="field">
+      <label>Слайд 3 — текст</label>
+      <textarea id="editCtaText" rows="2">Подпишись, чтобы первым узнавать о городских новостях и проектах.</textarea>
+    </div>
+    <div class="field">
+      <label>Слайд 3 — кнопка</label>
+      <input type="text" id="editCtaBtn" value="ПОДПИСАТЬСЯ">
+    </div>
+    <div class="field">
+      <label>Слайд 3 — футер</label>
+      <input type="text" id="editFooter" value="Спасибо за внимание">
+    </div>
+
+    <h3>🔒 Безопасность</h3>
+    <div class="security-box">
+      <strong>Честно про данные</strong>
+      <p>✅ <b>Мы сами ничего не собираем:</b> нет нашей аналитики, нет сбора фото, текста, IP — мы ничего не сохраняем на сервере. Фото и текст остаются в твоём браузере.</p>
+      <p>⚠️ <b>Но есть сторонние сервисы:</b> Google Fonts (загрузка шрифтов) и html2canvas (сборка картинки) — это чужие CDN. Что они логируют у себя (включая IP), мы не знаем и не контролируем. Если для тебя это критично — можно скачать шрифты и html2canvas локально, тогда вообще никаких внешних запросов не будет.</p>
+      <label class="agree-label">
+        <input type="checkbox" id="agreeCheck">
+        <span>Я понимаю, что мы ничего не собираем, но сторонние CDN (Google, Cloudflare) могут видеть IP как на любом сайте</span>
+      </label>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">↺ Сбросить всё</button>
+    <p class="note">Всё меняется в реальном времени ✨</p>
+  </div>
+</div>
+
+<div class="toast" id="toast">Фото скачано!</div>
+
+<script>
+  const template = document.getElementById('template');
+  const photo = document.getElementById('photo');
+  const title = document.getElementById('title');
+  const subtitle = document.getElementById('subtitle');
+  const textBlock = document.getElementById('textBlock');
+  const overlay = document.getElementById('overlay');
+  const slideNav = document.getElementById('slideNav');
+  const slideDots = document.querySelectorAll('#slideDots span');
+  const downloadCarouselBtn = document.getElementById('downloadCarouselBtn');
+
+  const slideMain = document.getElementById('slideMain');
+  const slideDetails = document.getElementById('slideDetails');
+  const slideCta = document.getElementById('slideCta');
+
+  let currentSlide = 0;
+
+  const initialState = {
+    photo: photo.src, title: 'ТВОЙ ЗАГОЛОВОК', subtitle: 'Подпись или текст',
+    color: '#ffffff', size: 34, align: 'left', format: '9x16',
+    font: "'Segoe UI', sans-serif"
+  };
+
+  // Загрузка фото
+  document.getElementById('fileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = ev => { photo.src = ev.target.result; };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Обычный текст
+  document.getElementById('titleInput').addEventListener('input', e => {
+    title.textContent = e.target.value || ' ';
+  });
+  document.getElementById('subtitleInput').addEventListener('input', e => {
+    subtitle.textContent = e.target.value;
+  });
+
+  // Цвет / размер / выравнивание
+  document.getElementById('colorInput').addEventListener('input', e => {
+    const c = e.target.value;
+    [title, subtitle, document.getElementById('newsTitle'),
+     document.getElementById('newsSubtitle'), document.getElementById('ctaTitle'),
+     document.getElementById('ctaText')].forEach(el => el.style.color = c);
+    document.querySelectorAll('#newsList li').forEach(li => li.style.color = c);
+  });
+  document.getElementById('sizeInput').addEventListener('input', e => {
+    title.style.fontSize = e.target.value + 'px';
+  });
+  document.getElementById('alignInput').addEventListener('change', e => {
+    textBlock.style.textAlign = e.target.value;
+  });
+
+  // ---------- ПЛАШКА ----------
+  const plateToggle = document.getElementById('plateToggle');
+  const plateColor = document.getElementById('plateColor');
+  const plateOpacity = document.getElementById('plateOpacity');
+
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function updatePlate() {
+    if (plateToggle.checked) {
+      textBlock.classList.add('with-plate');
+      textBlock.style.background = hexToRgba(plateColor.value, plateOpacity.value / 100);
+    } else {
+      textBlock.classList.remove('with-plate');
+      textBlock.style.background = 'transparent';
+    }
+  }
+  plateToggle.addEventListener('change', updatePlate);
+  plateColor.addEventListener('input', updatePlate);
+  plateOpacity.addEventListener('input', updatePlate);
+
+  // Форматы
+  document.querySelectorAll('.format-buttons button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.format-buttons button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const showNews = template.classList.contains('show-news');
+      template.className = 'template format-' + btn.dataset.format + (showNews ? ' show-news' : '');
+    });
+  });
+
+  // Фильтры
+  document.querySelectorAll('#filterButtons button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#filterButtons button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      photo.style.filter = btn.dataset.filter;
+    });
+  });
+
+  // Шрифты
+  document.querySelectorAll('#fontsGrid button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#fontsGrid button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const font = btn.dataset.font;
+      document.querySelectorAll('.title, .subtitle, .news-title, .news-subtitle, .news-tag, .news-number, .cta-title, .cta-text, .cta-btn, .news-footer, .swipe-hint, .news-list li').forEach(el => {
+        el.style.fontFamily = font;
+      });
+    });
+  });
+
+  // Слайды
+  function showSlide(index) {
+    currentSlide = index;
+    slideMain.style.display = index === 0 ? 'flex' : 'none';
+    slideDetails.style.display = index === 1 ? 'flex' : 'none';
+    slideCta.style.display = index === 2 ? 'flex' : 'none';
+    document.querySelectorAll('#slideNav button').forEach((b, i) =>
+      b.classList.toggle('active', i === index));
+    slideDots.forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+  document.querySelectorAll('#slideNav button').forEach(btn => {
+    btn.addEventListener('click', () => showSlide(+btn.dataset.slide));
+  });
+  template.addEventListener('click', () => {
+    if (template.classList.contains('show-news')) showSlide((currentSlide + 1) % 3);
+  });
+
+  // ---------- РЕДАКТИРОВАНИЕ ТЕКСТОВ НОВОСТЕЙ ----------
+  const newsFieldBindings = [
+    ['editNumber1', 'newsNumber'],
+    ['editTag1', 'newsTag'],
+    ['editTitle1', 'newsTitle'],
+    ['editSubtitle1', 'newsSubtitle'],
+    ['editHint1', 'swipeHint1'],
+    ['editNumber2', 'newsNumber2'],
+    ['editTag2', 'newsTag2'],
+    ['editHint2', 'swipeHint2'],
+    ['editNumber3', 'newsNumber3'],
+    ['editCtaTitle', 'ctaTitle'],
+    ['editCtaText', 'ctaText'],
+    ['editCtaBtn', 'ctaBtn'],
+    ['editFooter', 'newsFooter'],
+  ];
+
+  newsFieldBindings.forEach(([inputId, targetId]) => {
+    const input = document.getElementById(inputId);
+    const target = document.getElementById(targetId);
+    if (input && target) {
+      input.addEventListener('input', () => {
+        target.textContent = input.value;
+      });
+    }
+  });
+
+  // Пункты списка слайда 2
+  ['editItem1', 'editItem2', 'editItem3'].forEach((id, idx) => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', () => {
+        const lis = newsList.querySelectorAll('li');
+        if (lis[idx]) {
+          // если в тексте есть ":" — оборачиваем первое слово в strong
+          const val = input.value;
+          const colonIdx = val.indexOf(':');
+          if (colonIdx > 0 && colonIdx < 30) {
+            lis[idx].innerHTML = `<strong>${val.slice(0, colonIdx + 1)}</strong>${val.slice(colonIdx + 1)}`;
+          } else {
+            lis[idx].textContent = val;
+          }
+        }
+      });
+    }
+  });
+
+  // ---------- Пресеты ----------
+  const presets = {
+    quote: {
+      title: '«Жизнь — это то, что происходит,\nпока ты строишь планы»',
+      subtitle: '— Джон Леннон',
+      size: 26, align: 'center', font: 'Georgia, serif', color: '#ffffff', showNews: false
+    },
+    announce: {
+      title: '🔥 БОЛЬШОЙ АНОНС', subtitle: 'Скоро что-то крутое. Не пропусти!',
+      size: 40, align: 'left', font: "'Montserrat', sans-serif", color: '#ffffff', showNews: false
+    },
+    question: {
+      title: 'А ты как думаешь?', subtitle: 'Пиши в комментариях 👇',
+      size: 32, align: 'center', font: "'Poppins', sans-serif", color: '#ffffff', showNews: false
+    },
+    minimal: {
+      title: 'просто. красиво.', subtitle: '',
+      size: 28, align: 'left', font: "'Unbounded', sans-serif", color: '#ffffff', showNews: false
+    },
+    beforeAfter: {
+      title: 'ДО → ПОСЛЕ', subtitle: 'Результат за 30 дней',
+      size: 38, align: 'center', font: "'Bebas Neue', sans-serif", color: '#ffffff', showNews: false
+    },
+    checklist: {
+      title: '✅ ЧЕК-ЛИСТ', subtitle: '1. Проснуться\n2. Выпить кофе\n3. Сделать день',
+      size: 30, align: 'left', font: "'Roboto Condensed', sans-serif", color: '#ffffff', showNews: false
+    },
+    review: {
+      title: '⭐⭐⭐⭐⭐', subtitle: '«Лучший сервис!»\n— Мария К.',
+      size: 32, align: 'center', font: "'Playfair Display', serif", color: '#ffd93d', showNews: false
+    },
+    sale: {
+      title: '-50%', subtitle: 'Только сегодня! Успей купить',
+      size: 56, align: 'center', font: "'Bebas Neue', sans-serif", color: '#ff4757', showNews: false
+    },
+    news: {
+      title: 'Где, когда и по какой цене?',
+      subtitle: 'В Скансте планируется строительство новой трамвайной линии',
+      size: 26, align: 'left', font: "'Oswald', sans-serif", color: '#ffffff', showNews: true
+    },
+    newsCarousel: {
+      title: 'Главное за неделю', subtitle: '5 событий, которые ты мог пропустить',
+      size: 28, align: 'left', font: "'Montserrat', sans-serif", color: '#ffffff', showNews: true
+    }
+  };
+
+  document.querySelectorAll('.presets button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = presets[btn.dataset.preset];
+      if (!p) return;
+
+      title.textContent = p.title;
+      subtitle.textContent = p.subtitle;
+      title.style.fontSize = p.size + 'px';
+      textBlock.style.textAlign = p.align;
+      title.style.fontFamily = p.font;
+      subtitle.style.fontFamily = p.font;
+      title.style.color = p.color;
+      subtitle.style.color = p.color;
+
+      document.getElementById('titleInput').value = p.title;
+      document.getElementById('subtitleInput').value = p.subtitle;
+      document.getElementById('sizeInput').value = p.size;
+      document.getElementById('alignInput').value = p.align;
+      document.getElementById('colorInput').value = p.color;
+
+      document.querySelectorAll('#fontsGrid button').forEach(b =>
+        b.classList.toggle('active', b.dataset.font === p.font));
+
+      if (p.showNews) {
+        template.classList.add('show-news');
+        slideNav.style.display = 'flex';
+        downloadCarouselBtn.classList.add('visible');
+
+        // заполняем слайды из полей
+        document.getElementById('editTitle1').value = p.title;
+        document.getElementById('editSubtitle1').value = p.subtitle;
+        document.getElementById('newsTitle').textContent = p.title;
+        document.getElementById('newsSubtitle').textContent = p.subtitle;
+
+        showSlide(0);
+      } else {
+        template.classList.remove('show-news');
+        slideNav.style.display = 'none';
+        downloadCarouselBtn.classList.remove('visible');
+      }
+    });
+  });
+
+  // ---------- Сброс ----------
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    photo.src = initialState.photo;
+    title.textContent = initialState.title;
+    subtitle.textContent = initialState.subtitle;
+    title.style.color = initialState.color;
+    subtitle.style.color = initialState.color;
+    title.style.fontSize = initialState.size + 'px';
+    title.style.fontFamily = initialState.font;
+    subtitle.style.fontFamily = initialState.font;
+    textBlock.style.textAlign = initialState.align;
+    photo.style.filter = 'none';
+    overlay.style.opacity = '1';
+    template.classList.remove('show-news');
+    slideNav.style.display = 'none';
+    downloadCarouselBtn.classList.remove('visible');
+    textBlock.classList.remove('with-plate');
+    textBlock.style.background = 'transparent';
+    plateToggle.checked = false;
+    plateColor.value = '#000000';
+    plateOpacity.value = 55;
+
+    document.getElementById('titleInput').value = initialState.title;
+    document.getElementById('subtitleInput').value = initialState.subtitle;
+    document.getElementById('colorInput').value = initialState.color;
+    document.getElementById('sizeInput').value = initialState.size;
+    document.getElementById('alignInput').value = initialState.align;
+
+    document.querySelectorAll('.format-buttons button').forEach(b =>
+      b.classList.toggle('active', b.dataset.format === initialState.format));
+    template.className = 'template format-' + initialState.format;
+
+    document.querySelectorAll('#filterButtons button').forEach(b =>
+      b.classList.toggle('active', b.dataset.filter === 'none'));
+
+    document.querySelectorAll('#fontsGrid button').forEach(b =>
+      b.classList.toggle('active', b.dataset.font === initialState.font));
+
+    document.getElementById('agreeCheck').checked = false;
+  });
+
+  // ---------- Экспорт ----------
+  async function captureTemplate() {
+    const radius = template.style.borderRadius;
+    template.style.borderRadius = '0';
+    const canvas = await html2canvas(template, {
+      useCORS: true, scale: 2, backgroundColor: null
+    });
+    template.style.borderRadius = radius;
+    return canvas;
+  }
+
+  function downloadCanvas(canvas, filename) {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  // Одна картинка
+  document.getElementById('downloadBtn').addEventListener('click', async () => {
+    if (!document.getElementById('agreeCheck').checked) {
+      showToast('⚠️ Подтверди, что всё работает локально');
+      return;
+    }
+    const btn = document.getElementById('downloadBtn');
+    const orig = btn.textContent;
+    btn.textContent = '⏳...'; btn.disabled = true;
+    try {
+      const canvas = await captureTemplate();
+      const suffix = template.classList.contains('show-news') ? `-slide${currentSlide + 1}` : '';
+      downloadCanvas(canvas, 'template-' + Date.now() + suffix + '.png');
+      showToast('✅ Фото скачано!');
+    } catch (err) {
+      console.error(err); showToast('❌ Ошибка');
+    } finally {
+      btn.textContent = orig; btn.disabled = false;
+    }
+  });
+
+  // Вся карусель (3 слайда)
+  downloadCarouselBtn.addEventListener('click', async () => {
+    if (!document.getElementById('agreeCheck').checked) {
+      showToast('⚠️ Подтверди, что всё работает локально');
+      return;
+    }
+    if (!template.classList.contains('show-news')) {
+      showToast('⚠️ Карусель доступна только в новостном шаблоне');
+      return;
+    }
+
+    const orig = downloadCarouselBtn.textContent;
+    downloadCarouselBtn.textContent = '⏳ Собираю 3 слайда...';
+    downloadCarouselBtn.disabled = true;
+
+    try {
+      for (let i = 0; i < 3; i++) {
+        showSlide(i);
+        // даём браузеру перерисовать
+        await new Promise(r => setTimeout(r, 150));
+        const canvas = await captureTemplate();
+        downloadCanvas(canvas, `carousel-${Date.now()}-slide${i + 1}.png`);
+        // пауза между скачиваниями, чтобы браузер не блокировал
+        await new Promise(r => setTimeout(r, 400));
+      }
+      showSlide(0);
+      showToast('✅ Все 3 слайда скачаны!');
+    } catch (err) {
+      console.error(err);
+      showToast('❌ Ошибка при сборке карусели');
+    } finally {
+      downloadCarouselBtn.textContent = orig;
+      downloadCarouselBtn.disabled = false;
+    }
+  });
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+</script>
+
+</body>
+</html>
