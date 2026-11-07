@@ -2000,10 +2000,10 @@ async function renderEuropeSvgMap(){
   };
   const features=geo.features.filter(f=>known.has(getCode(f.properties||{})));
   const paths=features.map(f=>{const code=getCode(f.properties||{});const country=state.countries.find(c=>c.code===code);const d=geometryPath(f.geometry||{});if(!d)return "";return '<path class="country-shape '+(state.holidays.some(h=>h.countryCode===code)?"has-holidays":"")+'" data-country="'+code+'" tabindex="0" role="button" aria-label="'+escapeHtml(country?.name||code)+'" d="'+d+'"><title>'+escapeHtml(country?.flag||"")+" "+escapeHtml(country?.name||code)+'</title></path>';}).join("");
-  host.innerHTML='<svg viewBox="0 0 900 560" role="img" aria-label="Интерактивная карта Европы"><defs><clipPath id="europeMapClip"><rect x="0" y="0" width="900" height="560" rx="8"/></clipPath></defs><g clip-path="url(#europeMapClip)">'+paths+'</g></svg><div class="map-legend"><span><i class="legend-dot data"></i> Есть календарь праздников</span><span><i class="legend-dot empty"></i> Данные уточняются</span></div><p class="map-neutral-note">Границы на карте служат для навигации. Пунктирное обозначение спорных участков, если оно используется в источнике карты, не означает признания чьей-либо позиции.</p>';
+  host.innerHTML='<svg viewBox="0 0 900 560" role="img" aria-label="Интерактивная карта Европы"><defs><clipPath id="europeMapClip"><rect x="0" y="0" width="900" height="560" rx="8"/></clipPath></defs><g clip-path="url(#europeMapClip)">'+paths+'</g></svg><div class="map-legend"><span><i class="legend-dot data"></i> Есть календарь праздников</span><span><i class="legend-dot empty"></i> Данные уточняются</span></div><p class="map-neutral-note">Границы на схеме показаны нейтральным пунктиром только для визуального разделения стран. Это не означает признания чьей-либо позиции по спорным территориям.</p>';
   host.querySelectorAll("[data-country]").forEach(el=>{const go=()=>showCountry(el.dataset.country);el.addEventListener("click",go);el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
   if(!features.length)throw new Error("No European country shapes found");
- }catch(error){host.innerHTML='<p class="map-loading">Карта временно недоступна. Ниже доступен список стран.</p>';console.warn("Europe map:",error);}
+ }catch(error){host.innerHTML='<p class="map-loading">Не удалось загрузить карту Европы. Попробуй обновить страницу позже.</p>';console.warn("Europe map:",error);}
 }
 
     function renderNextHoliday(){
