@@ -1962,6 +1962,8 @@
     function renderStatistics(){const list=state.holidays.filter(h=>h.date.startsWith(String(state.year)));const cats=["national","religious","cultural","international"];const labels=["Государственные","Религиозные","Культурные","Международные"];$("#statsYear").textContent=state.year;$("#holidayStats").innerHTML='<div class="stats-grid"><div class="stat-tile"><strong>'+list.length+'</strong><span>Всего дат</span></div><div class="stat-tile"><strong>'+new Set(list.map(h=>h.countryCode)).size+'</strong><span>Стран</span></div>'+cats.map((c,i)=>'<div class="stat-tile"><strong>'+list.filter(h=>h.category===c).length+'</strong><span>'+labels[i]+'</span></div>').join("")+'</div>';}
     function renderWorldToday(){renderHolidayList($("#worldToday"),state.holidays.filter(h=>h.date===getTodayString()));}
 
+    function downloadICS(list,label){const rows=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Metro New Official//Holidays//EN","CALSCALE:GREGORIAN"];list.forEach(h=>{const end=new Date(new Date(h.date+"T00:00:00").getTime()+86400000).toISOString().slice(0,10).replaceAll("-","");rows.push("BEGIN:VEVENT","UID:"+h.id+"@metro.new","DTSTART;VALUE=DATE:"+h.date.replaceAll("-",""),"DTEND;VALUE=DATE:"+end,"SUMMARY:"+String(h.name).replace(/[,;]/g," "),"END:VEVENT");});rows.push("END:VCALENDAR");const blob=new Blob([rows.join("\r\n")],{type:"text/calendar;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="holidays-"+label+".ics";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);}
+
     /* =========================================
        MODAL
     ========================================= */
@@ -2297,6 +2299,8 @@
             renderCountries();
         });
 
+        $("#enableNotifications").addEventListener("click",async()=>{if(!("Notification" in window)){alert("Уведомления не поддерживаются");return;}const p=await Notification.requestPermission();if(p==="granted"){const next=state.holidays.filter(x=>x.date>=getTodayString()).sort((a,b)=>a.date.localeCompare(b.date))[0];if(next)new Notification("Скоро праздник: "+next.name,{body:formatDisplayDate(next.date)});}});
+        $("#exportAllCalendar").addEventListener("click",()=>downloadICS(state.holidays,"world"));
         $("#themeButton")
             .addEventListener(
                 "click",
