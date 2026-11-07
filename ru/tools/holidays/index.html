@@ -828,6 +828,20 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 .personal-calendar-favorites .section-title{margin-bottom:12px}
 @media(max-width:640px){.main-nav{justify-content:flex-start;overflow:visible;flex-wrap:wrap}.main-nav a{width:42px;height:42px}}
 
+
+/* European countries as a dedicated full-screen dialog */
+.nav-icon-button{width:42px;height:42px;display:inline-grid;place-items:center;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font-size:20px}
+.country-directory-overlay{position:fixed;inset:0;z-index:9998;background:#10131bcc;display:none;place-items:center;padding:clamp(10px,3vw,28px);backdrop-filter:blur(7px)}
+.country-directory-overlay:not([hidden]){display:grid}
+.country-directory-overlay[hidden]{display:none!important}
+.country-directory-dialog{width:min(1120px,100%);max-height:min(90vh,900px);overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:22px;padding:clamp(16px,3vw,28px);box-shadow:var(--shadow)}
+.country-directory-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.country-directory-modal-head h2{font-size:clamp(20px,3vw,26px)}
+.country-directory-dialog details[open]>.country-directory-summary{display:none}
+.country-directory-dialog details{display:block}
+.country-directory-dialog .countries{max-height:58vh;overflow:auto;padding:3px}
+@media(max-width:640px){.country-directory-overlay{padding:8px}.country-directory-dialog{max-height:94vh;border-radius:16px;padding:14px}.country-directory-dialog .countries{max-height:62vh}}
+
 </style>
 </head>
 
@@ -964,7 +978,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 
         </div>
 
-        <nav class="main-nav" aria-label="Основная навигация"><a href="#upcomingSection" aria-label="Ближайшие праздники" title="Ближайшие праздники">🔜</a><a href="#favoritesSection" aria-label="Избранное" title="Избранное">⭐</a><a href="#settingsSection" aria-label="Настройки" title="Настройки">⚙️</a></nav>
+        <nav class="main-nav" aria-label="Основная навигация"><button type="button" class="nav-icon-button" id="openCountryDirectory" aria-label="Все страны Европы" title="Все страны Европы">🌍</button><a href="#upcomingSection" aria-label="Ближайшие праздники" title="Ближайшие праздники">🔜</a><a href="#favoritesSection" aria-label="Избранное" title="Избранное">⭐</a><a href="#settingsSection" aria-label="Настройки" title="Настройки">⚙️</a></nav>
 
 
 
@@ -984,20 +998,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 
 
 <section><div class="section-title"><h2>🗺️ Интерактивная карта Европы</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div id="worldMap" hidden></div></section>
-<section id="countryDirectory" class="country-directory-section">
-  <details id="countryDirectoryDetails">
-    <summary class="country-directory-summary"><span>🌍 Все страны Европы</span><span id="countryCount">Выбери страну, чтобы открыть календарь</span></summary>
-    <div class="countries-toolbar">
-      <input id="countrySearch" class="country-search" type="search" placeholder="Найти страну…" aria-label="Найти страну">
-      <select id="countryDataFilter" class="country-search" aria-label="Фильтр стран">
-        <option value="all">Все страны</option><option value="available">С календарём</option><option value="empty">Без данных</option><option value="favorites">Избранные страны</option>
-      </select>
-      <button id="countryFavoritesButton" class="country-filter-button" type="button">☆ Избранные</button>
-    </div>
-    <div class="countries" id="countries"></div>
-    <div class="compare-box" id="countryCompare" hidden></div>
-  </details>
-</section>
+
 <section><div class="section-title"><h2>📊 Статистика праздников</h2><span id="statsYear"></span></div><div class="feature-panel" id="holidayStats"></div></section>
         <!-- CALENDAR -->
 
@@ -1221,6 +1222,20 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 </div>
 
 
+<div class="country-directory-overlay" id="countryDirectoryOverlay" hidden role="presentation"><section id="countryDirectory" class="country-directory-section country-directory-dialog" role="dialog" aria-modal="true" aria-labelledby="countryDirectoryTitle" tabindex="-1"><div class="country-directory-modal-head"><h2 id="countryDirectoryTitle">🌍 Все страны Европы</h2><button type="button" id="closeCountryDirectory" class="notification-close" aria-label="Закрыть">✕</button></div>
+  <details id="countryDirectoryDetails">
+    <summary class="country-directory-summary"><span>Список стран</span><span id="countryCount">Выбери страну, чтобы открыть календарь</span></summary>
+    <div class="countries-toolbar">
+      <input id="countrySearch" class="country-search" type="search" placeholder="Найти страну…" aria-label="Найти страну">
+      <select id="countryDataFilter" class="country-search" aria-label="Фильтр стран">
+        <option value="all">Все страны</option><option value="available">С календарём</option><option value="empty">Без данных</option><option value="favorites">Избранные страны</option>
+      </select>
+      <button id="countryFavoritesButton" class="country-filter-button" type="button">☆ Избранные</button>
+    </div>
+    <div class="countries" id="countries"></div>
+    <div class="compare-box" id="countryCompare" hidden></div>
+  </details>
+</section></div>
 <div class="notification-overlay" id="notificationOverlay" hidden role="presentation"><div class="feature-panel notification-settings" id="notificationSettings" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" tabindex="-1"><div class="section-title"><h3 id="notificationTitle">🔔 Настройки уведомлений</h3><button type="button" class="notification-close" id="closeNotificationWindow" aria-label="Закрыть">✕</button></div><p class="notification-hint">Настрой напоминания о праздниках. Уведомления сайта проверяются, пока страница открыта.</p><div class="notification-controls"><label>Напомнить за<select id="reminderDays"><option value="1">1 день</option><option value="3" selected>3 дня</option><option value="7">7 дней</option></select></label><label>Время уведомления<input id="notificationTime" type="time" value="09:00"></label><label class="morning-toggle"><input id="morningNotification" type="checkbox" checked> Утром сообщать о празднике сегодня</label></div><div class="favorite-notification-list"><strong>Уведомления об избранных странах</strong><p>Отметь страны, о праздниках которых хочешь получать уведомления.</p><div id="notificationCountryChoices" class="notification-country-choices"></div></div><button class="feature-button primary" id="saveNotificationSettings" type="button">Сохранить настройки</button><span id="notificationStatus" class="notification-status" aria-live="polite">Нажми «Сохранить настройки» и разреши уведомления браузера.</span></div></div>
 <script>
 
@@ -1244,6 +1259,10 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
         "NP.json",
         "LI.json",
         "EU.json"
+    ];
+
+    const EUROPEAN_COUNTRIES = [
+        ["AL","Албания","🇦🇱"],["AD","Андорра","🇦🇩"],["AT","Австрия","🇦🇹"],["BY","Беларусь","🇧🇾"],["BE","Бельгия","🇧🇪"],["BA","Босния и Герцеговина","🇧🇦"],["BG","Болгария","🇧🇬"],["VA","Ватикан","🇻🇦"],["GB","Великобритания","🇬🇧"],["HU","Венгрия","🇭🇺"],["DE","Германия","🇩🇪"],["GR","Греция","🇬🇷"],["DK","Дания","🇩🇰"],["IE","Ирландия","🇮🇪"],["IS","Исландия","🇮🇸"],["ES","Испания","🇪🇸"],["IT","Италия","🇮🇹"],["XK","Косово","🇽🇰"],["LV","Латвия","🇱🇻"],["LT","Литва","🇱🇹"],["LI","Лихтенштейн","🇱🇮"],["LU","Люксембург","🇱🇺"],["MT","Мальта","🇲🇹"],["MD","Молдова","🇲🇩"],["MC","Монако","🇲🇨"],["NL","Нидерланды","🇳🇱"],["NO","Норвегия","🇳🇴"],["PL","Польша","🇵🇱"],["PT","Португалия","🇵🇹"],["RU","Россия","🇷🇺"],["RO","Румыния","🇷🇴"],["SM","Сан-Марино","🇸🇲"],["MK","Северная Македония","🇲🇰"],["RS","Сербия","🇷🇸"],["SK","Словакия","🇸🇰"],["SI","Словения","🇸🇮"],["UA","Украина","🇺🇦"],["FI","Финляндия","🇫🇮"],["FR","Франция","🇫🇷"],["HR","Хорватия","🇭🇷"],["ME","Черногория","🇲🇪"],["CZ","Чехия","🇨🇿"],["CH","Швейцария","🇨🇭"],["SE","Швеция","🇸🇪"],["EE","Эстония","🇪🇪"],["CY","Кипр","🇨🇾"],["TR","Турция","🇹🇷"],["GE","Грузия","🇬🇪"],["AM","Армения","🇦🇲"],["AZ","Азербайджан","🇦🇿"]
     ];
 
 
@@ -1442,8 +1461,11 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 
         });
 
-        state.countries =
-            [...map.values()];
+        const loaded = [...map.values()];
+        state.countries = EUROPEAN_COUNTRIES.map(([code,name,flag]) => {
+            const existing = loaded.find(country => country.code === code);
+            return existing ? {...existing, name: existing.name || name, flag: existing.flag || flag} : {code,name,flag};
+        });
     }
 
 
@@ -1729,7 +1751,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
             <div class="country-pro-head"><span class="country-pro-flag">${country.flag || "🌍"}</span><div><div class="country-pro-name">${escapeHtml(country.name || country.code)}</div><div class="country-pro-code">${escapeHtml(country.code || "")}</div></div></div>
             <div class="country-next">${counts.total ? "🟢 Календарь доступен" : "⚪ Данные о праздниках пока не добавлены"}<strong>${counts.total ? counts.total+" записей в календаре" : "Пока нет записей"}</strong></div>
             <div class="country-stats"><span class="country-stat">Следующий праздник: ${next ? escapeHtml(next.name)+" · "+formatDisplayDate(next.date) : "не указан"}</span></div>
-            <div class="country-actions"><button class="country-action primary" data-country-open="${escapeHtml(country.code)}">Открыть календарь страны →</button></div>
+            <div class="country-actions">${counts.total ? `<button class="country-action primary" data-country-open="${escapeHtml(country.code)}">Открыть календарь страны →</button>` : `<span class="country-action" aria-disabled="true">Календарь скоро появится</span>`}</div>
         </article>`;
     }
 
@@ -2094,6 +2116,24 @@ async function renderEuropeSvgMap(){
         try{return JSON.parse(localStorage.getItem("holidayNotificationConfig")||"{}");}catch(e){return {};}
     }
     let notificationPreviousFocus=null;
+    let countryDirectoryPreviousFocus = null;
+    function openCountryDirectory() {
+        const overlay = $("#countryDirectoryOverlay");
+        countryDirectoryPreviousFocus = document.activeElement;
+        overlay.hidden = false;
+        document.body.style.overflow = "hidden";
+        $("#countryDirectoryDetails").open = true;
+        $("#countryDirectory").focus();
+        renderCountries();
+    }
+    function closeCountryDirectory() {
+        const overlay = $("#countryDirectoryOverlay");
+        if (!overlay || overlay.hidden) return;
+        overlay.hidden = true;
+        document.body.style.overflow = "";
+        if (countryDirectoryPreviousFocus && countryDirectoryPreviousFocus.focus) countryDirectoryPreviousFocus.focus();
+    }
+
     function openNotificationWindow(){const overlay=$("#notificationOverlay");notificationPreviousFocus=document.activeElement;overlay.hidden=false;document.body.style.overflow="hidden";$("#notificationSettings").focus();}
     function closeNotificationWindow(){const overlay=$("#notificationOverlay");if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow="";if(notificationPreviousFocus&&notificationPreviousFocus.focus)notificationPreviousFocus.focus();}}
     function renderNotificationSettings(){
@@ -2481,6 +2521,9 @@ async function renderEuropeSvgMap(){
             );
 
 
+        $("#openCountryDirectory").addEventListener("click", openCountryDirectory);
+        $("#closeCountryDirectory").addEventListener("click", closeCountryDirectory);
+        $("#countryDirectoryOverlay").addEventListener("click", event => { if (event.target.id === "countryDirectoryOverlay") closeCountryDirectory(); });
         $("#countryDataFilter").addEventListener("change", event => { state.countryDataFilter = event.target.value; renderCountries(); });
         $("#countrySearch").addEventListener("input", event => {
             state.countryQuery = event.target.value;
@@ -2514,6 +2557,7 @@ async function renderEuropeSvgMap(){
 
 
         document.addEventListener("keydown", event => {
+            if (event.key === "Escape" && !$("#countryDirectoryOverlay").hidden) { closeCountryDirectory(); return; }
             if (event.key === "Escape") {
                 if (!$("#notificationOverlay").hidden) closeNotificationWindow();
                 else closeModal();
