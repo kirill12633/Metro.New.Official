@@ -830,7 +830,7 @@
     </section>
 
 
-    <div class="container">\n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="./">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p>Праздники и памятные даты этой страны</p><div class="holiday-grid" id="countryProfileHolidays"></div></section>
+    <div class="container">\n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="../">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p id="countryProfileMeta"></p><h2>Официальные нерабочие дни</h2><div class="holiday-grid" id="countryProfileHolidays"></div></section>
 
         <!-- SEARCH -->
 
@@ -1165,7 +1165,8 @@
         "JP.json",
         "CN.json",
         "NP.json",
-        "LI.json"
+        "LI.json",
+        "EU.json"
     ];
 
 
@@ -1293,9 +1294,10 @@
             } else {
 
                 if (data.country) {
-                    state.countries.push(
-                        data.country
-                    );
+                    state.countries.push(data.country);
+                }
+                if (Array.isArray(data.countries)) {
+                    state.countries.push(...data.countries);
                 }
 
                 if (Array.isArray(data.holidays)) {
@@ -1711,7 +1713,7 @@
             holidays
         );
 
-        if (profile) { $("#countryProfileTitle").textContent = `${country?.flag || "🌍"} ${country?.name || code}`; $("#countryProfileHolidays").innerHTML = ""; renderHolidayList($("#countryProfileHolidays"), holidays); } else $("#countrySection").scrollIntoView({behavior:"smooth"});
+        if (profile) { $("#countryProfileTitle").textContent = `${country?.flag || "🌍"} ${country?.name || code}`; $("#countryProfileMeta").textContent = [country?.capital ? `Столица: ${country.capital}` : "", country?.languages ? `Язык(и): ${country.languages}` : "", country?.currency ? `Валюта: ${country.currency}` : ""].filter(Boolean).join(" · "); $("#countryProfileHolidays").innerHTML = ""; renderHolidayList($("#countryProfileHolidays"), holidays); } else $("#countrySection").scrollIntoView({behavior:"smooth"});
 
     }
 
