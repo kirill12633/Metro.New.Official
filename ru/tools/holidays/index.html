@@ -1224,7 +1224,7 @@
         await loadData();
 
         renderAll();
-        const selectedCountry = new URLSearchParams(location.search).get("country");
+        const selectedCountry = location.pathname.match(/\/holidays\/([A-Z]{2})\/?$/i)?.[1]?.toUpperCase() || new URLSearchParams(location.search).get("country");
         if (selectedCountry) showCountry(selectedCountry);
 
     }
@@ -1685,7 +1685,7 @@
     function showCountry(code) {
         const valid = state.countries.some(item => item.code === code);
         if (!valid) return;
-        if (new URLSearchParams(location.search).get("country") !== code) { location.href = "?country=" + encodeURIComponent(code); return; }
+        if (!location.pathname.match(new RegExp("/holidays/" + code + "/?$","i"))) { location.href = "./" + encodeURIComponent(code) + "/"; return; }
         const profile = $("#countryProfile");
         if (profile) { document.querySelectorAll("main .container > *").forEach(el => { el.hidden = true; }); profile.hidden = false; }
 
