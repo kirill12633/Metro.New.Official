@@ -2500,18 +2500,21 @@ async function renderEuropeSvgMap(){
             );
 
 
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key === "Escape"
-                ) {
-                    closeModal();
-                }
-
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                if (!$("#notificationOverlay").hidden) closeNotificationWindow();
+                else closeModal();
+                return;
             }
-        );
+            const overlay = $("#notificationOverlay");
+            if (!overlay.hidden && event.key === "Tab") {
+                const focusable = Array.from($("#notificationSettings").querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')).filter(el => el.offsetParent !== null);
+                if (!focusable.length) { event.preventDefault(); $("#notificationSettings").focus(); return; }
+                const first = focusable[0], last = focusable[focusable.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+            }
+        });
 
     }
 
