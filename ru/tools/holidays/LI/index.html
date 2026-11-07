@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Праздники Лихтенштейн — Holidays</title>
+<meta name="description" content="Официальные праздничные и нерабочие дни: Лихтенштейн, 2026 год.">
+<style>
+:root{color-scheme:light dark;--bg:#f6f7fb;--card:#fff;--text:#17181c;--muted:#737781;--line:#e7e8ed;--accent:#5b5ce2}
+@media(prefers-color-scheme:dark){:root{--bg:#111216;--card:#191a20;--text:#f5f5f7;--muted:#9699a4;--line:#292b33;--accent:#8586ff}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(900px,calc(100% - 32px));margin:38px auto}.back{color:var(--accent);text-decoration:none;font-weight:650}.hero,.holiday{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}.hero{margin:22px 0}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}h1{font-size:clamp(28px,5vw,42px);margin:8px 0}.muted{color:var(--muted)}.list{display:grid;gap:10px}.holiday{display:grid;grid-template-columns:125px 1fr;gap:16px;align-items:start}.date{font-weight:800;color:var(--accent)}.holiday h2{font-size:17px;margin:0 0 5px}.holiday p{margin:0;color:var(--muted);font-size:14px}.tag{display:inline-block;margin-top:9px;padding:3px 8px;border-radius:7px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-size:11px;font-weight:750}.empty{padding:25px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:14px}@media(max-width:560px){.holiday{grid-template-columns:1fr;gap:5px}}
+</style>
+</head>
+<body><main class="wrap">
+<a class="back" href="../">← Все страны и праздники</a>
+<header class="hero"><div class="eyebrow">Календарь государственных праздников · 2026</div><h1 id="title">Лихтенштейн</h1><p class="muted">Официальные праздничные даты и нерабочие дни страны.</p></header>
+<div id="list" class="list"><div class="empty">Загружаем календарь…</div></div>
+</main>
+<script>
+const CODE="LI",MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+fetch("../../data/"+CODE+".json").then(r=>{if(!r.ok)throw Error("data");return r.json()}).then(data=>{
+const country=data.country||{name:"Лихтенштейн",flag:"🌍"};
+document.title="Праздники "+country.name+" — Holidays";document.querySelector("#title").textContent=(country.flag||"🌍")+" "+country.name;
+const holidays=(Array.isArray(data)?data:data.holidays||[]).filter(x=>x.date&&x.date.startsWith("2026-")).sort((a,b)=>a.date.localeCompare(b.date));
+document.querySelector("#list").innerHTML=holidays.length?holidays.map(x=>{const d=new Date(x.date+"T12:00:00");return '<article class="holiday"><div class="date">'+d.getDate()+" "+MONTHS[d.getMonth()]+'</div><div><h2>'+esc(x.name)+'</h2><p>'+esc(x.description||"Официальный праздничный день.")+'</p><span class="tag">Государственный / официальный</span></div></article>'}).join(""):'<div class="empty">Для этой страны пока нет опубликованных дат в календаре 2026 года.</div>';
+}).catch(()=>document.querySelector("#list").innerHTML='<div class="empty">Не удалось загрузить календарь. Попробуйте обновить страницу.</div>');
+</script></body></html>
