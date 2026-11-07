@@ -796,7 +796,8 @@ main section{animation:section-in .45s ease both}
 .country-search{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text)}
 .country-directory-card{transition:transform .2s ease,box-shadow .2s ease}
 .country-directory-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.notification-overlay{position:fixed;inset:0;z-index:10000;background:#10131bcc;display:grid;place-items:center;padding:18px;backdrop-filter:blur(7px)}
+.notification-overlay{position:fixed;inset:0;z-index:10000;background:#10131bcc;display:none;place-items:center;padding:18px;backdrop-filter:blur(7px)}
+.notification-overlay:not([hidden]){display:grid}
 .notification-overlay[hidden]{display:none}
 .notification-settings{width:min(680px,100%);max-height:min(86vh,760px);overflow:auto;box-shadow:0 24px 80px #0005;border-radius:22px}
 .notification-settings .section-title{display:flex;align-items:center;justify-content:space-between}
@@ -804,6 +805,20 @@ main section{animation:section-in .45s ease both}
 .notification-hint{color:var(--muted);font-size:13px;margin:0 0 14px}
 body.festive-mode .feature-panel,body.festive-mode .country-directory-section details{border-color:#d6a94c88}
 @media(max-width:640px){.countries-toolbar{grid-template-columns:1fr}.country-directory-summary{align-items:flex-start;flex-wrap:wrap}.country-directory-summary span:nth-child(2){order:3;width:100%;margin:0}.notification-overlay{padding:10px}.notification-settings{max-height:92vh}}
+
+
+/* Main navigation and bottom settings */
+.header-inner{flex-wrap:wrap}
+.main-nav{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;width:100%;padding:0 0 12px}
+.main-nav a{display:inline-flex;align-items:center;padding:9px 13px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);text-decoration:none;font-size:13px;font-weight:700;transition:background .2s,border-color .2s}
+.main-nav a:hover{background:var(--primary-soft);border-color:var(--primary)}
+#upcomingSection,#favoritesSection,#settingsSection{scroll-margin-top:20px}
+.settings-section{padding-top:10px}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px}
+.settings-tile h3{margin-bottom:8px}
+.settings-tile p{font-size:13px;color:var(--muted);margin-bottom:14px}
+.notification-overlay[hidden]{display:none!important}
+@media(max-width:640px){.main-nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}.main-nav a{white-space:nowrap}.header-inner{justify-content:center}}
 
 </style>
 </head>
@@ -821,9 +836,9 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
         <div class="header-actions">
             <button class="header-text-button" id="enableNotifications" type="button" title="Уведомления">🔔</button>
             <label class="header-control"><span>Язык</span><select id="languageSelect" class="language-select" aria-label="Язык"><option value="ru">RU</option><option value="lv">LV</option><option value="en">EN</option></select></label>
-            <label class="header-control"><span>Тема</span><button class="icon-button" id="themeButton" title="Тема" aria-label="Изменить тему">🌙</button></label>
+            
         </div>
-
+        <nav class="main-nav" aria-label="Основная навигация"><a href="#upcomingSection">🔜 Ближайшие</a><a href="#favoritesSection">⭐ Избранное</a><a href="#settingsSection">⚙️ Настройки</a></nav>
     </div>
 </header>
 
@@ -958,9 +973,9 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
         </section>
 
 
-<section><div class="section-title"><h2>🗺️ Интерактивная карта Европы</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div class="notification-overlay" id="notificationOverlay" hidden><div class="feature-panel notification-settings" id="notificationSettings"><div class="section-title"><h3>🔔 Настройки уведомлений</h3><button type="button" class="notification-close" id="closeNotificationWindow" aria-label="Закрыть">✕</button></div><p class="notification-hint">Настрой напоминания о праздниках. Уведомления сайта проверяются, пока страница открыта.</p><div class="notification-controls"><label>Напомнить за<select id="reminderDays"><option value="1">1 день</option><option value="3" selected>3 дня</option><option value="7">7 дней</option></select></label><label>Время уведомления<input id="notificationTime" type="time" value="09:00"></label><label class="morning-toggle"><input id="morningNotification" type="checkbox" checked> Утром сообщать о празднике сегодня</label></div><div class="favorite-notification-list"><strong>Уведомления об избранных странах</strong><p>Отметь страны, о праздниках которых хочешь получать уведомления.</p><div id="notificationCountryChoices" class="notification-country-choices"></div></div><button class="feature-button primary" id="saveNotificationSettings" type="button">Сохранить настройки</button><span id="notificationStatus" class="notification-status" aria-live="polite">Нажми «Сохранить настройки» и разреши уведомления браузера.</span></div></div><div id="worldMap" hidden></div></section>
+<section><div class="section-title"><h2>🗺️ Интерактивная карта Европы</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div id="worldMap" hidden></div></section>
 <section id="countryDirectory" class="country-directory-section">
-  <details id="countryDirectoryDetails" open>
+  <details id="countryDirectoryDetails">
     <summary class="country-directory-summary"><span>🌍 Все страны Европы</span><span id="countryCount">Выбери страну, чтобы открыть календарь</span></summary>
     <div class="countries-toolbar">
       <input id="countrySearch" class="country-search" type="search" placeholder="Найти страну…" aria-label="Найти страну">
@@ -973,7 +988,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
     <div class="compare-box" id="countryCompare" hidden></div>
   </details>
 </section>
-<section><div class="section-title"><h2>⏳ Обратный отсчёт</h2></div><div class="countdown-grid" id="countdown"></div></section><section><div class="section-title"><h2>🕒 Мировые часы праздников</h2></div><div class="feature-panel"><div class="world-clock-grid" id="worldClocks"></div></div></section><section><div class="section-title"><h2>🎄 Праздничный режим</h2></div><div class="feature-panel"><p>Включи праздничное оформление сайта.</p><button class="feature-button primary" id="festiveToggle">✨ Включить праздничный режим</button></div></section><section><div class="section-title"><h2>🗓️ Мой календарь</h2><span>Твои сохранённые праздники</span></div><div class="feature-panel"><div class="personal-calendar-grid" id="personalCalendar"></div></div></section><section><div class="section-title"><h2>📊 Статистика праздников</h2><span id="statsYear"></span></div><div class="feature-panel" id="holidayStats"></div></section>
+<section><div class="section-title"><h2>⏳ Обратный отсчёт</h2></div><div class="countdown-grid" id="countdown"></div></section><section><div class="section-title"><h2>🕒 Мировые часы праздников</h2></div><div class="feature-panel"><div class="world-clock-grid" id="worldClocks"></div></div></section><section><div class="section-title"><h2>🗓️ Мой календарь</h2><span>Твои сохранённые праздники</span></div><div class="feature-panel"><div class="personal-calendar-grid" id="personalCalendar"></div></div></section><section><div class="section-title"><h2>📊 Статистика праздников</h2><span id="statsYear"></span></div><div class="feature-panel" id="holidayStats"></div></section>
         <!-- CALENDAR -->
 
         <section>
@@ -1063,7 +1078,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 
         <!-- UPCOMING -->
 
-        <section>
+        <section id="upcomingSection">
 
             <div class="section-title">
                 <h2>🔜 Ближайшие праздники</h2>
@@ -1102,7 +1117,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 
         <!-- FAVORITES -->
 
-        <section>
+        <section id="favoritesSection">
 
             <div class="section-title">
                 <h2>⭐ Избранное</h2>
@@ -1116,12 +1131,13 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
                 id="favorites"
             ></div>
 
-        </section>
-
-
-
-        <!-- SOURCES -->
-        <section class="sources-section" aria-labelledby="sourcesTitle">
+        </section><section id="settingsSection" class="settings-section">
+  <div class="section-title"><h2>⚙️ Настройки сайта</h2><span>Оформление и полезная информация</span></div>
+  <div class="settings-grid">
+    <div class="feature-panel settings-tile"><h3>🌙 Тема оформления</h3><p>Переключи светлую или тёмную тему.</p><button class="feature-button primary" id="themeButton" type="button">🌙 Сменить тему</button></div>
+    <div class="feature-panel settings-tile"><h3>🎄 Праздничный режим</h3><p>Включи праздничное оформление сайта.</p><button class="feature-button primary" id="festiveToggle" type="button">✨ Включить праздничный режим</button></div>
+  </div>
+  <section class="sources-section" aria-labelledby="sourcesTitle">
             <div class="section-title">
                 <h2 id="sourcesTitle">📚 Источники</h2>
                 <span>Официальные документы и справочные материалы</span>
@@ -1137,6 +1153,12 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
                 <p class="sources-note">Календарные даты в списке рассчитаны для 2026 года. Подвижные даты и дни недели могут меняться в другие годы.</p>
             </div>
         </section>
+</section>
+
+
+
+        <!-- SOURCES -->
+        
 
         <!-- REPORT -->
 
@@ -1186,6 +1208,7 @@ body.festive-mode .feature-panel,body.festive-mode .country-directory-section de
 </div>
 
 
+<div class="notification-overlay" id="notificationOverlay" hidden role="presentation"><div class="feature-panel notification-settings" id="notificationSettings" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" tabindex="-1"><div class="section-title"><h3 id="notificationTitle">🔔 Настройки уведомлений</h3><button type="button" class="notification-close" id="closeNotificationWindow" aria-label="Закрыть">✕</button></div><p class="notification-hint">Настрой напоминания о праздниках. Уведомления сайта проверяются, пока страница открыта.</p><div class="notification-controls"><label>Напомнить за<select id="reminderDays"><option value="1">1 день</option><option value="3" selected>3 дня</option><option value="7">7 дней</option></select></label><label>Время уведомления<input id="notificationTime" type="time" value="09:00"></label><label class="morning-toggle"><input id="morningNotification" type="checkbox" checked> Утром сообщать о празднике сегодня</label></div><div class="favorite-notification-list"><strong>Уведомления об избранных странах</strong><p>Отметь страны, о праздниках которых хочешь получать уведомления.</p><div id="notificationCountryChoices" class="notification-country-choices"></div></div><button class="feature-button primary" id="saveNotificationSettings" type="button">Сохранить настройки</button><span id="notificationStatus" class="notification-status" aria-live="polite">Нажми «Сохранить настройки» и разреши уведомления браузера.</span></div></div>
 <script>
 
     /* =========================================
@@ -2057,8 +2080,9 @@ async function renderEuropeSvgMap(){
     function getNotificationConfig(){
         try{return JSON.parse(localStorage.getItem("holidayNotificationConfig")||"{}");}catch(e){return {};}
     }
-    function openNotificationWindow(){const overlay=$("#notificationOverlay");overlay.hidden=false;document.body.style.overflow="hidden";$("#closeNotificationWindow").focus();}
-    function closeNotificationWindow(){const overlay=$("#notificationOverlay");if(overlay){overlay.hidden=true;document.body.style.overflow="";}}
+    let notificationPreviousFocus=null;
+    function openNotificationWindow(){const overlay=$("#notificationOverlay");notificationPreviousFocus=document.activeElement;overlay.hidden=false;document.body.style.overflow="hidden";$("#notificationSettings").focus();}
+    function closeNotificationWindow(){const overlay=$("#notificationOverlay");if(overlay&&!overlay.hidden){overlay.hidden=true;document.body.style.overflow="";if(notificationPreviousFocus&&notificationPreviousFocus.focus)notificationPreviousFocus.focus();}}
     function renderNotificationSettings(){
         const config=getNotificationConfig();
         $("#reminderDays").value=String(config.days||3);
