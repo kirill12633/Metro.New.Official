@@ -1375,6 +1375,7 @@
         renderUpcoming();
 
         renderFavorites();
+        renderWorldMap();renderCountdown();renderStatistics();renderWorldToday();
 
     }
 
@@ -1955,6 +1956,11 @@
 
     }
 
+
+    function renderWorldMap(){const box=$("#worldMap");box.innerHTML=state.countries.map(c=>'<button class="map-country" data-map-country="'+escapeHtml(c.code)+'"><span>'+(c.flag||"🌍")+'</span>'+escapeHtml(c.name||c.code)+'</button>').join("");box.querySelectorAll("[data-map-country]").forEach(b=>b.addEventListener("click",()=>showCountry(b.dataset.mapCountry)));}
+    function renderCountdown(){const list=state.holidays.filter(h=>h.date>=getTodayString()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);$("#countdown").innerHTML=list.map(h=>'<div class="countdown-item"><div class="countdown-number">'+daysUntil(h.date)+'</div><small>дней до праздника</small><strong>'+escapeHtml(h.name)+'</strong><small>'+formatDisplayDate(h.date)+'</small></div>').join("")||'<div class="empty">Нет предстоящих дат.</div>';}
+    function renderStatistics(){const list=state.holidays.filter(h=>h.date.startsWith(String(state.year)));const cats=["national","religious","cultural","international"];const labels=["Государственные","Религиозные","Культурные","Международные"];$("#statsYear").textContent=state.year;$("#holidayStats").innerHTML='<div class="stats-grid"><div class="stat-tile"><strong>'+list.length+'</strong><span>Всего дат</span></div><div class="stat-tile"><strong>'+new Set(list.map(h=>h.countryCode)).size+'</strong><span>Стран</span></div>'+cats.map((c,i)=>'<div class="stat-tile"><strong>'+list.filter(h=>h.category===c).length+'</strong><span>'+labels[i]+'</span></div>').join("")+'</div>';}
+    function renderWorldToday(){renderHolidayList($("#worldToday"),state.holidays.filter(h=>h.date===getTodayString()));}
 
     /* =========================================
        MODAL
