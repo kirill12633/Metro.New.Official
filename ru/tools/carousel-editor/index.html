@@ -1,0 +1,317 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Редактор каруселей и шаблонов онлайн | Метро New</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Бесплатный редактор: готовые шаблоны, карусели для Instagram, Telegram и Discord, PNG и ZIP. Всё работает в браузере.">
+<link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png">
+<script>try{var t=localStorage.getItem('metro_new_theme');if(t=='light'||t=='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Oswald:wght@500;700&family=Playfair+Display:wght@700;900&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--bg-primary:var(--bg);--bg-secondary:var(--bg2);--bg-card:var(--card);--bg-card-hover:var(--bg2);--text-primary:var(--tx);--text-secondary:var(--tx2);--text-tertiary:var(--tx3);--text-disabled:var(--tx3);--accent:var(--ac);--accent-hover:var(--ac2);--accent-light:var(--acl);--accent-glow:rgba(255,215,0,.2);--blue:#4d94ff;--blue-hover:#7aacff;--blue-light:rgba(77,148,255,.15);--border:var(--bd);--shadow:0 8px 30px rgba(0,0,0,.5);--shadow-lg:0 16px 40px rgba(0,0,0,.6);--radius:12px;--radius-sm:8px;--radius-lg:16px;--r:12px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--tx:#f2f4fa;--tx2:#a6b0cc;--tx3:#77819e;--ac:#FFD700;--ac2:#ffe14d;--acl:rgba(255,215,0,.15);--bd:#253460;color-scheme:dark}
+[data-theme=light]{--bg:#fff;--bg2:#f4f6fb;--card:#fff;--tx:#14151f;--tx2:#565f7a;--tx3:#8890a8;--ac:#e6c200;--ac2:#c2a300;--acl:rgba(230,194,0,.14);--bd:#e2e6f0;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;min-height:100vh;background-image:radial-gradient(ellipse at 10% 10%,color-mix(in srgb,var(--ac) 7%,transparent),transparent 55%),radial-gradient(ellipse at 90% 40%,rgba(77,148,255,.09),transparent 55%)}
+.c{width:92%;max-width:1240px;margin:0 auto}
+.hero{text-align:center;padding:36px 0 24px}
+.eyebrow{display:inline-block;background:var(--acl);border:1px solid color-mix(in srgb,var(--ac) 25%,transparent);padding:6px 18px;border-radius:50px;font-weight:600;font-size:.75rem;color:var(--ac);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.12;letter-spacing:-1px;margin-bottom:14px;background:linear-gradient(135deg,var(--tx) 30%,var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--tx2);max-width:680px;margin:0 auto;font-weight:500}
+.wrap{display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:start;padding-bottom:40px}
+.left{position:sticky;top:84px;display:flex;flex-direction:column;gap:12px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+#view{position:relative;overflow:hidden;border-radius:10px;box-shadow:0 0 30px #000a;cursor:grab;touch-action:none}
+#nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.sec{background:var(--card);border:1px solid var(--bd);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.sec[open]{border-color:color-mix(in srgb,var(--ac) 40%,var(--bd))}
+.sec summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:800;display:flex;align-items:center;gap:10px}
+.sec summary::-webkit-details-marker{display:none}
+.sec summary::after{content:'▾';margin-left:auto;color:var(--ac);transition:transform .25s}
+.sec[open] summary::after{transform:rotate(180deg)}
+.sec summary small{font-weight:500;color:var(--tx3);font-size:.78rem}
+.in{padding:0 20px 20px}
+label{display:block;font-size:.8rem;font-weight:700;color:var(--tx2);margin:12px 0 6px}
+label.ck{display:flex;align-items:center;gap:8px;font-weight:600}
+input,textarea,select{width:100%;padding:10px 12px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg2);color:var(--tx);font:inherit;font-weight:500}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--acl)}
+input[type=checkbox]{width:auto;accent-color:var(--ac)}input[type=color]{height:42px;padding:3px}input[type=range]{padding:0;accent-color:var(--ac)}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.b{padding:9px 14px;border:1px solid var(--bd);background:var(--bg2);color:var(--tx2);border-radius:var(--r);cursor:pointer;font:inherit;font-weight:700;font-size:.85rem;transition:.2s}
+.b:hover{border-color:var(--ac);color:var(--ac)}.b.on{background:linear-gradient(135deg,var(--ac),var(--ac2));border-color:var(--ac);color:#14151f}.b:disabled{opacity:.5}
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.hint{font-size:.75rem;color:var(--tx3);line-height:1.5;margin-top:8px}
+.pulse{animation:p 1s infinite}@keyframes p{50%{opacity:.25}}
+#toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,120px);background:var(--card);border:1px solid var(--ac);padding:12px 20px;border-radius:var(--r);transition:.3s;z-index:99}
+#toast.show{transform:translate(-50%,0)}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.left{position:static}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.container{width:92%;max-width:1240px;margin:0 auto;padding:0 16px}
+header{background:color-mix(in srgb,var(--bg-primary) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 0;position:sticky;top:0;z-index:999}
+nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.logo a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text-primary);font-weight:800;font-size:1.5rem;letter-spacing:-.5px}
+.logo-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 0 30px var(--accent-glow)}
+.logo-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.logo span{background:linear-gradient(135deg,var(--text-primary) 40%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nav-links>a{color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:.95rem;padding:8px 18px;border-radius:var(--radius);transition:all .2s}
+.nav-links>a:hover{color:var(--text-primary);background:color-mix(in srgb,var(--text-primary) 6%,transparent)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.login-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 22px;background:linear-gradient(135deg,var(--blue),var(--blue-hover));border-radius:50px;color:#fff!important;font-weight:700;text-decoration:none;transition:all .25s;font-size:.9rem}
+.login-btn:hover{transform:translateY(-3px);box-shadow:0 8px 35px var(--blue-light)}
+.burger-menu{display:none;font-size:1.6rem;background:none;border:none;color:var(--text-primary);cursor:pointer}
+.dropdown{position:relative}
+.dropdown>button{background:transparent;border:none;color:var(--text-secondary);font-family:inherit;font-weight:600;font-size:.95rem;padding:8px 18px;border-radius:var(--radius);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.dropdown>button:hover{color:var(--text-primary);background:color-mix(in srgb,var(--text-primary) 6%,transparent)}
+.dropdown>button i{font-size:.7rem;transition:transform .25s}.dropdown.open>button i{transform:rotate(180deg)}
+.dropdown-content{display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);min-width:200px;padding:8px 0;box-shadow:var(--shadow);z-index:100}
+.dropdown.open .dropdown-content{display:block}
+.dropdown-content a{display:flex;align-items:center;gap:12px;padding:10px 18px;color:var(--text-secondary);text-decoration:none;font-weight:500;font-size:.9rem;transition:all .15s}
+.dropdown-content a i{width:20px;color:var(--accent)}.dropdown-content a:hover{background:var(--bg-card-hover);color:var(--text-primary)}
+.breadcrumbs{display:flex;justify-content:center;margin-bottom:26px}
+.breadcrumbs ol{list-style:none;display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:2px;padding:5px;background:var(--bg-card);border:1px solid var(--border);border-radius:50px;box-shadow:var(--shadow)}
+.breadcrumbs li{display:flex;align-items:center}
+.breadcrumbs li+li::before{content:'\f054';font-family:'Font Awesome 6 Free';font-weight:900;font-size:.55rem;color:var(--text-disabled);margin:0 2px}
+.breadcrumbs a,.breadcrumbs [aria-current]{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:50px;font-size:.84rem;font-weight:600;text-decoration:none;transition:all .2s}
+.breadcrumbs a{color:var(--text-secondary)}.breadcrumbs a:hover,.breadcrumbs [aria-current]{background:var(--accent-light);color:var(--accent)}
+footer{background:var(--bg-secondary);border-top:1px solid var(--border);padding:44px 0 calc(24px + env(safe-area-inset-bottom,0px));margin-top:40px;text-align:left}
+.footer-top{display:grid;grid-template-columns:1.2fr 2fr;gap:40px;margin-bottom:30px;padding-bottom:30px;border-bottom:1px solid var(--border)}
+.footer-brand{display:flex;flex-direction:column;gap:14px}
+.footer-brand .logo-icon{width:54px;height:54px}
+.brand-name{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--text-primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.footer-brand p{color:var(--text-secondary);font-size:.9rem;max-width:340px;margin:0}
+.footer-social{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative}
+.footer-social>a,.social-more-btn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);font-size:1.05rem;transition:all .25s;text-decoration:none;cursor:pointer;flex-shrink:0}
+.footer-social>a:hover,.social-more-btn:hover,.social-more-wrap.open .social-more-btn{border-color:var(--accent);color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 25px var(--accent-glow)}
+.social-more-wrap{position:relative}.social-more-btn i{transition:transform .25s}.social-more-wrap.open .social-more-btn i{transform:rotate(90deg)}
+.social-more-backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,20,.25);z-index:190}
+.social-more-wrap.open .social-more-backdrop{display:block}
+.social-more-popup{display:none;position:absolute;bottom:calc(100% + 14px);left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px;width:220px;box-shadow:var(--shadow-lg);z-index:200}
+.social-more-wrap.open .social-more-popup{display:flex;flex-direction:column;gap:2px}
+.social-more-popup-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);padding:4px 10px 10px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.social-more-popup a{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:var(--radius-sm);color:var(--text-secondary);text-decoration:none;font-weight:600;font-size:.85rem;transition:all .15s;white-space:nowrap}
+.social-more-popup a i{width:20px;color:var(--accent);text-align:center;font-size:1.05rem}
+.social-more-popup a:hover{background:var(--accent-light);color:var(--text-primary)}
+.footer-links{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.footer-col h4{font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:12px}
+.footer-col ul{list-style:none}.footer-col li{margin-bottom:6px}
+.footer-col a{color:var(--text-secondary);text-decoration:none;font-weight:500;font-size:.88rem;transition:color .2s;display:inline-flex;align-items:center;gap:8px}
+.footer-col a:hover{color:var(--accent)}.footer-col a i{width:16px;font-size:.8rem}
+.footer-bottom{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--text-secondary);font-size:.83rem}
+.footer-bottom p{margin:0}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;position:relative;width:42px;height:42px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);font-size:1.1rem;cursor:pointer;transition:all .3s;overflow:hidden}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px) scale(1.05);box-shadow:0 0 18px var(--accent-glow)}
+.theme-toggle .fa-sun{opacity:0;transform:rotate(90deg) scale(.3);position:absolute}
+[data-theme=light] .theme-toggle .fa-sun{opacity:1;transform:none;color:var(--accent)}
+[data-theme=light] .theme-toggle .fa-moon{opacity:0;transform:rotate(-90deg) scale(.3);position:absolute}
+@media(max-width:992px){.burger-menu{display:block}
+.nav-links{display:none;width:100%;flex-direction:column;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:10px;gap:4px}
+.nav-links.active{display:flex}.nav-links>a{padding:10px 14px;width:100%}
+.dropdown{width:100%}.dropdown>button{width:100%;padding:10px 14px}
+.dropdown-content{position:static;border:none;background:color-mix(in srgb,var(--text-primary) 4%,transparent);box-shadow:none;padding:0 0 0 16px;margin-top:4px}
+.nav-right{order:-1}.footer-top{grid-template-columns:1fr}.footer-links{grid-template-columns:1fr 1fr}.social-more-popup{left:auto;right:0}}
+@media(max-width:640px){.footer-links{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="container"><nav>
+<div class="logo"><a href="https://kirill12633.github.io/Metro.New.Official/ru/"><span class="logo-icon"><img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New"></span><span>Метро New</span></a></div>
+<div class="nav-right"><button class="burger-menu" id="burgerMenu" aria-label="Открыть меню"><i class="fas fa-bars"></i></button></div>
+<div class="nav-links" id="navLinks"><a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a><a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+<div class="dropdown" id="dropdownOther"><button id="dropdownBtn">Прочее <i class="fas fa-chevron-down"></i></button><div class="dropdown-content"><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a></div></div>
+<a href="https://kirill12633.github.io/Metro.New.Official/ru/auth/signup/" class="login-btn"><i class="fas fa-sign-in-alt"></i> Войти</a></div></nav></div></header>
+<main class="c">
+<section class="hero"><nav class="breadcrumbs" aria-label="Хлебные крошки"><ol><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/"><i class="fas fa-house"></i> Главная</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-toolbox"></i> Инструменты</a></li><li><span aria-current="page"><i class="fas fa-wand-magic-sparkles"></i> Редактор каруселей</span></li></ol></nav>
+<div class="eyebrow">Бесплатный инструмент</div><h1>Редактор каруселей и шаблонов</h1>
+<p>Выбери шаблон, поменяй текст и фото, скачай PNG или ZIP с подписями для публикации. Всё работает в браузере, ничего не отправляется на сервер.</p></section>
+<div class="wrap">
+<aside class="left"><div id="view"></div><div id="nav"></div>
+<div class="row" style="width:100%"><button class="b" data-act="one">⬇ PNG слайда</button><button class="b on" data-act="zip">📦 ZIP + тексты</button></div>
+<p class="hint">Фото можно двигать мышью, колесо — зум.</p></aside>
+<div id="panel">
+<div class="row" style="margin-bottom:12px"><button class="b" data-act="fold" data-v="0">Свернуть всё</button><button class="b" data-act="fold" data-v="1">Развернуть всё</button></div>
+
+<details class="sec" open><summary>🎯 Шаблоны <small>готовый набор слайдов</small></summary><div class="in"><div class="tpls" id="tpls"></div>
+<p class="hint">Шаблон заменяет все слайды. Сначала выбери его, потом правь текст.</p></div></details>
+
+<details class="sec" open><summary>✏️ Текущий слайд <small>тип, текст, метка</small></summary><div class="in">
+<div class="row"><div><label>Тип</label><select data-k="type"><option value="cover">Заголовок</option><option value="list">Список</option><option value="quote">Цитата</option><option value="number">Цифра</option><option value="cta">Призыв (CTA)</option></select></div>
+<div><label>Метка</label><select data-k="badge"><option value="">нет</option><option>СРОЧНО</option><option>LIVE</option><option>ЭКСКЛЮЗИВ</option><option>ВАЖНО</option><option>АНОНС</option><option>ОБНОВЛЕНИЕ</option><option>АКЦИЯ</option></select></div></div>
+<label>Надзаголовок</label><input data-k="kicker">
+<label>Заголовок (для цифры — число, для цитаты — автор)</label><textarea data-k="title" rows="2"></textarea>
+<label>Текст (для цитаты — сама цитата)</label><textarea data-k="text" rows="2"></textarea>
+<label>Пункты списка / кнопка CTA — по строке</label><textarea data-k="items" rows="3"></textarea>
+<div class="row"><div><label>Источник</label><input data-k="source"></div><div><label>Дата</label><input data-k="date"></div></div>
+<p class="hint">В списке текст до «:» выделяется цветом. В CTA первая строка — текст кнопки. Слайды добавляются кнопками ＋ ⧉ ✕ ◀ ▶ под превью (до 10).</p></div></details>
+
+<details class="sec"><summary>🖼 Фото <small>файл, ссылка, позиция</small></summary><div class="in">
+<label>Загрузить файл</label><input type="file" id="ph" accept="image/*">
+<label>Или ссылка на фото (сайт должен разрешать CORS, иначе фото не попадёт в PNG)</label><input id="phUrl" placeholder="https://...">
+<div class="row" style="margin-top:8px"><button class="b" data-act="phSlide">К этому слайду</button><button class="b" data-act="phAll">Ко всем слайдам</button></div>
+<label>Зум</label><input type="range" data-k="z" min="1" max="4" step="0.01"><button class="b" data-act="reset" style="margin-top:8px">Сбросить позицию</button></div></details>
+
+<details class="sec"><summary>🎨 Оформление <small>размер, шрифт, цвет</small></summary><div class="in">
+<div class="row"><div><label>Размер под платформу</label><select data-g="size" id="size"></select></div><div><label>Шрифт</label><select data-g="font" id="font"></select></div></div>
+<label>Акцентный цвет</label><input type="color" data-g="accent">
+<label class="ck"><input type="checkbox" data-g="progress">Прогресс-полоса сверху</label><label class="ck"><input type="checkbox" data-g="counter">Нумерация 1/5</label></div></details>
+
+<details class="sec"><summary>🏷 Логотип и знак <small>можно отключить</small></summary><div class="in">
+<label class="ck"><input type="checkbox" data-g="logo">Показывать логотип</label>
+<label>URL логотипа</label><input data-g="logoUrl">
+<div class="row"><div><label>Угол</label><select data-g="logoPos"><option value="tr">Справа сверху</option><option value="tl">Слева сверху</option><option value="br">Справа снизу</option><option value="bl">Слева снизу</option></select></div><div><label>Прозрачность</label><input type="range" data-g="logoOp" min="10" max="100"></div></div>
+<label>Текст-знак (например @metronew)</label><input data-g="mark"></div></details>
+
+<details class="sec"><summary>📥 Импорт и экспорт <small>CSV, JSON, текст</small></summary><div class="in">
+<label>Импорт CSV или JSON</label><input type="file" id="imp" accept=".json,.csv,.txt">
+<p class="hint">CSV: первая строка <b>type,badge,kicker,title,text,items,source,date,img</b>, пункты через |</p>
+<button class="b" data-act="exp" style="margin-top:8px">Экспорт проекта .json</button>
+<label>Статья → слайды (абзац = слайд, это не ИИ)</label><textarea id="raw" rows="3"></textarea><button class="b" data-act="split" style="margin-top:8px">Разбить на слайды</button></div></details>
+
+<details class="sec"><summary>📣 Публикация <small>подписи и ZIP</small></summary><div class="in">
+<div class="row"><div><label>Ссылка</label><input data-g="link" placeholder="https://..."></div><div><label>Хэштеги</label><input data-g="tags"></div></div>
+<label>Текст публикации</label><textarea data-g="caption" rows="4" placeholder="Пусто — соберётся из слайдов"></textarea>
+<button class="b" data-act="gen" style="margin-top:8px">Собрать текст из слайдов</button>
+<p class="hint">Кнопка «ZIP + тексты» даёт слайды, подписи для Instagram, Telegram и Discord и README с инструкцией, где и как публиковать.</p></div></details>
+</div></div></main>
+<footer><div class="container"><div class="footer-top">
+<div class="footer-brand"><div class="logo-icon"><img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New"></div><div class="brand-name">Метро New</div>
+<p>Проект о метрополитене в Roblox. Присоединяйся к нашему сообществу!</p>
+<div class="footer-social"><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fab fa-discord"></i></a><a href="https://t.me/Metro_New_Official" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a><a href="https://www.roblox.com/groups/34820737/RP-NEW#!/about" target="_blank" rel="noopener noreferrer" title="Roblox"><i class="fas fa-gamepad"></i></a><a href="https://www.youtube.com/@Metro-RP-NEW-Roblox" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fab fa-youtube"></i></a>
+<div class="social-more-wrap" id="socialMoreWrap"><div class="social-more-backdrop" id="socialMoreBackdrop"></div><button class="social-more-btn" id="socialMoreBtn" title="Ещё соцсети" aria-label="Ещё соцсети"><i class="fas fa-ellipsis"></i></button>
+<div class="social-more-popup"><div class="social-more-popup-label">Другие соцсети</div><a href="https://www.tiktok.com/@metro.new" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i> TikTok</a><a href="https://boosty.to/metro.new" target="_blank" rel="noopener noreferrer"><i class="fas fa-heart"></i> Boosty</a><a href="https://www.reddit.com/r/Metro_New/" target="_blank" rel="noopener noreferrer"><i class="fab fa-reddit"></i> Reddit</a><a href="https://www.instagram.com/metro.new.official/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i> Instagram</a></div></div></div></div>
+<div class="footer-links">
+<div class="footer-col"><h4>О нас</h4><ul><li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сообщество</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/about"><i class="fas fa-info-circle"></i> О проекте</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/staff"><i class="fas fa-users"></i> Наша команда</a></li></ul></div>
+<div class="footer-col"><h4>Правовые документы</h4><ul><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/"><i class="fas fa-shield-alt"></i> Политика конфиденциальности</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/"><i class="fas fa-file-contract"></i> Пользовательское соглашение</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/refund-policy"><i class="fas fa-money-bill-wave"></i> Политика возврата</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/copyright-policy"><i class="fas fa-copyright"></i> Политика авторских прав</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines"><i class="fas fa-globe"></i> Правила сайта</a></li></ul></div>
+<div class="footer-col"><h4>Контакты</h4><ul><li><a href="https://discord.com/invite/WjGZBs3HMX" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i> Discord сервер</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Форма обратной связи</a></li><li><a href="https://kirill12633.github.io/support.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-headset"></i> Техническая поддержка</a></li></ul></div>
+<div class="footer-col"><h4>Полезные ссылки</h4><ul><li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Все игры</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> База знаний</a></li><li><a href="https://kirill12633.github.io/status.metro.new/" target="_blank" rel="noopener noreferrer"><i class="fas fa-chart-line"></i> Статус сервисов</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-box"></i> Предметы</a></li></ul></div>
+</div></div>
+<div class="footer-bottom"><p class="copyright">© <span id="currentYear"></span> Метро New. Все права защищены.</p><button class="theme-toggle" id="themeToggle" title="Сменить тему" aria-label="Сменить тему"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></button></div></div></footer>
+<div id="toast"></div>
+<script>(function(){var r=document.documentElement,K='metro_new_theme',g=function(i){return document.getElementById(i)},th;
+try{var v=localStorage.getItem(K);if(v=='light'||v=='dark')th=v}catch(e){}
+th=th||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');r.dataset.theme=th;
+g('themeToggle').onclick=function(){th=th=='dark'?'light':'dark';r.dataset.theme=th;try{localStorage.setItem(K,th)}catch(e){}};
+var nl=g('navLinks');g('burgerMenu').onclick=function(){nl.classList.toggle('active')};
+var dd=g('dropdownOther');g('dropdownBtn').onclick=function(e){e.stopPropagation();dd.classList.toggle('open')};
+var sm=g('socialMoreWrap');g('socialMoreBtn').onclick=function(e){e.stopPropagation();sm.classList.toggle('open')};g('socialMoreBackdrop').onclick=function(){sm.classList.remove('open')};
+document.addEventListener('click',function(e){if(!dd.contains(e.target))dd.classList.remove('open');if(!sm.contains(e.target))sm.classList.remove('open')});
+document.addEventListener('keydown',function(e){if(e.key=='Escape')sm.classList.remove('open')});
+g('currentYear').textContent=new Date().getFullYear()})()</script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SIZES={story:[1080,1920,'Stories / Reels 1080×1920'],post:[1080,1350,'Instagram 4:5 1080×1350'],sq:[1080,1080,'Квадрат 1080×1080'],wide:[1920,1080,'Telegram / YouTube 1920×1080']};
+const FONTS=[["'Montserrat',sans-serif",'Montserrat'],["'Oswald',sans-serif",'Oswald'],["'Playfair Display',serif",'Playfair'],["'Unbounded',sans-serif",'Unbounded'],['system-ui,sans-serif','Системный']];
+const mk=(o={})=>({type:'cover',badge:'',kicker:'НОВОСТЬ',title:'Заголовок',text:'',items:'',source:'',date:'',img:'',x:0,y:0,z:1,...o});
+let S={size:'story',font:FONTS[0][0],accent:'#FFD700',progress:true,counter:true,logo:true,logoUrl:'https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png',logoPos:'tr',logoOp:90,mark:'',link:'',tags:'#новости',caption:'',img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200',
+slides:[mk({badge:'СРОЧНО',title:'Где, когда и по какой цене?',text:'В Скансте планируется новая трамвайная линия',source:'Metro New',date:new Date().toLocaleDateString('ru-RU')}),
+mk({type:'list',kicker:'ЧТО ИЗВЕСТНО',title:'Главное',items:'Когда: старт в 2027 году\nГде: район Скансте\nЦена: проезд прежний'}),
+mk({type:'cta',kicker:'',title:'Хочешь знать больше?',text:'Подписывайся на Metro New',items:'ПОДПИСАТЬСЯ'})]};
+let cur=0;
+$('#size').innerHTML=Object.entries(SIZES).map(([k,v])=>`<option value="${k}">${v[2]}</option>`).join('');
+$('#font').innerHTML=FONTS.map(([v,n])=>`<option value="${v}">${n}</option>`).join('');
+
+const ink=h=>{const n=parseInt(h.slice(1),16);return((n>>16&255)*.299+(n>>8&255)*.587+(n&255)*.114)>150?'#14151f':'#fff'};
+function makeSlide(i,live){
+ const s=S.slides[i],[W,H]=SIZES[S.size],n=S.slides.length,a=S.accent,P=70;
+ const el=document.createElement('div');
+ el.style.cssText=`position:relative;width:${W}px;height:${H}px;overflow:hidden;background:#222;color:#fff;font-family:${S.font}`;
+ const T=(c,st)=>`<div style="${st||''}">${c}</div>`,nl=t=>E(t).replace(/\n/g,'<br>');
+ let b;
+ if(s.type=='quote')b=T('“',`font-size:240px;line-height:.7;color:${a};font-weight:800`)+T(nl(s.text||s.title),'font-size:64px;font-weight:700;line-height:1.2')+(s.text&&s.title?T('— '+E(s.title),`font-size:38px;margin-top:28px;color:${a};font-weight:800`):'');
+ else if(s.type=='number')b=T(E(s.title),`font-size:300px;font-weight:900;line-height:1;color:${a}`)+T(nl(s.text),'font-size:54px;font-weight:600;line-height:1.25');
+ else if(s.type=='list')b=T(nl(s.title),'font-size:76px;font-weight:800;line-height:1.1;margin-bottom:20px')+s.items.split('\n').filter(Boolean).map(t=>{const k=t.indexOf(':'),h=k>0&&k<30?`<b style="color:${a}">${E(t.slice(0,k+1))}</b>${E(t.slice(k+1))}`:E(t);return `<div style="display:flex;gap:24px;padding:20px 0;border-bottom:2px solid #fff2;font-size:44px;font-weight:600;line-height:1.25"><i style="flex:none;width:20px;height:20px;border-radius:50%;background:${a};margin-top:16px"></i><span>${h}</span></div>`}).join('');
+ else if(s.type=='cta')b=T(nl(s.title),'font-size:84px;font-weight:800;line-height:1.1')+T(nl(s.text),'font-size:44px;line-height:1.35;margin-top:24px;opacity:.9')+T(E(s.items.split('\n')[0]||'ПОДПИСАТЬСЯ'),`display:inline-block;margin-top:44px;padding:26px 60px;border-radius:70px;background:${a};color:${ink(a)};font-size:40px;font-weight:800`);
+ else b=T(nl(s.title),'font-size:96px;font-weight:800;line-height:1.05;text-shadow:0 4px 20px #000a')+(s.text?T(nl(s.text),'font-size:46px;line-height:1.35;margin-top:28px;opacity:.92'):'');
+ const pos={tl:'top:100px;left:70px',tr:'top:100px;right:70px',bl:'bottom:200px;left:70px',br:'bottom:200px;right:70px'}[S.logoPos];
+ const foot=[s.source,s.date].filter(Boolean).join(' · '),r=[S.mark,S.counter?`${i+1}/${n}`:''].filter(Boolean).join('  ');
+ el.innerHTML=`<img src="${E(s.img||S.img)}" crossorigin="anonymous" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;transform:translate(${s.x}px,${s.y}px) scale(${s.z})">
+<div style="position:absolute;inset:0;background:${s.type=='cover'?'linear-gradient(to top,#000e 0%,#0006 55%,#0000 100%)':'linear-gradient(#000b,#000e)'}"></div>
+${S.progress?`<div style="position:absolute;top:40px;left:${P}px;right:${P}px;display:flex;gap:10px">${S.slides.map((_,j)=>`<div style="flex:1;height:8px;border-radius:4px;background:${j<=i?'#fff':'#ffffff44'}"></div>`).join('')}</div>`:''}
+${s.badge?`<div style="position:absolute;top:100px;left:${P}px;display:flex;align-items:center;gap:14px;background:${a};color:${ink(a)};padding:12px 28px;border-radius:40px;font-size:30px;font-weight:800;letter-spacing:3px"><i ${live?'class="pulse"':''} style="width:16px;height:16px;border-radius:50%;background:${ink(a)}"></i>${E(s.badge)}</div>`:''}
+${S.logo&&S.logoUrl?`<img src="${E(S.logoUrl)}" crossorigin="anonymous" style="position:absolute;${pos};height:110px;opacity:${S.logoOp/100}">`:''}
+<div style="position:absolute;left:${P}px;right:${P}px;bottom:150px;${W>H?'max-width:1100px':''}">${s.kicker?T(E(s.kicker),`font-size:30px;font-weight:800;letter-spacing:6px;color:${a};margin-bottom:18px`):''}${b}</div>
+<div style="position:absolute;left:${P}px;right:${P}px;bottom:56px;display:flex;justify-content:space-between;font-size:28px;font-weight:600;opacity:.85"><span>${E(foot)}</span><span>${E(r)}</span></div>`;
+ return el}
+
+const sc=()=>{const [W,H]=SIZES[S.size];return Math.min(Math.min(380,innerWidth-70)/W,Math.max(300,innerHeight-330)/H)};
+function view(){const [W,H]=SIZES[S.size],k=sc(),v=$('#view');v.style.width=W*k+'px';v.style.height=H*k+'px';const el=makeSlide(cur,1);el.style.transform=`scale(${k})`;el.style.transformOrigin='0 0';v.replaceChildren(el)}
+function ui(){
+ $$('[data-k],[data-g]').forEach(e=>{const v=e.dataset.k?S.slides[cur][e.dataset.k]:S[e.dataset.g];if(e.type=='checkbox')e.checked=v;else e.value=v});
+ $('#nav').innerHTML=S.slides.map((_,i)=>`<button class="b${i==cur?' on':''}" data-go="${i}">${i+1}</button>`).join('')+[['add','＋'],['dup','⧉'],['del','✕'],['L','◀'],['R','▶']].map(([a,t])=>`<button class="b" data-act="${a}">${t}</button>`).join('')}
+const all=()=>{ui();view()};
+
+$('#panel').addEventListener('input',e=>{const t=e.target,v=t.type=='checkbox'?t.checked:t.type=='range'?+t.value:t.value;
+ if(t.dataset.k)S.slides[cur][t.dataset.k]=v;else if(t.dataset.g)S[t.dataset.g]=v;else return;view()});
+$('#ph').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{S.slides[cur].img=r.result;view()};r.readAsDataURL(f)};
+$('#imp').onchange=async e=>{const f=e.target.files[0];if(f)try{load(await f.text());toast('✅ Импортировано')}catch(x){toast('❌ '+x.message)}};
+
+let d=null;const vw=$('#view');
+vw.onpointerdown=e=>{const s=S.slides[cur];d={x:e.clientX,y:e.clientY,sx:s.x,sy:s.y};vw.setPointerCapture(e.pointerId)};
+vw.onpointermove=e=>{if(!d)return;const s=S.slides[cur],k=sc();s.x=d.sx+(e.clientX-d.x)/k;s.y=d.sy+(e.clientY-d.y)/k;view()};
+vw.onpointerup=()=>d=null;
+vw.addEventListener('wheel',e=>{e.preventDefault();const s=S.slides[cur];s.z=Math.max(1,Math.min(4,s.z*(e.deltaY<0?1.06:.94)));$('[data-k=z]').value=s.z;view()},{passive:false});
+
+function csv(t){const r=[];let w=[],c='',q=0;for(let i=0;i<t.length;i++){const h=t[i];if(q){if(h=='"'){if(t[i+1]=='"'){c+='"';i++}else q=0}else c+=h}else if(h=='"')q=1;else if(h==','||h==';'){w.push(c);c=''}else if(h=='\n'){w.push(c);r.push(w);w=[];c=''}else if(h!='\r')c+=h}w.push(c);r.push(w);return r}
+function load(t){t=t.trim();let sl;
+ if(t[0]=='{'||t[0]=='['){const j=JSON.parse(t);if(Array.isArray(j))sl=j;else{Object.assign(S,j);sl=j.slides}}
+ else{const r=csv(t),h=r.shift().map(x=>x.trim().toLowerCase());sl=r.filter(x=>x.length>1).map(x=>Object.fromEntries(h.map((k,i)=>[k,k=='items'?(x[i]||'').replace(/\|/g,'\n'):(x[i]||'')])))}
+ S.slides=(sl||[]).slice(0,10).map(o=>mk(o));if(!S.slides.length)S.slides=[mk()];if(!SIZES[S.size])S.size='story';cur=0;all()}
+addEventListener('message',e=>{if(e.data&&e.data.mniProject)try{load(JSON.stringify(e.data.mniProject))}catch(x){}});
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3000)}
+function dl(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
+async function shots(ids){await document.fonts.ready;ids=ids||S.slides.map((_,i)=>i);const out=[],box=document.createElement('div');box.style.cssText='position:fixed;left:-99999px;top:0';document.body.append(box);
+ for(const i of ids){const el=makeSlide(i);box.append(el);await Promise.all([...el.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r})));
+ const c=await html2canvas(el,{useCORS:true,scale:1,backgroundColor:null,logging:false});out.push(await new Promise(r=>c.toBlob(r,'image/png')));el.remove()}
+ box.remove();return out}
+
+function cap(p){const f=S.slides[0],b=[f.text];S.slides.forEach(s=>{if(s.type=='list')s.items.split('\n').filter(Boolean).forEach(t=>b.push('• '+t))});
+ const body=b.filter(Boolean).join('\n'),l=S.link?'\n\n🔗 '+S.link:'',h=S.tags?'\n\n'+S.tags:'';
+ if(S.caption)return p=='tg'?E(S.caption.slice(0,1000)):S.caption;
+ if(p=='tg')return `<b>${E(f.title)}</b>\n\n${E((body+l+h).slice(0,900-f.title.length))}`;
+ if(p=='ds')return `**${f.title}**\n\n${body}${l}`;
+ return `${f.title}\n\n${body}${l}${h}`}
+const readme=()=>['КАРУСЕЛЬ — КАК ОПУБЛИКОВАТЬ','',`Слайдов: ${S.slides.length}. Размер: ${SIZES[S.size][2]}`,'',
+'Instagram: приложение → «+» → Пост → выбрать slide-01…; подпись из caption-instagram.txt (до 2200 знаков). Сторис грузи по одному (лучше 1080×1920).',
+'Telegram (вручную): прикрепить все PNG альбомом (до 10), подпись из caption-instagram.txt. Для ботов — caption-telegram.html.txt (parse_mode=HTML).',
+'Discord: перетащить PNG в канал (до 10 файлов), текст из caption-discord.txt.','',
+'project.json — открой в редакторе через «Импорт», чтобы продолжить правки.'].join('\n');
+
+const D=new Date().toLocaleDateString('ru-RU');
+const TPL={
+news:{n:'Новость',i:'📰',s:[{badge:'СРОЧНО',title:'Заголовок новости',text:'Одна-две строки о главном',source:'Метро New',date:D},{type:'list',kicker:'ЧТО ИЗВЕСТНО',title:'Главное',items:'Когда: …\nГде: …\nЧто дальше: …'},{type:'cta',kicker:'',title:'Следи за новостями',text:'Подписывайся на Метро New',items:'ПОДПИСАТЬСЯ'}]},
+update:{n:'Обновление',i:'🛠',a:'#4d94ff',s:[{badge:'ОБНОВЛЕНИЕ',kicker:'МЕТРО NEW',title:'Версия 1.0',text:'Что нового в игре',date:D},{type:'list',kicker:'НОВОЕ',title:'Что добавили',items:'Станция: …\nПоезд: …\nФункция: …'},{type:'list',kicker:'ИСПРАВЛЕНО',title:'Что починили',items:'Баг: …\nБаг: …'},{type:'cta',kicker:'',title:'Заходи и играй',text:'Обновление уже доступно',items:'ИГРАТЬ'}]},
+live:{n:'Эфир',i:'🔴',a:'#ff4757',s:[{badge:'LIVE',kicker:'ПРЯМОЙ ЭФИР',title:'Мы в эфире прямо сейчас',text:'Заходи в чат и задавай вопросы',date:D},{type:'cta',kicker:'',title:'Подключайся',text:'Эфир идёт на YouTube',items:'СМОТРЕТЬ'}]},
+event:{n:'Событие',i:'📅',a:'#34a853',s:[{kicker:'АНОНС',title:'Название события',text:'Коротко, что будет',date:D},{type:'list',kicker:'ДЕТАЛИ',title:'Как это будет',items:'Когда: …\nГде: …\nКак попасть: …'},{type:'cta',kicker:'',title:'Не пропусти',text:'Ждём тебя',items:'ПРИЙТИ'}]},
+stats:{n:'Цифры',i:'📊',s:[{kicker:'В ЦИФРАХ',title:'Итоги месяца',text:'Главные числа проекта'},{type:'number',kicker:'ИГРОКИ',title:'12 000',text:'зашли в игру за месяц'},{type:'number',kicker:'ПОЕЗДКИ',title:'48 000',text:'поездок на метро'},{type:'cta',kicker:'',title:'Станьте частью',text:'Присоединяйтесь к проекту',items:'ИГРАТЬ'}]},
+quote:{n:'Цитата',i:'💬',s:[{type:'quote',kicker:'',title:'Автор',text:'Текст цитаты в одну-две строки',source:'Метро New'}]},
+digest:{n:'Дайджест',i:'🗞',s:[{kicker:'ДАЙДЖЕСТ',title:'Главное за неделю',text:'Что нужно знать',date:D},{type:'list',kicker:'СОБЫТИЯ',title:'Что случилось',items:'Пн: …\nСр: …\nПт: …'},{type:'cta',kicker:'',title:'Читай больше',text:'Все новости на сайте',items:'ЧИТАТЬ'}]},
+sale:{n:'Акция',i:'🔥',a:'#ff4757',s:[{type:'number',badge:'АКЦИЯ',kicker:'ТОЛЬКО СЕГОДНЯ',title:'-50%',text:'на всё до конца дня'},{type:'cta',kicker:'',title:'Успей забрать',text:'Предложение ограничено',items:'ЗАБРАТЬ'}]}
+};
+$('#tpls').innerHTML=Object.entries(TPL).map(([k,p])=>`<button class="b" data-act="tpl" data-t="${k}">${p.i} ${p.n}</button>`).join('');
+addEventListener('resize',()=>view());
+const mv=x=>{const j=cur+x;if(j<0||j>=S.slides.length)return;[S.slides[cur],S.slides[j]]=[S.slides[j],S.slides[cur]];cur=j;all()};
+const acts={
+ add(){if(S.slides.length>=10)return toast('Максимум 10 слайдов');S.slides.splice(++cur,0,mk({kicker:'',title:'Новый слайд'}));all()},
+ dup(){if(S.slides.length>=10)return toast('Максимум 10 слайдов');S.slides.splice(cur+1,0,{...S.slides[cur]});cur++;all()},
+ del(){if(S.slides.length>1){S.slides.splice(cur,1);cur=Math.min(cur,S.slides.length-1);all()}},
+ L(){mv(-1)},R(){mv(1)},
+ reset(){Object.assign(S.slides[cur],{x:0,y:0,z:1});all()},
+ phSlide(){S.slides[cur].img=$('#phUrl').value.trim();all()},
+ phAll(){S.img=$('#phUrl').value.trim()||S.img;S.slides.forEach(s=>s.img='');all()},
+ exp(){dl(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),'project.json')},
+ split(){const p=$('#raw').value.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).slice(0,9);if(!p.length)return toast('Вставь текст');
+  S.slides=p.map((x,i)=>{const m=x.match(/^(.+?[.!?])\s+([\s\S]*)$/);return mk({kicker:i?'':'НОВОСТЬ',title:m?m[1]:x,text:m?m[2]:''})});
+  S.slides.push(mk({type:'cta',kicker:'',title:'Хочешь знать больше?',text:'Подписывайся',items:'ПОДПИСАТЬСЯ'}));cur=0;all()},
+ tpl(t){const p=TPL[t.dataset.t];S.slides=p.s.map(o=>mk(o));S.accent=p.a||'#FFD700';cur=0;all();toast('Шаблон: '+p.n)},
+ fold(t){$$('details.sec').forEach(d=>d.open=t.dataset.v=='1')},
+ gen(){S.caption='';S.caption=cap('ig');ui()},
+ async one(){const [b]=await shots([cur]);dl(b,`slide-${cur+1}.png`)},
+ async zip(){const b=await shots(),z=new JSZip();b.forEach((x,i)=>z.file(`slide-${String(i+1).padStart(2,'0')}.png`,x));
+  z.file('caption-instagram.txt',cap('ig'));z.file('caption-telegram.html.txt',cap('tg'));z.file('caption-discord.txt',cap('ds'));
+  z.file('project.json',JSON.stringify(S,null,1));z.file('README.txt',readme());dl(await z.generateAsync({type:'blob'}),'carousel-'+Date.now()+'.zip');toast('✅ ZIP готов')},
+};
+document.addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.go!=null){cur=+t.dataset.go;all()}
+ else if(acts[t.dataset.act]){const o=t.textContent;t.disabled=true;if(acts[t.dataset.act].constructor.name=='AsyncFunction')t.textContent='⏳';
+  try{await acts[t.dataset.act](t)}catch(x){console.error(x);toast('❌ '+x.message)}t.disabled=false;t.textContent=o}});
+all();
+</script></body></html>
