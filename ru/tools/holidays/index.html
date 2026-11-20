@@ -1038,72 +1038,9 @@ main #favoritesSection,main #settingsSection{display:none!important}
 
 \n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="../">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p id="countryProfileMeta"></p><div id="countryProfileStats" class="country-profile-stats"></div><h2>Праздничные даты страны</h2><div class="holiday-grid" id="countryProfileHolidays"></div></section>
 
-        <!-- SEARCH -->
-
         <div class="toolbar">
-
-            <div class="search">
-                <span class="search-icon">🔎</span>
-
-                <input
-                    id="searchInput"
-                    type="search"
-                    placeholder="Поиск праздника или страны..."
-                    autocomplete="off"
-                >
-            </div>
-
-            <select
-                id="yearSelect"
-                class="year-select"
-            ></select>
-
+            <select id="yearSelect" class="year-select" aria-label="Выбрать год"></select>
         </div>
-
-
-        <!-- FILTERS -->
-
-        <div class="filters">
-
-            <button
-                class="filter active"
-                data-category="all"
-            >
-                Все
-            </button>
-
-            <button
-                class="filter"
-                data-category="national"
-            >
-                Государственные
-            </button>
-
-            <button
-                class="filter"
-                data-category="religious"
-            >
-                Религиозные
-            </button>
-
-            <button
-                class="filter"
-                data-category="international"
-            >
-                Международные
-            </button>
-
-            <button
-                class="filter"
-                data-category="cultural"
-            >
-                Культурные
-            </button>
-
-        </div>
-
-
-
 
 
         <!-- TODAY -->
@@ -1122,7 +1059,7 @@ main #favoritesSection,main #settingsSection{display:none!important}
 
         <section class="holiday-of-day-section"><div class="section-title"><div><div class="eyebrow">Открой что-то новое</div><h2>🌟 Праздник дня</h2></div><span>Ежедневная подборка</span></div><div class="feature-panel holiday-of-day-card" id="holidayOfDay"><div class="map-loading">Подбираем праздник дня…</div></div></section>
 
-<section><div class="section-title"><h2>🗺️ Интерактивная карта Европы</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><input id="mapCountrySearch" class="country-search map-country-search" type="search" placeholder="Найти страну на карте…" aria-label="Найти страну на карте"><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div id="worldMap" hidden></div></section>
+<section><div class="section-title"><h2>🗺️ Страны мира</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><input id="mapCountrySearch" class="country-search map-country-search" type="search" placeholder="Найти страну на карте…" aria-label="Найти страну на карте"><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div id="worldMap" hidden></div></section>
 
 <section><div class="section-title"><h2>📊 Статистика праздников</h2><span id="statsYear"></span></div><div class="feature-panel" id="holidayStats"></div></section>
         <!-- CALENDAR -->
@@ -1370,7 +1307,8 @@ main #favoritesSection,main #settingsSection{display:none!important}
         "LI.json",
         "EU.json",
         "UN.json",
-        "EU_SHARED.json"
+        "EU_SHARED.json",
+        "WORLD_COUNTRIES.json"
     ];
 
     const EUROPEAN_COUNTRIES = [
@@ -1530,6 +1468,9 @@ main #favoritesSection,main #settingsSection{display:none!important}
                 if (Array.isArray(data.countries)) {
                     state.countries.push(...data.countries);
                 }
+                if (Array.isArray(data.specialEntities)) {
+                    state.countries.push(...data.specialEntities);
+                }
 
                 if (Array.isArray(data.holidays)) {
 
@@ -1593,11 +1534,11 @@ main #favoritesSection,main #settingsSection{display:none!important}
 
         });
 
-        const loaded = [...map.values()];
-        state.countries = EUROPEAN_COUNTRIES.map(([code,name,flag]) => {
-            const existing = loaded.find(country => country.code === code);
-            return existing ? {...existing, name: existing.name || name, flag: existing.flag || flag} : {code,name,flag};
+        // Сохраняем все страны из мирового справочника и существующие расширенные профили.
+        EUROPEAN_COUNTRIES.forEach(([code,name,flag]) => {
+            if (!map.has(code)) map.set(code, {code,name,flag,status:"special"});
         });
+        state.countries = [...map.values()];
     }
 
 
@@ -1926,7 +1867,7 @@ main #favoritesSection,main #settingsSection{display:none!important}
     function showCountry(code) {
         const valid = state.countries.some(item => item.code === code);
         if (!valid) return;
-        if (!location.pathname.match(new RegExp("/holidays/" + code + "/?$","i"))) { location.href = "./" + encodeURIComponent(code) + "/"; return; }
+        // Открываем профиль прямо в приложении: отдельная HTML-страница не нужна для каждой страны.
         const profile = $("#countryProfile");
         if (profile) { document.querySelectorAll("main .container > *").forEach(el => { el.hidden = true; }); profile.hidden = false; }
 
@@ -2606,53 +2547,6 @@ async function renderEuropeSvgMap(){
 
                 }
             );
-
-
-        $("#searchInput")
-            .addEventListener(
-                "input",
-                event => {
-
-                    state.search =
-                        event.target.value;
-
-                    search();
-
-                }
-            );
-
-
-        $$(".filter")
-            .forEach(button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        $$(".filter")
-                            .forEach(
-                                item =>
-                                    item.classList
-                                        .remove(
-                                            "active"
-                                        )
-                            );
-
-                        button.classList.add(
-                            "active"
-                        );
-
-                        state.category =
-                            button.dataset.category;
-
-                        renderAll();
-
-                        search();
-
-                    }
-                );
-
-            });
 
 
         $("#yearSelect")
