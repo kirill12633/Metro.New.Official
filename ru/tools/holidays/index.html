@@ -830,7 +830,7 @@ body{background:linear-gradient(180deg,#e8edf4 0%,#f1f4f8 42%,#e9eef5 100%)}
 .holiday-card{border-radius:18px}
 .quick-panel-dialog{background:#eef2f7}
 .quick-panel-head{position:sticky;top:-1px;background:#eef2f7;padding:4px 0 12px;z-index:2}
-main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!important}
+main #favoritesSection,main #settingsSection{display:none!important}
 #settingsSection .report{margin-top:18px}
 @media(max-width:640px){.hero-main h1{font-size:34px}.today-card{padding:20px}.quick-panel-dialog{background:#edf2f8}}
 /* Navigation relocated beside holiday search and filters */
@@ -878,6 +878,30 @@ main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!
 .legend-dot{width:11px;height:11px;border-radius:4px}
 .legend-dot.data{background:#8fa9df}.legend-dot.shared{background:#c5b8ec}.legend-dot.empty{background:#dfe8f5;border:1px solid #aab8ce}
 @media(max-width:650px){.europe-map-wrap{padding:10px;border-radius:17px}.europe-map-wrap:before{font-size:9px}.europe-map svg{max-height:390px}}
+
+
+/* Metro Holidays — premium first screen and visible upcoming dates */
+.hero{padding:42px 0 22px}
+.hero-grid{grid-template-columns:minmax(0,1.55fr) minmax(260px,.85fr);gap:20px;align-items:stretch}
+.hero-main{position:relative;overflow:hidden;min-height:270px;padding:clamp(26px,4vw,44px);background:radial-gradient(circle at 88% 15%,rgba(107,151,218,.20),transparent 34%),linear-gradient(135deg,#fff 0%,#f2f6fc 100%);border-color:#dce5f1}
+.hero-main:after{content:"🌍";position:absolute;right:25px;bottom:-35px;font-size:clamp(100px,16vw,190px);opacity:.075;pointer-events:none}
+.hero-main .eyebrow{display:inline-flex;padding:7px 11px;border:1px solid #dce6f5;border-radius:999px;background:#f6f9fe}
+.hero-main h1{max-width:650px;margin-top:18px;font-size:clamp(36px,5.4vw,62px);letter-spacing:-2.3px}
+.hero-main p{font-size:16px;line-height:1.75;max-width:520px}
+.today-card{display:flex;flex-direction:column;justify-content:center;min-height:270px;padding:clamp(22px,3vw,32px);background:linear-gradient(150deg,#fff 0%,#edf3fc 100%);border-color:#dce5f1}
+.today-date{font-size:clamp(23px,3vw,31px);letter-spacing:-.6px}
+.today-count{margin-top:7px;line-height:1.6}
+.upcoming-featured{padding:22px 0 28px;margin-bottom:12px}
+.upcoming-featured .section-title{align-items:flex-end;margin-bottom:16px}
+.upcoming-featured .section-title h2{font-size:clamp(23px,3vw,29px);letter-spacing:-.7px}
+.upcoming-featured .section-title span{padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--card)}
+.upcoming-featured .holiday-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.upcoming-featured .holiday-card{position:relative;min-height:165px;padding:19px;background:linear-gradient(145deg,#fff 0%,#f7f9fd 100%);border-color:#dce5f1;box-shadow:0 7px 22px rgba(39,58,86,.055)}
+.upcoming-featured .holiday-card h3{font-size:17px;line-height:1.35}
+.upcoming-featured .holiday-card .details{background:#fff}
+.upcoming-featured .holiday-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(39,58,86,.10)}
+@media(max-width:760px){.hero{padding-top:24px}.hero-grid{grid-template-columns:1fr}.hero-main,.today-card{min-height:unset}.today-card{padding:22px}.upcoming-featured .holiday-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.hero-main{padding:24px}.hero-main h1{font-size:36px;letter-spacing:-1.5px}.hero-main p{font-size:14px}.upcoming-featured .holiday-grid{grid-template-columns:1fr}.upcoming-featured .holiday-card{min-height:unset}}
 
 </style>
 </head>
@@ -963,7 +987,28 @@ main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!
     </section>
 
 
-    <div class="container">\n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="../">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p id="countryProfileMeta"></p><h2>Официальные нерабочие дни</h2><div class="holiday-grid" id="countryProfileHolidays"></div></section>
+    <div class="container">
+
+        <!-- UPCOMING: visible on the main page -->
+
+        <section id="upcomingSection" class="upcoming-featured">
+
+            <div class="section-title">
+                <div><div class="eyebrow">Планируй заранее</div><h2>🔜 Ближайшие праздники</h2></div>
+                <span>
+                    Ближайшие даты
+                </span>
+            </div>
+
+            <div
+                class="holiday-grid"
+                id="upcomingHolidays"
+            ></div>
+
+        </section>
+
+
+\n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="../">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p id="countryProfileMeta"></p><h2>Официальные нерабочие дни</h2><div class="holiday-grid" id="countryProfileHolidays"></div></section>
 
         <!-- SEARCH -->
 
@@ -1133,25 +1178,6 @@ main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!
             <div
                 class="holiday-grid"
                 id="countryHolidays"
-            ></div>
-
-        </section>
-
-
-        <!-- UPCOMING -->
-
-        <section id="upcomingSection">
-
-            <div class="section-title">
-                <h2>🔜 Ближайшие праздники</h2>
-                <span>
-                    Следующие 10
-                </span>
-            </div>
-
-            <div
-                class="holiday-grid"
-                id="upcomingHolidays"
             ></div>
 
         </section>
