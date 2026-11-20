@@ -1490,7 +1490,11 @@ main #favoritesSection,main #settingsSection{display:none!important}
 
         state.countries.forEach(country => {
             if (country.code && country.code !== "UN") {
-                map.set(country.code, country);
+                const existing = map.get(country.code);
+                // Не теряем расширенные метаданные из национальных профилей при объединении с мировым списком.
+                map.set(country.code, existing
+                    ? {...country, ...existing, status: existing.status || country.status}
+                    : country);
             }
         });
 
