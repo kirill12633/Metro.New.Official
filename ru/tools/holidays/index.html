@@ -863,6 +863,22 @@ main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!
 @media(max-width:600px){.development-notice{padding:7px 12px}.development-notice-inner{gap:3px}.development-notice-text{font-size:10px}}
 
 .brand-and-nav{display:flex;align-items:center;gap:clamp(10px,2vw,24px);min-width:0}.header-main-nav{display:flex;align-items:center;gap:7px}.header-main-nav .nav-icon-button{width:40px;height:40px}.quick-panel-overlay{position:fixed;inset:0;z-index:9997;display:grid;place-items:center;padding:clamp(10px,3vw,28px);background:#10131bcc;backdrop-filter:blur(7px)}.quick-panel-overlay[hidden]{display:none!important}.quick-panel-dialog{width:min(1000px,100%);max-height:90vh;overflow:auto;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:20px;padding:clamp(14px,3vw,24px);box-shadow:var(--shadow)}.quick-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.quick-panel-head h2{font-size:clamp(19px,3vw,25px)}.quick-panel-body>section,.quick-panel-body>.personal-calendar-favorites{padding-top:0}.quick-panel-body .holiday-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.holiday-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.holiday-tag{display:inline-flex;padding:3px 7px;border-radius:7px;background:var(--bg);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:700}.holiday-tag.day-off{color:#16834b;border-color:#16834b55}.holiday-tag.regional{color:#a56a0a;border-color:#a56a0a55}.holiday-tag.memorial{color:var(--primary);border-color:var(--primary)}@media(max-width:700px){.header-inner{min-height:58px;gap:7px}.brand-and-nav{gap:7px}.logo{gap:6px;font-size:15px}.logo-image{width:29px;height:29px}.header-main-nav{gap:4px}.header-main-nav .nav-icon-button{width:34px;height:36px;border-radius:9px;font-size:17px}.header-actions{gap:4px}.header-text-button{width:34px;min-width:34px}.header-control>span{display:none}.language-select{max-width:55px;padding:0 3px}.holiday-grid,.quick-panel-body .holiday-grid{grid-template-columns:1fr}.quick-panel-overlay{padding:7px}.quick-panel-dialog{max-height:94vh;border-radius:15px;padding:13px}.quick-panel-body .calendar-box{padding:10px}.quick-panel-body .calendar-day{min-height:44px;padding:5px}}@media(max-width:390px){.logo span{display:none}.header-main-nav .nav-icon-button{width:32px}}
+
+/* PREMIUM EUROPE MAP */
+.europe-map-wrap{position:relative;padding:clamp(12px,2.5vw,26px);border:1px solid color-mix(in srgb,var(--primary) 20%,var(--border));border-radius:24px;background:radial-gradient(ellipse at 50% 38%,color-mix(in srgb,var(--primary) 11%,var(--card)),var(--card) 68%);box-shadow:0 18px 55px rgba(40,55,100,.09),inset 0 1px 0 rgba(255,255,255,.65);overflow:hidden}
+.europe-map-wrap:before{content:"EUROPE · HOLIDAY ATLAS";display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.2em;margin:2px 4px 14px}
+.europe-map-note{font-size:13px;margin:0 4px 12px;color:var(--muted)}
+.europe-map svg{filter:drop-shadow(0 12px 18px rgba(45,65,110,.13));max-height:620px}
+.europe-map .country-shape{fill:#dfe8f5;stroke:#fff;stroke-width:1.15;stroke-linejoin:round;stroke-dasharray:none;cursor:pointer;transition:fill .2s ease,filter .2s ease,stroke-width .2s ease}
+.europe-map .country-shape.has-holidays{fill:#8fa9df}
+.europe-map .country-shape.has-shared-dates{fill:#c5b8ec}
+.europe-map .country-shape:hover,.europe-map .country-shape:focus{fill:#7069d8;stroke:#fff;stroke-width:2;filter:brightness(1.04);outline:none}
+.map-legend{gap:10px 18px;padding:14px 5px 0}
+.map-legend span{font-weight:650}
+.legend-dot{width:11px;height:11px;border-radius:4px}
+.legend-dot.data{background:#8fa9df}.legend-dot.shared{background:#c5b8ec}.legend-dot.empty{background:#dfe8f5;border:1px solid #aab8ce}
+@media(max-width:650px){.europe-map-wrap{padding:10px;border-radius:17px}.europe-map-wrap:before{font-size:9px}.europe-map svg{max-height:390px}}
+
 </style>
 </head>
 
@@ -1298,7 +1314,8 @@ main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!
         "NP.json",
         "LI.json",
         "EU.json",
-        "UN.json"
+        "UN.json",
+        "EU_SHARED.json"
     ];
 
     const EUROPEAN_COUNTRIES = [
@@ -1406,6 +1423,24 @@ main #upcomingSection,main #favoritesSection,main #settingsSection{display:none!
             }
 
             const data = result.value;
+
+            // Общие европейские даты разворачиваются в записи для каждой страны.
+            // Такие записи не считаются официальными выходными.
+            if (data && data.shared === true && Array.isArray(data.holidays)) {
+                data.holidays.forEach(event => {
+                    (event.countryCodes || []).forEach(code => {
+                        state.holidays.push({
+                            ...event,
+                            id: event.id + "-" + code,
+                            countryCode: code,
+                            countryName: EUROPEAN_COUNTRIES.find(item => item[0] === code)?.[1] || code,
+                            flag: EUROPEAN_COUNTRIES.find(item => item[0] === code)?.[2] || "🌍",
+                            isSharedDate: true
+                        });
+                    });
+                });
+                return;
+            }
 
             /*
                 Поддерживаются два варианта JSON:
@@ -2126,11 +2161,11 @@ async function renderEuropeSvgMap(){
    return polygons.map(poly=>poly.map(ring=>ringPath(ring)).join(" ")).join(" ");
   };
   const features=geo.features.filter(f=>known.has(getCode(f.properties||{})));
-  const paths=features.map(f=>{const code=getCode(f.properties||{});const country=state.countries.find(c=>c.code===code);const d=geometryPath(f.geometry||{});if(!d)return "";return '<path class="country-shape '+(state.holidays.some(h=>h.countryCode===code)?"has-holidays":"")+'" data-country="'+code+'" tabindex="0" role="button" aria-label="'+escapeHtml(country?.name||code)+'" d="'+d+'"><title>'+escapeHtml(country?.flag||"")+" "+escapeHtml(country?.name||code)+'</title></path>';}).join("");
+  const paths=features.map(f=>{const code=getCode(f.properties||{});const country=state.countries.find(c=>c.code===code);const d=geometryPath(f.geometry||{});if(!d)return "";return '<path class="country-shape '+(state.holidays.some(h=>h.countryCode===code&&!h.isSharedDate)?"has-holidays":state.holidays.some(h=>h.countryCode===code&&h.isSharedDate)?"has-shared-dates":"")+'" data-country="'+code+'" tabindex="0" role="button" aria-label="'+escapeHtml(country?.name||code)+'" d="'+d+'"><title>'+escapeHtml(country?.flag||"")+" "+escapeHtml(country?.name||code)+'</title></path>';}).join("");
   // Crimea is displayed as part of Ukraine, following UN General Assembly resolution 68/262.
   const crimeaRing=[[32.48,46.18],[33.05,46.08],[33.55,46.12],[34.1,46.18],[34.65,46.08],[35.15,45.95],[35.55,45.78],[36.15,45.55],[36.55,45.28],[36.62,45.02],[36.35,44.78],[36.05,44.55],[35.62,44.42],[35.18,44.38],[34.75,44.48],[34.32,44.55],[33.95,44.68],[33.55,44.72],[33.1,44.82],[32.75,45.05],[32.55,45.42],[32.48,45.82]];
   const crimeaPath=ringPath(crimeaRing);
-  host.innerHTML='<svg viewBox="0 0 900 560" role="img" aria-label="Интерактивная карта Европы"><defs><clipPath id="europeMapClip"><rect x="0" y="0" width="900" height="560" rx="8"/></clipPath></defs><g clip-path="url(#europeMapClip)">'+paths+'<path class="country-shape has-holidays" data-country="UA" tabindex="0" role="button" aria-label="Крым — Украина" d="'+crimeaPath+'"><title>🇺🇦 Крым — Украина</title></path></g></svg><div class="map-legend"><span><i class="legend-dot data"></i> Есть календарь праздников</span><span><i class="legend-dot empty"></i> Данные уточняются</span></div><p class="map-neutral-note">Крым показан в составе Украины в соответствии с международно признанными границами и резолюцией Генеральной Ассамблеи ООН 68/262. Территория временно оккупирована Российской Федерацией. <a href="https://www.un.org/en/ga/68/resolutions.shtml" target="_blank" rel="noopener noreferrer">Резолюция ООН</a>.</p>';
+  host.innerHTML='<svg viewBox="0 0 900 560" role="img" aria-label="Интерактивная карта Европы"><defs><clipPath id="europeMapClip"><rect x="0" y="0" width="900" height="560" rx="8"/></clipPath></defs><g clip-path="url(#europeMapClip)">'+paths+'<path class="country-shape has-holidays" data-country="UA" tabindex="0" role="button" aria-label="Крым — Украина" d="'+crimeaPath+'"><title>🇺🇦 Крым — Украина</title></path></g></svg><div class="map-legend"><span><i class="legend-dot data"></i> Есть национальные даты</span><span><i class="legend-dot shared"></i> Есть общие даты</span><span><i class="legend-dot empty"></i> Данные уточняются</span></div><p class="map-neutral-note">Крым показан в составе Украины в соответствии с международно признанными границами и резолюцией Генеральной Ассамблеи ООН 68/262. Территория временно оккупирована Российской Федерацией. <a href="https://www.un.org/en/ga/68/resolutions.shtml" target="_blank" rel="noopener noreferrer">Резолюция ООН</a>.</p>';
   host.querySelectorAll("[data-country]").forEach(el=>{const go=()=>showCountry(el.dataset.country);el.addEventListener("click",go);el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
   if(!features.length)throw new Error("No European country shapes found");
  }catch(error){host.innerHTML='<p class="map-loading">Не удалось загрузить карту Европы. Попробуй обновить страницу позже.</p>';console.warn("Europe map:",error);}
