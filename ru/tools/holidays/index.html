@@ -1305,8 +1305,6 @@ main #favoritesSection,main #settingsSection{display:none!important}
         countries: [],
         year: new Date().getFullYear(),
         month: new Date().getMonth(),
-        category: "all",
-        search: "",
         favorites: JSON.parse(
             localStorage.getItem("holidayFavorites") || "[]"
         ),
@@ -2414,78 +2412,6 @@ async function renderEuropeSvgMap(){
 
         }
     );
-
-
-    /* =========================================
-       SEARCH
-    ========================================= */
-
-    function search() {
-
-        const query =
-            state.search
-                .trim()
-                .toLowerCase();
-
-        const section =
-            $("#searchSection");
-
-        if (!query) {
-
-            section.hidden = true;
-            return;
-
-        }
-
-        const results =
-            state.holidays
-                .filter(holiday => {
-
-                    const country =
-                        state.countries.find(
-                            item =>
-                                item.code ===
-                                holiday.countryCode
-                        );
-
-                    const searchable = [holiday.name, holiday.description, holiday.date, holiday.countryCode, country?.name, getCategoryName(holiday.category || "")].filter(Boolean).join(" ").toLocaleLowerCase("ru");
-                    return searchable.includes(query);
-
-                });
-
-        section.hidden = false;
-
-        const heading = section.querySelector(".section-title span") || (() => { const span=document.createElement("span"); section.querySelector(".section-title").appendChild(span); return span; })();
-        heading.textContent = results.length + " результатов по всем загруженным странам";
-        renderHolidayList($("#searchResults"), results);
-
-    }
-
-
-    /* =========================================
-       FILTERS
-    ========================================= */
-
-    function getFilteredHolidays() {
-
-        return state.holidays.filter(
-            holiday => {
-
-                if (
-                    state.category !==
-                    "all" &&
-                    holiday.category !==
-                    state.category
-                ) {
-                    return false;
-                }
-
-                return true;
-
-            }
-        );
-
-    }
 
 
     /* =========================================
