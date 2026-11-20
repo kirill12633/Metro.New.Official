@@ -903,6 +903,34 @@ main #favoritesSection,main #settingsSection{display:none!important}
 @media(max-width:760px){.hero{padding-top:24px}.hero-grid{grid-template-columns:1fr}.hero-main,.today-card{min-height:unset}.today-card{padding:22px}.upcoming-featured .holiday-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.hero-main{padding:24px}.hero-main h1{font-size:36px;letter-spacing:-1.5px}.hero-main p{font-size:14px}.upcoming-featured .holiday-grid{grid-template-columns:1fr}.upcoming-featured .holiday-card{min-height:unset}}
 
+
+/* Metro Holidays 3.0 — premium discovery */
+.holiday-of-day-section{padding-top:10px}
+.holiday-of-day-card{position:relative;overflow:hidden;padding:24px;background:radial-gradient(circle at 92% 12%,rgba(88,130,200,.16),transparent 32%),linear-gradient(135deg,#fff,#f1f6fd);border-color:#d9e4f2}
+.holiday-of-day-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.holiday-of-day-icon{font-size:28px}
+.holiday-of-day-card h3{font-size:23px;letter-spacing:-.5px}
+.holiday-of-day-country{margin-top:5px;color:var(--muted);font-size:13px}
+.holiday-of-day-fact{max-width:760px;margin:16px 0!important;padding:14px 16px;border-left:3px solid var(--primary);border-radius:0 10px 10px 0;background:rgba(90,125,180,.07);color:var(--text)!important;line-height:1.65}
+.upcoming-countdown{align-self:flex-start;padding:4px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:11px;font-weight:800;white-space:nowrap}
+.upcoming-featured .holiday-top{align-items:center;flex-wrap:wrap}
+.country-profile-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 24px}
+.country-profile-stats>div{display:flex;flex-direction:column;gap:3px;padding:14px;border:1px solid var(--border);border-radius:13px;background:var(--bg)}
+.country-profile-stats strong{font-size:24px;color:var(--primary)}
+.country-profile-stats span{font-size:11px;color:var(--muted)}
+.map-country-search{width:100%;margin:8px 0 12px}
+.europe-map-wrap{padding:16px;background:linear-gradient(145deg,#f9fbff,#eaf0f8);border-color:#d8e2ef;box-shadow:0 12px 30px rgba(39,58,86,.07)}
+.europe-map .country-shape{stroke:#fff;stroke-width:1.15;filter:drop-shadow(0 1px 1px rgba(45,65,95,.13))}
+.europe-map .country-shape.has-holidays{fill:#7798cf}
+.europe-map .country-shape.has-shared-dates{fill:#bfd0eb}
+.europe-map .country-shape:focus{stroke:#263e67;stroke-width:2.2}
+.map-legend{display:flex;gap:10px 18px;flex-wrap:wrap;padding:13px 6px 3px}
+.map-legend span{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%}
+.legend-dot.data{background:#7798cf}.legend-dot.shared{background:#bfd0eb}.legend-dot.empty{background:#dbe4f4;border:1px solid #aab7c9}
+.country-profile{padding:clamp(18px,3vw,30px);background:linear-gradient(145deg,#fff,#f5f8fd)}
+@media(max-width:600px){.country-profile-stats{grid-template-columns:1fr 1fr}.country-profile-stats>div:last-child{grid-column:1/-1}.holiday-of-day-card{padding:18px}.europe-map-wrap{padding:8px}}
+
 </style>
 </head>
 
@@ -1008,7 +1036,7 @@ main #favoritesSection,main #settingsSection{display:none!important}
         </section>
 
 
-\n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="../">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p id="countryProfileMeta"></p><h2>Официальные нерабочие дни</h2><div class="holiday-grid" id="countryProfileHolidays"></div></section>
+\n        <section id="countryProfile" class="country-profile" hidden><a class="country-profile-back" href="../">← Все страны и праздники</a><h1 id="countryProfileTitle">Страна</h1><p id="countryProfileMeta"></p><div id="countryProfileStats" class="country-profile-stats"></div><h2>Праздничные даты страны</h2><div class="holiday-grid" id="countryProfileHolidays"></div></section>
 
         <!-- SEARCH -->
 
@@ -1092,8 +1120,9 @@ main #favoritesSection,main #settingsSection{display:none!important}
             ></div>
         </section>
 
+        <section class="holiday-of-day-section"><div class="section-title"><div><div class="eyebrow">Открой что-то новое</div><h2>🌟 Праздник дня</h2></div><span>Ежедневная подборка</span></div><div class="feature-panel holiday-of-day-card" id="holidayOfDay"><div class="map-loading">Подбираем праздник дня…</div></div></section>
 
-<section><div class="section-title"><h2>🗺️ Интерактивная карта Европы</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div id="worldMap" hidden></div></section>
+<section><div class="section-title"><h2>🗺️ Интерактивная карта Европы</h2><span>Нажми на страну, чтобы открыть календарь</span></div><div class="europe-map-wrap"><div class="europe-map-note">Выбери страну на карте Европы</div><input id="mapCountrySearch" class="country-search map-country-search" type="search" placeholder="Найти страну на карте…" aria-label="Найти страну на карте"><div id="europeMap" class="europe-map" role="group" aria-label="Интерактивная карта Европы"><p class="map-loading">Загружаем карту Европы…</p></div></div><div class="feature-panel next-holiday-panel"><h3>✨ Следующий праздник</h3><div id="nextHoliday"><span class="muted">Загружаем ближайшую дату…</span></div></div><div id="worldMap" hidden></div></section>
 
 <section><div class="section-title"><h2>📊 Статистика праздников</h2><span id="statsYear"></span></div><div class="feature-panel" id="holidayStats"></div></section>
         <!-- CALENDAR -->
@@ -1579,6 +1608,7 @@ main #favoritesSection,main #settingsSection{display:none!important}
     function renderAll() {
 
         renderToday();
+        renderHolidayOfDay();
 
         renderCalendar();
 
@@ -1922,7 +1952,15 @@ main #favoritesSection,main #settingsSection{display:none!important}
             holidays
         );
 
-        if (profile) { $("#countryProfileTitle").textContent = `${country?.flag || "🌍"} ${country?.name || code}`; $("#countryProfileMeta").textContent = [country?.capital ? `Столица: ${country.capital}` : "", country?.languages ? `Язык(и): ${country.languages}` : "", country?.currency ? `Валюта: ${country.currency}` : ""].filter(Boolean).join(" · "); $("#countryProfileHolidays").innerHTML = ""; renderHolidayList($("#countryProfileHolidays"), holidays); } else $("#countrySection").scrollIntoView({behavior:"smooth"});
+        if (profile) {
+            $("#countryProfileTitle").textContent = (country?.flag || "🌍") + " " + (country?.name || code);
+            $("#countryProfileMeta").textContent = [country?.capital ? "Столица: " + country.capital : "", country?.languages ? "Язык(и): " + country.languages : "", country?.currency ? "Валюта: " + country.currency : ""].filter(Boolean).join(" · ");
+            const next = holidays.filter(h => h.date >= getTodayString()).sort((a,b) => a.date.localeCompare(b.date))[0];
+            const official = holidays.filter(h => h.category === "national" && !h.isSharedDate).length;
+            $("#countryProfileStats").innerHTML = '<div><strong>'+holidays.length+'</strong><span>дат в календаре</span></div><div><strong>'+official+'</strong><span>национальных дат</span></div><div><strong>'+(next ? daysUntil(next.date) : "—")+'</strong><span>'+(next ? "дней до следующей даты" : "ближайшая дата не указана")+'</span></div>';
+            $("#countryProfileHolidays").innerHTML = "";
+            renderHolidayList($("#countryProfileHolidays"), holidays);
+        } else $("#countrySection").scrollIntoView({behavior:"smooth"});
 
     }
 
@@ -1950,11 +1988,30 @@ main #favoritesSection,main #settingsSection{display:none!important}
                 )
                 .slice(0, 10);
 
-        renderHolidayList(
-            $("#upcomingHolidays"),
-            list
-        );
+        renderHolidayList($("#upcomingHolidays"), list);
+        $("#upcomingHolidays").querySelectorAll(".holiday-card").forEach((card,index) => {
+            const holiday = list[index], top = card.querySelector(".holiday-top");
+            if (!holiday || !top) return;
+            const countdown = document.createElement("span");
+            countdown.className = "upcoming-countdown";
+            const days = daysUntil(holiday.date);
+            countdown.textContent = days === 0 ? "Сегодня" : "Через " + days + " дн.";
+            top.appendChild(countdown);
+        });
+    }
 
+    function renderHolidayOfDay() {
+        const host = $("#holidayOfDay");
+        if (!host) return;
+        const list = state.holidays.slice().sort((a,b) => a.date.localeCompare(b.date) || String(a.name).localeCompare(String(b.name)));
+        if (!list.length) { host.innerHTML = '<div class="empty">Подборка появится, когда загрузятся данные календаря.</div>'; return; }
+        const now = new Date();
+        const dayNumber = Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(now.getFullYear(),0,0)) / 86400000);
+        const holiday = list[(dayNumber - 1) % list.length];
+        const country = state.countries.find(c => c.code === holiday.countryCode);
+        const fact = holiday.description ? escapeHtml(holiday.description) : "Эта дата есть в календаре страны. Подробности и традиции можно дополнить в данных праздника.";
+        host.innerHTML = '<div class="holiday-of-day-top"><span class="holiday-of-day-icon">🎉</span><span class="category">'+escapeHtml(getCategoryName(holiday.category || "cultural"))+'</span></div><h3>'+escapeHtml(holiday.name || "Праздник")+'</h3><p class="holiday-of-day-country">'+escapeHtml(country?.flag || "🌍")+' '+escapeHtml(country?.name || holiday.countryCode || "")+' · '+formatDisplayDate(holiday.date)+'</p><p class="holiday-of-day-fact"><strong>Интересная заметка</strong><br>'+fact+'</p><button class="feature-button primary" type="button" data-day-details="'+escapeHtml(holiday.id)+'">Подробнее о празднике →</button>';
+        host.querySelector("[data-day-details]")?.addEventListener("click", () => openModal(holiday.id));
     }
 
 
@@ -2470,28 +2527,16 @@ async function renderEuropeSvgMap(){
                                 holiday.countryCode
                         );
 
-                    return (
-                        holiday.name
-                            ?.toLowerCase()
-                            .includes(query) ||
-
-                        holiday.description
-                            ?.toLowerCase()
-                            .includes(query) ||
-
-                        country?.name
-                            ?.toLowerCase()
-                            .includes(query)
-                    );
+                    const searchable = [holiday.name, holiday.description, holiday.date, holiday.countryCode, country?.name, getCategoryName(holiday.category || "")].filter(Boolean).join(" ").toLocaleLowerCase("ru");
+                    return searchable.includes(query);
 
                 });
 
         section.hidden = false;
 
-        renderHolidayList(
-            $("#searchResults"),
-            results
-        );
+        const heading = section.querySelector(".section-title span") || (() => { const span=document.createElement("span"); section.querySelector(".section-title").appendChild(span); return span; })();
+        heading.textContent = results.length + " результатов по всем загруженным странам";
+        renderHolidayList($("#searchResults"), results);
 
     }
 
@@ -2641,6 +2686,15 @@ async function renderEuropeSvgMap(){
         $("#countrySearch").addEventListener("input", event => {
             state.countryQuery = event.target.value;
             renderCountries();
+        });
+        $("#mapCountrySearch")?.addEventListener("input", event => {
+            const query = event.target.value.trim().toLocaleLowerCase("ru");
+            $("#europeMap").querySelectorAll("[data-country]").forEach(shape => {
+                const country = state.countries.find(c => c.code === shape.dataset.country);
+                const match = !query || [country?.name, country?.code].filter(Boolean).join(" ").toLocaleLowerCase("ru").includes(query);
+                shape.style.opacity = match ? "1" : ".12";
+                shape.style.pointerEvents = match ? "auto" : "none";
+            });
         });
 
         $("#countryFavoritesButton").addEventListener("click", () => {
