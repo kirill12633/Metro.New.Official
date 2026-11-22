@@ -151,6 +151,11 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
 .load{text-align:center;padding:60px 0;color:var(--t2)}
 .hide{display:none!important}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}.pc{flex-direction:column;text-align:center}.badges{justify-content:center}}
+.ov{position:fixed;inset:0;background:rgba(5,8,16,.7);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
+.md{background:var(--card);border:1px solid var(--border);border-radius:var(--rx);padding:26px;width:100%;max-width:420px;box-shadow:var(--shadow)}
+.md h3{font-size:1.2rem;margin-bottom:8px}.md p{color:var(--t2);font-size:.9rem;margin-bottom:14px}
+.md .inp{margin-bottom:12px}.md .inp input{padding-left:14px}
+.md .btn{margin-top:4px}
 </style>
 </head>
 <body>
@@ -170,9 +175,10 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
 <main><div class="container">
  <div class="load" id="load"><i class="fas fa-spinner fa-spin"></i> Загрузка профиля…</div>
  <div class="acc hide" id="acc">
+  <div class="card2 hide" id="pend" style="border-color:var(--red)"><b id="pendT"></b><div class="acts" style="margin-top:12px"><button class="btn" id="canc" type="button">Отменить удаление</button></div></div>
   <div class="card2"><div class="pc">
    <div class="pav" id="av"></div>
-   <div><h1 id="nick"></h1><div class="badges"><span class="bd" id="role"></span><span class="bd b" id="plan"></span><span class="bd g" id="ver"><i class="fas fa-check"></i> Почта подтверждена</span></div></div>
+   <div><h1 id="nick"></h1><div class="badges"><span class="bd" id="role"></span><span class="bd b" id="susBadge" style="display:none">Приостановлен</span><span class="bd b" id="plan"></span><span class="bd g" id="ver"><i class="fas fa-check"></i> Почта подтверждена</span></div></div>
   </div></div>
 
   <div class="card2"><h2><i class="fas fa-id-card"></i> Данные аккаунта</h2>
@@ -199,6 +205,23 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
   <div class="card2"><h2><i class="fas fa-clock-rotate-left"></i> Последние входы</h2>
    <div class="tw"><table><thead><tr><th>Дата</th><th>Событие</th><th>Способ</th><th>Устройство</th><th>IP</th></tr></thead><tbody id="rows"></tbody></table></div>
    <p class="warn">Записи хранятся 180 дней. Если видите вход, который сделали не вы, сразу смените пароль.</p>
+  </div>
+
+  <div class="card2"><h2><i class="fas fa-download"></i> Мои данные и сессии</h2>
+   <p class="warn" style="margin:0 0 14px">Выгрузка создаётся прямо в вашем браузере и скачивается файлом. Доступна раз в 24 часа и после подтверждения входа.</p>
+   <div class="acts">
+    <button class="btn sec" id="exp" type="button"><i class="fas fa-file-arrow-down"></i> Скачать мои данные</button>
+    <button class="btn sec" id="sus" type="button"><i class="fas fa-pause"></i> <span>Приостановить аккаунт</span></button>
+    <button class="btn sec" id="all" type="button"><i class="fas fa-laptop-code"></i> Выйти на всех устройствах</button>
+   </div>
+   <div class="msg" id="msg3" role="status"></div>
+   <p class="warn">Приостановка скрывает ваш профиль, данные не удаляются. Вернуть можно кнопкой здесь же. Выход на всех устройствах может сработать на других устройствах в течение часа.</p>
+  </div>
+
+  <div class="card2" style="border-color:var(--red)"><h2 style="color:var(--red)"><i class="fas fa-triangle-exclamation"></i> Удаление аккаунта</h2>
+   <p class="warn" style="margin:0 0 14px">Аккаунт, профиль, псевдоним и журнал входов будут удалены через 14 дней. До этого срока удаление можно отменить. После удаления восстановить ничего нельзя.</p>
+   <div class="acts"><button class="btn" id="del" type="button" style="background:linear-gradient(135deg,#d93025,#f28b82);color:#fff;box-shadow:none"><i class="fas fa-trash"></i> Удалить аккаунт</button></div>
+   <div class="msg" id="msg4" role="status"></div>
   </div>
 
   <div class="card2"><h2><i class="fas fa-shield-halved"></i> Какие данные мы храним</h2>
@@ -253,9 +276,16 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
  </div>
  <div class="fbot"><p>© <span id="yr"></span> Метро New. Все права защищены.</p><button class="theme" id="theme" title="Сменить тему" aria-label="Сменить тему"><i class="fas fa-circle-half-stroke"></i></button></div>
 </div></footer>
+<div class="ov hide" id="ov" role="dialog" aria-modal="true"><div class="md">
+ <h3 id="mT"></h3><p id="mP"></p>
+ <div class="inp hide" id="mPwF"><input id="mPw" type="password" placeholder="Пароль" autocomplete="current-password" maxlength="64" /></div>
+ <div class="inp hide" id="mNkF"><input id="mNk" placeholder="Ваш псевдоним" autocomplete="off" maxlength="20" /></div>
+ <div class="msg" id="mMsg" role="alert"></div>
+ <div class="acts"><button class="btn" id="mOk" type="button"></button><button class="btn sec" id="mNo" type="button">Отмена</button></div>
+</div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,sendPasswordResetEmail,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getAuth,onAuthStateChanged,sendPasswordResetEmail,signOut,reauthenticateWithCredential,EmailAuthProvider,reauthenticateWithPopup,GoogleAuthProvider}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,doc,getDoc,collection,query,where,limit,getDocs}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",authDomain:"metro-new-85226.firebaseapp.com",databaseURL:"https://metro-new-85226-default-rtdb.firebaseio.com",projectId:"metro-new-85226",storageBucket:"metro-new-85226.firebasestorage.app",messagingSenderId:"905640751733",appId:"1:905640751733:web:f1ab3a1b119ca1e245fe3c"};
 const WORKER="https://metro-new-auth.kirilltyr123.workers.dev"; // адрес вашего Cloudflare Worker
@@ -316,6 +346,68 @@ onAuthStateChanged(auth,async u=>{
    else m2(j.message||NM[j.error]||'Не удалось изменить псевдоним','err');
   }catch(e){m2('Нет соединения с сервером','err')}
  };
+
+ let pendingDel=false,suspended=p.status==='suspended';
+ const isPw=u.providerData.some(x=>x.providerId==='password');
+ const api=async(path,body)=>{const t=await u.getIdToken(),r=await fetch(WORKER+path,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body||{})});return{ok:r.ok,j:await r.json().catch(()=>({}))}};
+ const mm=(id,t,k)=>{const m=$(id);m.className='msg'+(t?' '+k:'');m.textContent=t||''};
+ function ask(o){return new Promise(res=>{
+  $('mT').textContent=o.title;$('mP').textContent=o.text;$('mOk').textContent=o.ok;$('mPw').value='';$('mNk').value='';mm('mMsg','');
+  $('mPwF').classList.toggle('hide',!o.pw);$('mNkF').classList.toggle('hide',!o.nick);$('ov').classList.remove('hide');
+  const done=v=>{$('ov').classList.add('hide');$('mOk').onclick=$('mNo').onclick=null;res(v)};
+  $('mNo').onclick=()=>done(null);
+  $('mOk').onclick=()=>{if(o.pw&&!$('mPw').value)return mm('mMsg','Введите пароль','err');if(o.nick&&!$('mNk').value.trim())return mm('mMsg','Введите псевдоним','err');done({pw:$('mPw').value,nick:$('mNk').value.trim()})};
+ })}
+ async function reauth(pw){try{if(isPw)await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,pw));else await reauthenticateWithPopup(u,new GoogleAuthProvider());await u.getIdToken(true);return true}catch(e){return false}}
+
+ // выгрузка данных (собирается в браузере, раз в 24 часа)
+ $('exp').onclick=async()=>{
+  const last=Number(lsg('mn_export_at')||0);
+  if(Date.now()-last<864e5)return mm('msg3','Выгрузку можно делать раз в 24 часа. Следующая будет доступна '+fmt(new Date(last+864e5)),'err');
+  const a=await ask({title:'Скачать мои данные',text:isPw?'Введите пароль для подтверждения.':'Подтвердите вход через Google.',ok:'Продолжить',pw:isPw});
+  if(!a)return;
+  if(!(await reauth(a.pw)))return mm('msg3','Не удалось подтвердить вход','err');
+  try{
+   const ps=await getDoc(doc(db,'users',u.uid)),lg=await getDocs(query(collection(db,'loginup'),where('uid','==',u.uid),limit(500)));
+   const ts=v=>v&&v.toDate?v.toDate().toISOString():(v||null),pd=ps.exists()?ps.data():{};
+   const out={exportedAt:new Date().toISOString(),account:{uid:u.uid,email:u.email,emailVerified:u.emailVerified,providers:u.providerData.map(x=>x.providerId),created:u.metadata.creationTime,lastSignIn:u.metadata.lastSignInTime},profile:{nickname:pd.nickname||null,role:pd.role||null,plan:pd.plan||null,status:pd.status||null,createdAt:ts(pd.createdAt),consents:pd.consents?{...pd.consents,at:ts(pd.consents.at)}:null},logins:lg.docs.map(d=>{const x=d.data();return{at:ts(x.at),action:x.action,method:x.method,ip:x.ip,device:x.device,tech:x.tech}}).sort((p1,q1)=>String(q1.at).localeCompare(String(p1.at)))};
+   const url=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'})),el=document.createElement('a');
+   el.href=url;el.download='metro-new-my-data.json';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+   try{localStorage.setItem('mn_export_at',String(Date.now()))}catch(e){}
+   mm('msg3','Файл скачан','ok');
+  }catch(e){mm('msg3','Не удалось собрать данные','err')}
+ };
+
+ // приостановка
+ const paintSus=()=>{$('susBadge').style.display=suspended?'':'none';$('sus').lastElementChild.textContent=suspended?'Возобновить аккаунт':'Приостановить аккаунт'};paintSus();
+ $('sus').onclick=async()=>{
+  if(pendingDel)return mm('msg3','Сначала отмените удаление аккаунта','err');
+  if(!suspended){const a=await ask({title:'Приостановить аккаунт',text:'Профиль будет скрыт, данные сохранятся. Возобновить можно в любой момент.',ok:'Приостановить'});if(!a)return}
+  const r=await api('/account/suspend',{on:!suspended});
+  if(r.ok){suspended=!suspended;paintSus();mm('msg3',suspended?'Аккаунт приостановлен':'Аккаунт снова активен','ok')}else mm('msg3','Не удалось изменить статус','err');
+ };
+
+ // выход на всех устройствах
+ $('all').onclick=async()=>{
+  const a=await ask({title:'Выйти на всех устройствах',text:'Все остальные устройства потеряют доступ. Здесь тоже придётся войти заново.',ok:'Выйти везде'});
+  if(!a)return;
+  const r=await api('/account/logout-all');
+  if(r.ok){await signOut(auth);location.href=AUTH_PAGE}else mm('msg3','Не удалось выполнить','err');
+ };
+
+ // удаление
+ function showPend(d){pendingDel=true;$('pend').classList.remove('hide');$('pendT').textContent='Удаление аккаунта запланировано на '+fmt(d)+'. До этого срока его можно отменить.'}
+ if(p.status==='pending_delete'&&p.deleteAfter&&p.deleteAfter.toDate)showPend(p.deleteAfter.toDate());
+ $('del').onclick=async()=>{
+  if(pendingDel)return mm('msg4','Удаление уже запланировано','err');
+  const a=await ask({title:'Удалить аккаунт',text:'Введите свой псевдоним'+(isPw?' и пароль':'')+'. Удаление произойдёт через 14 дней, до этого его можно отменить.',ok:'Удалить',pw:isPw,nick:true});
+  if(!a)return;
+  if(!(await reauth(a.pw)))return mm('msg4','Не удалось подтвердить вход','err');
+  const r=await api('/account/delete',{nickname:a.nick});
+  if(r.ok){showPend(new Date(r.j.deleteAfter));mm('msg4','Удаление запланировано','ok')}
+  else mm('msg4',r.j.error==='nick_mismatch'?'Псевдоним не совпадает':r.j.error==='reauth'?'Подтвердите вход заново':'Не удалось запланировать удаление','err');
+ };
+ $('canc').onclick=async()=>{const r=await api('/account/cancel-delete');if(r.ok){pendingDel=false;$('pend').classList.add('hide');mm('msg4','Удаление отменено','ok')}else mm('msg4','Не удалось отменить','err')};
  $('out').onclick=async()=>{await signOut(auth);location.href=AUTH_PAGE};
 });
 </script>
