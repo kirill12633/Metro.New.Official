@@ -14,6 +14,7 @@
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--r:12px;--rl:16px;--rx:20px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--hov:#1d2b4f;--t:#f2f4fa;--t2:#a6b0cc;--t3:#77819e;--accent:#FFD700;--accent2:#ffe14d;--glow:rgba(255,215,0,.2);--blue:#4d94ff;--green:#34a853;--red:#f28b82;--border:#253460;--shadow:0 8px 30px rgba(0,0,0,.5);color-scheme:dark}
 [data-theme=light]{--bg:#fff;--bg2:#f4f6fb;--card:#fff;--hov:#eef1f9;--t:#14151f;--t2:#565f7a;--t3:#8890a8;--accent:#e6c200;--accent2:#c2a300;--glow:rgba(230,194,0,.18);--blue:#0066CC;--green:#1e8e4e;--red:#d93025;--border:#e2e6f0;--shadow:0 8px 30px rgba(20,22,40,.1);color-scheme:light}
@@ -176,6 +177,8 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
  <div class="load" id="load"><i class="fas fa-spinner fa-spin"></i> Загрузка профиля…</div>
  <div class="acc hide" id="acc">
   <div class="card2 hide" id="pend" style="border-color:var(--red)"><b id="pendT"></b><div class="acts" style="margin-top:12px"><button class="btn" id="canc" type="button">Отменить удаление</button></div></div>
+  <div class="card2 hide" id="banB" style="border-color:var(--red)"><b id="banT"></b></div>
+  <div class="card2 hide" id="alertB" style="border-color:var(--accent)"><b id="alertT"></b><div class="acts" style="margin-top:12px"><button class="btn" id="alOk" type="button">Это был я</button><button class="btn sec" id="alNo" type="button">Это не я</button></div></div>
   <div class="card2"><div class="pc">
    <div class="pav" id="av"></div>
    <div><h1 id="nick"></h1><div class="badges"><span class="bd" id="role"></span><span class="bd b" id="susBadge" style="display:none">Приостановлен</span><span class="bd b" id="plan"></span><span class="bd g" id="ver"><i class="fas fa-check"></i> Почта подтверждена</span></div></div>
@@ -216,6 +219,13 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
    </div>
    <div class="msg" id="msg3" role="status"></div>
    <p class="warn">Приостановка скрывает ваш профиль, данные не удаляются. Вернуть можно кнопкой здесь же. Выход на всех устройствах может сработать на других устройствах в течение часа.</p>
+  </div>
+
+  <div class="card2"><h2><i class="fas fa-mobile-screen"></i> Двухфакторная защита</h2>
+   <p class="warn" style="margin:0 0 14px" id="mfaState"></p>
+   <div id="mfaSetup" class="hide"><p class="warn" style="margin:0 0 10px">1. Отсканируйте QR-код в приложении (Google Authenticator, Authy и т.п.) или введите ключ вручную.</p><div id="qr" style="background:#fff;padding:10px;display:inline-block;border-radius:10px"></div><p class="warn">Ключ: <b id="mfaKey" style="word-break:break-all"></b></p><p class="warn" style="margin:0 0 10px">2. Введите 6-значный код из приложения.</p><div class="inp" style="max-width:220px;margin-bottom:12px"><input id="mfaC" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="padding-left:14px" /></div><div class="acts"><button class="btn" id="mfaOn" type="button">Включить</button><button class="btn sec" id="mfaCancel" type="button">Отмена</button></div></div>
+   <div class="acts"><button class="btn sec" id="mfaBtn" type="button"><i class="fas fa-shield-halved"></i> <span></span></button></div>
+   <div class="msg" id="msg5" role="status"></div>
   </div>
 
   <div class="card2" style="border-color:var(--red)"><h2 style="color:var(--red)"><i class="fas fa-triangle-exclamation"></i> Удаление аккаунта</h2>
@@ -279,13 +289,14 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
 <div class="ov hide" id="ov" role="dialog" aria-modal="true"><div class="md">
  <h3 id="mT"></h3><p id="mP"></p>
  <div class="inp hide" id="mPwF"><input id="mPw" type="password" placeholder="Пароль" autocomplete="current-password" maxlength="64" /></div>
+ <div class="inp hide" id="mCF"><input id="mCode" inputmode="numeric" maxlength="6" placeholder="Код из приложения" autocomplete="one-time-code" /></div>
  <div class="inp hide" id="mNkF"><input id="mNk" placeholder="Ваш псевдоним" autocomplete="off" maxlength="20" /></div>
  <div class="msg" id="mMsg" role="alert"></div>
  <div class="acts"><button class="btn" id="mOk" type="button"></button><button class="btn sec" id="mNo" type="button">Отмена</button></div>
 </div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,sendPasswordResetEmail,signOut,reauthenticateWithCredential,EmailAuthProvider,reauthenticateWithPopup,GoogleAuthProvider}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getAuth,onAuthStateChanged,sendPasswordResetEmail,signOut,multiFactor,TotpMultiFactorGenerator,getMultiFactorResolver,reauthenticateWithCredential,EmailAuthProvider,reauthenticateWithPopup,GoogleAuthProvider}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,doc,getDoc,collection,query,where,limit,getDocs}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",authDomain:"metro-new-85226.firebaseapp.com",databaseURL:"https://metro-new-85226-default-rtdb.firebaseio.com",projectId:"metro-new-85226",storageBucket:"metro-new-85226.firebasestorage.app",messagingSenderId:"905640751733",appId:"1:905640751733:web:f1ab3a1b119ca1e245fe3c"};
 const WORKER="https://metro-new-auth.kirilltyr123.workers.dev"; // адрес вашего Cloudflare Worker
@@ -301,7 +312,7 @@ document.addEventListener('click',e=>{if(!$('dd').contains(e.target))$('dd').cla
 $('yr').textContent=new Date().getFullYear();
 
 const ROLES={player:'Игрок',respected:'Уважаемый',vip:'VIP',moderator:'Модератор',admin:'Администратор',owner:'Владелец'};
-const PLANS={free:'Стартовый',machinist:'Машинист',chief:'Начальник метро'};
+const PLANS={free:'Стартовый',machinist:'Машинист',chief:'Начальник метро',pro:'Pro'};
 const METH={google:'Google',email:'Почта'},ACT={login:'Вход',signup:'Регистрация'},DT={mobile:'Телефон',tablet:'Планшет',desktop:'Компьютер'};
 const fmt=d=>d?d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
 const td=t=>{const c=document.createElement('td');c.textContent=t;return c};
@@ -314,7 +325,7 @@ onAuthStateChanged(auth,async u=>{
  const nick=p.nickname||u.displayName||'Игрок';
  $('av').textContent=nick.charAt(0).toUpperCase();$('nick').textContent=nick;
  $('role').textContent=ROLES[p.role]||p.role||'Игрок';
- $('plan').textContent=PLANS[p.plan]||p.plan||'Стартовый';$('plan2').textContent=PLANS[p.plan]||p.plan||'Стартовый';
+ const pu=p.planUntil&&p.planUntil.toDate?p.planUntil.toDate():null,pk=(pu&&pu<new Date())?'free':p.plan,pn=PLANS[pk]||pk||'Стартовый';$('plan').textContent=pn;$('plan2').textContent=pn+(pu&&pk!=='free'?' до '+fmt(pu):'');
  $('mail').textContent=u.email||'—';
  $('since').textContent=fmt(p.createdAt&&p.createdAt.toDate?p.createdAt.toDate():(u.metadata.creationTime?new Date(u.metadata.creationTime):null));
  $('how').textContent=u.providerData.some(x=>x.providerId==='google.com')?'Google':'Почта и пароль';
@@ -352,13 +363,13 @@ onAuthStateChanged(auth,async u=>{
  const api=async(path,body)=>{const t=await u.getIdToken(),r=await fetch(WORKER+path,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body||{})});return{ok:r.ok,j:await r.json().catch(()=>({}))}};
  const mm=(id,t,k)=>{const m=$(id);m.className='msg'+(t?' '+k:'');m.textContent=t||''};
  function ask(o){return new Promise(res=>{
-  $('mT').textContent=o.title;$('mP').textContent=o.text;$('mOk').textContent=o.ok;$('mPw').value='';$('mNk').value='';mm('mMsg','');
-  $('mPwF').classList.toggle('hide',!o.pw);$('mNkF').classList.toggle('hide',!o.nick);$('ov').classList.remove('hide');
+  $('mT').textContent=o.title;$('mP').textContent=o.text;$('mOk').textContent=o.ok;$('mPw').value='';$('mNk').value='';$('mCode').value='';mm('mMsg','');
+  $('mPwF').classList.toggle('hide',!o.pw);$('mNkF').classList.toggle('hide',!o.nick);$('mCF').classList.toggle('hide',!o.code);$('ov').classList.remove('hide');
   const done=v=>{$('ov').classList.add('hide');$('mOk').onclick=$('mNo').onclick=null;res(v)};
   $('mNo').onclick=()=>done(null);
-  $('mOk').onclick=()=>{if(o.pw&&!$('mPw').value)return mm('mMsg','Введите пароль','err');if(o.nick&&!$('mNk').value.trim())return mm('mMsg','Введите псевдоним','err');done({pw:$('mPw').value,nick:$('mNk').value.trim()})};
+  $('mOk').onclick=()=>{if(o.pw&&!$('mPw').value)return mm('mMsg','Введите пароль','err');if(o.nick&&!$('mNk').value.trim())return mm('mMsg','Введите псевдоним','err');if(o.code&&!/^\d{6}$/.test($('mCode').value.trim()))return mm('mMsg','Введите 6 цифр','err');done({pw:$('mPw').value,nick:$('mNk').value.trim(),code:$('mCode').value.trim()})};
  })}
- async function reauth(pw){try{if(isPw)await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,pw));else await reauthenticateWithPopup(u,new GoogleAuthProvider());await u.getIdToken(true);return true}catch(e){return false}}
+ async function reauth(pw){try{try{if(isPw)await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,pw));else await reauthenticateWithPopup(u,new GoogleAuthProvider())}catch(e){if(e.code!=='auth/multi-factor-auth-required')throw e;const rs=getMultiFactorResolver(auth,e),h=rs.hints.find(x=>x.factorId===TotpMultiFactorGenerator.FACTOR_ID),c=await ask({title:'Код из приложения',text:'Введите 6 цифр из приложения-аутентификатора.',ok:'Подтвердить',code:true});if(!c)return false;await rs.resolveSignIn(TotpMultiFactorGenerator.assertionForSignIn(h.uid,c.code))}await u.getIdToken(true);return true}catch(e){return false}}
 
  // выгрузка данных (собирается в браузере, раз в 24 часа)
  $('exp').onclick=async()=>{
@@ -370,7 +381,7 @@ onAuthStateChanged(auth,async u=>{
   try{
    const ps=await getDoc(doc(db,'users',u.uid)),lg=await getDocs(query(collection(db,'loginup'),where('uid','==',u.uid),limit(500)));
    const ts=v=>v&&v.toDate?v.toDate().toISOString():(v||null),pd=ps.exists()?ps.data():{};
-   const out={exportedAt:new Date().toISOString(),account:{uid:u.uid,email:u.email,emailVerified:u.emailVerified,providers:u.providerData.map(x=>x.providerId),created:u.metadata.creationTime,lastSignIn:u.metadata.lastSignInTime},profile:{nickname:pd.nickname||null,role:pd.role||null,plan:pd.plan||null,status:pd.status||null,createdAt:ts(pd.createdAt),consents:pd.consents?{...pd.consents,at:ts(pd.consents.at)}:null},logins:lg.docs.map(d=>{const x=d.data();return{at:ts(x.at),action:x.action,method:x.method,ip:x.ip,device:x.device,tech:x.tech}}).sort((p1,q1)=>String(q1.at).localeCompare(String(p1.at)))};
+   const out={exportedAt:new Date().toISOString(),account:{uid:u.uid,email:u.email,emailVerified:u.emailVerified,providers:u.providerData.map(x=>x.providerId),created:u.metadata.creationTime,lastSignIn:u.metadata.lastSignInTime},profile:{nickname:pd.nickname||null,role:pd.role||null,plan:pd.plan||null,status:pd.status||null,createdAt:ts(pd.createdAt),consents:pd.consents?{...pd.consents,at:ts(pd.consents.at)}:null},logins:lg.docs.map(d=>{const x=d.data();return{at:ts(x.at),action:x.action,method:x.method,ip:x.ip,country:x.country||null,flags:x.flags||[],device:x.device,tech:x.tech}}).sort((p1,q1)=>String(q1.at).localeCompare(String(p1.at)))};
    const url=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'})),el=document.createElement('a');
    el.href=url;el.download='metro-new-my-data.json';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
    try{localStorage.setItem('mn_export_at',String(Date.now()))}catch(e){}
@@ -408,6 +419,31 @@ onAuthStateChanged(auth,async u=>{
   else mm('msg4',r.j.error==='nick_mismatch'?'Псевдоним не совпадает':r.j.error==='reauth'?'Подтвердите вход заново':'Не удалось запланировать удаление','err');
  };
  $('canc').onclick=async()=>{const r=await api('/account/cancel-delete');if(r.ok){pendingDel=false;$('pend').classList.add('hide');mm('msg4','Удаление отменено','ok')}else mm('msg4','Не удалось отменить','err')};
+
+ // блокировка и предупреждения
+ const bn=p.banned&&p.ban&&(!p.ban.until||(p.ban.until.toDate&&p.ban.until.toDate()>new Date()));
+ if(bn){$('banB').classList.remove('hide');$('banT').textContent='Аккаунт заблокирован '+(p.ban.until?'до '+fmt(p.ban.until.toDate()):'навсегда')+(p.ban.reason?'. Причина: '+p.ban.reason:'')}
+ if(p.alert){const al=p.alert;$('alertB').classList.remove('hide');$('alertT').textContent='Замечен вход с нового устройства или из новой страны ('+(al.device||'')+', '+(al.country||'')+', '+fmt(al.at&&al.at.toDate?al.at.toDate():null)+'). Это были вы?'}
+ $('alOk').onclick=async()=>{const r=await api('/account/ack-alert');if(r.ok)$('alertB').classList.add('hide')};
+ $('alNo').onclick=async()=>{await api('/account/ack-alert');await api('/account/logout-all');if(isPw)await sendPasswordResetEmail(auth,u.email).catch(()=>{});await signOut(auth);location.href=AUTH_PAGE};
+
+ // двухфакторная защита (TOTP)
+ const mfx=()=>multiFactor(u);let tsec=null;
+ const paint2fa=()=>{const on=mfx().enrolledFactors.length>0;$('mfaState').textContent=on?'Включена: при входе нужен код из приложения.':'Выключена. Рекомендуем включить: даже при утечке пароля войти без кода не получится.';$('mfaBtn').lastElementChild.textContent=on?'Отключить 2FA':'Включить 2FA'};paint2fa();
+ $('mfaBtn').onclick=async()=>{
+  const on=mfx().enrolledFactors.length>0;
+  const a=await ask({title:on?'Отключить 2FA':'Включить 2FA',text:isPw?'Введите пароль для подтверждения.':'Подтвердите вход через Google.',ok:'Продолжить',pw:isPw});if(!a)return;
+  if(!(await reauth(a.pw)))return mm('msg5','Не удалось подтвердить вход','err');
+  try{
+   if(on){await mfx().unenroll(mfx().enrolledFactors[0]);paint2fa();mm('msg5','2FA отключена','ok');return}
+   const s=await mfx().getSession();tsec=await TotpMultiFactorGenerator.generateSecret(s);
+   $('mfaKey').textContent=tsec.secretKey;const q=$('qr');q.innerHTML='';if(window.QRCode)new QRCode(q,{text:tsec.generateQrCodeUrl(u.email,'Метро New'),width:180,height:180});
+   $('mfaSetup').classList.remove('hide');
+  }catch(e){mm('msg5',e.code==='auth/operation-not-allowed'?'Двухфакторная защита ещё не включена в Firebase (нужен Identity Platform)':'Не удалось выполнить','err')}
+ };
+ $('mfaOn').onclick=async()=>{try{await mfx().enroll(TotpMultiFactorGenerator.assertionForEnrollment(tsec,$('mfaC').value.trim()),'Authenticator');$('mfaSetup').classList.add('hide');$('mfaC').value='';paint2fa();mm('msg5','2FA включена','ok')}catch(e){mm('msg5','Неверный код, попробуйте ещё раз','err')}};
+ $('mfaCancel').onclick=()=>$('mfaSetup').classList.add('hide');
+
  $('out').onclick=async()=>{await signOut(auth);location.href=AUTH_PAGE};
 });
 </script>
