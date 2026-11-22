@@ -7,7 +7,7 @@
 <meta name="description" content="Личный кабинет игрока Метро New." />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://metro-new-85226.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.workers.dev https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://metro-new-85226.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
 <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -189,6 +189,13 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
    <div class="msg" id="msg" role="status"></div>
   </div>
 
+  <div class="card2"><h2><i class="fas fa-user-pen"></i> Сменить псевдоним</h2>
+   <div class="inp"><input id="newNick" maxlength="20" placeholder="Новый псевдоним" autocomplete="off" style="padding-left:14px" /></div>
+   <p class="warn">Менять можно раз в 30 дней. Не используйте настоящее имя.</p>
+   <div class="acts" style="margin-top:12px"><button class="btn" id="nickBtn" type="button"><i class="fas fa-floppy-disk"></i> Сохранить</button></div>
+   <div class="msg" id="msg2" role="status"></div>
+  </div>
+
   <div class="card2"><h2><i class="fas fa-clock-rotate-left"></i> Последние входы</h2>
    <div class="tw"><table><thead><tr><th>Дата</th><th>Событие</th><th>Способ</th><th>Устройство</th><th>IP</th></tr></thead><tbody id="rows"></tbody></table></div>
    <p class="warn">Записи хранятся 180 дней. Если видите вход, который сделали не вы, сразу смените пароль.</p>
@@ -251,6 +258,7 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-ap
 import{getAuth,onAuthStateChanged,sendPasswordResetEmail,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,doc,getDoc,collection,query,where,limit,getDocs}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",authDomain:"metro-new-85226.firebaseapp.com",databaseURL:"https://metro-new-85226-default-rtdb.firebaseio.com",projectId:"metro-new-85226",storageBucket:"metro-new-85226.firebasestorage.app",messagingSenderId:"905640751733",appId:"1:905640751733:web:f1ab3a1b119ca1e245fe3c"};
+const WORKER="https://metro-new-auth.kirilltyr123.workers.dev"; // адрес вашего Cloudflare Worker
 const AUTH_PAGE="https://kirill12633.github.io/Metro.New.Official/auth/singup/";
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);auth.languageCode='ru';
 const $=id=>document.getElementById(id);
@@ -292,6 +300,21 @@ onAuthStateChanged(auth,async u=>{
  $('pwd').onclick=async()=>{
   if(u.providerData.every(x=>x.providerId==='google.com'))return msg('Вы входите через Google, пароль меняется в аккаунте Google','err');
   try{await sendPasswordResetEmail(auth,u.email);msg('Письмо для смены пароля отправлено на '+u.email,'ok')}catch(e){msg(e.code==='auth/too-many-requests'?'Слишком часто. Подождите немного':'Не удалось отправить письмо','err')}
+ };
+
+ const NB=/(admin|админ|moder|модер|support|поддержк|official|официал|staff|owner|владелец|system|root)/i;
+ const m2=(t,k)=>{const m=$('msg2');m.className='msg'+(t?' '+k:'');m.textContent=t||''};
+ const NM={nickname_taken:'Этот псевдоним уже занят',auth:'Войдите заново',rate:'Слишком часто, подождите минуту',server:'Ошибка сервера, попробуйте позже'};
+ $('nickBtn').onclick=async()=>{
+  const n=$('newNick').value.trim();
+  if(n.length<3||n.length>20||!/^[\p{L}\d][\p{L}\d_.-]*$/u.test(n))return m2('Псевдоним: 3–20 символов, буквы, цифры, _ . -','err');
+  if(NB.test(n))return m2('Этот псевдоним зарезервирован','err');
+  try{
+   const t=await u.getIdToken(),r=await fetch(WORKER+'/nickname',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({nickname:n})}),j=await r.json().catch(()=>({}));
+   if(r.ok){$('nick').textContent=j.nickname;$('av').textContent=j.nickname.charAt(0).toUpperCase();$('newNick').value='';m2('Псевдоним изменён','ok');try{const l=JSON.parse(localStorage.getItem('mn_last_login')||'null');if(l){l.n=j.nickname;localStorage.setItem('mn_last_login',JSON.stringify(l))}}catch(e){}}
+   else if(j.error==='cooldown')m2('Следующая смена будет доступна '+fmt(new Date(j.until)),'err');
+   else m2(j.message||NM[j.error]||'Не удалось изменить псевдоним','err');
+  }catch(e){m2('Нет соединения с сервером','err')}
  };
  $('out').onclick=async()=>{await signOut(auth);location.href=AUTH_PAGE};
 });
