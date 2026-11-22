@@ -1,1 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Админка — Метро New</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://metro-new-admin.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+:root{--r:12px;--rl:16px;--rx:20px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--hov:#1d2b4f;--t:#f2f4fa;--t2:#a6b0cc;--t3:#77819e;--accent:#FFD700;--accent2:#ffe14d;--glow:rgba(255,215,0,.2);--blue:#4d94ff;--green:#34a853;--red:#f28b82;--border:#253460;--shadow:0 8px 30px rgba(0,0,0,.5);color-scheme:dark}
+[data-theme=light]{--bg:#fff;--bg2:#f4f6fb;--card:#fff;--hov:#eef1f9;--t:#14151f;--t2:#565f7a;--t3:#8890a8;--accent:#e6c200;--accent2:#c2a300;--glow:rgba(230,194,0,.18);--blue:#0066CC;--green:#1e8e4e;--red:#d93025;--border:#e2e6f0;--shadow:0 8px 30px rgba(20,22,40,.1);color-scheme:light}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--t);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s;background-image:radial-gradient(ellipse at 10% 10%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 55%),radial-gradient(ellipse at 90% 40%,color-mix(in srgb,var(--blue) 9%,transparent),transparent 55%)}
+.container{width:92%;max-width:1240px;margin:0 auto;padding:0 16px}
+a{color:inherit}
+header{background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 0;position:sticky;top:0;z-index:99}
+nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.logo a{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;font-size:1.4rem}
+.logo img{width:42px;height:42px;border-radius:10px;box-shadow:0 0 30px var(--glow)}
+.nl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nl>a{color:var(--t2);text-decoration:none;font-weight:600;font-size:.92rem;padding:8px 16px;border-radius:var(--r)}
+.nl>a:hover{color:var(--t);background:var(--hov)}
+.nl>a.login{background:linear-gradient(135deg,var(--blue),#7aacff);color:#fff;border-radius:50px;font-weight:700}
+.dd{position:relative}
+.dd>button{background:none;border:0;color:var(--t2);font:600 .92rem 'Montserrat';padding:8px 16px;border-radius:var(--r);cursor:pointer}
+.dd>button:hover{color:var(--t);background:var(--hov)}
+.dd .dc{display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r);min-width:190px;padding:8px 0;box-shadow:var(--shadow)}
+.dd.open .dc{display:block}
+.dc a{display:flex;gap:10px;align-items:center;padding:10px 18px;color:var(--t2);text-decoration:none;font-size:.9rem;font-weight:500}
+.dc a i{color:var(--accent);width:18px}.dc a:hover{background:var(--hov);color:var(--t)}
+.burger{display:none;background:none;border:0;color:var(--t);font-size:1.5rem;cursor:pointer}
+main{flex:1;padding:50px 0}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 24px;margin-top:40px}
+.ft{display:grid;grid-template-columns:1.2fr 2fr;gap:40px;margin-bottom:26px;padding-bottom:26px;border-bottom:1px solid var(--border)}
+.fb{display:flex;flex-direction:column;gap:12px}
+.fb img{width:54px;height:54px;border-radius:12px}
+.fb .bn{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--t),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.fb p{color:var(--t2);font-size:.88rem;max-width:330px}
+.soc{display:flex;gap:10px;flex-wrap:wrap}
+.soc a{width:40px;height:40px;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--t2);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;transition:.25s}
+.soc a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px)}
+.fl{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.fc h4{font-size:.92rem;font-weight:700;color:var(--accent);margin-bottom:12px}
+.fc ul{list-style:none}.fc li{margin-bottom:6px}
+.fc a{color:var(--t2);text-decoration:none;font-weight:500;font-size:.85rem;display:inline-flex;gap:8px;align-items:center}
+.fc a:hover{color:var(--accent)}.fc a i{width:15px;font-size:.78rem}
+.fbot{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--t2);font-size:.82rem}
+.theme{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--t2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:992px){.burger{display:block}.nl{display:none;width:100%;flex-direction:column;align-items:stretch;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px}.nl.on{display:flex}.dd .dc{position:static;box-shadow:none;border:0;background:none}.ft{grid-template-columns:1fr}.fl{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.fl{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
+/* ===== ADMIN ===== */
+.load{text-align:center;padding:60px 0;color:var(--t2)}
+.hide{display:none!important}
+.dash{max-width:1100px;margin:0 auto}
+.hero{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+.hero .av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;font-size:1.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px var(--glow);flex-shrink:0;overflow:hidden}
+.hero .av img{width:100%;height:100%;object-fit:cover}
+.hero h1{font-size:1.9rem;font-weight:800;line-height:1.15}
+.hero p{color:var(--t2);font-size:.9rem;font-weight:500}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);padding:6px 16px;border-radius:50px;font-weight:600;font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px}
+.sec-title{font-size:1.05rem;font-weight:800;margin:28px 0 14px;display:flex;gap:10px;align-items:center}
+.sec-title i{color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tile{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:18px;text-decoration:none;color:var(--t);transition:.22s;overflow:hidden}
+.tile:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 10px 30px var(--glow)}
+.tile .ic{width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:6px}
+.tile b{font-size:.98rem;font-weight:700}
+.tile small{color:var(--t2);font-size:.78rem;font-weight:500;line-height:1.45}
+.tile .go{margin-top:10px;color:var(--accent);font-size:.78rem;font-weight:700;display:inline-flex;gap:6px;align-items:center}
+.tile.soon{opacity:.75}
+.tile .badge{position:absolute;top:14px;right:14px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);padding:3px 9px;border-radius:50px}
+.tile.locked{opacity:.5;pointer-events:none;filter:grayscale(.6)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:8px}
+.kpi .k{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px}
+.kpi .k span{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);font-weight:700}
+.kpi .k b{display:block;font-size:1.5rem;font-weight:800;margin-top:4px;background:linear-gradient(135deg,var(--t),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.kpi .k i{color:var(--accent);margin-right:6px;font-size:.8rem}
+@media(max-width:600px){.hero h1{font-size:1.5rem}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header><div class="container"><nav>
+ <div class="logo"><a href="https://kirill12633.github.io/Metro.New.Official/ru/"><img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" /><span>Метро New</span></a></div>
+ <button class="burger" id="burger" aria-label="Меню"><i class="fas fa-bars"></i></button>
+ <div class="nl" id="nl">
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+  <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+  <div class="dd" id="dd"><button id="ddb" type="button">Прочее <i class="fas fa-chevron-down" style="font-size:.7rem"></i></button>
+   <div class="dc"><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-toolbox"></i> Инструменты</a><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a></div></div>
+  <a href="#" class="login"><i class="fas fa-user"></i> Кабинет</a>
+ </div>
+</nav></div></header>
+
+<main><div class="container">
+ <div class="load" id="load"><i class="fas fa-spinner fa-spin"></i> Проверка доступа…</div>
+
+ <div class="dash hide" id="dash">
+  <div class="eyebrow"><i class="fas fa-shield-halved"></i> Панель администратора</div>
+  <div class="hero">
+   <div class="av" id="avatar">A</div>
+   <div>
+    <h1 id="hello">Привет, администратор</h1>
+    <p id="sub">Добро пожаловать в панель управления Метро New. Выберите раздел ниже.</p>
+   </div>
+  </div>
+
+  <div class="sec-title"><i class="fas fa-chart-line"></i> Отчёт <span style="font-size:.72rem;color:var(--t3);font-weight:600">(скоро)</span></div>
+  <div class="kpi">
+   <div class="k"><span><i class="fas fa-newspaper"></i> Новостей</span><b>—</b></div>
+   <div class="k"><span><i class="fas fa-book"></i> Wiki-статей</span><b>—</b></div>
+   <div class="k"><span><i class="fas fa-users"></i> Пользователей</span><b>—</b></div>
+   <div class="k"><span><i class="fas fa-briefcase"></i> Вакансий</span><b>—</b></div>
+  </div>
+
+  <div class="sec-title"><i class="fas fa-grip"></i> Разделы управления</div>
+  <div class="grid" id="tiles">
+   <a class="tile" data-acl="dashboard" href="https://kirill12633.github.io/Metro.New.Official/admin-dashboard/">
+    <div class="ic"><i class="fas fa-table-columns"></i></div>
+    <b>Admin Dashboard</b>
+    <small>Главная панель управления</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile" data-acl="news" href="https://kirill12633.github.io/Metro.New.Official/news-dashboard/">
+    <div class="ic"><i class="fas fa-newspaper"></i></div>
+    <b>Новости</b>
+    <small>Создать новость, управление блогом</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile" data-acl="wiki" href="https://kirill12633.github.io/Metro.New.Official/wiki-dashboard/">
+    <div class="ic"><i class="fas fa-book"></i></div>
+    <b>Wiki</b>
+    <small>Создать статью, редактировать вики</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile" data-acl="vacancies" href="https://kirill12633.github.io/Metro.New.Official/admin-vacancies/">
+    <div class="ic"><i class="fas fa-briefcase"></i></div>
+    <b>Admin Vacancies</b>
+    <small>Управление вакансиями администрации</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile" data-acl="steam" href="https://kirill12633.github.io/Metro.New.Official/steam-dashboard/">
+    <div class="ic"><i class="fab fa-steam"></i></div>
+    <b>Steam Dashboard</b>
+    <small>Управление Steam-разделом</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile" data-acl="tools" href="https://kirill12633.github.io/Metro.New.Official/tools-dashboard/">
+    <div class="ic"><i class="fas fa-toolbox"></i></div>
+    <b>Tools Dashboard</b>
+    <small>Управление инструментами</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile" data-acl="login" href="https://kirill12633.github.io/Metro.New.Official/login/">
+    <div class="ic"><i class="fas fa-right-to-bracket"></i></div>
+    <b>Login</b>
+    <small>Страница входа администрации</small>
+    <span class="go">Открыть <i class="fas fa-arrow-right"></i></span>
+   </a>
+   <a class="tile soon" data-acl="analytics" href="#">
+    <span class="badge">Скоро</span>
+    <div class="ic"><i class="fas fa-chart-pie"></i></div>
+    <b>Аналитика</b>
+    <small>Статистика и отчёты по сайту</small>
+    <span class="go">В разработке</span>
+   </a>
+  </div>
+ </div>
+</div></main>
+
+<footer><div class="container">
+ <div class="ft">
+  <div class="fb">
+   <img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" />
+   <div class="bn">Метро New</div>
+   <p>Официальный сайт и панель управления проектом Метро New.</p>
+   <div class="soc">
+    <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer" aria-label="Roblox"><i class="fas fa-gamepad"></i></a>
+    <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+    <a href="#" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+   </div>
+  </div>
+  <div class="fl">
+   <div class="fc"><h4>Проект</h4><ul><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/"><i class="fas fa-house"></i> Главная</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/news"><i class="fas fa-newspaper"></i> Блог</a></li></ul></div>
+   <div class="fc"><h4>Сообщество</h4><ul><li><a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer"><i class="fas fa-gamepad"></i> Roblox</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/contact"><i class="fas fa-envelope"></i> Обратная связь</a></li></ul></div>
+   <div class="fc"><h4>Ресурсы</h4><ul><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/tools/"><i class="fas fa-toolbox"></i> Инструменты</a></li><li><a href="https://kirill12633.github.io/Metro.New.Official/ru/wiki"><i class="fas fa-book"></i> Wiki</a></li></ul></div>
+   <div class="fc"><h4>Админ</h4><ul><li><a href="#"><i class="fas fa-shield-halved"></i> Панель</a></li></ul></div>
+  </div>
+ </div>
+ <div class="fbot">
+  <span>© <span id="yr"></span> Метро New. Все права защищены.</span>
+  <button class="theme" id="theme" aria-label="Тема"><i class="fas fa-moon"></i></button>
+ </div>
+</div></footer>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,doc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ===== FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+  authDomain: "metro-new-admin.firebaseapp.com",
+  projectId: "metro-new-admin",
+  storageBucket: "metro-new-admin.firebasestorage.app",
+  messagingSenderId: "769002010414",
+  appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+};
+
+const AUTH_PAGE = "https://kirill12633.github.io/Metro.New.Official/ru/admin/login/";
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+root.setAttribute('data-theme', matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+
+// UI
+$('burger').onclick = () => $('nl').classList.toggle('on');
+$('ddb').onclick = e => { e.stopPropagation(); $('dd').classList.toggle('open'); };
+document.addEventListener('click', () => $('dd').classList.remove('open'));
+$('yr').textContent = new Date().getFullYear();
+$('theme').onclick = () => {
+  const cur = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  root.setAttribute('data-theme', cur);
+  $('theme').innerHTML = cur === 'light' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+};
+
+// ===== AUTH / ПРАВА =====
+onAuthStateChanged(auth, async u => {
+  // Если не вошёл — на страницу входа
+  if (!u) {
+    location.replace(AUTH_PAGE + '?next=' + encodeURIComponent(location.href));
+    return;
+  }
+
+  // Читаем документ из коллекции admins/{uid}
+  let adminData = null;
+  try {
+    const snap = await getDoc(doc(db, 'admins', u.uid));
+    if (snap.exists()) adminData = snap.data();
+  } catch (e) {
+    console.warn('admins check failed', e);
+  }
+
+  if (!adminData) {
+    $('load').innerHTML = '<i class="fas fa-ban"></i> Нет доступа. Вы не администратор.<br><br><button id="out" class="theme" style="width:auto;padding:8px 18px;border-radius:50px;font-family:inherit">Выйти</button>';
+    $('out').onclick = async () => { await signOut(auth); location.replace(AUTH_PAGE); };
+    return;
+  }
+
+  // Показываем панель
+  $('load').classList.add('hide');
+  $('dash').classList.remove('hide');
+
+  const name = adminData.name || adminData.email || u.displayName || u.email?.split('@')[0] || 'администратор';
+  const initial = (name[0] || 'A').toUpperCase();
+  const av = $('avatar');
+  if (adminData.photoURL) {
+    av.innerHTML = `<img src="${adminData.photoURL}" alt="" />`;
+  } else {
+    av.textContent = initial;
+  }
+  $('hello').textContent = 'Привет, ' + name;
+  if (adminData.role) {
+    $('sub').textContent = 'Роль: ' + adminData.role + '. Выберите раздел ниже.';
+  }
+
+  // ===== ACL =====
+  // adminData.acl может быть массивом ['news','wiki'] или объектом {news:true, wiki:true}
+  // Если поля acl нет — показываем всё (обратная совместимость)
+  let acl = adminData.acl ?? null;
+  let aclSet = null;
+  if (Array.isArray(acl)) aclSet = new Set(acl);
+  else if (acl && typeof acl === 'object') aclSet = new Set(Object.keys(acl).filter(k => acl[k]));
+
+  // Если role = owner — полный доступ независимо от acl
+  const isOwner = adminData.role === 'owner';
+
+  document.querySelectorAll('#tiles .tile').forEach(t => {
+    const need = t.dataset.acl;
+    if (!need) return;
+    if (isOwner || !aclSet) return; // полный доступ
+    if (!aclSet.has(need)) {
+      t.classList.add('locked');
+      t.setAttribute('title', 'Нет прав на раздел: ' + need);
+      t.addEventListener('click', ev => ev.preventDefault(), true);
+    }
+  });
+});
+</script>
+</body>
+</html>
