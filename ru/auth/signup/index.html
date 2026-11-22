@@ -7,13 +7,15 @@
 <meta name="description" content="Вход и регистрация в Метро New: Google или почта. Безопасный аккаунт игрока." />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.googleapis.com https://dns.google https://api.ipify.org https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://metro-new-85226.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.googleapis.com https://dns.google https://*.workers.dev https://api.pwnedpasswords.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://challenges.cloudflare.com https://metro-new-85226.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
 <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
+<script>window.onTs=function(){window.dispatchEvent(new Event("ts-ready"))}</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTs" async defer></script>
 <style>
 :root{--r:12px;--rl:16px;--rx:20px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--hov:#1d2b4f;--t:#f2f4fa;--t2:#a6b0cc;--t3:#77819e;--accent:#FFD700;--accent2:#ffe14d;--glow:rgba(255,215,0,.2);--blue:#4d94ff;--green:#34a853;--red:#f28b82;--border:#253460;--shadow:0 8px 30px rgba(0,0,0,.5);color-scheme:dark}
 [data-theme=light]{--bg:#fff;--bg2:#f4f6fb;--card:#fff;--hov:#eef1f9;--t:#14151f;--t2:#565f7a;--t3:#8890a8;--accent:#e6c200;--accent2:#c2a300;--glow:rgba(230,194,0,.18);--blue:#0066CC;--green:#1e8e4e;--red:#d93025;--border:#e2e6f0;--shadow:0 8px 30px rgba(20,22,40,.1);color-scheme:light}
@@ -160,6 +162,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
    </div>
    <div class="or">или почта</div>
    <div class="msg" id="msg" role="alert"></div>
+   <div id="ts" style="display:flex;justify-content:center;margin-bottom:14px"></div>
 
    <form id="fLogin" novalidate>
     <div class="f"><label class="l" for="lEmail">Почта</label><div class="inp"><i class="fas fa-envelope ic"></i><input id="lEmail" type="email" autocomplete="email" maxlength="254" /></div></div>
@@ -247,7 +250,8 @@ import{getFirestore,doc,setDoc,getDoc,updateDoc,addDoc,collection,serverTimestam
 const firebaseConfig={apiKey:"AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",authDomain:"metro-new-85226.firebaseapp.com",databaseURL:"https://metro-new-85226-default-rtdb.firebaseio.com",projectId:"metro-new-85226",storageBucket:"metro-new-85226.firebasestorage.app",messagingSenderId:"905640751733",appId:"1:905640751733:web:f1ab3a1b119ca1e245fe3c"};
 const SITE="https://kirill12633.github.io/Metro.New.Official/";
 const AFTER_LOGIN=SITE+"ru/account"; // куда переносить после входа
-const LOG_DAYS=180, CONSENT_VER="2026-11";
+const WORKER="https://metro-new-auth.kirilltyr123.workers.dev"; // адрес вашего Cloudflare Worker
+const CONSENT_VER="2026-11";
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);auth.languageCode='ru';
 const $=id=>document.getElementById(id);
@@ -255,6 +259,10 @@ const nq=new URLSearchParams(location.search).get('next');
 const NEXT=(nq&&nq.startsWith(SITE))?nq:AFTER_LOGIN;
 $('yr').textContent=new Date().getFullYear();
 class UE extends Error{}
+const TS_KEY="0x4AAAAAACJJ-EXmOljL2_UU";let tsToken='',tsId=null;
+function mountTs(){if(tsId!==null||!window.turnstile)return;tsId=turnstile.render('#ts',{sitekey:TS_KEY,theme:'auto',language:'ru',callback:t=>{tsToken=t},'expired-callback':()=>{tsToken=''},'error-callback':()=>{tsToken=''}})}
+window.addEventListener('ts-ready',mountTs);mountTs();
+const tsReset=()=>{tsToken='';try{if(tsId!==null)turnstile.reset(tsId)}catch(e){}};
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 
 // тема, меню
@@ -302,6 +310,7 @@ function checkPass(p,nick,email){
  if(low.includes(nick.toLowerCase())||(loc.length>=4&&low.includes(loc)))return'Не используйте в пароле псевдоним или часть почты';
  return'';
 }
+async function pwned(p){try{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(p)),h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase(),c=new AbortController(),t=setTimeout(()=>c.abort(),4000);const r=await fetch('https://api.pwnedpasswords.com/range/'+h.slice(0,5),{headers:{'Add-Padding':'true'},signal:c.signal});clearTimeout(t);if(!r.ok)return false;return(await r.text()).split('\n').some(l=>l.split(':')[0].trim()===h.slice(5))}catch(e){return false}}
 function strength(v){let s=0;if(v.length>=8)s++;if(v.length>=12)s++;if(/[a-zа-я]/.test(v)&&/[A-ZА-Я]/.test(v))s++;if(/\d/.test(v))s++;if(/[^\w\s]/.test(v))s++;return s}
 $('rPass').addEventListener('input',e=>{const v=e.target.value,s=strength(v);const L=[['Очень слабый','#f28b82'],['Слабый','#f28b82'],['Средний','#FFD700'],['Хороший','#8bc34a'],['Отличный','#34a853'],['Отличный','#34a853']][s];$('barI').style.width=(v?s*20:0)+'%';$('barI').style.background=L[1];$('barT').textContent=v?L[0]:'От 8 символов, буквы и цифры'});
 
@@ -336,20 +345,18 @@ const consentObj=type=>({terms:true,privacy:true,dataProcessing:true,version:CON
 const rnd=()=>'Игрок'+Math.floor(10000+Math.random()*90000);
 const DEV=()=>{const u=navigator.userAgent;const os=/Windows/.test(u)?'Windows':/Android/.test(u)?'Android':/iPhone|iPad|iPod/.test(u)?'iOS':/Mac OS X/.test(u)?'macOS':/Linux/.test(u)?'Linux':'other';const br=/Edg\//.test(u)?'Edge':/OPR\/|Opera/.test(u)?'Opera':/YaBrowser/.test(u)?'Yandex':/Chrome\//.test(u)?'Chrome':/Firefox\//.test(u)?'Firefox':/Safari\//.test(u)?'Safari':'other';const type=/iPad|Tablet/.test(u)||(/Android/.test(u)&&!/Mobile/.test(u))?'tablet':/Mobi|iPhone/.test(u)?'mobile':'desktop';return{type,os,browser:br}};
 const TECH=()=>({ua:navigator.userAgent.slice(0,200),lang:(navigator.language||'').slice(0,12),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||'').slice(0,40),screen:screen.width+'x'+screen.height,dpr:window.devicePixelRatio||1});
-async function getIP(){const c=new AbortController(),t=setTimeout(()=>c.abort(),3000);try{const r=await fetch('https://api.ipify.org?format=json',{signal:c.signal});const j=await r.json();return/^[0-9a-fA-F:.]{3,45}$/.test(j.ip)?j.ip:'unknown'}catch(e){return'unknown'}finally{clearTimeout(t)}}
-// users: только самое нужное (почта и пароль хранятся ТОЛЬКО в Firebase Authentication). loginup: журнал входов и регистраций.
 async function afterAuth(user,method,extra={}){
- let nick=user.displayName||'Игрок',action='login';
+ let nick=user.displayName||'Игрок';
  try{
-  const ref=doc(db,'users',user.uid),s=await getDoc(ref);
-  if(!s.exists()){
-   action='signup';nick=extra.nickname||rnd();
-   if(!extra.nickname){await updateProfile(user,{displayName:nick,photoURL:null}).catch(()=>{});await setDoc(doc(db,'usernames',nick.toLowerCase()),{uid:user.uid,at:serverTimestamp()}).catch(()=>{})}
-   await setDoc(ref,{nickname:nick,role:'player',plan:'free',createdAt:serverTimestamp(),consents:extra.consents||consentObj('notice')});
-  }else nick=s.data().nickname||nick;
-  const ip=await getIP();
-  await addDoc(collection(db,'loginup'),{uid:user.uid,user:nick,action,method,at:serverTimestamp(),ip,device:DEV(),tech:TECH(),expireAt:Timestamp.fromMillis(Date.now()+LOG_DAYS*864e5)});
- }catch(e){console.warn('profile',e)}
+  const t=await user.getIdToken();
+  const r=await fetch(WORKER+'/session',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({method,captcha:tsToken,nickname:extra.nickname||null,consents:{type:extra.consents?'checkbox':'notice'},device:DEV(),tech:TECH()})});
+  const j=await r.json().catch(()=>({}));tsReset();
+  if(r.ok){nick=j.nickname||nick;await user.reload().catch(()=>{})}
+  else if(j.error==='nickname_taken'){await deleteUser(user).catch(()=>{});throw new UE('Этот псевдоним уже занят. Выберите другой.')}
+  else if(j.error==='captcha'){if(extra.nickname)await deleteUser(user).catch(()=>{});else await signOut(auth).catch(()=>{});throw new UE(j.message||'Пройдите проверку «Я не робот»')}
+  else if(j.error==='bad_email'||j.error==='bad_nickname'){await signOut(auth).catch(()=>{});throw new UE(j.message||'Эта почта не подходит')}
+  else console.warn('session',j);
+ }catch(e){if(e instanceof UE)throw e;console.warn('session',e)}
  ls.set(LAST,JSON.stringify({n:nick,e:user.email||'',m:method}));
 }
 
@@ -377,12 +384,13 @@ $('fReg').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
  let er=checkNick(nick);if(er)throw new UE(er);
  er=await checkEmail(email);if(er)throw new UE(er);
  er=checkPass(p1,nick,email);if(er)throw new UE(er);
+ if(await pwned(p1))throw new UE('Этот пароль найден в утечках. Придумайте другой');
  if(p1!==p2)throw new UE('Пароли не совпадают');
  if(!consentOk())throw new UE('Нужно отметить оба согласия');
+ if(!tsToken)throw new UE('Дождитесь проверки «Я не робот» (над формой) и повторите');
  if((await getDoc(doc(db,'usernames',nick.toLowerCase()))).exists())throw new UE('Этот псевдоним уже занят');
  const c=await createUserWithEmailAndPassword(auth,email,p1);
- try{await updateProfile(c.user,{displayName:nick});await setDoc(doc(db,'usernames',nick.toLowerCase()),{uid:c.user.uid,at:serverTimestamp()})}
- catch(x){await deleteUser(c.user).catch(()=>{});throw new UE('Этот псевдоним уже занят. Выберите другой.')}
+ await updateProfile(c.user,{displayName:nick}).catch(()=>{});
  await afterAuth(c.user,'email',{nickname:nick,consents:consentObj('checkbox')});
  await sendEmailVerification(c.user);
 })});
