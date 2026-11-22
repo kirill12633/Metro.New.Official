@@ -6,7 +6,7 @@
 <title>Админка — Метро New</title>
 <meta name="robots" content="noindex, nofollow" />
 <meta name="referrer" content="no-referrer" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://metro-new-admin.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://metro-new-admin.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
@@ -35,7 +35,7 @@ nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap
 .burger{display:none;background:none;border:0;color:var(--t);font-size:1.5rem;cursor:pointer}
 main{flex:1;padding:30px 0 50px}
 
-/* ===== LAYOUT: SIDEBAR + CONTENT ===== */
+/* ===== LAYOUT ===== */
 .admin-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start}
 .sidebar{position:sticky;top:88px;background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:14px;box-shadow:var(--shadow)}
 .sidebar .who{display:flex;align-items:center;gap:10px;padding:8px 8px 14px;border-bottom:1px solid var(--border);margin-bottom:10px}
@@ -58,7 +58,7 @@ main{flex:1;padding:30px 0 50px}
 .panel.on{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* ===== HERO / TOPBAR ===== */
+/* ===== TOPBAR ===== */
 .topbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
 .search{flex:1;min-width:200px;position:relative}
 .search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:.85rem}
@@ -82,12 +82,15 @@ main{flex:1;padding:30px 0 50px}
 
 /* KPI */
 .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
-.kpi .k{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;transition:.2s}
+.kpi .k{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;transition:.2s;position:relative;overflow:hidden}
 .kpi .k:hover{border-color:var(--accent)}
 .kpi .k span{font-size:.68rem;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);font-weight:700;display:flex;align-items:center;gap:6px}
 .kpi .k span i{color:var(--accent);font-size:.75rem}
 .kpi .k b{display:block;font-size:1.6rem;font-weight:800;margin-top:4px;background:linear-gradient(135deg,var(--t),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.kpi .k.loading b{opacity:.4}
+.kpi .k.loading b{opacity:0}
+/* shimmer */
+.kpi .k.loading::before{content:'';position:absolute;left:16px;right:16px;bottom:14px;height:24px;border-radius:6px;background:linear-gradient(90deg,var(--border) 25%,var(--hov) 50%,var(--border) 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* Tiles */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
@@ -102,30 +105,59 @@ main{flex:1;padding:30px 0 50px}
 .tile.locked{opacity:.45;pointer-events:none;filter:grayscale(.7)}
 .tile.hidden{display:none}
 
-/* Activity */
-.feed{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
-.feed .row{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:flex-start}
-.feed .row:last-child{border-bottom:0}
-.feed .row .ic{width:32px;height:32px;border-radius:9px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
-.feed .row .t{font-size:.84rem;font-weight:600;line-height:1.4}
-.feed .row .t b{color:var(--accent);font-weight:700}
-.feed .row .d{font-size:.72rem;color:var(--t3);margin-top:2px;font-weight:500}
-.feed .empty{padding:32px 16px;text-align:center;color:var(--t3);font-size:.85rem}
+/* Activity chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--bg2);border:1px solid var(--border);color:var(--t2);padding:6px 14px;border-radius:50px;font:700 .78rem 'Montserrat';cursor:pointer;transition:.2s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border-color:transparent}
+
+/* Activity feed with groups */
+.feed{display:grid;gap:18px}
+.fgroup{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.fgroup h4{padding:10px 16px;font-size:.72rem;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);background:var(--bg2);border-bottom:1px solid var(--border);font-weight:800}
+.fgroup .row{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:flex-start}
+.fgroup .row:last-child{border-bottom:0}
+.fgroup .row .ic{width:32px;height:32px;border-radius:9px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.fgroup .row .t{font-size:.84rem;font-weight:600;line-height:1.4}
+.fgroup .row .t b{color:var(--accent);font-weight:700}
+.fgroup .row .d{font-size:.72rem;color:var(--t3);margin-top:2px;font-weight:500}
+.feed .empty{padding:32px 16px;text-align:center;color:var(--t3);font-size:.85rem;background:var(--card);border:1px solid var(--border);border-radius:var(--rl)}
 
 /* Notes */
 .notes{display:grid;gap:10px}
-.note{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.note{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;transition:.2s;position:relative}
+.note.pinned{box-shadow:0 0 0 2px var(--accent) inset}
+.note.yellow{background:color-mix(in srgb,var(--accent) 10%,var(--card));border-color:color-mix(in srgb,var(--accent) 30%,var(--border))}
+.note.green{background:color-mix(in srgb,var(--green) 10%,var(--card));border-color:color-mix(in srgb,var(--green) 30%,var(--border))}
+.note.red{background:color-mix(in srgb,var(--red) 10%,var(--card));border-color:color-mix(in srgb,var(--red) 30%,var(--border))}
 .note .txt{flex:1;font-size:.85rem;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:var(--t)}
-.note .del{background:none;border:0;color:var(--t3);cursor:pointer;padding:4px;font-size:.85rem}
-.note .del:hover{color:var(--red)}
-.note-add{background:var(--card);border:1px dashed var(--border);border-radius:var(--rl);padding:12px 14px;display:flex;gap:10px;align-items:flex-end}
-.note-add textarea{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--t);font:500 .85rem 'Montserrat';resize:vertical;min-height:48px;outline:0}
-.note-add textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
-.note-add button{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border:0;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s}
-.note-add button:hover{transform:scale(1.08)}
-.note-empty{text-align:center;color:var(--t3);font-size:.85rem;padding:24px}
+.note .meta{font-size:.65rem;color:var(--t3);margin-top:6px;font-weight:600}
+.note .tools{display:flex;gap:2px;flex-shrink:0}
+.note .tools button{background:none;border:0;color:var(--t3);cursor:pointer;padding:4px;font-size:.85rem;border-radius:6px;transition:.15s}
+.note .tools button:hover{background:var(--hov)}
+.note .tools .pin:hover{color:var(--accent)}
+.note .tools .copy:hover{color:var(--blue)}
+.note .tools .del:hover{color:var(--red)}
+.note .tools .pin.on{color:var(--accent)}
+.note-empty{text-align:center;color:var(--t3);font-size:.85rem;padding:36px 20px;background:var(--card);border:1px dashed var(--border);border-radius:var(--rl)}
+.note-empty i{font-size:2rem;display:block;margin-bottom:10px;color:var(--accent);opacity:.6}
+.note-empty button{margin-top:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border:0;padding:9px 22px;border-radius:50px;font:700 .82rem 'Montserrat';cursor:pointer}
 
-/* Notifications panel */
+.note-add{background:var(--card);border:1px dashed var(--border);border-radius:var(--rl);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.note-add textarea{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--t);font:500 .85rem 'Montserrat';resize:vertical;min-height:48px;outline:0;width:100%}
+.note-add textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.note-add .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.color-pick{display:flex;gap:6px}
+.color-pick button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:.2s}
+.color-pick button.default{background:var(--bg2);border-color:var(--border)}
+.color-pick button.yellow{background:#fcd34d}
+.color-pick button.green{background:#6ee7b7}
+.color-pick button.red{background:#fca5a5}
+.color-pick button.on{border-color:var(--t);transform:scale(1.12)}
+.note-add .add{margin-left:auto;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border:0;border-radius:50px;padding:9px 20px;cursor:pointer;font:700 .82rem 'Montserrat';display:inline-flex;gap:6px;align-items:center;transition:.2s}
+.note-add .add:hover{transform:translateY(-1px)}
+
+/* Notifs */
 .notifs{display:grid;gap:8px}
 .notif{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;transition:.2s}
 .notif:hover{border-color:var(--accent)}
@@ -141,13 +173,39 @@ main{flex:1;padding:30px 0 50px}
 .notif.unread{border-left:3px solid var(--accent)}
 .empty{text-align:center;color:var(--t3);font-size:.85rem;padding:30px 16px}
 
-/* Stub panel */
+/* Reports */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.report{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;display:flex;flex-direction:column;gap:8px;transition:.2s}
+.report:hover{border-color:var(--accent)}
+.report h3{font-size:.95rem;font-weight:800;line-height:1.3}
+.report .meta{display:flex;gap:6px;flex-wrap:wrap;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.report .meta span{padding:2px 8px;border-radius:50px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.report .meta .type{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue)}
+.report .desc{font-size:.78rem;color:var(--t2);line-height:1.5;flex:1;white-space:pre-wrap;word-break:break-word}
+.report .when{font-size:.68rem;color:var(--t3);font-weight:600}
+.report .tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.report .tools button{background:var(--bg2);border:1px solid var(--border);color:var(--t2);border-radius:50px;padding:6px 12px;font:700 .72rem 'Montserrat';cursor:pointer;display:inline-flex;gap:5px;align-items:center;transition:.15s}
+.report .tools button:hover{border-color:var(--accent);color:var(--accent)}
+.report .tools button.del:hover{border-color:var(--red);color:var(--red)}
+.report .tools button.pub{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border-color:transparent}
+.report .tools button.pub:hover{transform:translateY(-1px)}
+
+.report-form{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:18px;display:grid;gap:10px}
+.report-form .row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.report-form label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--t3)}
+.report-form input,.report-form select,.report-form textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--t);font:500 .88rem 'Montserrat';outline:0;margin-top:4px}
+.report-form textarea{resize:vertical;min-height:70px}
+.report-form input:focus,.report-form select:focus,.report-form textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.report-form .submit{justify-self:flex-start;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border:0;border-radius:50px;padding:11px 26px;font:700 .85rem 'Montserrat';cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.report-form .submit:hover{transform:translateY(-1px)}
+
+/* Stub */
 .stub{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:44px 24px;text-align:center}
 .stub .big{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);font-size:1.6rem;display:flex;align-items:center;justify-content:center}
 .stub h3{font-size:1.1rem;margin-bottom:6px}
 .stub p{color:var(--t2);font-size:.85rem;max-width:380px;margin:0 auto}
 
-/* ===== FOOTER ===== */
+/* Footer */
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 24px;margin-top:40px}
 .ft{display:grid;grid-template-columns:1.2fr 2fr;gap:40px;margin-bottom:26px;padding-bottom:26px;border-bottom:1px solid var(--border)}
 .fb{display:flex;flex-direction:column;gap:12px}
@@ -163,16 +221,35 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
 .fc a{color:var(--t2);text-decoration:none;font-weight:500;font-size:.85rem;display:inline-flex;gap:8px;align-items:center}
 .fc a:hover{color:var(--accent)}.fc a i{width:15px;font-size:.78rem}
 .fbot{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--t2);font-size:.82rem}
-.theme{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--t2);cursor:pointer}
-.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Cookies banner */
+.cookies{position:fixed;bottom:16px;left:16px;right:16px;max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;box-shadow:var(--shadow);z-index:200;display:none;animation:slideUp .35s ease}
+.cookies.show{display:block}
+.cookies p{font-size:.82rem;color:var(--t2);margin-bottom:10px;line-height:1.5}
+.cookies p a{color:var(--accent);font-weight:700;text-decoration:none}
+.cookies p a:hover{text-decoration:underline}
+.cookies .row{display:flex;gap:8px;flex-wrap:wrap}
+.cookies button{border:0;border-radius:50px;padding:9px 20px;font:700 .82rem 'Montserrat';cursor:pointer;transition:.2s}
+.cookies .accept{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f}
+.cookies .accept:hover{transform:translateY(-1px)}
+.cookies .decline{background:var(--bg2);color:var(--t2);border:1px solid var(--border)}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+
+/* Toast */
+.toasts{position:fixed;right:16px;bottom:16px;z-index:250;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:11px 16px;box-shadow:var(--shadow);font-size:.84rem;font-weight:600;display:flex;gap:9px;align-items:center;animation:toastIn .25s ease;pointer-events:auto;max-width:320px}
+.toast i{color:var(--green)}
+.toast.err i{color:var(--red)}
+.toast.info i{color:var(--blue)}
+@keyframes toastIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
 
 /* Utils */
 .load{text-align:center;padding:60px 0;color:var(--t2)}
 .hide{display:none!important}
 @media(max-width:992px){.burger{display:block}.nl{display:none;width:100%;flex-direction:column;align-items:stretch;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px}.nl.on{display:flex}.dd .dc{position:static;box-shadow:none;border:0;background:none}.ft{grid-template-columns:1fr}.fl{grid-template-columns:1fr 1fr}}
 @media(max-width:860px){.admin-layout{grid-template-columns:1fr}.sidebar{position:static}.snav{flex-direction:row;flex-wrap:wrap}.snav button,.snav a{flex:1 1 auto;min-width:120px;justify-content:center}.snav .divider{display:none}.snav .badge{margin-left:4px}}
-@media(max-width:560px){.fl{grid-template-columns:1fr}.hero h1{font-size:1.4rem}.grid{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(max-width:560px){.fl{grid-template-columns:1fr}.hero h1{font-size:1.4rem}.grid,.report-grid{grid-template-columns:1fr}.cookies{left:12px;right:12px;bottom:12px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -206,8 +283,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
    </div>
    <div class="snav">
     <button data-panel="home" class="on"><i class="fas fa-house"></i> Главная</button>
-    <button data-panel="report"><i class="fas fa-chart-line"></i> Отчёт</button>
-    <button data-panel="activity"><i class="fas fa-clock-rotate-left"></i> Activity</button>
+    <button data-panel="report"><i class="fas fa-chart-line"></i> Отчёты</button>
+    <button data-panel="activity"><i class="fas fa-clock-rotate-left"></i> Activity <span class="badge hide" id="sbActBadge">0</span></button>
     <button data-panel="notifs"><i class="fas fa-bell"></i> Уведомления <span class="badge hide" id="sbNotifBadge">0</span></button>
     <button data-panel="notes"><i class="fas fa-note-sticky"></i> Заметки</button>
     <div class="divider"></div>
@@ -228,7 +305,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
     <button class="iconbtn" id="themeBtn" title="Тема"><i class="fas fa-moon"></i></button>
    </div>
 
-   <!-- ===== PANEL: HOME ===== -->
+   <!-- ===== HOME ===== -->
    <section class="panel on" data-panel="home">
     <div class="eyebrow"><i class="fas fa-shield-halved"></i> Панель администратора</div>
     <div class="hero">
@@ -241,10 +318,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
 
     <div class="sec-title"><i class="fas fa-chart-simple"></i> Статистика</div>
     <div class="kpi" id="kpi">
-     <div class="k loading" data-k="news"><span><i class="fas fa-newspaper"></i> Новостей</span><b>…</b></div>
-     <div class="k loading" data-k="wiki"><span><i class="fas fa-book"></i> Wiki-статей</span><b>…</b></div>
-     <div class="k loading" data-k="users"><span><i class="fas fa-users"></i> Пользователей</span><b>…</b></div>
-     <div class="k loading" data-k="vacancies"><span><i class="fas fa-briefcase"></i> Заявок</span><b>…</b></div>
+     <div class="k loading" data-k="news"><span><i class="fas fa-newspaper"></i> Новостей</span><b>0</b></div>
+     <div class="k loading" data-k="wiki"><span><i class="fas fa-book"></i> Wiki-статей</span><b>0</b></div>
+     <div class="k loading" data-k="users"><span><i class="fas fa-users"></i> Пользователей</span><b>0</b></div>
+     <div class="k loading" data-k="vacancies"><span><i class="fas fa-briefcase"></i> Заявок</span><b>0</b></div>
     </div>
 
     <div class="sec-title"><i class="fas fa-grip"></i> Разделы управления</div>
@@ -276,34 +353,50 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
     </div>
    </section>
 
-   <!-- ===== PANEL: REPORT ===== -->
+   <!-- ===== REPORTS ===== -->
    <section class="panel" data-panel="report">
-    <div class="eyebrow"><i class="fas fa-chart-line"></i> Отчёт</div>
-    <div class="hero"><div><h1>Отчёт по проекту</h1><p>Сводка по контенту и активности. Пока заглушка — данные появятся позже.</p></div></div>
-    <div class="kpi">
-     <div class="k"><span><i class="fas fa-eye"></i> Просмотры</span><b>—</b></div>
-     <div class="k"><span><i class="fas fa-user-plus"></i> Новые юзеры</span><b>—</b></div>
-     <div class="k"><span><i class="fas fa-comment"></i> Комментарии</span><b>—</b></div>
-     <div class="k"><span><i class="fas fa-flag"></i> Жалобы</span><b>—</b></div>
+    <div class="eyebrow"><i class="fas fa-chart-line"></i> Отчёты</div>
+    <div class="hero"><div><h1>Отчёты</h1><p>Создавайте отчёты: недельный, готовый дневной, архивный. Сохраняются в базе.</p></div></div>
+
+    <div class="report-form">
+     <div class="row">
+      <div><label for="rTitle">Заголовок</label><input id="rTitle" maxlength="120" placeholder="Например: Отчёт за неделю 12–18 мая" /></div>
+      <div><label for="rType">Тип</label>
+       <select id="rType">
+        <option value="weekly">Недельный</option>
+        <option value="daily">Готовый дневной</option>
+        <option value="archive">Архивный</option>
+       </select>
+      </div>
+     </div>
+     <div><label for="rDesc">Описание</label><textarea id="rDesc" maxlength="2000" placeholder="Что произошло, какие события, итоги…"></textarea></div>
+     <button class="submit" id="rAdd"><i class="fas fa-plus"></i> Создать отчёт</button>
     </div>
-    <div class="stub" style="margin-top:16px">
-     <div class="big"><i class="fas fa-chart-pie"></i></div>
-     <h3>Отчёт в разработке</h3>
-     <p>Здесь будут графики просмотров, топ статей, активность по дням и экспорт в CSV.</p>
-    </div>
+
+    <div class="sec-title"><i class="fas fa-list"></i> Список отчётов</div>
+    <div class="report-grid" id="reports"><div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div></div>
    </section>
 
-   <!-- ===== PANEL: ACTIVITY ===== -->
+   <!-- ===== ACTIVITY ===== -->
    <section class="panel" data-panel="activity">
     <div class="eyebrow"><i class="fas fa-clock-rotate-left"></i> Activity</div>
-    <div class="hero"><div><h1>Последние действия</h1><p>Лента действий администраторов (коллекция <code>activity</code>).</p></div></div>
+    <div class="hero"><div><h1>Последние действия</h1><p>Лента действий администраторов.</p></div></div>
+
+    <div class="chips" id="chips">
+     <button class="chip on" data-filter="all">Всё</button>
+     <button class="chip" data-filter="news">Новости</button>
+     <button class="chip" data-filter="wiki">Wiki</button>
+     <button class="chip" data-filter="user">Пользователи</button>
+     <button class="chip" data-filter="login">Входы</button>
+    </div>
+
     <div class="feed" id="feed"><div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div></div>
    </section>
 
-   <!-- ===== PANEL: NOTIFS ===== -->
+   <!-- ===== NOTIFS ===== -->
    <section class="panel" data-panel="notifs">
     <div class="eyebrow"><i class="fas fa-bell"></i> Уведомления</div>
-    <div class="hero"><div><h1>Уведомления</h1><p>Коллекция <code>notifications/{uid}</code>. Push включается кнопкой ниже.</p></div></div>
+    <div class="hero"><div><h1>Уведомления</h1><p>Коллекция <code>notifications/{uid}</code>.</p></div></div>
     <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
      <button class="iconbtn" id="pushBtn" style="width:auto;padding:0 16px;border-radius:50px;gap:8px;font:600 .85rem 'Montserrat'"><i class="fas fa-bell"></i> Включить push</button>
      <button class="iconbtn" id="markAll" style="width:auto;padding:0 16px;border-radius:50px;gap:8px;font:600 .85rem 'Montserrat'"><i class="fas fa-check-double"></i> Прочитать все</button>
@@ -311,15 +404,33 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
     <div class="notifs" id="notifs"><div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div></div>
    </section>
 
-   <!-- ===== PANEL: NOTES ===== -->
+   <!-- ===== NOTES ===== -->
    <section class="panel" data-panel="notes">
     <div class="eyebrow"><i class="fas fa-note-sticky"></i> Заметки</div>
-    <div class="hero"><div><h1>Заметки</h1><p>Быстрые заметки администратора. Хранятся локально в браузере.</p></div></div>
+    <div class="hero"><div><h1>Заметки</h1><p>Быстрые заметки с цветами и закреплением. Хранятся локально.</p></div></div>
+
     <div class="note-add">
      <textarea id="noteInput" placeholder="Напиши заметку…" maxlength="2000"></textarea>
-     <button id="noteAdd" title="Добавить"><i class="fas fa-plus"></i></button>
+     <div class="row">
+      <div class="color-pick" id="colorPick">
+       <button class="default on" data-c="" title="Без цвета"></button>
+       <button class="yellow" data-c="yellow" title="Жёлтый"></button>
+       <button class="green" data-c="green" title="Зелёный"></button>
+       <button class="red" data-c="red" title="Красный"></button>
+      </div>
+      <button class="add" id="noteAdd"><i class="fas fa-plus"></i> Добавить</button>
+     </div>
     </div>
-    <div class="notes" id="notes" style="margin-top:14px"></div>
+
+    <div class="topbar" style="margin-top:14px">
+     <div class="search">
+      <i class="fas fa-search"></i>
+      <input id="noteSearch" type="search" placeholder="Поиск по заметкам…" autocomplete="off" />
+     </div>
+     <button class="iconbtn" id="noteExport" title="Скачать все в .txt"><i class="fas fa-download"></i></button>
+    </div>
+
+    <div class="notes" id="notes"></div>
    </section>
   </div>
  </div>
@@ -369,15 +480,25 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
    </ul></div>
   </div>
  </div>
- <div class="fbot">
-  <span>© <span id="yr"></span> Метро New. Все права защищены.</span>
- </div>
+ <div class="fbot"><span>© <span id="yr"></span> Метро New. Все права защищены.</span></div>
 </div></footer>
+
+<!-- COOKIES -->
+<div class="cookies" id="cookies">
+ <p>Мы используем cookies и локальное хранилище для работы админ-панели и сохранения ваших настроек (тема, заметки). Подробнее — в <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank" rel="noopener noreferrer">политике конфиденциальности</a>.</p>
+ <div class="row">
+  <button class="accept" id="ckOk">Принять</button>
+  <button class="decline" id="ckNo">Только необходимое</button>
+ </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import{getFirestore,doc,getDoc,collection,query,where,orderBy,limit,getDocs,getCountFromServer,updateDoc,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getFirestore,doc,getDoc,collection,query,where,orderBy,limit,getDocs,getCountFromServer,addDoc,deleteDoc,updateDoc,writeBatch,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ===== FIREBASE =====
 const firebaseConfig = {
@@ -392,71 +513,74 @@ const AUTH_PAGE = "https://kirill12633.github.io/Metro.New.Official/ru/admin/log
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const $ = id => document.getElementById(id);
 const root = document.documentElement;
 
-// Theme with persistence
+// ===== THEME =====
 const savedTheme = localStorage.getItem('mn_theme');
 root.setAttribute('data-theme', savedTheme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
-const syncThemeIcon = () => {
-  const isLight = root.getAttribute('data-theme') === 'light';
-  $('themeBtn').innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-};
+const syncThemeIcon = () => { $('themeBtn').innerHTML = root.getAttribute('data-theme')==='light' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; };
 syncThemeIcon();
 $('themeBtn').onclick = () => {
-  const cur = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  const cur = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
   root.setAttribute('data-theme', cur);
   localStorage.setItem('mn_theme', cur);
   syncThemeIcon();
 };
 
-// UI: burger, dropdown, year
+// ===== TOASTS =====
+function toast(msg, type='ok'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const ic = type==='err' ? 'fa-circle-xmark' : type==='info' ? 'fa-circle-info' : 'fa-circle-check';
+  el.innerHTML = `<i class="fas ${ic}"></i> ${escapeHtml(msg)}`;
+  $('toasts').appendChild(el);
+  setTimeout(()=>el.remove(), 3200);
+}
+
+// ===== COOKIES =====
+if (!localStorage.getItem('mn_cookies')) $('cookies').classList.add('show');
+$('ckOk').onclick = () => { localStorage.setItem('mn_cookies','all'); $('cookies').classList.remove('show'); };
+$('ckNo').onclick = () => { localStorage.setItem('mn_cookies','min'); $('cookies').classList.remove('show'); };
+
+// ===== UI =====
 $('burger').onclick = () => $('nl').classList.toggle('on');
 $('ddb').onclick = e => { e.stopPropagation(); $('dd').classList.toggle('open'); };
 document.addEventListener('click', () => $('dd').classList.remove('open'));
 $('yr').textContent = new Date().getFullYear();
 
-// ===== SIDEBAR NAV =====
+// ===== NAV =====
 const switchPanel = (name) => {
   document.querySelectorAll('.snav button[data-panel]').forEach(b => b.classList.toggle('on', b.dataset.panel === name));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.dataset.panel === name));
+  if (name === 'activity') { localStorage.setItem('mn_actSeen', Date.now()); $('sbActBadge').classList.add('hide'); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
-document.querySelectorAll('.snav button[data-panel]').forEach(b => {
-  b.onclick = () => switchPanel(b.dataset.panel);
-});
+document.querySelectorAll('.snav button[data-panel]').forEach(b => b.onclick = () => switchPanel(b.dataset.panel));
 $('bellBtn').onclick = () => switchPanel('notifs');
 
-// ===== SEARCH =====
+// ===== SEARCH (tiles) =====
 $('search').oninput = e => {
   const q = e.target.value.trim().toLowerCase();
   document.querySelectorAll('#tiles .tile').forEach(t => {
     const txt = t.textContent.toLowerCase();
     t.classList.toggle('hidden', q && !txt.includes(q));
   });
-  // if searching, jump to home
   if (q) switchPanel('home');
 };
 
 // ===== AUTH =====
+let currentAdmin = null;
 onAuthStateChanged(auth, async u => {
-  if (!u) {
-    location.replace(AUTH_PAGE + '?next=' + encodeURIComponent(location.href));
-    return;
-  }
-
+  if (!u) { location.replace(AUTH_PAGE + '?next=' + encodeURIComponent(location.href)); return; }
   let adminData = null;
-  try {
-    const snap = await getDoc(doc(db, 'admins', u.uid));
-    if (snap.exists()) adminData = snap.data();
-  } catch (e) { console.warn('admins check failed', e); }
-
+  try { const s = await getDoc(doc(db,'admins',u.uid)); if (s.exists()) adminData = s.data(); } catch(e){ console.warn(e); }
   if (!adminData) {
     $('load').innerHTML = '<i class="fas fa-ban"></i> Нет доступа. Вы не администратор.<br><br><button id="out" class="iconbtn" style="width:auto;padding:8px 18px;border-radius:50px;font-family:inherit">Выйти</button>';
     $('out').onclick = async () => { await signOut(auth); location.replace(AUTH_PAGE); };
     return;
   }
+  currentAdmin = { uid: u.uid, ...adminData };
 
   $('load').classList.add('hide');
   $('app').classList.remove('hide');
@@ -464,223 +588,321 @@ onAuthStateChanged(auth, async u => {
   const name = adminData.name || adminData.email || u.displayName || u.email?.split('@')[0] || 'администратор';
   const role = adminData.role || 'admin';
   const initial = (name[0] || 'A').toUpperCase();
-
-  // Fill avatars/names
-  const setAv = (el) => {
-    if (adminData.photoURL) el.innerHTML = `<img src="${adminData.photoURL}" alt="" />`;
-    else el.textContent = initial;
-  };
+  const setAv = el => { if (adminData.photoURL) el.innerHTML = `<img src="${adminData.photoURL}" alt="" />`; else el.textContent = initial; };
   setAv($('sbAv')); setAv($('heroAv'));
   $('sbName').textContent = name;
   $('sbRole').textContent = role;
   $('hello').textContent = 'Привет, ' + name;
   $('sub').textContent = 'Роль: ' + role + '. Выберите раздел.';
 
-  // ===== ACL =====
-  let acl = adminData.acl ?? null;
-  let aclSet = null;
+  // ACL
+  let acl = adminData.acl ?? null, aclSet = null;
   if (Array.isArray(acl)) aclSet = new Set(acl);
   else if (acl && typeof acl === 'object') aclSet = new Set(Object.keys(acl).filter(k => acl[k]));
   const isOwner = role === 'owner';
   document.querySelectorAll('#tiles .tile').forEach(t => {
-    const need = t.dataset.acl;
-    if (!need) return;
+    const need = t.dataset.acl; if (!need) return;
     if (isOwner || !aclSet) return;
-    if (!aclSet.has(need)) {
-      t.classList.add('locked');
-      t.setAttribute('title', 'Нет прав: ' + need);
-      t.addEventListener('click', ev => ev.preventDefault(), true);
-    }
+    if (!aclSet.has(need)) { t.classList.add('locked'); t.setAttribute('title','Нет прав: '+need); t.addEventListener('click', ev => ev.preventDefault(), true); }
   });
 
-  // ===== LOGOUT =====
   $('logoutBtn').onclick = async () => {
     if (!confirm('Выйти из аккаунта?')) return;
-    await signOut(auth);
-    location.replace(AUTH_PAGE);
+    await signOut(auth); location.replace(AUTH_PAGE);
   };
 
-  // ===== STATS =====
   loadStats();
-
-  // ===== ACTIVITY =====
   loadActivity();
-
-  // ===== NOTIFICATIONS =====
   loadNotifications(u.uid);
-
-  // ===== NOTES =====
+  loadReports();
   loadNotes();
 });
 
 // ===== STATS =====
-async function loadStats() {
-  const tryCount = async (coll) => {
-    try {
-      const snap = await getCountFromServer(collection(db, coll));
-      return snap.data().count;
-    } catch (e) { console.warn('count failed', coll, e); return null; }
-  };
-  const [news, wiki, users, vac] = await Promise.all([
-    tryCount('news'),
-    tryCount('wiki_articles'),
-    tryCount('users'),
-    tryCount('vacancies')
-  ]);
-  const set = (k, v) => {
-    const el = document.querySelector(`.kpi .k[data-k="${k}"]`);
-    if (!el) return;
-    el.classList.remove('loading');
-    el.querySelector('b').textContent = v == null ? '—' : v.toLocaleString('ru-RU');
-  };
-  set('news', news); set('wiki', wiki); set('users', users); set('vacancies', vac);
+async function loadStats(){
+  const tryCount = async c => { try { const s = await getCountFromServer(collection(db,c)); return s.data().count; } catch(e){ return null; } };
+  const [n,w,u,v] = await Promise.all([tryCount('news'),tryCount('wiki_articles'),tryCount('users'),tryCount('vacancies')]);
+  const set = (k,val) => { const el = document.querySelector(`.kpi .k[data-k="${k}"]`); if(!el) return; el.classList.remove('loading'); el.querySelector('b').textContent = val==null ? '—' : val.toLocaleString('ru-RU'); };
+  set('news',n); set('wiki',w); set('users',u); set('vacancies',v);
 }
 
 // ===== ACTIVITY =====
-async function loadActivity() {
-  const el = $('feed');
-  el.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div>';
+let allActivity = [];
+let activityFilter = 'all';
+async function loadActivity(){
+  const el = $('feed'); el.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div>';
   try {
-    const q = query(collection(db, 'activity'), orderBy('timestamp', 'desc'), limit(30));
+    const q = query(collection(db,'activity'), orderBy('timestamp','desc'), limit(200));
     const snap = await getDocs(q);
-    if (snap.empty) {
-      el.innerHTML = '<div class="empty">Пока нет действий. Как только админы начнут работать — здесь появится лента.</div>';
-      return;
-    }
-    el.innerHTML = '';
-    const icons = {
-      news: 'fa-newspaper', wiki: 'fa-book', user: 'fa-user', delete: 'fa-trash',
-      login: 'fa-right-to-bracket', ban: 'fa-ban', publish: 'fa-check'
-    };
+    allActivity = [];
     snap.forEach(d => {
       const a = d.data();
-      const ic = icons[a.type] || 'fa-circle-info';
-      const dt = a.timestamp?.toDate ? a.timestamp.toDate() : (a.timestamp ? new Date(a.timestamp) : null);
-      const when = dt ? dt.toLocaleString('ru-RU') : '';
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = `
-        <div class="ic"><i class="fas ${ic}"></i></div>
-        <div>
-          <div class="t"><b>${escapeHtml(a.who || 'admin')}</b> ${escapeHtml(a.action || a.type || '')}${a.target ? ' — ' + escapeHtml(a.target) : ''}</div>
-          <div class="d">${when}</div>
-        </div>`;
-      el.appendChild(row);
+      const ts = a.timestamp?.toDate ? a.timestamp.toDate() : (a.timestamp ? new Date(a.timestamp) : new Date());
+      allActivity.push({ id: d.id, ...a, _ts: ts });
     });
-  } catch (e) {
-    console.warn('activity load failed', e);
-    el.innerHTML = '<div class="empty">Не удалось загрузить ленту. Проверь правила Firestore для <code>activity</code>.</div>';
+    // badge
+    const lastSeen = Number(localStorage.getItem('mn_actSeen') || 0);
+    const newCount = allActivity.filter(a => a._ts.getTime() > lastSeen).length;
+    if (newCount > 0 && !document.querySelector('.snav button[data-panel="activity"].on')) {
+      $('sbActBadge').textContent = newCount > 99 ? '99+' : newCount;
+      $('sbActBadge').classList.remove('hide');
+    }
+    renderActivity();
+  } catch(e){ console.warn(e); el.innerHTML = '<div class="empty">Не удалось загрузить. Проверь правила Firestore для <code>activity</code>.</div>'; }
+}
+
+$('chips').onclick = e => {
+  const btn = e.target.closest('.chip'); if (!btn) return;
+  document.querySelectorAll('#chips .chip').forEach(c => c.classList.toggle('on', c === btn));
+  activityFilter = btn.dataset.filter;
+  renderActivity();
+};
+
+function renderActivity(){
+  const el = $('feed');
+  let list = allActivity;
+  if (activityFilter !== 'all') list = list.filter(a => (a.type || '') === activityFilter);
+  if (!list.length) { el.innerHTML = '<div class="empty">Нет действий по этому фильтру.</div>'; return; }
+
+  const icons = { news:'fa-newspaper', wiki:'fa-book', user:'fa-user', delete:'fa-trash', login:'fa-right-to-bracket', ban:'fa-ban', publish:'fa-check' };
+  const now = new Date(); const today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
+
+  const groups = { 'Сегодня':[], 'Вчера':[], 'На этой неделе':[], 'Раньше':[] };
+  list.forEach(a => {
+    const t = a._ts;
+    if (t >= today) groups['Сегодня'].push(a);
+    else if (t >= yesterday) groups['Вчера'].push(a);
+    else if (t >= weekAgo) groups['На этой неделе'].push(a);
+    else groups['Раньше'].push(a);
+  });
+
+  el.innerHTML = '';
+  for (const [label, items] of Object.entries(groups)) {
+    if (!items.length) continue;
+    const g = document.createElement('div'); g.className = 'fgroup';
+    g.innerHTML = `<h4>${label}</h4>`;
+    items.forEach(a => {
+      const ic = icons[a.type] || 'fa-circle-info';
+      const when = a._ts.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      const row = document.createElement('div'); row.className = 'row';
+      row.innerHTML = `<div class="ic"><i class="fas ${ic}"></i></div><div><div class="t"><b>${escapeHtml(a.who||'admin')}</b> ${escapeHtml(a.action||a.type||'')}${a.target?' — '+escapeHtml(a.target):''}</div><div class="d">${when}</div></div>`;
+      g.appendChild(row);
+    });
+    el.appendChild(g);
   }
 }
 
 // ===== NOTIFICATIONS =====
-async function loadNotifications(uid) {
-  const el = $('notifs');
-  el.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div>';
+async function loadNotifications(uid){
+  const el = $('notifs'); el.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div>';
   try {
-    const q = query(collection(db, 'notifications'), where('uid', '==', uid), orderBy('createdAt', 'desc'), limit(50));
+    const q = query(collection(db,'notifications'), where('uid','==',uid), orderBy('createdAt','desc'), limit(50));
     const snap = await getDocs(q);
-    const badge = $('sbNotifBadge');
-    let unread = 0;
-    if (snap.empty) {
-      el.innerHTML = '<div class="empty">Уведомлений нет.</div>';
-      badge.classList.add('hide');
-      $('bellDot').classList.remove('has');
-      return;
-    }
+    const badge = $('sbNotifBadge'); let unread = 0;
+    if (snap.empty) { el.innerHTML = '<div class="empty">Уведомлений нет.</div>'; badge.classList.add('hide'); $('bellDot').classList.remove('has'); updateTitle(0); return; }
     el.innerHTML = '';
-    const iconFor = (t) => ({
-      info: ['fa-circle-info', 'info'], ok: ['fa-circle-check', 'ok'],
-      warn: ['fa-triangle-exclamation', 'warn'], err: ['fa-circle-xmark', 'err']
-    }[t] || ['fa-bell', 'warn']);
+    const iconFor = t => ({ info:['fa-circle-info','info'], ok:['fa-circle-check','ok'], warn:['fa-triangle-exclamation','warn'], err:['fa-circle-xmark','err'] }[t] || ['fa-bell','warn']);
     snap.forEach(d => {
-      const n = d.data();
-      if (!n.read) unread++;
-      const [ic, cls] = iconFor(n.type);
+      const n = d.data(); if (!n.read) unread++;
+      const [ic,cls] = iconFor(n.type);
       const dt = n.createdAt?.toDate ? n.createdAt.toDate() : null;
       const when = dt ? dt.toLocaleString('ru-RU') : '';
       const div = document.createElement('div');
       div.className = 'notif' + (n.read ? '' : ' unread');
-      div.innerHTML = `
-        <div class="ic ${cls}"><i class="fas ${ic}"></i></div>
-        <div class="txt"><b>${escapeHtml(n.title || 'Уведомление')}</b><small>${escapeHtml(n.body || '')}</small><div class="d">${when}</div></div>`;
+      div.innerHTML = `<div class="ic ${cls}"><i class="fas ${ic}"></i></div><div class="txt"><b>${escapeHtml(n.title||'Уведомление')}</b><small>${escapeHtml(n.body||'')}</small><div class="d">${when}</div></div>`;
       el.appendChild(div);
     });
-    if (unread > 0) {
-      badge.textContent = unread; badge.classList.remove('hide');
-      $('bellDot').classList.add('has');
-      // Browser push: show only once per session for unread count
-      if ('Notification' in window && Notification.permission === 'granted' && !sessionStorage.getItem('mn_pushed')) {
-        new Notification('Метро New', { body: `У вас ${unread} новых уведомлений`, icon: 'https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png' });
-        sessionStorage.setItem('mn_pushed', '1');
-      }
-    } else {
-      badge.classList.add('hide');
-      $('bellDot').classList.remove('has');
+    if (unread > 0) { badge.textContent = unread>99?'99+':unread; badge.classList.remove('hide'); $('bellDot').classList.add('has'); }
+    else { badge.classList.add('hide'); $('bellDot').classList.remove('has'); }
+    updateTitle(unread);
+    if ('Notification' in window && Notification.permission==='granted' && unread>0 && !sessionStorage.getItem('mn_pushed')) {
+      new Notification('Метро New', { body: `У вас ${unread} новых уведомлений`, icon: 'https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png' });
+      sessionStorage.setItem('mn_pushed','1');
     }
-  } catch (e) {
-    console.warn('notifications load failed', e);
-    el.innerHTML = '<div class="empty">Не удалось загрузить. Проверь правила Firestore для <code>notifications</code>.</div>';
-  }
+  } catch(e){ console.warn(e); el.innerHTML = '<div class="empty">Не удалось загрузить. Проверь правила Firestore для <code>notifications</code>.</div>'; }
+}
+
+function updateTitle(n){
+  const base = 'Админка — Метро New';
+  document.title = n > 0 ? `(${n}) ${base}` : base;
 }
 
 $('pushBtn').onclick = async () => {
-  if (!('Notification' in window)) { alert('Браузер не поддерживает push.'); return; }
+  if (!('Notification' in window)) { toast('Браузер не поддерживает push','err'); return; }
   const p = await Notification.requestPermission();
-  if (p === 'granted') {
-    new Notification('Метро New', { body: 'Push включён', icon: 'https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png' });
-  } else {
-    alert('Разрешение не выдано.');
-  }
+  if (p==='granted') { new Notification('Метро New',{ body:'Push включён', icon:'https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png' }); toast('Push включён'); }
+  else toast('Разрешение не выдано','err');
 };
 $('markAll').onclick = async () => {
   try {
-    const q = query(collection(db, 'notifications'), where('uid', '==', auth.currentUser.uid), where('read', '==', false));
+    const q = query(collection(db,'notifications'), where('uid','==',auth.currentUser.uid), where('read','==',false));
     const snap = await getDocs(q);
-    if (snap.empty) return;
+    if (snap.empty) { toast('Нет непрочитанных','info'); return; }
     const batch = writeBatch(db);
     snap.forEach(d => batch.update(d.ref, { read: true }));
     await batch.commit();
     loadNotifications(auth.currentUser.uid);
-  } catch (e) { alert('Не удалось: ' + e.message); }
+    toast('Все прочитаны');
+  } catch(e){ toast('Ошибка: ' + e.message, 'err'); }
 };
 
-// ===== NOTES (localStorage) =====
-function loadNotes() {
-  const el = $('notes');
-  const arr = JSON.parse(localStorage.getItem('mn_notes') || '[]');
-  if (!arr.length) { el.innerHTML = '<div class="note-empty">Заметок пока нет.</div>'; return; }
+// ===== REPORTS =====
+let allReports = [];
+async function loadReports(){
+  const el = $('reports'); el.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div>';
+  try {
+    const q = query(collection(db,'reports'), orderBy('createdAt','desc'), limit(100));
+    const snap = await getDocs(q);
+    allReports = [];
+    snap.forEach(d => allReports.push({ id: d.id, ...d.data() }));
+    renderReports();
+  } catch(e){ console.warn(e); el.innerHTML = '<div class="empty">Не удалось загрузить. Проверь правила Firestore для <code>reports</code>.</div>'; }
+}
+
+function renderReports(){
+  const el = $('reports');
+  if (!allReports.length) { el.innerHTML = '<div class="empty">Отчётов пока нет. Создайте первый.</div>'; return; }
+  const typeLabels = { weekly:'Недельный', daily:'Дневной', archive:'Архивный' };
   el.innerHTML = '';
-  arr.forEach((n, i) => {
-    const div = document.createElement('div');
-    div.className = 'note';
-    div.innerHTML = `<div class="txt">${escapeHtml(n.text)}</div>`;
-    const del = document.createElement('button');
-    del.className = 'del'; del.title = 'Удалить'; del.innerHTML = '<i class="fas fa-xmark"></i>';
-    del.onclick = () => {
-      const arr2 = JSON.parse(localStorage.getItem('mn_notes') || '[]');
-      arr2.splice(i, 1);
-      localStorage.setItem('mn_notes', JSON.stringify(arr2));
-      loadNotes();
+  allReports.forEach(r => {
+    const dt = r.createdAt?.toDate ? r.createdAt.toDate() : null;
+    const when = dt ? dt.toLocaleString('ru-RU') : '';
+    const div = document.createElement('div'); div.className = 'report';
+    div.innerHTML = `
+      <h3>${escapeHtml(r.title || 'Без названия')}</h3>
+      <div class="meta">
+        <span class="type">${typeLabels[r.type] || r.type || '—'}</span>
+        ${r.published ? '<span><i class="fas fa-check"></i> Опубликован</span>' : '<span style="background:color-mix(in srgb,var(--t3) 20%,transparent);color:var(--t3)">Черновик</span>'}
+      </div>
+      <div class="desc">${escapeHtml(r.desc || '')}</div>
+      <div class="when">${when}</div>
+      <div class="tools">
+        <button class="dl"><i class="fas fa-download"></i> Скачать</button>
+        <button class="pub"><i class="fas fa-paper-plane"></i> ${r.published?'Снять':'Опубликовать'}</button>
+        <button class="del"><i class="fas fa-trash"></i> Удалить</button>
+      </div>`;
+    div.querySelector('.dl').onclick = () => downloadReport(r);
+    div.querySelector('.pub').onclick = async () => {
+      try { await updateDoc(doc(db,'reports',r.id),{ published: !r.published }); toast(r.published?'Снят с публикации':'Опубликован'); loadReports(); }
+      catch(e){ toast('Ошибка: '+e.message,'err'); }
     };
-    div.appendChild(del);
+    div.querySelector('.del').onclick = async () => {
+      if (!confirm('Удалить отчёт?')) return;
+      try { await deleteDoc(doc(db,'reports',r.id)); toast('Удалён'); loadReports(); }
+      catch(e){ toast('Ошибка: '+e.message,'err'); }
+    };
     el.appendChild(div);
   });
 }
+
+function downloadReport(r){
+  const dt = r.createdAt?.toDate ? r.createdAt.toDate() : null;
+  const when = dt ? dt.toLocaleString('ru-RU') : '';
+  const typeLabels = { weekly:'Недельный', daily:'Дневной', archive:'Архивный' };
+  const txt = `ОТЧЁТ МЕТРО NEW\n\nЗаголовок: ${r.title || ''}\nТип: ${typeLabels[r.type] || r.type || ''}\nСтатус: ${r.published ? 'Опубликован' : 'Черновик'}\nСоздан: ${when}\nАвтор: ${r.author || ''}\n\n--- Описание ---\n${r.desc || ''}\n`;
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `report-${(r.title||'untitled').replace(/[^\wа-яА-Я\- ]/g,'')}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('Отчёт скачан');
+}
+
+$('rAdd').onclick = async () => {
+  const title = $('rTitle').value.trim();
+  const type = $('rType').value;
+  const desc = $('rDesc').value.trim();
+  if (title.length < 3) { toast('Заголовок минимум 3 символа','err'); return; }
+  if (!desc) { toast('Добавьте описание','err'); return; }
+  try {
+    await addDoc(collection(db,'reports'), {
+      title, type, desc,
+      published: false,
+      author: currentAdmin?.name || currentAdmin?.email || '',
+      authorUid: currentAdmin?.uid || '',
+      createdAt: serverTimestamp()
+    });
+    $('rTitle').value = ''; $('rDesc').value = '';
+    toast('Отчёт создан');
+    loadReports();
+  } catch(e){ toast('Ошибка: ' + e.message, 'err'); }
+};
+
+// ===== NOTES =====
+let noteColor = '';
+$('colorPick').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  $('colorPick').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  noteColor = b.dataset.c;
+};
+
+function getNotes(){ return JSON.parse(localStorage.getItem('mn_notes_v2') || '[]'); }
+function saveNotes(a){ localStorage.setItem('mn_notes_v2', JSON.stringify(a)); }
+
+function loadNotes(){
+  const el = $('notes');
+  const q = ($('noteSearch').value || '').trim().toLowerCase();
+  let arr = getNotes();
+  if (q) arr = arr.filter(n => n.text.toLowerCase().includes(q));
+  // pinned first, then by createdAt desc
+  arr.sort((a,b) => (b.pin?1:0) - (a.pin?1:0) || (b.at||0) - (a.at||0));
+
+  if (!arr.length) {
+    el.innerHTML = `<div class="note-empty"><i class="fas fa-note-sticky"></i>${q ? 'Ничего не найдено' : 'Заметок пока нет'}<br><button id="noteFirst">Создать первую заметку</button></div>`;
+    const b = $('noteFirst'); if (b) b.onclick = () => $('noteInput').focus();
+    return;
+  }
+  el.innerHTML = '';
+  arr.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'note' + (n.color ? ' ' + n.color : '') + (n.pin ? ' pinned' : '');
+    const dt = n.at ? new Date(n.at).toLocaleString('ru-RU') : '';
+    div.innerHTML = `<div class="txt">${escapeHtml(n.text)}<div class="meta">${dt}</div></div><div class="tools">
+      <button class="pin ${n.pin?'on':''}" title="${n.pin?'Открепить':'Закрепить'}"><i class="fas fa-thumbtack"></i></button>
+      <button class="copy" title="Копировать"><i class="fas fa-copy"></i></button>
+      <button class="del" title="Удалить"><i class="fas fa-xmark"></i></button>
+    </div>`;
+    div.querySelector('.pin').onclick = () => { const arr = getNotes(); const i = arr.findIndex(x => x.at===n.at && x.text===n.text); if(i>=0){ arr[i].pin = !arr[i].pin; saveNotes(arr); loadNotes(); } };
+    div.querySelector('.copy').onclick = async () => { try { await navigator.clipboard.writeText(n.text); toast('Скопировано'); } catch(e){ toast('Не удалось','err'); } };
+    div.querySelector('.del').onclick = () => { const arr = getNotes(); const i = arr.findIndex(x => x.at===n.at && x.text===n.text); if(i>=0){ arr.splice(i,1); saveNotes(arr); loadNotes(); toast('Удалено'); } };
+    el.appendChild(div);
+  });
+}
+
 $('noteAdd').onclick = () => {
   const v = $('noteInput').value.trim();
-  if (!v) return;
-  const arr = JSON.parse(localStorage.getItem('mn_notes') || '[]');
-  arr.unshift({ text: v, at: Date.now() });
-  localStorage.setItem('mn_notes', JSON.stringify(arr));
+  if (!v) { toast('Введите текст','err'); return; }
+  const arr = getNotes();
+  arr.unshift({ text: v, color: noteColor, pin: false, at: Date.now() });
+  saveNotes(arr);
   $('noteInput').value = '';
+  $('colorPick').querySelectorAll('button').forEach((x,i) => x.classList.toggle('on', i===0));
+  noteColor = '';
   loadNotes();
+  toast('Заметка добавлена');
+};
+
+$('noteSearch').oninput = () => loadNotes();
+
+$('noteExport').onclick = () => {
+  const arr = getNotes();
+  if (!arr.length) { toast('Нет заметок','err'); return; }
+  const txt = arr.map(n => {
+    const dt = n.at ? new Date(n.at).toLocaleString('ru-RU') : '';
+    return `[${dt}]${n.pin?' 📌':''}${n.color?` (${n.color})`:''}\n${n.text}\n`;
+  }).join('\n----------------\n\n');
+  const blob = new Blob(['ЗАМЕТКИ МЕТРО NEW\n\n' + txt], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `notes-${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('Заметки скачаны');
 };
 
 // ===== HELPERS =====
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 </script>
 </body>
 </html>
