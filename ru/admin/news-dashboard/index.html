@@ -83,7 +83,6 @@ main{flex:1;padding:30px 0 50px}
 .stat-value{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--t),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .stat-label{color:var(--t3);font-size:.72rem;margin-top:4px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
 
-/* back btn */
 .back-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .back-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:50px;color:var(--t2);font:600 .82rem 'Montserrat';cursor:pointer;transition:.2s;text-decoration:none}
 .back-btn:hover{border-color:var(--accent);color:var(--accent)}
@@ -102,8 +101,6 @@ textarea.form-control{min-height:90px;resize:vertical}
 .form-text{font-size:.74rem;color:var(--t3);margin-top:4px}
 .counter{font-size:.72rem;color:var(--t3);margin-top:4px;display:flex;justify-content:space-between}
 .counter.warn{color:var(--red);font-weight:700}
-
-/* word counter */
 .md-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--t3);margin-top:6px;font-weight:600}
 .md-meta span{display:inline-flex;align-items:center;gap:5px}
 .md-meta i{color:var(--accent)}
@@ -170,6 +167,7 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 .status-draft{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
 .status-scheduled{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue)}
 .edited-badge{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;color:var(--blue);margin-left:6px;opacity:.9}
+.imp-badge{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;color:var(--accent);margin-left:6px;opacity:.9}
 
 .bulk-bar{display:none;background:var(--card);border:1px solid var(--accent);border-radius:var(--rl);padding:10px 16px;margin-bottom:12px;align-items:center;gap:10px;flex-wrap:wrap;font-size:.85rem}
 .bulk-bar.active{display:flex}
@@ -241,9 +239,14 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 
 <main><div class="container">
  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><p id="loadingText">Загрузка...</p></div>
+ <div id="aclDenied" style="display:none;text-align:center;padding:80px 20px">
+  <i class="fas fa-ban" style="font-size:3rem;color:var(--red);margin-bottom:20px;display:block"></i>
+  <h2 style="margin-bottom:12px">Нет доступа к разделу «Новости»</h2>
+  <p style="color:var(--t2);margin-bottom:20px">В вашем документе <code>admins</code> нет ключа <code>"news"</code> в ACL. Обратитесь к owner'у.</p>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/" class="btn btn-primary"><i class="fas fa-arrow-left"></i> На главную админки</a>
+ </div>
 
- <div class="admin-layout" id="app">
-  <!-- SIDEBAR -->
+ <div class="admin-layout" id="app" style="display:none">
   <aside class="sidebar">
    <div class="who">
     <div class="av" id="sbAv">A</div>
@@ -255,21 +258,20 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
    <div class="snav">
     <button data-panel="dashboard" class="on"><i class="fas fa-newspaper"></i> Новости</button>
     <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/"><i class="fas fa-house"></i> Главная</a>
-    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/"><i class="fas fa-clock-rotate-left"></i> Activity</a>
-    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin"><i class="fas fa-bell"></i> Уведомления</a>
-    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/"><i class="fas fa-note-sticky"></i> Заметки</a>
-    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/"><i class="fas fa-trash"></i> Корзина</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/activity/"><i class="fas fa-clock-rotate-left"></i> Activity</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notifications/"><i class="fas fa-bell"></i> Уведомления</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notes/"><i class="fas fa-note-sticky"></i> Заметки</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/trash/"><i class="fas fa-trash"></i> Корзина</a>
     <div class="divider"></div>
     <button class="logout" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Выйти</button>
    </div>
   </aside>
 
-  <!-- CONTENT -->
   <div class="content">
    <div class="topbar">
     <div class="search">
      <i class="fas fa-search"></i>
-     <input id="globalSearch" type="search" placeholder="Поиск по новостям (заголовок, категория, теги, автор)…" autocomplete="off" />
+     <input id="globalSearch" type="search" placeholder="Поиск по новостям…" autocomplete="off" />
     </div>
     <button class="iconbtn" id="themeBtn" title="Тема"><i class="fas fa-moon"></i></button>
    </div>
@@ -280,6 +282,7 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
     <button class="tab-btn" data-tab="list" onclick="showTab('list')"><i class="fas fa-list"></i> Список</button>
     <button class="tab-btn" data-tab="drafts" onclick="showTab('drafts')"><i class="fas fa-file-pen"></i> Черновики <span class="count" id="draftsCount" style="display:none">0</span></button>
     <button class="tab-btn" data-tab="scheduled" onclick="showTab('scheduled')"><i class="fas fa-clock"></i> Запланировано</button>
+    <button class="tab-btn" data-tab="trash" onclick="showTab('trash')"><i class="fas fa-trash"></i> Корзина <span class="count" id="trashCount" style="display:none">0</span></button>
    </div>
 
    <!-- DASHBOARD -->
@@ -287,11 +290,15 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
     <div class="eyebrow"><i class="fas fa-newspaper"></i> Новости</div>
     <div class="hero"><div><h1>Панель новостей</h1><p>Управление новостями проекта Метро New</p></div></div>
     <div class="stats-grid">
-     <div class="stat-card"><div class="stat-value" id="statNews"><div class="skel" style="width:60%;margin:0 auto"></div></div><div class="stat-label">📰 Всего</div></div>
-     <div class="stat-card"><div class="stat-value" id="statToday"><div class="skel" style="width:60%;margin:0 auto"></div></div><div class="stat-label">📅 За сегодня</div></div>
-     <div class="stat-card"><div class="stat-value" id="statDrafts"><div class="skel" style="width:60%;margin:0 auto"></div></div><div class="stat-label">📝 Черновиков</div></div>
-     <div class="stat-card"><div class="stat-value" id="statScheduled"><div class="skel" style="width:60%;margin:0 auto"></div></div><div class="stat-label">⏰ Запланировано</div></div>
-     <div class="stat-card"><div class="stat-value" id="statViews"><div class="skel" style="width:60%;margin:0 auto"></div></div><div class="stat-label">👁️ Просмотров</div></div>
+     <div class="stat-card"><div class="stat-value" id="statNews">-</div><div class="stat-label">📰 Всего</div></div>
+     <div class="stat-card"><div class="stat-value" id="statToday">-</div><div class="stat-label">📅 За сегодня</div></div>
+     <div class="stat-card"><div class="stat-value" id="statDrafts">-</div><div class="stat-label">📝 Черновиков</div></div>
+     <div class="stat-card"><div class="stat-value" id="statScheduled">-</div><div class="stat-label">⏰ Запланировано</div></div>
+     <div class="stat-card"><div class="stat-value" id="statViews">-</div><div class="stat-label">👁️ Просмотров</div></div>
+    </div>
+    <div class="sec-title" style="font-size:1rem;font-weight:800;margin:22px 0 12px;display:flex;gap:10px;align-items:center"><i class="fas fa-clock-rotate-left" style="color:var(--accent)"></i> Последние действия</div>
+    <div id="dashActivity" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px">
+     <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>
     </div>
    </div>
 
@@ -349,7 +356,7 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
          <div id="markdownEditor"></div>
          <div class="md-meta" id="mdMeta">
           <span><i class="fas fa-font"></i> <b id="mdWords">0</b> слов</span>
-          <span><i class="fas fa-clock"></i> ~<b id="mdRead">0</b> мин чтения</span>
+          <span><i class="fas fa-clock"></i> ~<b id="mdRead">0</b> мин</span>
           <span><i class="fas fa-list"></i> <b id="mdLines">0</b> строк</span>
          </div>
         </div>
@@ -371,7 +378,7 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
         <h3 class="form-section-title"><i class="fas fa-tags"></i> Дополнительно</h3>
         <div class="form-group">
          <label><i class="fas fa-certificate"></i> Метка (badge)</label>
-         <input type="text" class="form-control" id="newsBadge" placeholder="🔥 Горячее, Новое">
+         <input type="text" class="form-control" id="newsBadge" placeholder="🔥 Горячее">
         </div>
         <div class="checkbox-group">
          <label class="checkbox-label"><input type="checkbox" id="newsImportant"><span><i class="fas fa-star" style="color:var(--accent)"></i> Важная</span></label>
@@ -383,7 +390,7 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
         <div class="form-group">
          <label><i class="fas fa-calendar"></i> Дата публикации</label>
          <input type="datetime-local" class="form-control" id="newsDate">
-         <div class="form-text">Если дата в будущем — статус «Запланировано»</div>
+         <div class="form-text">Будущая дата → «Запланировано»</div>
         </div>
        </div>
        <div class="form-section">
@@ -427,23 +434,36 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
    <!-- LIST -->
    <div class="panel" data-panel="list">
     <div class="eyebrow"><i class="fas fa-list"></i> Список новостей</div>
-    <div class="hero"><div><h1>Все новости</h1><p>Сортировка по столбцам, массовые действия</p></div></div>
+    <div class="hero"><div><h1>Все новости</h1><p>Сортировка, фильтры, массовые действия</p></div></div>
     <div class="toolbar">
      <input type="text" class="search-input" id="newsSearch" placeholder="🔍 Поиск...">
      <select class="filter-select" id="newsStatusFilter">
-      <option value="all">Все</option>
+      <option value="all">Все статусы</option>
       <option value="published">Опубликовано</option>
       <option value="draft">Черновики</option>
       <option value="scheduled">Запланировано</option>
      </select>
-     <button class="btn btn-primary btn-sm" onclick="loadNewsList()"><i class="fas fa-sync-alt"></i> Обновить</button>
+     <select class="filter-select" id="newsCategoryFilter">
+      <option value="all">Все категории</option>
+      <option value="announcement">Анонс</option>
+      <option value="update">Обновление</option>
+      <option value="important">Важное</option>
+      <option value="event">Событие</option>
+     </select>
+     <select class="filter-select" id="newsAuthorFilter">
+      <option value="all">Все авторы</option>
+     </select>
+     <label class="checkbox-label" style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:50px">
+      <input type="checkbox" id="newsImportantFilter" style="width:15px;height:15px"> <span style="font-size:.82rem"><i class="fas fa-star" style="color:var(--accent)"></i> Только важные</span>
+     </label>
+     <button class="btn btn-primary btn-sm" onclick="loadNewsList()"><i class="fas fa-sync-alt"></i></button>
      <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
     </div>
     <div class="bulk-bar" id="bulkBar">
      Выбрано: <span class="count" id="bulkCount">0</span>
      <button class="btn btn-success btn-sm" onclick="bulkAction('publish')"><i class="fas fa-check"></i> Опубликовать</button>
      <button class="btn btn-warning btn-sm" onclick="bulkAction('draft')"><i class="fas fa-file-pen"></i> В черновик</button>
-     <button class="btn btn-danger btn-sm" onclick="bulkAction('delete')"><i class="fas fa-trash"></i> Удалить</button>
+     <button class="btn btn-danger btn-sm" onclick="bulkAction('delete')"><i class="fas fa-trash"></i> В корзину</button>
      <button class="btn btn-outline btn-sm" onclick="clearSelection()"><i class="fas fa-xmark"></i> Снять</button>
     </div>
     <div style="margin-bottom:10px;color:var(--t3);font-size:.82rem" id="newsCount">Загрузка...</div>
@@ -488,6 +508,23 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
      </table>
     </div>
    </div>
+
+   <!-- TRASH -->
+   <div class="panel" data-panel="trash">
+    <div class="eyebrow"><i class="fas fa-trash"></i> Корзина</div>
+    <div class="hero"><div><h1>Корзина</h1><p>Удалённые новости. Хранятся 30 дней.</p></div></div>
+    <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
+     <button class="btn btn-outline btn-sm" onclick="loadTrash()"><i class="fas fa-sync-alt"></i> Обновить</button>
+     <button class="btn btn-danger btn-sm" onclick="emptyTrash()"><i class="fas fa-broom"></i> Очистить корзину</button>
+    </div>
+    <div style="margin-bottom:10px;color:var(--t3);font-size:.82rem" id="trashListCount"></div>
+    <div class="table-wrapper">
+     <table>
+      <thead><tr><th>Заголовок</th><th>Категория</th><th>Удалено</th><th>Действия</th></tr></thead>
+      <tbody id="trashList"></tbody>
+     </table>
+    </div>
+   </div>
   </div>
  </div>
 </div></main>
@@ -528,7 +565,6 @@ tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 <div class="toasts" id="toasts"></div>
 
 <script>
-// ===== FIREBASE =====
 firebase.initializeApp({
  apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
  authDomain: "metro-new-admin.firebaseapp.com",
@@ -546,9 +582,11 @@ let allNews = [];
 let sortField = 'createdAt';
 let sortDir = 'desc';
 let selected = new Set();
+let currentAdmin = null;
 
-const SITE_BASE_URL = 'https://kirill12633.github.io/Metro.New.Official/ru/news/?id=';
+const SITE_BASE_URL = 'https://kirill12633.github.io/Metro.New.Official/ru/news.html?id=';
 const LOGIN_PAGE = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login/';
+const ADMIN_HOME = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/';
 
 // THEME
 const root = document.documentElement;
@@ -563,21 +601,44 @@ document.getElementById('themeBtn').onclick = () => {
  syncThemeIcon();
 };
 
-// AUTH
-auth.onAuthStateChanged((user) => {
- if (user) {
-  document.getElementById('sbName').textContent = user.email || 'admin@metro.new';
-  document.getElementById('sbRole').textContent = 'admin';
-  document.getElementById('sbAv').textContent = (user.email || 'A')[0].toUpperCase();
-  document.getElementById('logoutBtn').onclick = () => { auth.signOut().then(()=>{ location.href = LOGIN_PAGE; }); };
-  loadStats();
-  loadNewsList();
-  checkForDraft();
-  autoPublishScheduled();
- } else {
-  window.location.href = LOGIN_PAGE;
+// AUTH + ACL
+auth.onAuthStateChanged(async (user) => {
+ if (!user) { window.location.href = LOGIN_PAGE; return; }
+ // читаем документ admins
+ try {
+  const snap = await db.collection('admins').doc(user.uid).get();
+  if (!snap.exists) { showDenied('Ваш UID не найден в коллекции admins'); return; }
+  currentAdmin = { uid: user.uid, ...snap.data() };
+ } catch(e) {
+  console.error(e); showDenied('Не удалось проверить права: ' + e.message); return;
  }
+ const role = currentAdmin.role || 'admin';
+ const isOwner = role === 'owner';
+ let acl = currentAdmin.acl ?? null, aclSet = null;
+ if (Array.isArray(acl)) aclSet = new Set(acl);
+ else if (acl && typeof acl === 'object') aclSet = new Set(Object.keys(acl).filter(k => acl[k]));
+ // если role=owner → всё; если acl нет → всё (обратная совместимость)
+ const hasNews = isOwner || !aclSet || aclSet.has('news');
+ if (!hasNews) { showDenied('В ACL нет ключа "news"'); return; }
+
+ document.getElementById('sbName').textContent = user.email || 'admin@metro.new';
+ document.getElementById('sbRole').textContent = role;
+ document.getElementById('sbAv').textContent = (user.email || 'A')[0].toUpperCase();
+ document.getElementById('logoutBtn').onclick = () => { auth.signOut().then(()=>{ location.href = LOGIN_PAGE; }); };
+ document.getElementById('app').style.display = '';
+ loadStats();
+ loadNewsList();
+ checkForDraft();
+ autoPublishScheduled();
+ autoCleanTrash();
+ loadActivityDash();
 });
+
+function showDenied(msg) {
+ document.getElementById('aclDenied').style.display = 'block';
+ const p = document.querySelector('#aclDenied p');
+ if (p) p.innerHTML += `<br><small style="color:var(--red)">${msg}</small>`;
+}
 
 // EDITOR
 document.addEventListener('DOMContentLoaded', function() {
@@ -601,6 +662,9 @@ document.addEventListener('DOMContentLoaded', function() {
  document.getElementById('newsDate').value = now.toISOString().slice(0,16);
  document.getElementById('newsSearch').addEventListener('input', filterNewsRows);
  document.getElementById('newsStatusFilter').addEventListener('change', filterNewsRows);
+ document.getElementById('newsCategoryFilter').addEventListener('change', filterNewsRows);
+ document.getElementById('newsAuthorFilter').addEventListener('change', filterNewsRows);
+ document.getElementById('newsImportantFilter').addEventListener('change', filterNewsRows);
  document.getElementById('selectAll').addEventListener('change', (e) => {
   document.querySelectorAll('#newsList tr[data-news-id]').forEach(tr => {
    const cb = tr.querySelector('input[type=checkbox]');
@@ -626,7 +690,6 @@ function updateCounters() {
  ec.querySelector('span:last-child').textContent = x.length + ' / 200';
  ec.classList.toggle('warn', x.length > 200);
 }
-
 function updateMdMeta() {
  if (!simplemde) return;
  const v = simplemde.value() || '';
@@ -638,14 +701,14 @@ function updateMdMeta() {
  document.getElementById('mdLines').textContent = lines;
 }
 
-// TABS
 function showTab(tab) {
  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.dataset.panel === tab));
  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
- if (tab === 'dashboard') loadStats();
+ if (tab === 'dashboard') { loadStats(); loadActivityDash(); }
  if (tab === 'list') loadNewsList();
  if (tab === 'drafts') loadDrafts();
  if (tab === 'scheduled') loadScheduled();
+ if (tab === 'trash') loadTrash();
  if (tab === 'create') {
   setTimeout(() => { if (document.getElementById('newsTitle')) document.getElementById('newsTitle').focus(); }, 100);
  }
@@ -658,7 +721,6 @@ function selectCategory(category) {
  document.getElementById('newsCategory').value = category;
  updatePreview();
 }
-
 function updatePreview() {
  const title = document.getElementById('newsTitle').value || 'Заголовок новости';
  const excerpt = document.getElementById('newsExcerpt').value || 'Краткое описание...';
@@ -685,7 +747,7 @@ function updatePreview() {
 function handleImageUpload(e) {
  const file = e.target.files[0];
  if (!file) return;
- if (!file.type.startsWith('image/')) { toast('Можно загружать только изображения','error'); e.target.value=''; return; }
+ if (!file.type.startsWith('image/')) { toast('Только изображения','error'); e.target.value=''; return; }
  if (file.size > 8*1024*1024) { toast('Файл больше 8 МБ','error'); e.target.value=''; return; }
  const storage = firebase.storage();
  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
@@ -699,12 +761,12 @@ function handleImageUpload(e) {
   const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
   progressBar.style.width = pct + '%';
   status.textContent = `Загрузка: ${pct}%`;
- }, err => { toast('Ошибка загрузки: ' + err.message,'error'); progressWrap.classList.remove('active'); },
+ }, err => { toast('Ошибка: ' + err.message,'error'); progressWrap.classList.remove('active'); },
  async () => {
   try {
    const url = await task.snapshot.ref.getDownloadURL();
    document.getElementById('newsImage').value = url;
-   status.textContent = '✅ Файл загружен и подставлен в поле URL';
+   status.textContent = '✅ Файл загружен';
    progressWrap.classList.remove('active');
    updatePreview(); scheduleDraftAutosave();
   } catch (err) { toast('Не удалось получить ссылку','error'); }
@@ -741,9 +803,33 @@ function previewNews() {
  document.getElementById('previewModal').classList.add('active');
 }
 function closePreview(){ document.getElementById('previewModal').classList.remove('active'); }
-
 function showLoading(text='Загрузка...'){ document.getElementById('loadingText').textContent = text; document.getElementById('loadingOverlay').classList.add('active'); }
 function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('active'); }
+
+async function logActivity(action, target, type='news') {
+ try {
+  await db.collection('activity').add({
+   who: currentAdmin?.name || currentAdmin?.email || 'admin',
+   uid: currentAdmin?.uid,
+   action, target, type,
+   timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+ } catch(e) { console.warn('activity log failed', e); }
+}
+
+async function notifyAdmins(title, body, type='info') {
+ try {
+  const snap = await db.collection('admins').get();
+  const batch = db.batch();
+  snap.forEach(doc => {
+   batch.set(db.collection('notifications').doc(), {
+    uid: doc.id, title, body, type, read: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+   });
+  });
+  await batch.commit();
+ } catch(e) { console.warn('notify failed', e); }
+}
 
 async function saveNews(status) {
  const title = document.getElementById('newsTitle').value.trim();
@@ -757,8 +843,8 @@ async function saveNews(status) {
  const tags = document.getElementById('newsTags').value;
  const publishDate = document.getElementById('newsDate').value;
  if (!title || !excerpt || !content) { toast('Заполните заголовок, описание и текст','error'); return; }
- if (title.length > 100) { toast('Заголовок не более 100 символов','error'); return; }
- if (excerpt.length > 200) { toast('Описание не более 200 символов','error'); return; }
+ if (title.length > 100) { toast('Заголовок > 100','error'); return; }
+ if (excerpt.length > 200) { toast('Описание > 200','error'); return; }
  const publishBtn = document.getElementById('publishBtn');
  publishBtn.disabled = true;
  setTimeout(()=>{ publishBtn.disabled = false; }, 3000);
@@ -772,7 +858,7 @@ async function saveNews(status) {
    views: 0, likeCount: 0, fireCount: 0, thumbsCount: 0, wowCount: 0,
    tags: tags ? tags.split(',').map(t=>t.trim()).filter(Boolean) : [],
    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-   author: auth.currentUser?.email || 'admin'
+   author: currentAdmin?.name || auth.currentUser?.email || 'admin'
   };
   if (image) newsData.image = image;
   if (imageSource) newsData.imageSource = imageSource;
@@ -783,8 +869,13 @@ async function saveNews(status) {
   if (editingId) {
    await db.collection('news').doc(editingId).update(newsData);
    docRef = { id: editingId };
+   await logActivity('обновил новость', title, 'news');
   } else {
    docRef = await db.collection('news').add(newsData);
+   await logActivity(status === 'draft' ? 'создал черновик' : 'создал новость', title, 'news');
+   if (status === 'published' || (publishDate && new Date(publishDate) <= new Date() && status !== 'draft')) {
+    await notifyAdmins('Опубликована новость', title, 'ok');
+   }
   }
   hideLoading();
   discardDraft();
@@ -808,7 +899,7 @@ async function saveNews(status) {
    ${shareBoxHtml}`;
   document.getElementById('successModal').classList.add('active');
   editingId = null;
-  loadStats(); loadNewsList();
+  loadStats(); loadNewsList(); loadActivityDash();
  } catch (error) {
   hideLoading();
   toast('Ошибка: ' + error.message,'error');
@@ -819,7 +910,7 @@ async function saveToCloud() {
  const title = document.getElementById('newsTitle').value.trim();
  const excerpt = document.getElementById('newsExcerpt').value.trim();
  const content = simplemde.value();
- if (!title || !excerpt || !content) { toast('Заполните заголовок, описание и текст','error'); return; }
+ if (!title || !excerpt || !content) { toast('Заполните все поля','error'); return; }
  try {
   await db.collection('news').add({
    title, excerpt, content,
@@ -831,8 +922,9 @@ async function saveToCloud() {
    tags: document.getElementById('newsTags').value ? document.getElementById('newsTags').value.split(',').map(t=>t.trim()).filter(Boolean) : [],
    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-   author: auth.currentUser?.email || 'admin'
+   author: currentAdmin?.name || auth.currentUser?.email || 'admin'
   });
+  await logActivity('сохранил черновик в облако', title, 'news');
   toast('Черновик сохранён в облако');
   loadStats(); loadNewsList();
  } catch(e) { toast('Ошибка: ' + e.message,'error'); }
@@ -850,7 +942,7 @@ function copyShareText() {
   navigator.clipboard.writeText(ta.value).then(()=>toast('Скопировано')).catch(()=>legacyCopy(ta));
  } else legacyCopy(ta);
 }
-function legacyCopy(ta) { try { document.execCommand('copy'); toast('Скопировано'); } catch(e) { toast('Не удалось скопировать','error'); } }
+function legacyCopy(ta) { try { document.execCommand('copy'); toast('Скопировано'); } catch(e) { toast('Не удалось','error'); } }
 function saveAsDraft(){ saveNews('draft'); }
 function publishNews(){ closePreview(); saveNews('published'); }
 function closeSuccessModal(){ document.getElementById('successModal').classList.remove('active'); }
@@ -936,6 +1028,7 @@ async function loadStats() {
   let totalViews = 0, todayCount = 0, drafts = 0, scheduled = 0;
   snap.forEach(doc => {
    const d = doc.data();
+   if (d.deleted) return;
    totalViews += d.views || 0;
    if (d.status === 'draft') drafts++;
    if (d.status === 'scheduled') scheduled++;
@@ -951,17 +1044,48 @@ async function loadStats() {
  } catch(e) { toast('Не удалось загрузить статистику','error'); }
 }
 
+async function loadActivityDash() {
+ try {
+  const snap = await db.collection('activity').orderBy('timestamp','desc').limit(6).get();
+  const el = document.getElementById('dashActivity');
+  if (snap.empty) { el.innerHTML = '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i>Действий пока нет</div>'; return; }
+  let html = '';
+  snap.forEach(doc => {
+   const a = doc.data();
+   const when = a.timestamp?.toDate ? a.timestamp.toDate().toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+   const icons = { news:'fa-newspaper', wiki:'fa-book', user:'fa-user', delete:'fa-trash', login:'fa-right-to-bracket' };
+   const ic = icons[a.type] || 'fa-circle-info';
+   html += `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+    <div style="width:28px;height:28px;border-radius:8px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0"><i class="fas ${ic}"></i></div>
+    <div style="flex:1;font-size:.82rem"><b style="color:var(--accent)">${escapeHtml(a.who||'admin')}</b> ${escapeHtml(a.action||'')}${a.target?' — '+escapeHtml(a.target):''}<div style="font-size:.7rem;color:var(--t3);margin-top:2px">${when}</div></div>
+   </div>`;
+  });
+  el.innerHTML = html;
+ } catch(e) { console.warn(e); }
+}
+
 async function loadNewsList() {
  const tbody = document.getElementById('newsList');
  let skel = '';
  for (let i=0;i<5;i++) skel += `<tr><td colspan="7" style="padding:12px 14px"><div class="skel" style="width:${60+Math.random()*40}%"></div></td></tr>`;
  tbody.innerHTML = skel;
  try {
-  const snap = await db.collection('news').orderBy('createdAt','desc').limit(100).get();
+  const snap = await db.collection('news').orderBy('createdAt','desc').limit(200).get();
   allNews = [];
-  snap.forEach(d => allNews.push({ id: d.id, ...d.data(), _created: d.data().createdAt?.toDate?.() || new Date(0), _updated: d.data().updatedAt?.toDate?.() || null }));
+  snap.forEach(d => {
+   const data = d.data();
+   if (data.deleted) return; // корзина отдельно
+   allNews.push({ id: d.id, ...data, _created: data.createdAt?.toDate?.() || new Date(0), _updated: data.updatedAt?.toDate?.() || null });
+  });
+  // заполняем фильтр авторов
+  const authors = [...new Set(allNews.map(n => n.author).filter(Boolean))].sort();
+  const sel = document.getElementById('newsAuthorFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">Все авторы</option>' + authors.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+  sel.value = cur && authors.includes(cur) ? cur : 'all';
+
   renderNewsRows();
- } catch(e) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--red)">Ошибка загрузки</td></tr>'; }
+ } catch(e) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--red)">Ошибка загрузки</td></tr>'; console.error(e); }
 }
 function applySort(arr) {
  const dir = sortDir === 'asc' ? 1 : -1;
@@ -987,9 +1111,9 @@ function renderNewsRows() {
   const st = n.status || 'draft';
   const date = n._created ? n._created.toLocaleString('ru-RU') : '—';
   const isEdited = n._updated && n._created && n._updated.getTime() > n._created.getTime() + 5000;
-  html += `<tr data-news-id="${n.id}" data-status="${st}" data-title="${escapeHtml((n.title||'').toLowerCase())}" data-category="${escapeHtml((n.category||'').toLowerCase())}" data-tags="${escapeHtml((n.tags||[]).join(',').toLowerCase())}" data-author="${escapeHtml((n.author||'').toLowerCase())}">
+  html += `<tr data-news-id="${n.id}" data-status="${st}" data-important="${n.important?1:0}" data-title="${escapeHtml((n.title||'').toLowerCase())}" data-category="${escapeHtml((n.category||'').toLowerCase())}" data-tags="${escapeHtml((n.tags||[]).join(',').toLowerCase())}" data-author="${escapeHtml((n.author||'').toLowerCase())}">
    <td><input type="checkbox" data-cb="${n.id}" ${selected.has(n.id)?'checked':''} style="accent-color:var(--accent)"></td>
-   <td><strong>${escapeHtml(n.title||'Без названия')}</strong>${isEdited?`<span class="edited-badge" title="Изменено: ${n._updated.toLocaleString('ru-RU')}"><i class="fas fa-pen"></i>изменено</span>`:''}</td>
+   <td><strong>${escapeHtml(n.title||'Без названия')}</strong>${isEdited?`<span class="edited-badge" title="Изменено: ${n._updated.toLocaleString('ru-RU')}"><i class="fas fa-pen"></i></span>`:''}${n.important?`<span class="imp-badge" title="Важная"><i class="fas fa-star"></i></span>`:''}</td>
    <td>${escapeHtml(n.category||'—')}</td>
    <td>${n.views||0}</td>
    <td><span class="status-badge status-${st}">${statusLabels[st]||st}</span></td>
@@ -998,7 +1122,7 @@ function renderNewsRows() {
     ${st==='published'?`<a class="btn btn-outline btn-sm" href="${SITE_BASE_URL}${n.id}" target="_blank" rel="noopener noreferrer" title="Открыть на сайте"><i class="fas fa-external-link-alt"></i></a>`:''}
     <button class="btn btn-warning btn-sm" data-action="edit" title="Редактировать"><i class="fas fa-edit"></i></button>
     <button class="btn btn-outline btn-sm" data-action="duplicate" title="Дублировать"><i class="fas fa-copy"></i></button>
-    <button class="btn btn-danger btn-sm" data-action="delete" title="Удалить"><i class="fas fa-trash"></i></button>
+    <button class="btn btn-danger btn-sm" data-action="delete" title="В корзину"><i class="fas fa-trash"></i></button>
    </td>
   </tr>`;
  });
@@ -1029,11 +1153,17 @@ document.querySelectorAll('th.sortable').forEach(th => {
 function filterNewsRows() {
  const q = (document.getElementById('newsSearch').value || document.getElementById('globalSearch').value || '').trim().toLowerCase();
  const statusFilter = document.getElementById('newsStatusFilter').value;
+ const catFilter = document.getElementById('newsCategoryFilter').value;
+ const authFilter = document.getElementById('newsAuthorFilter').value;
+ const onlyImp = document.getElementById('newsImportantFilter').checked;
  document.querySelectorAll('#newsList tr[data-news-id]').forEach(row => {
   const blob = `${row.dataset.title} ${row.dataset.category} ${row.dataset.tags} ${row.dataset.author}`;
   const matchesText = !q || blob.includes(q);
   const matchesStatus = statusFilter === 'all' || row.dataset.status === statusFilter;
-  row.style.display = (matchesText && matchesStatus) ? '' : 'none';
+  const matchesCat = catFilter === 'all' || row.dataset.category === catFilter;
+  const matchesAuth = authFilter === 'all' || row.dataset.author === authFilter.toLowerCase();
+  const matchesImp = !onlyImp || row.dataset.important === '1';
+  row.style.display = (matchesText && matchesStatus && matchesCat && matchesAuth && matchesImp) ? '' : 'none';
  });
 }
 document.getElementById('globalSearch').addEventListener('input', () => { showTab('list'); filterNewsRows(); });
@@ -1045,9 +1175,8 @@ function toggleSelect(id, on) {
  updateBulkBar();
 }
 function updateBulkBar() {
- const bar = document.getElementById('bulkBar');
  document.getElementById('bulkCount').textContent = selected.size;
- bar.classList.toggle('active', selected.size > 0);
+ document.getElementById('bulkBar').classList.toggle('active', selected.size > 0);
 }
 function clearSelection() {
  selected.clear();
@@ -1059,18 +1188,19 @@ function clearSelection() {
 async function bulkAction(action) {
  if (!selected.size) return;
  const ids = [...selected];
- const ok = await customConfirm(`Применить «${action}» к ${ids.length} новостям?`, 'Массовое действие');
+ const ok = await customConfirm(`Применить к ${ids.length} новостям?`, 'Массовое действие');
  if (!ok) return;
  try {
   const batch = db.batch();
   ids.forEach(id => {
    const ref = db.collection('news').doc(id);
-   if (action === 'delete') batch.delete(ref);
+   if (action === 'delete') batch.update(ref, { deleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
    else if (action === 'publish') batch.update(ref, { status:'published', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
    else if (action === 'draft') batch.update(ref, { status:'draft', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
   });
   await batch.commit();
   toast(`Готово (${ids.length})`);
+  logActivity(action === 'delete' ? 'переместил в корзину' : action === 'publish' ? 'опубликовал' : 'снял с публикации', `${ids.length} новостей`, 'news');
   clearSelection(); loadNewsList(); loadStats();
  } catch(e) { toast('Ошибка: ' + e.message,'error'); }
 }
@@ -1079,7 +1209,7 @@ function editNews(id) {
  showTab('create');
  document.getElementById('formTitle').textContent = 'Редактирование новости';
  document.getElementById('formBreadcrumb').textContent = 'Новости / Редактирование';
- toast('Загрузка новости...');
+ toast('Загрузка...');
  db.collection('news').doc(id).get().then(doc => {
   if (!doc.exists) return;
   const n = doc.data();
@@ -1107,18 +1237,24 @@ async function duplicateNews(id) {
   const doc = await db.collection('news').doc(id).get();
   if (!doc.exists) return;
   const n = doc.data();
-  const copy = { ...n, title: (n.title || '') + ' (копия)', status: 'draft', views: 0, likeCount: 0, fireCount: 0, thumbsCount: 0, wowCount: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp(), author: auth.currentUser?.email || 'admin' };
-  delete copy.publishAt;
+  const copy = { ...n, title: (n.title || '') + ' (копия)', status: 'draft', views: 0, likeCount: 0, fireCount: 0, thumbsCount: 0, wowCount: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp(), author: currentAdmin?.name || auth.currentUser?.email || 'admin' };
+  delete copy.publishAt; delete copy.deleted; delete copy.deletedAt;
   await db.collection('news').add(copy);
-  toast('Копия создана');
-  loadNewsList(); loadStats();
+  await logActivity('дублировал новость', n.title, 'news');
+  toast('Копия создана'); loadNewsList(); loadStats();
  } catch(e) { toast('Ошибка: ' + e.message,'error'); }
 }
 async function deleteNews(id) {
- const ok = await customConfirm('Удалить эту новость безвозвратно?','Удаление новости');
+ const ok = await customConfirm('Переместить в корзину? Можно восстановить в течение 30 дней.','В корзину');
  if (!ok) return;
- try { await db.collection('news').doc(id).delete(); toast('Новость удалена'); loadNewsList(); loadStats(); }
- catch (error) { toast('Ошибка удаления','error'); }
+ try {
+  const doc = await db.collection('news').doc(id).get();
+  const title = doc.exists ? doc.data().title : '';
+  await db.collection('news').doc(id).update({ deleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  await logActivity('переместил в корзину', title, 'news');
+  toast('Перемещено в корзину');
+  loadNewsList(); loadStats(); loadTrash();
+ } catch (error) { toast('Ошибка: ' + error.message,'error'); }
 }
 
 async function loadDrafts() {
@@ -1126,19 +1262,14 @@ async function loadDrafts() {
  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px"><div class="skel" style="width:80%;margin:0 auto"></div></td></tr>';
  try {
   const snap = await db.collection('news').where('status','==','draft').orderBy('createdAt','desc').limit(50).get();
-  const docs = snap.docs;
+  const docs = snap.docs.filter(d => !d.data().deleted);
   document.getElementById('draftsListCount').textContent = `Черновиков: ${docs.length}`;
   if (!docs.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-file-pen"></i>Черновиков нет</div></td></tr>'; return; }
   let html = '';
   docs.forEach(doc => {
    const d = doc.data();
    const date = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString('ru-RU') : '—';
-   html += `<tr data-news-id="${doc.id}" style="cursor:pointer">
-    <td><strong>${escapeHtml(d.title||'Без названия')}</strong></td>
-    <td>${escapeHtml(d.category||'—')}</td>
-    <td>${date}</td>
-    <td><button class="btn btn-warning btn-sm" data-edit="1"><i class="fas fa-edit"></i> Открыть</button></td>
-   </tr>`;
+   html += `<tr data-news-id="${doc.id}" style="cursor:pointer"><td><strong>${escapeHtml(d.title||'Без названия')}</strong></td><td>${escapeHtml(d.category||'—')}</td><td>${date}</td><td><button class="btn btn-warning btn-sm" data-edit="1"><i class="fas fa-edit"></i> Открыть</button></td></tr>`;
   });
   tbody.innerHTML = html;
   tbody.querySelectorAll('tr[data-news-id]').forEach(tr => {
@@ -1154,25 +1285,80 @@ async function loadScheduled() {
  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px"><div class="skel" style="width:80%;margin:0 auto"></div></td></tr>';
  try {
   const snap = await db.collection('news').where('status','==','scheduled').orderBy('publishAt','asc').limit(50).get();
-  const docs = snap.docs;
+  const docs = snap.docs.filter(d => !d.data().deleted);
   document.getElementById('schedListCount').textContent = `Запланировано: ${docs.length}`;
   if (!docs.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-clock"></i>Нет запланированных</div></td></tr>'; return; }
   let html = '';
   docs.forEach(doc => {
    const d = doc.data();
    const when = d.publishAt?.toDate ? d.publishAt.toDate().toLocaleString('ru-RU') : '—';
-   html += `<tr data-news-id="${doc.id}">
-    <td><strong>${escapeHtml(d.title||'Без названия')}</strong></td>
-    <td>${escapeHtml(d.category||'—')}</td>
-    <td>${when}</td>
-    <td><button class="btn btn-warning btn-sm" data-edit="1"><i class="fas fa-edit"></i> Открыть</button></td>
-   </tr>`;
+   html += `<tr data-news-id="${doc.id}"><td><strong>${escapeHtml(d.title||'Без названия')}</strong></td><td>${escapeHtml(d.category||'—')}</td><td>${when}</td><td><button class="btn btn-warning btn-sm" data-edit="1"><i class="fas fa-edit"></i> Открыть</button></td></tr>`;
   });
   tbody.innerHTML = html;
   tbody.querySelectorAll('button[data-edit]').forEach(btn => {
    btn.onclick = () => editNews(btn.closest('tr').dataset.newsId);
   });
  } catch(e) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--red)">Ошибка</td></tr>'; }
+}
+
+async function loadTrash() {
+ const tbody = document.getElementById('trashList');
+ tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px"><div class="skel" style="width:80%;margin:0 auto"></div></td></tr>';
+ try {
+  const snap = await db.collection('news').where('deleted','==',true).orderBy('deletedAt','desc').limit(100).get();
+  const docs = snap.docs;
+  document.getElementById('trashListCount').textContent = `В корзине: ${docs.length}`;
+  const tc = document.getElementById('trashCount');
+  tc.textContent = docs.length; tc.style.display = docs.length > 0 ? 'inline-block' : 'none';
+  if (!docs.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-trash"></i>Корзина пуста</div></td></tr>'; return; }
+  let html = '';
+  docs.forEach(doc => {
+   const d = doc.data();
+   const delAt = d.deletedAt?.toDate?.();
+   const daysLeft = delAt ? Math.max(0, 30 - Math.floor((Date.now() - delAt.getTime()) / 86400000)) : null;
+   const delStr = delAt ? delAt.toLocaleString('ru-RU') : '—';
+   html += `<tr data-news-id="${doc.id}"><td><strong>${escapeHtml(d.title||'Без названия')}</strong>${daysLeft!==null?`<span style="font-size:.7rem;color:var(--red);margin-left:8px">${daysLeft} дн.</span>`:''}</td><td>${escapeHtml(d.category||'—')}</td><td>${delStr}</td><td style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-success btn-sm" data-action="restore"><i class="fas fa-rotate-left"></i> Восстановить</button><button class="btn btn-danger btn-sm" data-action="purge"><i class="fas fa-xmark"></i> Удалить навсегда</button></td></tr>`;
+  });
+  tbody.innerHTML = html;
+  tbody.querySelectorAll('button[data-action]').forEach(btn => {
+   const id = btn.closest('tr').dataset.newsId;
+   if (btn.dataset.action === 'restore') btn.onclick = async () => {
+    await db.collection('news').doc(id).update({ deleted: false, deletedAt: null });
+    toast('Восстановлено'); loadTrash(); loadNewsList(); loadStats();
+   };
+   if (btn.dataset.action === 'purge') btn.onclick = async () => {
+    const ok = await customConfirm('Удалить навсегда? Нельзя восстановить.', 'Удаление');
+    if (!ok) return;
+    await db.collection('news').doc(id).delete();
+    toast('Удалено навсегда'); loadTrash(); loadNewsList(); loadStats();
+   };
+  });
+ } catch(e) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--red)">Ошибка</td></tr>'; console.error(e); }
+}
+async function emptyTrash() {
+ const ok = await customConfirm('Удалить ВСЁ из корзины навсегда?', 'Очистка корзины');
+ if (!ok) return;
+ try {
+  const snap = await db.collection('news').where('deleted','==',true).get();
+  const batch = db.batch();
+  snap.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  toast('Корзина очищена'); loadTrash(); loadStats();
+ } catch(e) { toast('Ошибка: ' + e.message,'error'); }
+}
+async function autoCleanTrash() {
+ try {
+  const snap = await db.collection('news').where('deleted','==',true).get();
+  const batch = db.batch();
+  const now = Date.now();
+  let n = 0;
+  snap.forEach(doc => {
+   const d = doc.data();
+   const delAt = d.deletedAt?.toDate?.()?.getTime?.();
+   if (delAt && now - delAt > 30 * 86400000) { batch.delete(doc.ref); n++; }
+  });
+  if (n > 0) { await batch.commit(); console.log('Auto-clean:', n); }
+ } catch(e) { console.warn(e); }
 }
 
 async function autoPublishScheduled() {
@@ -1183,17 +1369,18 @@ async function autoPublishScheduled() {
   let n = 0;
   snap.forEach(doc => {
    const d = doc.data();
+   if (d.deleted) return;
    const when = d.publishAt?.toDate ? d.publishAt.toDate().getTime() : null;
    if (when && when <= now) { batch.update(doc.ref, { status:'published' }); n++; }
   });
-  if (n > 0) { await batch.commit(); toast(`Автопубликация: ${n}`); }
+  if (n > 0) { await batch.commit(); toast(`Автопубликация: ${n}`); logActivity('автопубликация', `${n} новостей`, 'news'); }
  } catch(e) { console.warn(e); }
 }
 
 function exportCSV() {
- const rows = [['Title','Category','Status','Views','CreatedAt','Author']];
+ const rows = [['Title','Category','Status','Views','CreatedAt','Author','Important']];
  applySort([...allNews]).forEach(n => {
-  rows.push([n.title||'', n.category||'', n.status||'', n.views||0, n._created?.toISOString?.() || '', n.author||'']);
+  rows.push([n.title||'', n.category||'', n.status||'', n.views||0, n._created?.toISOString?.() || '', n.author||'', n.important?'1':'']);
  });
  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
  const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8' });
