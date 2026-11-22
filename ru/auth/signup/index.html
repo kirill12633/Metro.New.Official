@@ -180,9 +180,17 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
     <div class="f"><label class="l" for="rPass2">Повторите пароль</label><div class="inp"><i class="fas fa-lock ic"></i><input id="rPass2" type="password" autocomplete="new-password" maxlength="64" /><button type="button" class="eye" data-eye="rPass2" aria-label="Показать пароль"><i class="fas fa-eye"></i></button></div></div>
     <label class="chk"><input type="checkbox" id="cTerms" /><span>Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank" rel="noopener noreferrer">Пользовательским соглашением</a> и <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank" rel="noopener noreferrer">Политикой конфиденциальности</a></span></label>
     <label class="chk"><input type="checkbox" id="cData" /><span>Я согласен на обработку моих персональных данных (почта, псевдоним, а при входе — IP-адрес и данные устройства) для работы аккаунта и безопасности</span></label>
+    <label class="chk"><input type="checkbox" id="cAge" /><span>Мне есть 13 лет или больше</span></label>
     <button class="btn" id="bReg" type="submit"><i class="fas fa-user-plus"></i> Создать аккаунт</button>
-    <p class="note">Вход через Google на этой вкладке тоже требует обоих согласий.</p>
+    <p class="note">Вход через Google на этой вкладке тоже требует всех отметок выше.</p>
    </form>
+  </div>
+
+  <div id="mfaView" class="center hide">
+   <div class="big"><i class="fas fa-shield-halved"></i></div><h3>Код из приложения</h3><p>Введите 6 цифр из приложения-аутентификатора.</p>
+   <div class="msg" id="mfaMsg" role="alert"></div>
+   <div class="inp" style="margin-bottom:12px"><input id="mfaCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="padding-left:14px;text-align:center;letter-spacing:6px" /></div>
+   <button class="btn" id="mfaOk" type="button">Подтвердить</button><button class="btn sec" id="mfaNo" type="button">Отмена</button>
   </div>
 
   <div id="verifyView" class="center hide">
@@ -244,7 +252,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 0 2
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification,updateProfile,deleteUser,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,sendEmailVerification,updateProfile,deleteUser,signOut,getMultiFactorResolver,TotpMultiFactorGenerator}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,doc,setDoc,getDoc,updateDoc,addDoc,collection,serverTimestamp,Timestamp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",authDomain:"metro-new-85226.firebaseapp.com",databaseURL:"https://metro-new-85226-default-rtdb.firebaseio.com",projectId:"metro-new-85226",storageBucket:"metro-new-85226.firebasestorage.app",messagingSenderId:"905640751733",appId:"1:905640751733:web:f1ab3a1b119ca1e245fe3c"};
@@ -328,7 +336,7 @@ if(location.hash==='#register')setMode('reg');
 document.querySelectorAll('.eye').forEach(b=>b.onclick=()=>{const p=$(b.dataset.eye),s=p.type==='password';p.type=s?'text':'password';b.firstElementChild.className='fas '+(s?'fa-eye-slash':'fa-eye')});
 document.querySelectorAll('[data-dev]').forEach(b=>b.onclick=()=>msg('Вход через '+b.dataset.dev+' пока в разработке. Используйте Google или почту.','info'));
 
-const ERR={'auth/invalid-email':'Некорректная почта','auth/user-not-found':'Неверная почта или пароль','auth/wrong-password':'Неверная почта или пароль','auth/invalid-credential':'Неверная почта или пароль','auth/email-already-in-use':'Эта почта уже зарегистрирована. Попробуйте войти','auth/weak-password':'Слишком слабый пароль','auth/too-many-requests':'Слишком много попыток. Подождите немного','auth/popup-closed-by-user':'Окно входа закрыто','auth/popup-blocked':'Браузер заблокировал окно. Разрешите всплывающие окна','auth/network-request-failed':'Нет соединения с сетью','auth/user-disabled':'Аккаунт заблокирован. Напишите в поддержку'};
+const ERR={'auth/invalid-email':'Некорректная почта','auth/user-not-found':'Неверная почта или пароль','auth/wrong-password':'Неверная почта или пароль','auth/invalid-credential':'Неверная почта или пароль','auth/email-already-in-use':'Эта почта уже зарегистрирована. Попробуйте войти','auth/weak-password':'Слишком слабый пароль','auth/too-many-requests':'Слишком много попыток. Подождите немного','auth/popup-closed-by-user':'Окно входа закрыто','auth/popup-blocked':'Браузер заблокировал окно. Разрешите всплывающие окна','auth/network-request-failed':'Нет соединения с сетью','auth/user-disabled':'Аккаунт заблокирован. Напишите в поддержку','auth/invalid-verification-code':'Неверный код из приложения','auth/code-expired':'Код устарел, повторите'};
 function fail(e){if(e instanceof UE)return msg(e.message);if(['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(e.code))bump();if(e.code==='auth/cancelled-popup-request')return;msg(ERR[e.code]||'Не удалось выполнить действие. Попробуйте ещё раз.')}
 async function run(fn){if(busy)return;busy=true;document.querySelectorAll('.btn,.pbtn').forEach(b=>b.disabled=true);msg('');try{await fn()}catch(e){fail(e)}busy=false;document.querySelectorAll('.btn,.pbtn').forEach(b=>b.disabled=false);route(auth.currentUser)}
 
@@ -349,23 +357,32 @@ async function afterAuth(user,method,extra={}){
  let nick=user.displayName||'Игрок';
  try{
   const t=await user.getIdToken();
-  const r=await fetch(WORKER+'/session',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({method,captcha:tsToken,nickname:extra.nickname||null,consents:{type:extra.consents?'checkbox':'notice'},device:DEV(),tech:TECH()})});
+  const r=await fetch(WORKER+'/session',{method:'POST',headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({method,captcha:tsToken,nickname:extra.nickname||null,consents:{type:extra.consents?'checkbox':'notice',age13:!!(extra.consents&&$('cAge').checked)},device:DEV(),tech:TECH()})});
   const j=await r.json().catch(()=>({}));tsReset();
   if(r.ok){nick=j.nickname||nick;await user.reload().catch(()=>{})}
   else if(j.error==='nickname_taken'){await deleteUser(user).catch(()=>{});throw new UE('Этот псевдоним уже занят. Выберите другой.')}
   else if(j.error==='captcha'){if(extra.nickname)await deleteUser(user).catch(()=>{});else await signOut(auth).catch(()=>{});throw new UE(j.message||'Пройдите проверку «Я не робот»')}
+  else if(j.error==='ip_limit'||j.error==='consent_required'){if(extra.nickname)await deleteUser(user).catch(()=>{});else await signOut(auth).catch(()=>{});throw new UE(j.message)}
+  else if(j.error==='banned'){await signOut(auth).catch(()=>{});throw new UE('Аккаунт заблокирован '+(j.until?'до '+new Date(j.until).toLocaleString('ru-RU'):'навсегда')+(j.reason?'. Причина: '+j.reason:''))}
   else if(j.error==='bad_email'||j.error==='bad_nickname'){await signOut(auth).catch(()=>{});throw new UE(j.message||'Эта почта не подходит')}
   else console.warn('session',j);
  }catch(e){if(e instanceof UE)throw e;console.warn('session',e)}
  ls.set(LAST,JSON.stringify({n:nick,e:user.email||'',m:method}));
 }
 
+// ===== 2FA (код из приложения) =====
+function askCode(){return new Promise(res=>{$('authView').classList.add('hide');$('mfaView').classList.remove('hide');$('mfaCode').value='';$('mfaMsg').className='msg';
+ const end=v=>{$('mfaView').classList.add('hide');$('authView').classList.remove('hide');res(v)};
+ $('mfaNo').onclick=()=>end(null);
+ $('mfaOk').onclick=()=>{const v=$('mfaCode').value.trim();if(!/^\d{6}$/.test(v)){$('mfaMsg').className='msg err';$('mfaMsg').textContent='Введите 6 цифр';return}end(v)}})}
+async function withMfa(fn){try{return await fn()}catch(e){if(e.code!=='auth/multi-factor-auth-required')throw e;const rs=getMultiFactorResolver(auth,e),h=rs.hints.find(x=>x.factorId===TotpMultiFactorGenerator.FACTOR_ID);if(!h)throw new UE('Этот способ второго фактора не поддерживается');const code=await askCode();if(!code)throw new UE('Вход отменён');return await rs.resolveSignIn(TotpMultiFactorGenerator.assertionForSignIn(h.uid,code))}}
+
 // ===== действия =====
-const consentOk=()=>$('cTerms').checked&&$('cData').checked;
+const consentOk=()=>$('cTerms').checked&&$('cData').checked&&$('cAge').checked;
 function googleLogin(hint){run(async()=>{
- if(mode==='reg'&&!consentOk())throw new UE('Чтобы зарегистрироваться через Google, отметьте оба согласия');
+ if(mode==='reg'&&!consentOk())throw new UE('Чтобы зарегистрироваться через Google, отметьте все согласия и возраст 13+');
  const p=new GoogleAuthProvider();p.setCustomParameters(hint?{login_hint:hint}:{prompt:'select_account'});
- const c=await signInWithPopup(auth,p);
+ const c=await withMfa(()=>signInWithPopup(auth,p));
  await afterAuth(c.user,'google',mode==='reg'?{consents:consentObj('checkbox')}:{});
 })}
 $('bGoogle').onclick=()=>googleLogin();
@@ -374,7 +391,7 @@ $('fLogin').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
  const lk=locked();if(lk)throw new UE('Слишком много неудачных попыток. Подождите '+lk+' мин.');
  const email=$('lEmail').value.trim().toLowerCase(),pass=$('lPass').value;
  if(!email||!pass)throw new UE('Введите почту и пароль');
- const c=await signInWithEmailAndPassword(auth,email,pass);ls.del(LK);
+ const c=await withMfa(()=>signInWithEmailAndPassword(auth,email,pass));ls.del(LK);
  await afterAuth(c.user,'email');
 })});
 
@@ -386,7 +403,7 @@ $('fReg').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
  er=checkPass(p1,nick,email);if(er)throw new UE(er);
  if(await pwned(p1))throw new UE('Этот пароль найден в утечках. Придумайте другой');
  if(p1!==p2)throw new UE('Пароли не совпадают');
- if(!consentOk())throw new UE('Нужно отметить оба согласия');
+ if(!consentOk())throw new UE('Нужно отметить все согласия и подтвердить возраст 13+');
  if(!tsToken)throw new UE('Дождитесь проверки «Я не робот» (над формой) и повторите');
  if((await getDoc(doc(db,'usernames',nick.toLowerCase()))).exists())throw new UE('Этот псевдоним уже занят');
  const c=await createUserWithEmailAndPassword(auth,email,p1);
