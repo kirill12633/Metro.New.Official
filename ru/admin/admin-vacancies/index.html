@@ -1,848 +1,640 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Админ-панель — Вакансии Метро New</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Вакансии — Админка Метро New</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://metro-new-admin.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+<style>
+:root{--r:12px;--rl:16px;--rx:20px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--hov:#1d2b4f;--t:#f2f4fa;--t2:#a6b0cc;--t3:#77819e;--accent:#FFD700;--accent2:#ffe14d;--glow:rgba(255,215,0,.2);--blue:#4d94ff;--green:#34a853;--red:#f28b82;--border:#253460;--shadow:0 8px 30px rgba(0,0,0,.5);color-scheme:dark}
+[data-theme=light]{--bg:#fff;--bg2:#f4f6fb;--card:#fff;--hov:#eef1f9;--t:#14151f;--t2:#565f7a;--t3:#8890a8;--accent:#e6c200;--accent2:#c2a300;--glow:rgba(230,194,0,.18);--blue:#0066CC;--green:#1e8e4e;--red:#d93025;--border:#e2e6f0;--shadow:0 8px 30px rgba(20,22,40,.1);color-scheme:light}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--t);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s;background-image:radial-gradient(ellipse at 10% 10%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 55%),radial-gradient(ellipse at 90% 40%,color-mix(in srgb,var(--blue) 9%,transparent),transparent 55%)}
+.container{width:92%;max-width:1280px;margin:0 auto;padding:0 16px}
+a{color:inherit}
+header{background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 0;position:sticky;top:0;z-index:99}
+nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.logo a{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;font-size:1.3rem}
+.logo img{width:40px;height:40px;border-radius:10px;box-shadow:0 0 30px var(--glow)}
+.nl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nl>a{color:var(--t2);text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 14px;border-radius:var(--r)}
+.nl>a:hover{color:var(--t);background:var(--hov)}
+.nl>a.login{background:linear-gradient(135deg,var(--blue),#7aacff);color:#fff;border-radius:50px;font-weight:700}
+.burger{display:none;background:none;border:0;color:var(--t);font-size:1.5rem;cursor:pointer}
+main{flex:1;padding:30px 0 50px}
 
-    <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+.admin-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start}
+.sidebar{position:sticky;top:88px;background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:14px;box-shadow:var(--shadow)}
+.sidebar .who{display:flex;align-items:center;gap:10px;padding:8px 8px 14px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.sidebar .who .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:.95rem}
+.sidebar .who .av img{width:100%;height:100%;object-fit:cover}
+.sidebar .who b{display:block;font-size:.82rem;font-weight:700;line-height:1.2;word-break:break-all}
+.sidebar .who small{font-size:.68rem;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.snav{display:flex;flex-direction:column;gap:4px}
+.snav button,.snav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:none;border:0;color:var(--t2);font:600 .85rem 'Montserrat';text-decoration:none;cursor:pointer;text-align:left;transition:.18s;position:relative}
+.snav button:hover,.snav a:hover{background:var(--hov);color:var(--t)}
+.snav button.on,.snav a.on{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.snav i{width:18px;text-align:center}
+.snav .divider{height:1px;background:var(--border);margin:8px 0}
+.snav .badge{margin-left:auto;background:var(--red);color:#fff;font-size:.65rem;font-weight:800;padding:2px 7px;border-radius:50px;min-width:18px;text-align:center}
+.snav .logout{color:var(--red)}
+.snav .logout:hover{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.content{min-width:0}
+.panel{display:none;animation:fade .25s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+.topbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.search{flex:1;min-width:200px;position:relative}
+.search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:.85rem}
+.search input{width:100%;padding:11px 38px 11px 38px;background:var(--bg2);border:1px solid var(--border);border-radius:50px;color:var(--t);font:500 .9rem 'Montserrat';outline:0}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.search .clear-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--t3);cursor:pointer;width:28px;height:28px;border-radius:50%;display:none;align-items:center;justify-content:center}
+.search .clear-btn:hover{background:var(--hov);color:var(--red)}
+.search.has-value .clear-btn{display:inline-flex}
+.iconbtn{width:42px;height:42px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--t2);cursor:pointer;position:relative;display:inline-flex;align-items:center;justify-content:center;transition:.2s}
+.iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+.iconbtn .dot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid var(--card);display:none}
+.iconbtn.has .dot{display:block}
 
-    <style>
-        /* ============================================================
-                   СТИЛИ
-                   ============================================================ */
-        :root {
-            --radius: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            --bg-primary: #0d1526;
-            --bg-secondary: #131c33;
-            --bg-card: #182444;
-            --bg-card-hover: #1d2b4f;
-            --text-primary: #f2f4fa;
-            --text-secondary: #a6b0cc;
-            --text-tertiary: #77819e;
-            --accent: #FFD700;
-            --accent-hover: #ffe14d;
-            --accent-light: rgba(255, 215, 0, 0.12);
-            --accent-glow: rgba(255, 215, 0, 0.2);
-            --green: #34a853;
-            --green-light: rgba(52, 168, 83, 0.15);
-            --red: #f28b82;
-            --red-light: rgba(242, 139, 130, 0.15);
-            --blue: #4d94ff;
-            --blue-hover: #7aacff;
-            --border: #253460;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
-            color-scheme: dark;
-        }
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f4f6fb;
-            --bg-card: #ffffff;
-            --bg-card-hover: #eef1f9;
-            --text-primary: #14151f;
-            --text-secondary: #565f7a;
-            --text-tertiary: #8890a8;
-            --accent: #e6c200;
-            --accent-hover: #c2a300;
-            --accent-light: rgba(230, 194, 0, 0.12);
-            --accent-glow: rgba(230, 194, 0, 0.18);
-            --green: #1e8e4e;
-            --green-light: rgba(30, 142, 78, 0.1);
-            --red: #d93025;
-            --red-light: rgba(217, 48, 37, 0.1);
-            --blue: #0066CC;
-            --blue-hover: #0052a3;
-            --border: #e2e6f0;
-            --shadow: 0 8px 30px rgba(20, 22, 40, 0.1);
-            --shadow-lg: 0 16px 40px rgba(20, 22, 40, 0.12);
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
-            background-image: radial-gradient(ellipse at 20% 30%, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 70%, color-mix(in srgb, #4d94ff 7%, transparent) 0%, transparent 60%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+.eyebrow{display:inline-flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);padding:5px 14px;border-radius:50px;font-weight:600;font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
+.hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.hero h1{font-size:1.7rem;font-weight:800;line-height:1.15}
+.hero p{color:var(--t2);font-size:.88rem;font-weight:500}
 
-        /* ===== HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 30px;
-        }
-        .page-header h1 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .page-header .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:18px;text-align:center;transition:.25s;position:relative;overflow:hidden}
+.stat-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 24px var(--glow)}
+.stat-value{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--t),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{color:var(--t3);font-size:.72rem;margin-top:4px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 24px;
-            border-radius: 50px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.25s;
-            font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            color: #0d1526;
-            box-shadow: 0 4px 20px var(--accent-glow);
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 35px var(--accent-glow);
-        }
-        .btn-green {
-            background: linear-gradient(135deg, var(--green), #2d8f4e);
-            color: #fff;
-        }
-        .btn-green:hover {
-            transform: translateY(-3px);
-        }
-        .btn-blue {
-            background: linear-gradient(135deg, var(--blue), var(--blue-hover));
-            color: #fff;
-        }
-        .btn-blue:hover {
-            transform: translateY(-3px);
-        }
-        .btn-red {
-            background: linear-gradient(135deg, var(--red), #d93025);
-            color: #fff;
-        }
-        .btn-red:hover {
-            transform: translateY(-3px);
-        }
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        .btn-secondary:hover {
-            background: var(--bg-card-hover);
-            transform: translateY(-3px);
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 0.75rem;
-        }
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:0;border-radius:50px;font:700 .85rem 'Montserrat';cursor:pointer;transition:.22s;text-decoration:none}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;box-shadow:0 6px 22px var(--glow)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-success{background:linear-gradient(135deg,var(--green),#6ee7b7);color:#fff}
+.btn-success:hover{transform:translateY(-2px)}
+.btn-outline{background:var(--bg2);color:var(--t);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:linear-gradient(135deg,var(--red),#fca5a5);color:#fff}
+.btn-danger:hover{transform:translateY(-2px)}
+.btn-sm{padding:6px 14px;font-size:.78rem}
 
-        .theme-toggle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-        .theme-toggle:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 0 18px var(--accent-glow);
-        }
-        .theme-toggle .fa-moon {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-        }
-        .theme-toggle .fa-sun {
-            opacity: 0;
-            transform: rotate(90deg) scale(0.3);
-        }
-        [data-theme="light"] .theme-toggle .fa-sun {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-            color: var(--accent);
-        }
-        [data-theme="light"] .theme-toggle .fa-moon {
-            opacity: 0;
-            transform: rotate(-90deg) scale(0.3);
-        }
+/* vacancy cards */
+.vacancies-list{display:grid;gap:12px}
+.vacancy-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;transition:.22s}
+.vacancy-item:hover{border-color:var(--accent);box-shadow:0 8px 24px var(--glow)}
+.vacancy-item .info{flex:1;min-width:200px}
+.vacancy-item .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.vacancy-item .title{font-weight:800;font-size:1.05rem}
+.vacancy-item .badge{font-size:.65rem;font-weight:800;padding:3px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:.6px}
+.badge-open{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.badge-soon{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.vacancy-item .details{color:var(--t2);font-size:.85rem;display:flex;flex-wrap:wrap;gap:14px;margin-top:4px}
+.vacancy-item .details i{color:var(--accent);width:16px;text-align:center}
+.vacancy-item .actions{display:flex;gap:6px;flex-wrap:wrap}
+.vacancy-item .actions button{width:34px;height:34px;border:0;border-radius:50%;background:var(--card);color:var(--t2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;transition:.15s}
+.vacancy-item .actions .edit-btn:hover{background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent)}
+.vacancy-item .actions .delete-btn:hover{background:color-mix(in srgb,var(--red) 20%,transparent);color:var(--red)}
 
-        /* ===== ФОРМА ДОБАВЛЕНИЯ ===== */
-        .form-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
-        }
-        .form-section h2 {
-            font-size: 1.4rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .form-section h2 i {
-            color: var(--accent);
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        .form-group {
-            margin-bottom: 14px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-            color: var(--text-secondary);
-        }
-        .form-group label .required {
-            color: var(--red);
-            margin-left: 4px;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            transition: border-color 0.25s;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        .form-group textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        .form-group .hint {
-            color: var(--text-tertiary);
-            font-size: 0.75rem;
-            margin-top: 4px;
-        }
+.empty-state{text-align:center;padding:44px 20px;color:var(--t3);font-size:.9rem;background:var(--bg2);border:1px dashed var(--border);border-radius:var(--rl)}
+.empty-state i{font-size:2.5rem;display:block;margin-bottom:10px;opacity:.5;color:var(--accent)}
+.empty-state button{margin-top:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border:0;padding:10px 22px;border-radius:50px;font:700 .85rem 'Montserrat';cursor:pointer}
 
-        /* ===== СПИСОК ВАКАНСИЙ ===== */
-        .vacancies-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .vacancy-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
-        }
-        .vacancy-item:hover {
-            border-color: var(--accent);
-            box-shadow: 0 4px 20px var(--accent-glow);
-        }
-        .vacancy-item .info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-            min-width: 200px;
-        }
-        .vacancy-item .info .top {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .vacancy-item .info .top .title {
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-        .vacancy-item .info .top .badge {
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 12px;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .badge-open {
-            background: var(--green-light);
-            color: var(--green);
-        }
-        .badge-soon {
-            background: var(--accent-light);
-            color: var(--accent);
-        }
-        .vacancy-item .info .details {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .vacancy-item .info .details i {
-            color: var(--accent);
-            width: 16px;
-        }
-        .vacancy-item .actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+/* modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(5,8,16,.72);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal.active{display:flex}
+.modal-content{background:var(--card);border:1px solid var(--border);border-radius:var(--rx);padding:24px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);animation:modalIn .25s}
+@keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-header h3{font-size:1.15rem;color:var(--accent);display:flex;align-items:center;gap:8px}
+.modal-close{background:none;border:0;color:var(--t3);font-size:1.4rem;cursor:pointer;transition:.2s}
+.modal-close:hover{color:var(--red)}
+.modal form{display:flex;flex-direction:column;gap:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.78rem;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px}
+.form-group label .required{color:var(--red);margin-left:2px}
+.form-group input,.form-group textarea,.form-group select{padding:11px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--t);font-family:'Montserrat',sans-serif;font-size:.9rem;outline:0}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-group .hint{font-size:.72rem;color:var(--t3)}
+.form-actions{display:flex;gap:10px;margin-top:8px;justify-content:flex-end;flex-wrap:wrap}
+.form-actions .btn{flex:1;min-width:100px;justify-content:center}
 
-        /* ===== LOADING ===== */
-        .loading {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-secondary);
-        }
-        .loading i {
-            font-size: 2.5rem;
-            color: var(--accent);
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        .empty {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-secondary);
-        }
-        .empty i {
-            font-size: 3rem;
-            color: var(--accent);
-            margin-bottom: 12px;
-            display: block;
-        }
+.confirm-dialog{display:none;position:fixed;inset:0;background:rgba(5,8,16,.72);backdrop-filter:blur(4px);z-index:1001;align-items:center;justify-content:center;padding:16px}
+.confirm-dialog.active{display:flex}
+.confirm-box{background:var(--card);border:1px solid var(--border);border-radius:var(--rx);padding:28px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);animation:modalIn .25s}
+.confirm-icon{font-size:3rem;color:var(--red);margin-bottom:12px}
+.confirm-box h3{font-size:1.15rem;margin-bottom:8px}
+.confirm-box p{color:var(--t2);margin-bottom:20px;font-size:.88rem}
+.confirm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.confirm-actions .btn{min-width:100px;justify-content:center}
 
-        /* ===== TOAST ===== */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 24px;
-            box-shadow: var(--shadow-lg);
-            z-index: 9999;
-            max-width: 400px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.4s ease;
-        }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        .toast.success {
-            border-color: var(--green);
-        }
-        .toast.error {
-            border-color: var(--red);
-        }
-        .toast .toast-title {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        .toast .toast-message {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
+.toasts{position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:340px}
+.toast{background:var(--card);border:1px solid var(--border);color:var(--t);padding:11px 16px;border-radius:var(--rl);font-weight:600;font-size:.85rem;box-shadow:var(--shadow);animation:toastIn .25s ease;pointer-events:auto;display:flex;gap:9px;align-items:center}
+.toast i{flex-shrink:0}
+.toast.success{border-color:var(--green)}
+.toast.success i{color:var(--green)}
+.toast.error{border-color:var(--red)}
+.toast.error i{color:var(--red)}
+.toast.info i{color:var(--blue)}
+.toast .x{margin-left:auto;background:none;border:0;color:var(--t3);cursor:pointer;font-size:1rem;padding:0 0 0 8px}
+.toast .x:hover{color:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .vacancy-item {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .vacancy-item .actions {
-                justify-content: flex-start;
-            }
-        }
-        @media (max-width: 480px) {
-            .page-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .page-header .header-actions {
-                justify-content: flex-start;
-            }
-            .form-section {
-                padding: 18px;
-            }
-            .toast {
-                left: 16px;
-                right: 16px;
-                max-width: none;
-            }
-        }
-    </style>
+.skel{background:linear-gradient(90deg,var(--border) 25%,var(--hov) 50%,var(--border) 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:6px;height:14px}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.denied{display:none;text-align:center;padding:80px 20px;max-width:600px;margin:0 auto}
+.denied i{font-size:3rem;color:var(--red);margin-bottom:20px;display:block}
+.denied h2{margin-bottom:12px}
+.denied p{color:var(--t2);margin-bottom:20px;font-size:.9rem}
+
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 16px;margin-top:40px}
+.footer-bottom{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--t2);font-size:.82rem}
+
+@media(max-width:860px){.admin-layout{grid-template-columns:1fr}.sidebar{position:static}.snav{flex-direction:row;flex-wrap:wrap}.snav button,.snav a{flex:1 1 auto;min-width:120px;justify-content:center}.snav .divider{display:none}}
+@media(max-width:600px){body{padding:0}.hero h1{font-size:1.4rem}.stats-grid{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr}.vacancy-item{flex-direction:column;align-items:stretch}.vacancy-item .actions{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
 </head>
 <body>
 
-    <div class="container">
+<header><div class="container"><nav>
+ <div class="logo"><a href="https://kirill12633.github.io/Metro.New.Official/ru/"><img src="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" alt="Метро New" /><span>Метро New</span></a></div>
+ <button class="burger" id="burger" aria-label="Меню"><i class="fas fa-bars"></i></button>
+ <div class="nl" id="nl">
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/">Главная</a>
+  <a href="https://www.roblox.com/communities/34820737/RP-NEW" target="_blank" rel="noopener noreferrer">Игры</a>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/news">Блог</a>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/contact">Обратная связь</a>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/" class="login"><i class="fas fa-user"></i> Админка</a>
+ </div>
+</nav></div></header>
 
-        <!-- ===== HEADER ===== -->
-        <header class="page-header">
-            <h1><i class="fas fa-briefcase" style="color:var(--accent);"></i> Управление вакансиями</h1>
-            <div class="header-actions">
-                <a href="https://kirill12633.github.io/careers.metro.new/vacancies/" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-arrow-left"></i> На сайт
-                </a>
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                    <i class="fas fa-sun"></i>
-                </button>
-            </div>
-        </header>
+<main><div class="container">
+ <div class="denied" id="denied">
+  <i class="fas fa-ban"></i>
+  <h2>Нет доступа к разделу «Вакансии»</h2>
+  <p id="deniedMsg">В вашем документе <code>admins</code> нет ключа <code>"vacancies"</code> в ACL, либо вы не администратор.</p>
+  <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/" class="btn btn-primary"><i class="fas fa-arrow-left"></i> На главную админки</a>
+ </div>
 
-        <!-- ===== ФОРМА ДОБАВЛЕНИЯ ===== -->
-        <section class="form-section" id="formSection">
-            <h2 id="formTitle"><i class="fas fa-plus-circle"></i> Добавить вакансию</h2>
-
-            <form id="vacancyForm">
-                <input type="hidden" id="editId" value="" />
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="title">Название вакансии <span class="required">*</span></label>
-                        <input type="text" id="title" placeholder="Администратор Игры" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Статус <span class="required">*</span></label>
-                        <select id="status" required>
-                            <option value="open">Открыта</option>
-                            <option value="soon">Скоро</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="location">Локация <span class="required">*</span></label>
-                        <input type="text" id="location" placeholder="Удалённо" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="schedule">График работы <span class="required">*</span></label>
-                        <input type="text" id="schedule" placeholder="Полный день" required />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Описание <span class="required">*</span></label>
-                    <textarea id="description" placeholder="Полное описание вакансии..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="requirements">Требования <span class="required">*</span></label>
-                    <textarea id="requirements" placeholder="Каждое требование с новой строки&#10;Опыт работы от 1 года&#10;Знание Roblox Studio" required></textarea>
-                    <div class="hint">Каждое требование с новой строки</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="conditions">Условия <span class="optional">(необязательно)</span></label>
-                    <textarea id="conditions" placeholder="Каждое условие с новой строки&#10;Официальное трудоустройство&#10;З/п от 50 000 руб"></textarea>
-                    <div class="hint">Каждое условие с новой строки</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="extra">Дополнительная информация <span class="optional">(необязательно)</span></label>
-                    <textarea id="extra" placeholder="Дополнительная информация о вакансии"></textarea>
-                </div>
-
-                <div class="form-actions" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
-                    <button type="submit" class="btn btn-green" id="submitBtn">
-                        <i class="fas fa-save"></i> <span id="submitText">Сохранить</span>
-                    </button>
-                    <button type="reset" class="btn btn-secondary" id="cancelBtn" style="display:none;">
-                        <i class="fas fa-times"></i> Отменить
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <!-- ===== СПИСОК ВАКАНСИЙ ===== -->
-        <section class="form-section">
-            <h2><i class="fas fa-list"></i> Все вакансии</h2>
-            <div id="vacanciesContainer">
-                <div class="loading">
-                    <i class="fas fa-spinner"></i>
-                    <p>Загрузка вакансий...</p>
-                </div>
-            </div>
-        </section>
-
+ <div class="admin-layout" id="app" style="display:none">
+  <aside class="sidebar">
+   <div class="who">
+    <div class="av" id="sbAv">A</div>
+    <div>
+     <b id="sbName">admin@metro.new</b>
+     <small id="sbRole">admin</small>
     </div>
+   </div>
+   <div class="snav">
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/"><i class="fas fa-house"></i> Главная</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/news/"><i class="fas fa-newspaper"></i> Новости</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/tools/"><i class="fas fa-toolbox"></i> Инструменты</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/activity/"><i class="fas fa-clock-rotate-left"></i> Activity <span class="badge hide" id="sbActBadge">0</span></a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notifications/"><i class="fas fa-bell"></i> Уведомления <span class="badge hide" id="sbNotifBadge">0</span></a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notes/"><i class="fas fa-note-sticky"></i> Заметки</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/trash/"><i class="fas fa-trash"></i> Корзина</a>
+    <div class="divider"></div>
+    <button class="logout" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Выйти</button>
+   </div>
+  </aside>
 
-    <!-- ===== TOAST ===== -->
-    <div class="toast" id="toast">
-        <div class="toast-title" id="toastTitle">Готово!</div>
-        <div class="toast-message" id="toastMessage">Действие выполнено</div>
+  <div class="content">
+   <div class="topbar">
+    <div class="search" id="searchWrap">
+     <i class="fas fa-search"></i>
+     <input type="text" id="searchInput" placeholder="Поиск по названию, локации или графику..." oninput="filterVacancies()">
+     <button class="clear-btn" id="clearSearch" onclick="clearSearch()"><i class="fas fa-times"></i></button>
     </div>
+    <button class="iconbtn" id="notifBtn" title="Уведомления"><i class="fas fa-bell"></i><span class="dot" id="notifDot"></span></button>
+    <button class="iconbtn" id="themeBtn" title="Тема"><i class="fas fa-moon"></i></button>
+   </div>
 
-    <!-- ============================================================ -->
-    <!-- ===== FIREBASE + MAIN SCRIPTS ===== -->
-    <!-- ============================================================ -->
-    <script>
-        // ============================================================
-        // ===== FIREBASE =====
-        // ============================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
-            authDomain: "metro-new-admin.firebaseapp.com",
-            projectId: "metro-new-admin",
-            storageBucket: "metro-new-admin.firebasestorage.app",
-            messagingSenderId: "769002010414",
-            appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+   <div class="eyebrow"><i class="fas fa-briefcase"></i> Управление вакансиями</div>
+   <div class="hero">
+    <div>
+     <h1>Вакансии</h1>
+     <p>Добавляйте и редактируйте вакансии проекта</p>
+    </div>
+   </div>
 
-        // ============================================================
-        // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
-        // ============================================================
-        let allVacancies = [];
-        let isEditing = false;
+   <div class="stats-grid">
+    <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Всего</div></div>
+    <div class="stat-card"><div class="stat-value" id="statOpen">0</div><div class="stat-label">✅ Открыто</div></div>
+    <div class="stat-card"><div class="stat-value" id="statSoon">0</div><div class="stat-label">⏳ Скоро</div></div>
+   </div>
 
-        // ============================================================
-        // ===== DOM ЭЛЕМЕНТЫ =====
-        // ============================================================
-        const form = document.getElementById('vacancyForm');
-        const formTitle = document.getElementById('formTitle');
-        const submitBtn = document.getElementById('submitBtn');
-        const submitText = document.getElementById('submitText');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const editId = document.getElementById('editId');
+   <div class="toolbar">
+    <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить вакансию</button>
+    <select class="btn btn-outline" id="statusFilter" onchange="filterVacancies()" style="padding:10px 18px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem">
+     <option value="all">Все статусы</option>
+     <option value="open">Только открытые</option>
+     <option value="soon">Только «скоро»</option>
+    </select>
+   </div>
 
-        const titleInput = document.getElementById('title');
-        const statusInput = document.getElementById('status');
-        const locationInput = document.getElementById('location');
-        const scheduleInput = document.getElementById('schedule');
-        const descriptionInput = document.getElementById('description');
-        const requirementsInput = document.getElementById('requirements');
-        const conditionsInput = document.getElementById('conditions');
-        const extraInput = document.getElementById('extra');
+   <div class="vacancies-list" id="vacanciesContainer">
+    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i>Загрузка...</div>
+   </div>
+  </div>
+ </div>
+</div></main>
 
-        const container = document.getElementById('vacanciesContainer');
+<!-- MODAL VACANCY -->
+<div class="modal" id="vacancyModal">
+ <div class="modal-content">
+  <div class="modal-header">
+   <h3 id="modalTitle"><i class="fas fa-plus"></i> Добавить вакансию</h3>
+   <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+  </div>
+  <form id="vacancyForm">
+   <input type="hidden" id="editId" value="">
+   <div class="form-row">
+    <div class="form-group"><label for="title">Название <span class="required">*</span></label><input type="text" id="title" placeholder="Администратор игры" required></div>
+    <div class="form-group"><label for="status">Статус <span class="required">*</span></label><select id="status" required><option value="open">Открыта</option><option value="soon">Скоро</option></select></div>
+   </div>
+   <div class="form-row">
+    <div class="form-group"><label for="location">Локация <span class="required">*</span></label><input type="text" id="location" placeholder="Удалённо" required></div>
+    <div class="form-group"><label for="schedule">График <span class="required">*</span></label><input type="text" id="schedule" placeholder="Полный день" required></div>
+   </div>
+   <div class="form-group"><label for="description">Описание <span class="required">*</span></label><textarea id="description" placeholder="Полное описание вакансии..." required></textarea></div>
+   <div class="form-group"><label for="requirements">Требования <span class="required">*</span></label><textarea id="requirements" placeholder="Каждое с новой строки" required></textarea><div class="hint">Каждое требование с новой строки</div></div>
+   <div class="form-group"><label for="conditions">Условия</label><textarea id="conditions" placeholder="Каждое с новой строки"></textarea><div class="hint">Необязательно</div></div>
+   <div class="form-group"><label for="extra">Доп. информация</label><textarea id="extra" placeholder="Дополнительная информация"></textarea></div>
+   <div class="form-actions">
+    <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
+    <button type="submit" class="btn btn-success" id="submitBtn"><i class="fas fa-save"></i> <span id="submitText">Сохранить</span></button>
+   </div>
+  </form>
+ </div>
+</div>
 
-        const toast = document.getElementById('toast');
-        const toastTitle = document.getElementById('toastTitle');
-        const toastMessage = document.getElementById('toastMessage');
-        let toastTimeout = null;
+<!-- CONFIRM -->
+<div class="confirm-dialog" id="confirmDialog">
+ <div class="confirm-box">
+  <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+  <h3 id="confirmTitle">Удалить вакансию?</h3>
+  <p id="confirmMessage">Это действие нельзя отменить.</p>
+  <div class="confirm-actions">
+   <button class="btn btn-outline" onclick="closeConfirm()">Отмена</button>
+   <button class="btn btn-danger" id="confirmOk">Удалить</button>
+  </div>
+ </div>
+</div>
 
-        // ============================================================
-        // ===== TOAST =====
-        // ============================================================
-        function showToast(title, message, type = 'success') {
-            toast.className = 'toast ' + type;
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            toast.classList.add('show');
+<footer><div class="container">
+ <div class="footer-bottom">
+  <p>© <span id="currentYear"></span> Метро New. Все права защищены.</p>
+  <span>|</span>
+  <span>Админ-панель · Вакансии</span>
+ </div>
+</div></footer>
 
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+<div class="toasts" id="toasts"></div>
 
-        // ============================================================
-        // ===== ЗАГРУЗКА ВАКАНСИЙ =====
-        // ============================================================
-        async function loadVacancies() {
-            try {
-                const snapshot = await db.collection('careers')
-                    .orderBy('title')
-                    .get();
+<script>
+firebase.initializeApp({
+ apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
+ authDomain: "metro-new-admin.firebaseapp.com",
+ projectId: "metro-new-admin",
+ storageBucket: "metro-new-admin.firebasestorage.app",
+ messagingSenderId: "769002010414",
+ appId: "1:769002010414:web:bdeb93a7eddc4cab63ecbf"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                            <div class="empty">
-                                <i class="fas fa-inbox"></i>
-                                <p>Вакансии пока не добавлены</p>
-                            </div>
-                        `;
-                    return;
-                }
+const LOGIN_PAGE = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login/';
 
-                allVacancies = [];
-                snapshot.forEach(doc => {
-                    allVacancies.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
+// THEME
+const root = document.documentElement;
+const THEME_KEY = 'mn_theme';
+root.setAttribute('data-theme', localStorage.getItem(THEME_KEY) || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+function syncThemeIcon(){ document.getElementById('themeBtn').innerHTML = root.getAttribute('data-theme')==='light' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+syncThemeIcon();
+document.getElementById('themeBtn').onclick = () => {
+ const cur = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+ root.setAttribute('data-theme', cur);
+ localStorage.setItem(THEME_KEY, cur);
+ syncThemeIcon();
+};
+document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-                renderVacancies();
+// STATE
+let currentUser = null;
+let currentAdmin = null;
+let isAdmin = false;
+let allVacancies = [];
+let isEditing = false;
+let deleteTargetId = null;
 
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                container.innerHTML = `
-                        <div class="empty">
-                            <i class="fas fa-exclamation-triangle" style="color:var(--red);"></i>
-                            <p>Ошибка загрузки вакансий</p>
-                            <button class="btn btn-primary btn-sm" onclick="loadVacancies()" style="margin-top:12px;">
-                                <i class="fas fa-redo"></i> Попробовать снова
-                            </button>
-                        </div>
-                    `;
-            }
-        }
+const container = document.getElementById('vacanciesContainer');
+const searchInput = document.getElementById('searchInput');
+const modal = document.getElementById('vacancyModal');
+const form = document.getElementById('vacancyForm');
+const editId = document.getElementById('editId');
+const modalTitle = document.getElementById('modalTitle');
+const submitText = document.getElementById('submitText');
+const confirmDialog = document.getElementById('confirmDialog');
 
-        // ============================================================
-        // ===== ОТОБРАЖЕНИЕ ВАКАНСИЙ =====
-        // ============================================================
-        function renderVacancies() {
-            if (allVacancies.length === 0) {
-                container.innerHTML = `
-                        <div class="empty">
-                            <i class="fas fa-inbox"></i>
-                            <p>Вакансий пока нет</p>
-                        </div>
-                    `;
-                return;
-            }
+// AUTH + ACL
+auth.onAuthStateChanged(async (user) => {
+ if (!user) { location.href = LOGIN_PAGE; return; }
+ try {
+  const snap = await db.collection('admins').doc(user.uid).get();
+  if (!snap.exists) { showDenied('Ваш UID не найден в коллекции admins'); return; }
+  currentAdmin = { uid: user.uid, ...snap.data() };
+  currentUser = user;
+  const role = currentAdmin.role || 'admin';
+  const isOwner = role === 'owner';
+  let acl = currentAdmin.acl ?? null, aclSet = null;
+  if (Array.isArray(acl)) aclSet = new Set(acl);
+  else if (acl && typeof acl === 'object') aclSet = new Set(Object.keys(acl).filter(k => acl[k]));
+  const hasVac = isOwner || !aclSet || aclSet.has('vacancies');
+  if (!hasVac) { showDenied('В ACL нет ключа "vacancies"'); return; }
+  isAdmin = true;
 
-            container.innerHTML = allVacancies.map(v => {
-                const statusLabel = v.status === 'open' ? 'Открыта' : 'Скоро';
-                const statusClass = v.status === 'open' ? 'badge-open' : 'badge-soon';
-                const reqCount = v.requirements ? v.requirements.length : 0;
+  document.getElementById('sbName').textContent = user.email || 'admin@metro.new';
+  document.getElementById('sbRole').textContent = role;
+  document.getElementById('sbAv').textContent = (user.email || 'A')[0].toUpperCase();
+  document.getElementById('logoutBtn').onclick = () => { auth.signOut().then(()=>{ location.href = LOGIN_PAGE; }); };
+  document.getElementById('notifBtn').onclick = () => { location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/notifications/'; };
+  document.getElementById('app').style.display = '';
+  loadVacancies();
+  loadBadges();
+ } catch(e) {
+  console.error(e);
+  showDenied('Не удалось проверить права: ' + e.message);
+ }
+});
+function showDenied(msg) {
+ document.getElementById('denied').style.display = 'block';
+ document.getElementById('deniedMsg').innerHTML += `<br><small style="color:var(--red)">${msg}</small>`;
+}
 
-                return `
-                        <div class="vacancy-item">
-                            <div class="info">
-                                <div class="top">
-                                    <span class="title">${v.title || 'Без названия'}</span>
-                                    <span class="badge ${statusClass}">${statusLabel}</span>
-                                </div>
-                                <div class="details">
-                                    <span><i class="fas fa-map-pin"></i> ${v.location || '—'}</span>
-                                    <span><i class="fas fa-clock"></i> ${v.schedule || '—'}</span>
-                                    <span><i class="fas fa-list-check"></i> ${reqCount} требований</span>
-                                </div>
-                            </div>
-                            <div class="actions">
-                                <button class="btn btn-blue btn-sm" onclick="editVacancy('${v.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-red btn-sm" onclick="deleteVacancy('${v.id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-            }).join('');
-        }
+// BADGES
+async function loadBadges() {
+ try {
+  const notifSnap = await db.collection('notifications').where('uid','==',currentUser.uid).where('read','==',false).get();
+  const nb = document.getElementById('sbNotifBadge');
+  if (notifSnap.size > 0) { nb.textContent = notifSnap.size; nb.classList.remove('hide'); document.getElementById('notifDot').classList.add('has'); }
+  else { nb.classList.add('hide'); document.getElementById('notifDot').classList.remove('has'); }
+ } catch(e) {}
+ try {
+  const lastSeen = Number(localStorage.getItem('mn_actSeen') || 0);
+  const actSnap = await db.collection('activity').orderBy('timestamp','desc').limit(50).get();
+  let cnt = 0;
+  actSnap.forEach(d => { const t = d.data().timestamp?.toDate?.()?.getTime?.() || 0; if (t > lastSeen) cnt++; });
+  const ab = document.getElementById('sbActBadge');
+  if (cnt > 0) { ab.textContent = cnt; ab.classList.remove('hide'); } else ab.classList.add('hide');
+ } catch(e) {}
+}
 
-        // ============================================================
-        // ===== ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ =====
-        // ============================================================
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
+// LOAD
+async function loadVacancies() {
+ container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i>Загрузка...</div>';
+ try {
+  const snapshot = await db.collection('careers').orderBy('title').get();
+  allVacancies = [];
+  snapshot.forEach(doc => allVacancies.push({ id: doc.id, ...doc.data() }));
+  filterVacancies();
+  updateStats();
+ } catch (error) {
+  console.error(error);
+  container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle" style="color:var(--red)"></i>Ошибка загрузки<button onclick="loadVacancies()">Повторить</button></div>`;
+ }
+}
 
-            const data = {
-                title: titleInput.value.trim(),
-                status: statusInput.value,
-                location: locationInput.value.trim(),
-                schedule: scheduleInput.value.trim(),
-                description: descriptionInput.value.trim(),
-                requirements: requirementsInput.value.split('\n').filter(r => r.trim() !== ''),
-                conditions: conditionsInput.value.split('\n').filter(c => c.trim() !== ''),
-                extra: extraInput.value.trim()
-            };
+// FILTER
+function filterVacancies() {
+ const q = (searchInput.value || '').toLowerCase().trim();
+ const status = document.getElementById('statusFilter').value;
+ document.getElementById('searchWrap').classList.toggle('has-value', q.length > 0);
+ let list = allVacancies.filter(v => {
+  const blob = [v.title||'', v.location||'', v.schedule||'', v.description||''].join(' ').toLowerCase();
+  const matchesQ = !q || blob.includes(q);
+  const matchesStatus = status === 'all' || v.status === status;
+  return matchesQ && matchesStatus;
+ });
+ renderVacancies(list);
+}
 
-            // Валидация
-            if (!data.title || !data.location || !data.schedule || !data.description || data.requirements.length === 0) {
-                showToast('⚠️ Ошибка', 'Заполните все обязательные поля', 'error');
-                return;
-            }
+function renderVacancies(list) {
+ if (!list.length) {
+  container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i>${allVacancies.length === 0 ? 'Вакансий пока нет' : 'Ничего не найдено'}<br><button onclick="openAddModal()">${allVacancies.length === 0 ? 'Добавить первую вакансию' : 'Добавить новую'}</button></div>`;
+  return;
+ }
+ container.innerHTML = list.map(v => {
+  const statusLabel = v.status === 'open' ? 'Открыта' : 'Скоро';
+  const statusClass = v.status === 'open' ? 'badge-open' : 'badge-soon';
+  const reqCount = v.requirements ? v.requirements.length : 0;
+  return `<div class="vacancy-item">
+   <div class="info">
+    <div class="top"><span class="title">${escapeHtml(v.title || 'Без названия')}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
+    <div class="details">
+     <span><i class="fas fa-map-pin"></i> ${escapeHtml(v.location || '—')}</span>
+     <span><i class="fas fa-clock"></i> ${escapeHtml(v.schedule || '—')}</span>
+     <span><i class="fas fa-list-check"></i> ${reqCount} требований</span>
+    </div>
+   </div>
+   <div class="actions">
+    <button class="edit-btn" onclick="editVacancy('${v.id}')" title="Редактировать"><i class="fas fa-pen"></i></button>
+    <button class="delete-btn" onclick="deleteVacancy('${v.id}')" title="Удалить"><i class="fas fa-trash"></i></button>
+   </div>
+  </div>`;
+ }).join('');
+}
 
-            try {
-                if (isEditing && editId.value) {
-                    // Обновление
-                    await db.collection('careers').doc(editId.value).update(data);
-                    showToast('✅ Успешно!', 'Вакансия обновлена');
-                } else {
-                    // Добавление
-                    await db.collection('careers').add(data);
-                    showToast('✅ Успешно!', 'Вакансия добавлена');
-                }
+function updateStats() {
+ document.getElementById('statTotal').textContent = allVacancies.length;
+ document.getElementById('statOpen').textContent = allVacancies.filter(v => v.status === 'open').length;
+ document.getElementById('statSoon').textContent = allVacancies.filter(v => v.status === 'soon').length;
+}
 
-                resetForm();
-                await loadVacancies();
+function clearSearch() {
+ searchInput.value = '';
+ filterVacancies();
+ searchInput.focus();
+}
 
-            } catch (error) {
-                console.error('Ошибка сохранения:', error);
-                showToast('❌ Ошибка', 'Не удалось сохранить вакансию', 'error');
-            }
-        });
+// MODAL
+function openAddModal() {
+ if (!isAdmin) { toast('Только для администраторов', 'error'); return; }
+ isEditing = false;
+ editId.value = '';
+ modalTitle.innerHTML = '<i class="fas fa-plus"></i> Добавить вакансию';
+ submitText.textContent = 'Сохранить';
+ form.reset();
+ document.getElementById('title').value = '';
+ document.getElementById('status').value = 'open';
+ document.getElementById('location').value = '';
+ document.getElementById('schedule').value = '';
+ document.getElementById('description').value = '';
+ document.getElementById('requirements').value = '';
+ document.getElementById('conditions').value = '';
+ document.getElementById('extra').value = '';
+ modal.classList.add('active');
+ setTimeout(() => document.getElementById('title').focus(), 100);
+}
+function closeModal() { modal.classList.remove('active'); }
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
-        // ============================================================
-        // ===== РЕДАКТИРОВАНИЕ =====
-        // ============================================================
-        function editVacancy(id) {
-            const v = allVacancies.find(item => item.id === id);
-            if (!v) return;
+// EDIT
+function editVacancy(id) {
+ if (!isAdmin) return;
+ const v = allVacancies.find(x => x.id === id);
+ if (!v) return;
+ isEditing = true;
+ editId.value = id;
+ document.getElementById('title').value = v.title || '';
+ document.getElementById('status').value = v.status || 'open';
+ document.getElementById('location').value = v.location || '';
+ document.getElementById('schedule').value = v.schedule || '';
+ document.getElementById('description').value = v.description || '';
+ document.getElementById('requirements').value = (v.requirements || []).join('\n');
+ document.getElementById('conditions').value = (v.conditions || []).join('\n');
+ document.getElementById('extra').value = v.extra || '';
+ modalTitle.innerHTML = '<i class="fas fa-pen"></i> Редактировать вакансию';
+ submitText.textContent = 'Обновить';
+ modal.classList.add('active');
+}
 
-            isEditing = true;
-            editId.value = id;
+// SAVE
+form.addEventListener('submit', async (e) => {
+ e.preventDefault();
+ if (!isAdmin) return;
+ const data = {
+  title: document.getElementById('title').value.trim(),
+  status: document.getElementById('status').value,
+  location: document.getElementById('location').value.trim(),
+  schedule: document.getElementById('schedule').value.trim(),
+  description: document.getElementById('description').value.trim(),
+  requirements: document.getElementById('requirements').value.split('\n').map(r => r.trim()).filter(Boolean),
+  conditions: document.getElementById('conditions').value.split('\n').map(c => c.trim()).filter(Boolean),
+  extra: document.getElementById('extra').value.trim(),
+  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+ };
+ if (!data.title || !data.location || !data.schedule || !data.description || data.requirements.length === 0) {
+  toast('Заполните все обязательные поля', 'error');
+  return;
+ }
+ const submitBtn = document.getElementById('submitBtn');
+ submitBtn.disabled = true;
+ setTimeout(() => submitBtn.disabled = false, 2500);
+ try {
+  if (isEditing && editId.value) {
+   await db.collection('careers').doc(editId.value).update(data);
+   await logActivity('обновил вакансию', data.title, 'vacancies');
+   await notifyAdmins('Вакансия обновлена', data.title, 'info');
+   toast('Вакансия обновлена', 'success');
+  } else {
+   data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+   await db.collection('careers').add(data);
+   await logActivity('добавил вакансию', data.title, 'vacancies');
+   await notifyAdmins('Новая вакансия', data.title, 'ok');
+   toast('Вакансия добавлена', 'success');
+  }
+  closeModal();
+  loadVacancies();
+  loadBadges();
+ } catch (error) {
+  console.error(error);
+  toast('Ошибка: ' + error.message, 'error');
+ }
+});
 
-            titleInput.value = v.title || '';
-            statusInput.value = v.status || 'open';
-            locationInput.value = v.location || '';
-            scheduleInput.value = v.schedule || '';
-            descriptionInput.value = v.description || '';
-            requirementsInput.value = (v.requirements || []).join('\n');
-            conditionsInput.value = (v.conditions || []).join('\n');
-            extraInput.value = v.extra || '';
+// DELETE
+let _confirmCb = null;
+function deleteVacancy(id) {
+ if (!isAdmin) return;
+ const v = allVacancies.find(x => x.id === id);
+ if (!v) return;
+ deleteTargetId = id;
+ document.getElementById('confirmTitle').textContent = `Удалить «${v.title}»?`;
+ document.getElementById('confirmMessage').textContent = 'Это действие нельзя отменить.';
+ confirmDialog.classList.add('active');
+}
+document.getElementById('confirmOk').onclick = async () => {
+ if (!deleteTargetId) return;
+ try {
+  const v = allVacancies.find(x => x.id === deleteTargetId);
+  await db.collection('careers').doc(deleteTargetId).delete();
+  await logActivity('удалил вакансию', v?.title || '', 'vacancies');
+  await notifyAdmins('Вакансия удалена', v?.title || '', 'warn');
+  toast('Вакансия удалена', 'success');
+  closeConfirm();
+  loadVacancies();
+  loadBadges();
+ } catch (error) {
+  toast('Ошибка удаления', 'error');
+ }
+};
+function closeConfirm() { confirmDialog.classList.remove('active'); deleteTargetId = null; }
+confirmDialog.addEventListener('click', e => { if (e.target === confirmDialog) closeConfirm(); });
 
-            formTitle.innerHTML = '<i class="fas fa-edit" style="color:var(--accent);"></i> Редактировать вакансию';
-            submitText.textContent = 'Обновить';
-            cancelBtn.style.display = 'inline-flex';
+// ACTIVITY + NOTIFY
+async function logActivity(action, target, type='vacancies') {
+ try {
+  await db.collection('activity').add({
+   who: currentAdmin?.name || currentAdmin?.email || 'admin',
+   uid: currentAdmin?.uid, action, target, type,
+   timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+ } catch(e) {}
+}
+async function notifyAdmins(title, body, type='info') {
+ try {
+  const snap = await db.collection('admins').get();
+  const batch = db.batch();
+  snap.forEach(doc => {
+   batch.set(db.collection('notifications').doc(), {
+    uid: doc.id, title, body, type, read: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+   });
+  });
+  await batch.commit();
+ } catch(e) {}
+}
 
-            document.getElementById('formSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+// TOAST
+function toast(msg, type='info') {
+ const wrap = document.getElementById('toasts');
+ const el = document.createElement('div');
+ el.className = 'toast ' + type;
+ const ic = type==='error' ? 'fa-circle-xmark' : type==='success' ? 'fa-circle-check' : 'fa-circle-info';
+ el.innerHTML = `<i class="fas ${ic}"></i><span>${escapeHtml(msg)}</span><button class="x">&times;</button>`;
+ el.querySelector('.x').onclick = () => el.remove();
+ wrap.appendChild(el);
+ setTimeout(() => el.remove(), 3500);
+}
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
-        // ============================================================
-        // ===== УДАЛЕНИЕ =====
-        // ============================================================
-        async function deleteVacancy(id) {
-            if (!confirm('Вы уверены, что хотите удалить эту вакансию?')) return;
+// GLOBAL
+window.openAddModal = openAddModal;
+window.editVacancy = editVacancy;
+window.deleteVacancy = deleteVacancy;
+window.closeModal = closeModal;
+window.closeConfirm = closeConfirm;
+window.filterVacancies = filterVacancies;
+window.clearSearch = clearSearch;
+window.loadVacancies = loadVacancies;
+window.toast = toast;
 
-            try {
-                await db.collection('careers').doc(id).delete();
-                showToast('✅ Успешно!', 'Вакансия удалена');
-                await loadVacancies();
-
-                if (isEditing && editId.value === id) {
-                    resetForm();
-                }
-            } catch (error) {
-                console.error('Ошибка удаления:', error);
-                showToast('❌ Ошибка', 'Не удалось удалить вакансию', 'error');
-            }
-        }
-
-        // ============================================================
-        // ===== СБРОС ФОРМЫ =====
-        // ============================================================
-        function resetForm() {
-            isEditing = false;
-            editId.value = '';
-            form.reset();
-            conditionsInput.value = '';
-            extraInput.value = '';
-
-            formTitle.innerHTML = '<i class="fas fa-plus-circle" style="color:var(--accent);"></i> Добавить вакансию';
-            submitText.textContent = 'Сохранить';
-            cancelBtn.style.display = 'none';
-        }
-
-        cancelBtn.addEventListener('click', resetForm);
-
-        // ============================================================
-        // ===== ТЕМА =====
-        // ============================================================
-        const THEME_KEY = 'metro_new_theme';
-        const root = document.documentElement;
-
-        function applyTheme(theme) {
-            root.setAttribute('data-theme', theme);
-        }
-
-        function getInitialTheme() {
-            const saved = localStorage.getItem(THEME_KEY);
-            if (saved === 'light' || saved === 'dark') return saved;
-            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        }
-
-        let currentTheme = getInitialTheme();
-        applyTheme(currentTheme);
-
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            applyTheme(currentTheme);
-            localStorage.setItem(THEME_KEY, currentTheme);
-        });
-
-        // ============================================================
-        // ===== ЗАПУСК =====
-        // ============================================================
-        loadVacancies();
-
-        // Для глобального доступа
-        window.editVacancy = editVacancy;
-        window.deleteVacancy = deleteVacancy;
-        window.loadVacancies = loadVacancies;
-    </script>
-
+console.log('💼 Vacancies dashboard loaded');
+</script>
 </body>
 </html>
