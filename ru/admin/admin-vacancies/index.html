@@ -78,6 +78,12 @@ main{flex:1;padding:30px 0 50px}
 .stat-label{color:var(--t3);font-size:.72rem;margin-top:4px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
 
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar-select{padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:50px;font-family:'Montserrat',sans-serif;font-size:.85rem;color:var(--t);outline:0;font-weight:600;cursor:pointer}
+.toolbar-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.filter-label{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:50px;cursor:pointer;font:600 .82rem 'Montserrat';color:var(--t2);user-select:none;transition:.2s}
+.filter-label:hover{border-color:var(--accent);color:var(--accent)}
+.filter-label input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:0;border-radius:50px;font:700 .85rem 'Montserrat';cursor:pointer;transition:.22s;text-decoration:none}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;box-shadow:0 6px 22px var(--glow)}
@@ -90,28 +96,36 @@ main{flex:1;padding:30px 0 50px}
 .btn-danger:hover{transform:translateY(-2px)}
 .btn-sm{padding:6px 14px;font-size:.78rem}
 
-/* vacancy cards */
+.bulk-bar{display:none;background:var(--card);border:1px solid var(--accent);border-radius:var(--rl);padding:10px 16px;margin-bottom:12px;align-items:center;gap:10px;flex-wrap:wrap;font-size:.85rem}
+.bulk-bar.active{display:flex}
+.bulk-bar .count{font-weight:800;color:var(--accent)}
+
 .vacancies-list{display:grid;gap:12px}
-.vacancy-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;transition:.22s}
+.vacancy-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;transition:.22s;position:relative}
 .vacancy-item:hover{border-color:var(--accent);box-shadow:0 8px 24px var(--glow)}
+.vacancy-item.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg2))}
+.vacancy-item .cb{flex-shrink:0}
+.vacancy-item .cb input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
 .vacancy-item .info{flex:1;min-width:200px}
 .vacancy-item .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .vacancy-item .title{font-weight:800;font-size:1.05rem}
 .vacancy-item .badge{font-size:.65rem;font-weight:800;padding:3px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:.6px}
 .badge-open{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
 .badge-soon{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.edited-badge{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;color:var(--blue);margin-left:6px;opacity:.9}
 .vacancy-item .details{color:var(--t2);font-size:.85rem;display:flex;flex-wrap:wrap;gap:14px;margin-top:4px}
 .vacancy-item .details i{color:var(--accent);width:16px;text-align:center}
 .vacancy-item .actions{display:flex;gap:6px;flex-wrap:wrap}
-.vacancy-item .actions button{width:34px;height:34px;border:0;border-radius:50%;background:var(--card);color:var(--t2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;transition:.15s}
+.vacancy-item .actions button,.vacancy-item .actions a{width:34px;height:34px;border:0;border-radius:50%;background:var(--card);color:var(--t2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;transition:.15s;text-decoration:none}
 .vacancy-item .actions .edit-btn:hover{background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent)}
 .vacancy-item .actions .delete-btn:hover{background:color-mix(in srgb,var(--red) 20%,transparent);color:var(--red)}
+.vacancy-item .actions .dup-btn:hover{background:color-mix(in srgb,var(--blue) 20%,transparent);color:var(--blue)}
+.vacancy-item .actions .ext-btn:hover{background:color-mix(in srgb,var(--green) 20%,transparent);color:var(--green)}
 
 .empty-state{text-align:center;padding:44px 20px;color:var(--t3);font-size:.9rem;background:var(--bg2);border:1px dashed var(--border);border-radius:var(--rl)}
 .empty-state i{font-size:2.5rem;display:block;margin-bottom:10px;opacity:.5;color:var(--accent)}
 .empty-state button{margin-top:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#14151f;border:0;padding:10px 22px;border-radius:50px;font:700 .85rem 'Montserrat';cursor:pointer}
 
-/* modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(5,8,16,.72);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px}
 .modal.active{display:flex}
 .modal-content{background:var(--card);border:1px solid var(--border);border-radius:var(--rx);padding:24px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);animation:modalIn .25s}
@@ -239,12 +253,32 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
    </div>
 
    <div class="toolbar">
-    <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить вакансию</button>
-    <select class="btn btn-outline" id="statusFilter" onchange="filterVacancies()" style="padding:10px 18px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem">
+    <button class="btn btn-primary" onclick="openAddModal()" title="Ctrl+N"><i class="fas fa-plus"></i> Добавить</button>
+    <select class="toolbar-select" id="statusFilter" onchange="filterVacancies()">
      <option value="all">Все статусы</option>
-     <option value="open">Только открытые</option>
-     <option value="soon">Только «скоро»</option>
+     <option value="open">✅ Открытые</option>
+     <option value="soon">⏳ Скоро</option>
     </select>
+    <select class="toolbar-select" id="sortField" onchange="filterVacancies()">
+     <option value="title">Сортировка: название</option>
+     <option value="createdAt">Сортировка: дата</option>
+     <option value="reqCount">Сортировка: требований</option>
+    </select>
+    <button class="iconbtn" id="sortDirBtn" title="Направление" onclick="toggleSortDir()"><i class="fas fa-arrow-up-a-z"></i></button>
+    <label class="filter-label"><input type="checkbox" id="onlyReq" onchange="filterVacancies()"> Только с требованиями</label>
+    <label class="filter-label"><input type="checkbox" id="onlyCond" onchange="filterVacancies()"> Только с условиями</label>
+    <label class="filter-label" style="padding:9px 14px"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"> Выбрать все</label>
+   </div>
+
+   <div class="bulk-bar" id="bulkBar">
+    Выбрано: <span class="count" id="bulkCount">0</span>
+    <select class="toolbar-select" id="bulkStatusSelect" onchange="bulkChangeStatus(this.value); this.value=''" style="padding:6px 14px;font-size:.78rem">
+     <option value="">Сменить статус…</option>
+     <option value="open">✅ Открыть</option>
+     <option value="soon">⏳ Скоро</option>
+    </select>
+    <button class="btn btn-danger btn-sm" onclick="bulkAction('delete')"><i class="fas fa-trash"></i> Удалить</button>
+    <button class="btn btn-outline btn-sm" onclick="clearSelection()"><i class="fas fa-xmark"></i> Снять</button>
    </div>
 
    <div class="vacancies-list" id="vacanciesContainer">
@@ -254,7 +288,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
  </div>
 </div></main>
 
-<!-- MODAL VACANCY -->
 <div class="modal" id="vacancyModal">
  <div class="modal-content">
   <div class="modal-header">
@@ -283,7 +316,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
  </div>
 </div>
 
-<!-- CONFIRM -->
 <div class="confirm-dialog" id="confirmDialog">
  <div class="confirm-box">
   <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -317,8 +349,8 @@ firebase.initializeApp({
 });
 const auth = firebase.auth();
 const db = firebase.firestore();
-
 const LOGIN_PAGE = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login/';
+const SITE_BASE = 'https://kirill12633.github.io/careers.metro.new/vacancies/?id=';
 
 // THEME
 const root = document.documentElement;
@@ -341,6 +373,9 @@ let isAdmin = false;
 let allVacancies = [];
 let isEditing = false;
 let deleteTargetId = null;
+let selected = new Set();
+let sortField = 'title';
+let sortDir = 'asc';
 
 const container = document.getElementById('vacanciesContainer');
 const searchInput = document.getElementById('searchInput');
@@ -408,9 +443,18 @@ async function loadBadges() {
 async function loadVacancies() {
  container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i>Загрузка...</div>';
  try {
-  const snapshot = await db.collection('careers').orderBy('title').get();
+  const snapshot = await db.collection('careers').get();
   allVacancies = [];
-  snapshot.forEach(doc => allVacancies.push({ id: doc.id, ...doc.data() }));
+  snapshot.forEach(doc => {
+   const d = doc.data();
+   allVacancies.push({
+    id: doc.id, ...d,
+    _created: d.createdAt?.toDate?.() || new Date(0),
+    _updated: d.updatedAt?.toDate?.() || null,
+    _reqCount: Array.isArray(d.requirements) ? d.requirements.length : 0,
+    _condCount: Array.isArray(d.conditions) ? d.conditions.length : 0
+   });
+  });
   filterVacancies();
   updateStats();
  } catch (error) {
@@ -419,18 +463,42 @@ async function loadVacancies() {
  }
 }
 
-// FILTER
+// FILTER + SORT
 function filterVacancies() {
  const q = (searchInput.value || '').toLowerCase().trim();
  const status = document.getElementById('statusFilter').value;
+ const onlyReq = document.getElementById('onlyReq').checked;
+ const onlyCond = document.getElementById('onlyCond').checked;
  document.getElementById('searchWrap').classList.toggle('has-value', q.length > 0);
+
+ sortField = document.getElementById('sortField').value;
+
  let list = allVacancies.filter(v => {
   const blob = [v.title||'', v.location||'', v.schedule||'', v.description||''].join(' ').toLowerCase();
   const matchesQ = !q || blob.includes(q);
   const matchesStatus = status === 'all' || v.status === status;
-  return matchesQ && matchesStatus;
+  const matchesReq = !onlyReq || v._reqCount > 0;
+  const matchesCond = !onlyCond || v._condCount > 0;
+  return matchesQ && matchesStatus && matchesReq && matchesCond;
  });
+
+ list.sort((a, b) => {
+  const dir = sortDir === 'asc' ? 1 : -1;
+  let va, vb;
+  if (sortField === 'title') { va = (a.title||'').toLowerCase(); vb = (b.title||'').toLowerCase(); }
+  else if (sortField === 'createdAt') { va = a._created.getTime(); vb = b._created.getTime(); }
+  else if (sortField === 'reqCount') { va = a._reqCount; vb = b._reqCount; }
+  if (va < vb) return -1*dir; if (va > vb) return 1*dir; return 0;
+ });
+
  renderVacancies(list);
+}
+
+function toggleSortDir() {
+ sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+ const btn = document.getElementById('sortDirBtn');
+ btn.innerHTML = sortDir === 'asc' ? '<i class="fas fa-arrow-up-a-z"></i>' : '<i class="fas fa-arrow-down-z-a"></i>';
+ filterVacancies();
 }
 
 function renderVacancies(list) {
@@ -441,22 +509,30 @@ function renderVacancies(list) {
  container.innerHTML = list.map(v => {
   const statusLabel = v.status === 'open' ? 'Открыта' : 'Скоро';
   const statusClass = v.status === 'open' ? 'badge-open' : 'badge-soon';
-  const reqCount = v.requirements ? v.requirements.length : 0;
-  return `<div class="vacancy-item">
+  const isEdited = v._updated && v._created && v._updated.getTime() > v._created.getTime() + 5000;
+  return `<div class="vacancy-item ${selected.has(v.id)?'selected':''}" data-id="${v.id}">
+   <div class="cb"><input type="checkbox" data-cb="${v.id}" ${selected.has(v.id)?'checked':''}></div>
    <div class="info">
-    <div class="top"><span class="title">${escapeHtml(v.title || 'Без названия')}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
+    <div class="top"><span class="title">${escapeHtml(v.title || 'Без названия')}</span><span class="badge ${statusClass}">${statusLabel}</span>${isEdited?`<span class="edited-badge" title="Изменено: ${v._updated.toLocaleString('ru-RU')}"><i class="fas fa-pen"></i></span>`:''}</div>
     <div class="details">
      <span><i class="fas fa-map-pin"></i> ${escapeHtml(v.location || '—')}</span>
      <span><i class="fas fa-clock"></i> ${escapeHtml(v.schedule || '—')}</span>
-     <span><i class="fas fa-list-check"></i> ${reqCount} требований</span>
+     <span><i class="fas fa-list-check"></i> ${v._reqCount} требований</span>
+     ${v._condCount > 0 ? `<span><i class="fas fa-check"></i> ${v._condCount} условий</span>` : ''}
     </div>
    </div>
    <div class="actions">
+    <a class="ext-btn" href="${SITE_BASE}${v.id}" target="_blank" rel="noopener noreferrer" title="Открыть на сайте"><i class="fas fa-external-link-alt"></i></a>
+    <button class="dup-btn" onclick="duplicateVacancy('${v.id}')" title="Дублировать"><i class="fas fa-copy"></i></button>
     <button class="edit-btn" onclick="editVacancy('${v.id}')" title="Редактировать"><i class="fas fa-pen"></i></button>
     <button class="delete-btn" onclick="deleteVacancy('${v.id}')" title="Удалить"><i class="fas fa-trash"></i></button>
    </div>
   </div>`;
  }).join('');
+ container.querySelectorAll('input[data-cb]').forEach(cb => {
+  cb.onchange = () => toggleSelect(cb.dataset.cb, cb.checked);
+ });
+ updateBulkBar();
 }
 
 function updateStats() {
@@ -471,6 +547,72 @@ function clearSearch() {
  searchInput.focus();
 }
 
+// SELECTION
+function toggleSelect(id, on) {
+ if (on) selected.add(id); else selected.delete(id);
+ const item = document.querySelector(`.vacancy-item[data-id="${id}"]`);
+ if (item) item.classList.toggle('selected', on);
+ updateBulkBar();
+}
+function toggleSelectAll(on) {
+ selected.clear();
+ document.querySelectorAll('#vacanciesContainer input[data-cb]').forEach(cb => {
+  cb.checked = on;
+  if (on) selected.add(cb.dataset.cb);
+ });
+ document.querySelectorAll('.vacancy-item').forEach(el => el.classList.toggle('selected', on));
+ updateBulkBar();
+}
+function updateBulkBar() {
+ document.getElementById('bulkCount').textContent = selected.size;
+ document.getElementById('bulkBar').classList.toggle('active', selected.size > 0);
+ const all = document.querySelectorAll('#vacanciesContainer input[data-cb]');
+ const checked = document.querySelectorAll('#vacanciesContainer input[data-cb]:checked');
+ document.getElementById('selectAll').checked = all.length > 0 && all.length === checked.length;
+}
+function clearSelection() {
+ selected.clear();
+ document.querySelectorAll('#vacanciesContainer input[data-cb]').forEach(cb => cb.checked = false);
+ document.querySelectorAll('.vacancy-item').forEach(el => el.classList.remove('selected'));
+ document.getElementById('selectAll').checked = false;
+ updateBulkBar();
+}
+
+async function bulkChangeStatus(status) {
+ if (!status || !selected.size) return;
+ const ok = await customConfirm(`Сменить статус у ${selected.size} вакансий?`, 'Массовое действие');
+ if (!ok) return;
+ try {
+  const batch = db.batch();
+  selected.forEach(id => {
+   batch.update(db.collection('careers').doc(id), { status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  });
+  await batch.commit();
+  await logActivity('сменил статус вакансий', `${selected.size} → ${status}`, 'vacancies');
+  toast(`Готово (${selected.size})`, 'success');
+  clearSelection();
+  loadVacancies();
+ } catch(e) { toast('Ошибка: ' + e.message, 'error'); }
+}
+
+async function bulkAction(action) {
+ if (!selected.size) return;
+ if (action === 'delete') {
+  const ok = await customConfirm(`Удалить ${selected.size} вакансий? Это нельзя отменить.`, 'Удаление');
+  if (!ok) return;
+  try {
+   const batch = db.batch();
+   selected.forEach(id => batch.delete(db.collection('careers').doc(id)));
+   await batch.commit();
+   await logActivity('удалил вакансии', `${selected.size} шт.`, 'vacancies');
+   toast(`Удалено (${selected.size})`, 'success');
+   clearSelection();
+   loadVacancies();
+   loadBadges();
+  } catch(e) { toast('Ошибка: ' + e.message, 'error'); }
+ }
+}
+
 // MODAL
 function openAddModal() {
  if (!isAdmin) { toast('Только для администраторов', 'error'); return; }
@@ -479,21 +621,13 @@ function openAddModal() {
  modalTitle.innerHTML = '<i class="fas fa-plus"></i> Добавить вакансию';
  submitText.textContent = 'Сохранить';
  form.reset();
- document.getElementById('title').value = '';
  document.getElementById('status').value = 'open';
- document.getElementById('location').value = '';
- document.getElementById('schedule').value = '';
- document.getElementById('description').value = '';
- document.getElementById('requirements').value = '';
- document.getElementById('conditions').value = '';
- document.getElementById('extra').value = '';
  modal.classList.add('active');
  setTimeout(() => document.getElementById('title').focus(), 100);
 }
 function closeModal() { modal.classList.remove('active'); }
 modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
-// EDIT
 function editVacancy(id) {
  if (!isAdmin) return;
  const v = allVacancies.find(x => x.id === id);
@@ -511,6 +645,30 @@ function editVacancy(id) {
  modalTitle.innerHTML = '<i class="fas fa-pen"></i> Редактировать вакансию';
  submitText.textContent = 'Обновить';
  modal.classList.add('active');
+}
+
+async function duplicateVacancy(id) {
+ if (!isAdmin) return;
+ const v = allVacancies.find(x => x.id === id);
+ if (!v) return;
+ try {
+  const copy = {
+   title: (v.title || 'Без названия') + ' (копия)',
+   status: 'soon',
+   location: v.location || '',
+   schedule: v.schedule || '',
+   description: v.description || '',
+   requirements: v.requirements || [],
+   conditions: v.conditions || [],
+   extra: v.extra || '',
+   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+   updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  await db.collection('careers').add(copy);
+  await logActivity('дублировал вакансию', v.title || '', 'vacancies');
+  toast('Копия создана', 'success');
+  loadVacancies();
+ } catch(e) { toast('Ошибка: ' + e.message, 'error'); }
 }
 
 // SAVE
@@ -557,8 +715,7 @@ form.addEventListener('submit', async (e) => {
  }
 });
 
-// DELETE
-let _confirmCb = null;
+// DELETE single
 function deleteVacancy(id) {
  if (!isAdmin) return;
  const v = allVacancies.find(x => x.id === id);
@@ -585,6 +742,24 @@ document.getElementById('confirmOk').onclick = async () => {
 };
 function closeConfirm() { confirmDialog.classList.remove('active'); deleteTargetId = null; }
 confirmDialog.addEventListener('click', e => { if (e.target === confirmDialog) closeConfirm(); });
+
+// CONFIRM helper
+let _confirmResolve = null;
+function customConfirm(message, title) {
+ document.getElementById('confirmTitle').textContent = title || 'Подтверждение';
+ document.getElementById('confirmMessage').textContent = message;
+ confirmDialog.classList.add('active');
+ return new Promise(r => { _confirmResolve = r; });
+}
+document.getElementById('confirmOk').onclick = () => {
+ if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; closeConfirm(); }
+};
+const _origClose = closeConfirm;
+closeConfirm = function() {
+ confirmDialog.classList.remove('active');
+ deleteTargetId = null;
+ if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+};
 
 // ACTIVITY + NOTIFY
 async function logActivity(action, target, type='vacancies') {
@@ -623,15 +798,39 @@ function toast(msg, type='info') {
 }
 function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
+// HOTKEYS
+document.addEventListener('keydown', (e) => {
+ if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+  e.preventDefault();
+  if (!modal.classList.contains('active')) openAddModal();
+ }
+ if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+  if (modal.classList.contains('active')) {
+   e.preventDefault();
+   form.requestSubmit();
+  }
+ }
+ if (e.key === 'Escape') {
+  if (modal.classList.contains('active')) closeModal();
+  if (confirmDialog.classList.contains('active')) closeConfirm();
+ }
+});
+
 // GLOBAL
 window.openAddModal = openAddModal;
 window.editVacancy = editVacancy;
 window.deleteVacancy = deleteVacancy;
+window.duplicateVacancy = duplicateVacancy;
 window.closeModal = closeModal;
 window.closeConfirm = closeConfirm;
 window.filterVacancies = filterVacancies;
 window.clearSearch = clearSearch;
 window.loadVacancies = loadVacancies;
+window.toggleSortDir = toggleSortDir;
+window.toggleSelectAll = toggleSelectAll;
+window.clearSelection = clearSelection;
+window.bulkAction = bulkAction;
+window.bulkChangeStatus = bulkChangeStatus;
 window.toast = toast;
 
 console.log('💼 Vacancies dashboard loaded');
