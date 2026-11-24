@@ -45,6 +45,7 @@ main{flex:1;padding:30px 0 50px}
 .snav button.on,.snav a.on{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
 .snav i{width:18px;text-align:center}
 .snav .divider{height:1px;background:var(--border);margin:8px 0}
+.snav .badge{margin-left:auto;background:var(--red);color:#fff;font-size:.65rem;font-weight:800;padding:2px 7px;border-radius:50px;min-width:18px;text-align:center}
 .snav .logout{color:var(--red)}
 .snav .logout:hover{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
 .content{min-width:0}
@@ -62,6 +63,8 @@ main{flex:1;padding:30px 0 50px}
 .search.has-value .clear-btn{display:inline-flex}
 .iconbtn{width:42px;height:42px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--t2);cursor:pointer;position:relative;display:inline-flex;align-items:center;justify-content:center;transition:.2s}
 .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+.iconbtn .dot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid var(--card);display:none}
+.iconbtn.has .dot{display:block}
 
 .eyebrow{display:inline-flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);padding:5px 14px;border-radius:50px;font-weight:600;font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
 .hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
@@ -87,15 +90,32 @@ main{flex:1;padding:30px 0 50px}
 .btn-danger:hover{transform:translateY(-2px)}
 .btn-sm{padding:6px 14px;font-size:.78rem}
 
+/* filter select in toolbar */
+.filter-select{padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:50px;font-family:'Montserrat',sans-serif;font-size:.85rem;color:var(--t);outline:0;font-weight:600}
+.filter-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.filter-label{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:50px;cursor:pointer;font:600 .82rem 'Montserrat';color:var(--t2);user-select:none}
+.filter-label:hover{border-color:var(--accent);color:var(--accent)}
+.filter-label input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+
+.bulk-bar{display:none;background:var(--card);border:1px solid var(--accent);border-radius:var(--rl);padding:10px 16px;margin-bottom:12px;align-items:center;gap:10px;flex-wrap:wrap;font-size:.85rem}
+.bulk-bar.active{display:flex}
+.bulk-bar .count{font-weight:800;color:var(--accent)}
+
 .table-wrapper{overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl)}
 table{width:100%;border-collapse:collapse;font-size:.88rem}
 th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:middle}
-th{background:var(--card);font-weight:700;color:var(--accent);font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;user-select:none}
+th{background:var(--card);font-weight:700;color:var(--accent);font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;user-select:none;white-space:nowrap}
+th.sortable{cursor:pointer}
+th.sortable:hover{background:var(--hov)}
+th .sort-ico{font-size:.65rem;margin-left:4px;opacity:.5}
+th.asc .sort-ico,th.desc .sort-ico{opacity:1;color:var(--accent)}
 tr:hover td{background:var(--hov)}
+tr.selected td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 tr:last-child td{border-bottom:0}
 .tool-icon{font-size:1.5rem;text-align:center;width:56px}
 .tool-title{font-weight:700;color:var(--t);font-size:.92rem}
 .tool-desc{color:var(--t2);font-size:.8rem;margin-top:2px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.edited-badge{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;color:var(--blue);margin-left:6px;opacity:.9}
 .tags-cell{display:flex;flex-wrap:wrap;gap:4px}
 .tag{display:inline-block;padding:2px 10px;background:var(--card);border-radius:12px;font-size:.7rem;font-weight:600;border:1px solid var(--border);color:var(--t2)}
 .tag.popular{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent);color:var(--accent)}
@@ -187,7 +207,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
 </nav></div></header>
 
 <main><div class="container">
- <!-- DENIED -->
  <div class="denied" id="denied">
   <i class="fas fa-ban"></i>
   <h2>Нет доступа к разделу «Инструменты»</h2>
@@ -196,7 +215,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
  </div>
 
  <div class="admin-layout" id="app" style="display:none">
-  <!-- SIDEBAR -->
   <aside class="sidebar">
    <div class="who">
     <div class="av" id="sbAv">A</div>
@@ -208,8 +226,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
    <div class="snav">
     <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/"><i class="fas fa-house"></i> Главная</a>
     <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/news/"><i class="fas fa-newspaper"></i> Новости</a>
-    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/activity/"><i class="fas fa-clock-rotate-left"></i> Activity</a>
-    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notifications/"><i class="fas fa-bell"></i> Уведомления</a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/activity/"><i class="fas fa-clock-rotate-left"></i> Activity <span class="badge hide" id="sbActBadge">0</span></a>
+    <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notifications/"><i class="fas fa-bell"></i> Уведомления <span class="badge hide" id="sbNotifBadge">0</span></a>
     <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/notes/"><i class="fas fa-note-sticky"></i> Заметки</a>
     <a href="https://kirill12633.github.io/Metro.New.Official/ru/admin/trash/"><i class="fas fa-trash"></i> Корзина</a>
     <div class="divider"></div>
@@ -217,7 +235,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
    </div>
   </aside>
 
-  <!-- CONTENT -->
   <div class="content">
    <div class="topbar">
     <div class="search" id="searchWrap">
@@ -225,6 +242,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
      <input type="text" id="searchInput" placeholder="Поиск по названию, описанию или тегам..." oninput="filterTools()">
      <button class="clear-btn" id="clearSearch" onclick="clearSearch()"><i class="fas fa-times"></i></button>
     </div>
+    <button class="iconbtn" id="notifBtn" title="Уведомления"><i class="fas fa-bell"></i><span class="dot" id="notifDot"></span></button>
     <button class="iconbtn" id="themeBtn" title="Тема"><i class="fas fa-moon"></i></button>
    </div>
 
@@ -242,26 +260,50 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
    </div>
 
    <div class="toolbar">
+    <select class="filter-select" id="categoryFilter" onchange="filterTools()">
+     <option value="all">Все категории</option>
+     <option value="finance">💰 Финансы</option>
+     <option value="utility">🔧 Утилиты</option>
+     <option value="gameplay">🎮 Геймплей</option>
+     <option value="other">📦 Другое</option>
+    </select>
+    <label class="filter-label"><input type="checkbox" id="popularFilter" onchange="filterTools()"> 🔥 Только популярные</label>
     <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Добавить</button>
     <button class="btn btn-success" onclick="saveOrder()"><i class="fas fa-save"></i> Сохранить порядок</button>
     <button class="btn btn-danger" onclick="resetTools()"><i class="fas fa-undo"></i> Сбросить</button>
+   </div>
+
+   <div class="bulk-bar" id="bulkBar">
+    Выбрано: <span class="count" id="bulkCount">0</span>
+    <button class="btn btn-success btn-sm" onclick="bulkAction('popular')"><i class="fas fa-star"></i> В популярные</button>
+    <button class="btn btn-outline btn-sm" onclick="bulkAction('unpopular')"><i class="fas fa-star-half-stroke"></i> Снять популярность</button>
+    <select class="filter-select" id="bulkCatSelect" style="padding:6px 14px;font-size:.78rem">
+     <option value="">Сменить категорию…</option>
+     <option value="finance">💰 Финансы</option>
+     <option value="utility">🔧 Утилиты</option>
+     <option value="gameplay">🎮 Геймплей</option>
+     <option value="other">📦 Другое</option>
+    </select>
+    <button class="btn btn-danger btn-sm" onclick="bulkAction('delete')"><i class="fas fa-trash"></i> Удалить</button>
+    <button class="btn btn-outline btn-sm" onclick="clearSelection()"><i class="fas fa-xmark"></i> Снять</button>
    </div>
 
    <div class="table-wrapper">
     <table>
      <thead>
       <tr>
+       <th style="width:36px"><input type="checkbox" id="selectAll" style="accent-color:var(--accent)"></th>
        <th style="width:50px">#</th>
        <th style="width:60px">Иконка</th>
-       <th style="min-width:200px">Название</th>
-       <th style="min-width:120px">Категория</th>
+       <th class="sortable" data-sort="title">Название <span class="sort-ico">↕</span></th>
+       <th class="sortable" data-sort="category">Категория <span class="sort-ico">↕</span></th>
        <th style="min-width:160px">Теги</th>
-       <th style="width:60px">🔥</th>
+       <th class="sortable" data-sort="popular" style="width:70px">🔥 <span class="sort-ico">↕</span></th>
        <th style="min-width:140px">Действия</th>
       </tr>
      </thead>
      <tbody id="toolsTableBody">
-      <tr><td colspan="7" style="text-align:center;padding:40px"><div class="skel" style="width:60%;margin:0 auto"></div></td></tr>
+      <tr><td colspan="8" style="text-align:center;padding:40px"><div class="skel" style="width:60%;margin:0 auto"></div></td></tr>
      </tbody>
     </table>
    </div>
@@ -269,7 +311,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
  </div>
 </div></main>
 
-<!-- MODAL -->
 <div class="modal" id="modalOverlay">
  <div class="modal-content">
   <div class="modal-header">
@@ -293,7 +334,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
  </div>
 </div>
 
-<!-- CONFIRM -->
 <div class="confirm-dialog" id="confirmDialog">
  <div class="confirm-box">
   <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -317,7 +357,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px 0 1
 <div class="toasts" id="toasts"></div>
 
 <script>
-// ===== FIREBASE =====
 firebase.initializeApp({
  apiKey: "AIzaSyAVSAXTU1VqF36GJA1pQOfxRxo3_ixW7F4",
  authDomain: "metro-new-admin.firebaseapp.com",
@@ -332,7 +371,7 @@ const db = firebase.firestore();
 const LOGIN_PAGE = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/login/';
 const ADMIN_HOME = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/';
 
-// ===== THEME =====
+// THEME
 const root = document.documentElement;
 const THEME_KEY = 'mn_theme';
 const savedTheme = localStorage.getItem(THEME_KEY);
@@ -347,13 +386,17 @@ document.getElementById('themeBtn').onclick = () => {
 };
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-// ===== STATE =====
+// STATE
 let currentUser = null;
 let isAdmin = false;
 let currentAdmin = null;
 let toolsData = [];
+let filteredData = [];
 let draggedRow = null;
 let deleteTargetId = null;
+let selected = new Set();
+let sortField = 'order';
+let sortDir = 'asc';
 
 const tbody = document.getElementById('toolsTableBody');
 const searchInput = document.getElementById('searchInput');
@@ -364,7 +407,7 @@ const modalTitle = document.getElementById('modalTitle');
 const submitBtnText = document.getElementById('submitBtnText');
 const confirmDialog = document.getElementById('confirmDialog');
 
-// ===== AUTH + ACL =====
+// AUTH + ACL
 auth.onAuthStateChanged(async (user) => {
  if (!user) { location.href = LOGIN_PAGE; return; }
  try {
@@ -386,26 +429,53 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('sbAv').textContent = (user.email || 'A')[0].toUpperCase();
   document.getElementById('logoutBtn').onclick = () => { auth.signOut().then(()=>{ location.href = LOGIN_PAGE; }); };
   document.getElementById('app').style.display = '';
+  document.getElementById('notifBtn').onclick = () => { location.href = 'https://kirill12633.github.io/Metro.New.Official/ru/admin/notifications/'; };
   loadTools();
+  loadBadges();
  } catch(e) {
   console.error(e);
   showDenied('Не удалось проверить права: ' + e.message);
  }
 });
-
 function showDenied(msg) {
  document.getElementById('denied').style.display = 'block';
  document.getElementById('deniedMsg').innerHTML += `<br><small style="color:var(--red)">${msg}</small>`;
 }
 
-// ===== LOAD TOOLS =====
+// BADGES (notifications + activity)
+async function loadBadges() {
+ try {
+  const notifSnap = await db.collection('notifications').where('uid','==',currentUser.uid).where('read','==',false).get();
+  const nb = document.getElementById('sbNotifBadge');
+  if (notifSnap.size > 0) { nb.textContent = notifSnap.size; nb.classList.remove('hide'); document.getElementById('notifDot').classList.add('has'); }
+  else { nb.classList.add('hide'); document.getElementById('notifDot').classList.remove('has'); }
+ } catch(e) { console.warn(e); }
+ try {
+  const lastSeen = Number(localStorage.getItem('mn_actSeen') || 0);
+  const actSnap = await db.collection('activity').orderBy('timestamp','desc').limit(50).get();
+  let cnt = 0;
+  actSnap.forEach(d => { const t = d.data().timestamp?.toDate?.()?.getTime?.() || 0; if (t > lastSeen) cnt++; });
+  const ab = document.getElementById('sbActBadge');
+  if (cnt > 0) { ab.textContent = cnt; ab.classList.remove('hide'); }
+  else ab.classList.add('hide');
+ } catch(e) { console.warn(e); }
+}
+
+// LOAD TOOLS
 async function loadTools() {
  try {
   const snapshot = await db.collection('tools').orderBy('order').get();
   if (snapshot.empty) { await createDefaultTools(); return; }
   toolsData = [];
-  snapshot.forEach(doc => toolsData.push({ id: doc.id, ...doc.data() }));
-  renderTable(toolsData);
+  snapshot.forEach(doc => {
+   const d = doc.data();
+   toolsData.push({
+    id: doc.id, ...d,
+    _created: d.createdAt?.toDate?.() || new Date(0),
+    _updated: d.updatedAt?.toDate?.() || null
+   });
+  });
+  filterTools();
   updateStats(toolsData);
  } catch (error) {
   console.error(error);
@@ -413,7 +483,7 @@ async function loadTools() {
  }
 }
 
-// ===== DEFAULT TOOLS =====
+// DEFAULT TOOLS
 async function createDefaultTools() {
  const defaults = [
   { title:'Калькулятор дохода разработчика Roblox', icon:'💰', description:'Узнайте свой потенциальный заработок и окупаемость', link:'https://kirill12633.github.io/Metro.New.Official/ru/tools/roblox-calculator/', tags:'калькулятор, доход, разработчик, роблокс, финансы', category:'finance', popular:true, order:0 },
@@ -430,10 +500,42 @@ async function createDefaultTools() {
  } catch(e) { toast('Ошибка создания: ' + e.message, 'error'); }
 }
 
-// ===== RENDER =====
+// FILTER + SORT
+function filterTools() {
+ const q = (searchInput.value || '').toLowerCase().trim();
+ const cat = document.getElementById('categoryFilter').value;
+ const onlyPopular = document.getElementById('popularFilter').checked;
+ document.getElementById('searchWrap').classList.toggle('has-value', q.length > 0);
+
+ filteredData = toolsData.filter(tool => {
+  const blob = [tool.title||'', tool.description||'', tool.tags||''].join(' ').toLowerCase();
+  const matchesQ = !q || blob.includes(q);
+  const matchesCat = cat === 'all' || tool.category === cat;
+  const matchesPop = !onlyPopular || tool.popular === true;
+  return matchesQ && matchesCat && matchesPop;
+ });
+
+ // sort
+ filteredData.sort((a, b) => {
+  const dir = sortDir === 'asc' ? 1 : -1;
+  let va = a[sortField], vb = b[sortField];
+  if (sortField === 'popular') { va = a.popular ? 1 : 0; vb = b.popular ? 1 : 0; }
+  else if (sortField === 'order') { va = a.order || 0; vb = b.order || 0; }
+  else if (typeof va === 'string') { va = va.toLowerCase(); vb = (vb||'').toLowerCase(); }
+  if (va < vb) return -1*dir; if (va > vb) return 1*dir; return 0;
+ });
+
+ renderTable(filteredData);
+ updateStats(toolsData);
+}
+
+// RENDER
 function renderTable(tools) {
- if (!tools || !tools.length) {
-  tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-toolbox"></i>Инструментов нет<button onclick="openAddModal()">Добавить первый</button></div></td></tr>`;
+ if (!tools.length) {
+  const empty = toolsData.length === 0
+   ? `<div class="empty-state"><i class="fas fa-toolbox"></i>Инструментов нет<button onclick="openAddModal()">Добавить первый</button></div>`
+   : `<div class="empty-state"><i class="fas fa-search"></i>Ничего не найдено по фильтрам</div>`;
+  tbody.innerHTML = `<tr><td colspan="8">${empty}</td></tr>`;
   return;
  }
  let html = '';
@@ -442,10 +544,12 @@ function renderTable(tools) {
   const tagsHtml = tagsArray.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
   const popularHtml = tool.popular ? '<span class="tag popular">🔥</span>' : '';
   const categoryLabels = { finance:'💰 Финансы', utility:'🔧 Утилиты', gameplay:'🎮 Геймплей', other:'📦 Другое' };
-  html += `<tr data-id="${tool.id}" data-index="${index}" draggable="true">
+  const isEdited = tool._updated && tool._created && tool._updated.getTime() > tool._created.getTime() + 5000;
+  html += `<tr data-id="${tool.id}" data-index="${index}" draggable="true" class="${selected.has(tool.id)?'selected':''}">
+   <td><input type="checkbox" data-cb="${tool.id}" ${selected.has(tool.id)?'checked':''} style="accent-color:var(--accent)"></td>
    <td style="font-weight:700;color:var(--t3)">${index + 1}</td>
    <td class="tool-icon">${escapeHtml(tool.icon || '🔧')}</td>
-   <td><div class="tool-title">${escapeHtml(tool.title || 'Без названия')}</div><div class="tool-desc">${escapeHtml(tool.description || '')}</div></td>
+   <td><div class="tool-title">${escapeHtml(tool.title || 'Без названия')}${isEdited?`<span class="edited-badge" title="Изменено: ${tool._updated.toLocaleString('ru-RU')}"><i class="fas fa-pen"></i></span>`:''}</div><div class="tool-desc">${escapeHtml(tool.description || '')}</div></td>
    <td><span class="cat-badge ${tool.category || 'other'}">${categoryLabels[tool.category] || '📦 Другое'}</span></td>
    <td><div class="tags-cell">${tagsHtml}</div></td>
    <td>${popularHtml}</td>
@@ -457,11 +561,14 @@ function renderTable(tools) {
   </tr>`;
  });
  tbody.innerHTML = html;
+ tbody.querySelectorAll('input[data-cb]').forEach(cb => {
+  cb.onchange = () => toggleSelect(cb.dataset.cb, cb.checked);
+ });
  setupDragAndDrop();
- updateStats(tools);
+ updateBulkBar();
 }
 
-// ===== DRAG & DROP =====
+// DRAG & DROP
 function setupDragAndDrop() {
  tbody.querySelectorAll('tr[data-id]').forEach(row => {
   row.addEventListener('dragstart', e => {
@@ -486,16 +593,109 @@ function setupDragAndDrop() {
    if (!targetRow) return;
    const targetIndex = parseInt(targetRow.dataset.index);
    if (draggedRow === null || draggedRow === targetIndex) return;
-   const [movedItem] = toolsData.splice(draggedRow, 1);
-   toolsData.splice(targetIndex, 0, movedItem);
+   // меняем в исходном массиве toolsData
+   const movedId = filteredData[draggedRow].id;
+   const targetId = filteredData[targetIndex].id;
+   const srcIdx = toolsData.findIndex(t => t.id === movedId);
+   const dstIdx = toolsData.findIndex(t => t.id === targetId);
+   if (srcIdx < 0 || dstIdx < 0) return;
+   const [movedItem] = toolsData.splice(srcIdx, 1);
+   toolsData.splice(dstIdx, 0, movedItem);
    toolsData.forEach((tool, idx) => tool.order = idx);
-   renderTable(toolsData);
    toast('Порядок изменён. Нажмите «Сохранить порядок»', 'info');
+   filterTools();
   });
  });
 }
 
-// ===== SAVE ORDER =====
+// SORT BY CLICK
+document.querySelectorAll('th.sortable').forEach(th => {
+ th.onclick = () => {
+  const f = th.dataset.sort;
+  if (sortField === f) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortField = f; sortDir = 'asc'; }
+  document.querySelectorAll('th.sortable').forEach(t => t.classList.remove('asc','desc'));
+  th.classList.add(sortDir);
+  filterTools();
+ };
+});
+
+// SEARCH
+function clearSearch() {
+ searchInput.value = '';
+ filterTools();
+ searchInput.focus();
+}
+
+// STATS
+function updateStats(tools) {
+ const total = tools ? tools.length : 0;
+ const popular = tools ? tools.filter(t => t.popular).length : 0;
+ document.getElementById('totalTools').textContent = total;
+ document.getElementById('popularCount').textContent = popular;
+}
+
+// SELECTION
+function toggleSelect(id, on) {
+ if (on) selected.add(id); else selected.delete(id);
+ const row = document.querySelector(`tr[data-id="${id}"]`);
+ if (row) row.classList.toggle('selected', on);
+ updateBulkBar();
+}
+function updateBulkBar() {
+ document.getElementById('bulkCount').textContent = selected.size;
+ document.getElementById('bulkBar').classList.toggle('active', selected.size > 0);
+}
+function clearSelection() {
+ selected.clear();
+ document.querySelectorAll('#toolsTableBody input[data-cb]').forEach(cb => cb.checked = false);
+ document.querySelectorAll('#toolsTableBody tr').forEach(r => r.classList.remove('selected'));
+ document.getElementById('selectAll').checked = false;
+ updateBulkBar();
+}
+document.getElementById('selectAll').onchange = e => {
+ document.querySelectorAll('#toolsTableBody tr[data-id]').forEach(tr => {
+  const cb = tr.querySelector('input[data-cb]');
+  if (cb) { cb.checked = e.target.checked; toggleSelect(tr.dataset.id, e.target.checked); }
+ });
+};
+document.getElementById('bulkCatSelect').onchange = async e => {
+ const newCat = e.target.value;
+ if (!newCat || !selected.size) return;
+ await bulkAction('category', newCat);
+ e.target.value = '';
+};
+
+async function bulkAction(action, extra) {
+ if (!selected.size) return;
+ const ids = [...selected];
+ const ok = await customConfirm(`Применить к ${ids.length} инструментам?`, 'Массовое действие');
+ if (!ok) return;
+ try {
+  const batch = db.batch();
+  ids.forEach(id => {
+   const ref = db.collection('tools').doc(id);
+   if (action === 'delete') batch.delete(ref);
+   else if (action === 'popular') batch.update(ref, { popular: true, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+   else if (action === 'unpopular') batch.update(ref, { popular: false, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+   else if (action === 'category' && extra) batch.update(ref, { category: extra, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  });
+  await batch.commit();
+  let logAction = 'изменил';
+  if (action === 'delete') logAction = 'удалил';
+  else if (action === 'popular') logAction = 'сделал популярными';
+  else if (action === 'unpopular') logAction = 'снял с популярных';
+  else if (action === 'category') logAction = 'сменил категорию';
+  await logActivity(logAction, `${ids.length} инструментов`, 'tools');
+  await notifyAdmins('Массовое действие', `${logAction} ${ids.length} инструментов`, 'info');
+  toast(`Готово (${ids.length})`, 'success');
+  clearSelection();
+  loadTools();
+  loadBadges();
+ } catch(e) { toast('Ошибка: ' + e.message, 'error'); }
+}
+
+// SAVE ORDER
 async function saveOrder() {
  if (!isAdmin) { toast('Только для администраторов', 'error'); return; }
  try {
@@ -505,36 +705,12 @@ async function saveOrder() {
    if (tool.id && !tool.id.startsWith('local-')) { batch.update(db.collection('tools').doc(tool.id), { order: tool.order }); updated++; }
   });
   await batch.commit();
+  await logActivity('сохранил порядок', `${updated} инструментов`, 'tools');
   toast(`Порядок сохранён! (${updated})`, 'success');
  } catch (error) { toast('Ошибка сохранения порядка', 'error'); }
 }
 
-// ===== SEARCH =====
-function filterTools() {
- const q = searchInput.value.toLowerCase().trim();
- document.getElementById('searchWrap').classList.toggle('has-value', q.length > 0);
- const filtered = toolsData.filter(tool => {
-  const blob = [tool.title||'', tool.description||'', tool.tags||''].join(' ').toLowerCase();
-  return blob.includes(q);
- });
- renderTable(filtered);
-}
-function clearSearch() {
- searchInput.value = '';
- document.getElementById('searchWrap').classList.remove('has-value');
- renderTable(toolsData);
- searchInput.focus();
-}
-
-// ===== STATS =====
-function updateStats(tools) {
- const total = tools ? tools.length : 0;
- const popular = tools ? tools.filter(t => t.popular).length : 0;
- document.getElementById('totalTools').textContent = total;
- document.getElementById('popularCount').textContent = popular;
-}
-
-// ===== MODAL =====
+// MODAL
 function openAddModal() {
  if (!isAdmin) { toast('Только для администраторов', 'error'); return; }
  editId.value = '';
@@ -548,6 +724,7 @@ function openAddModal() {
  document.getElementById('toolCategory').value = 'finance';
  document.getElementById('toolPopular').value = '0';
  modalOverlay.classList.add('active');
+ setTimeout(() => document.getElementById('toolTitle').focus(), 100);
 }
 function openEditModal(id) {
  if (!isAdmin) return;
@@ -568,7 +745,7 @@ function openEditModal(id) {
 function closeModal() { modalOverlay.classList.remove('active'); }
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 
-// ===== SAVE TOOL =====
+// SAVE TOOL
 async function saveTool(e) {
  e.preventDefault();
  if (!isAdmin) { toast('Только для администраторов', 'error'); return; }
@@ -584,21 +761,29 @@ async function saveTool(e) {
  try {
   const data = { title, icon, description, link, tags, category, popular, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
   if (id && !id.startsWith('local-')) {
+   const before = toolsData.find(t => t.id === id);
    await db.collection('tools').doc(id).update(data);
-   await logActivity('обновил инструмент', title, 'tools');
+   await logActivity('обновил инструмент', title, 'tools', { before: pickFields(before), after: pickFields(data) });
+   await notifyAdmins('Инструмент обновлён', title, 'info');
    toast('Инструмент обновлён', 'success');
   } else {
    const order = toolsData.length;
    await db.collection('tools').add({ ...data, order, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-   await logActivity('добавил инструмент', title, 'tools');
+   await logActivity('добавил инструмент', title, 'tools', { after: pickFields(data) });
+   await notifyAdmins('Новый инструмент', title, 'ok');
    toast('Инструмент добавлен', 'success');
   }
   closeModal();
   loadTools();
+  loadBadges();
  } catch (error) { toast('Ошибка сохранения: ' + error.message, 'error'); }
 }
+function pickFields(o) {
+ if (!o) return null;
+ return { title:o.title, icon:o.icon, description:o.description, link:o.link, tags:o.tags, category:o.category, popular:o.popular };
+}
 
-// ===== DELETE =====
+// DELETE
 function confirmDelete(id) {
  if (!isAdmin) return;
  const tool = toolsData.find(t => t.id === id);
@@ -613,16 +798,18 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
  try {
   const tool = toolsData.find(t => t.id === deleteTargetId);
   if (deleteTargetId && !deleteTargetId.startsWith('local-')) await db.collection('tools').doc(deleteTargetId).delete();
-  await logActivity('удалил инструмент', tool?.title || '', 'tools');
+  await logActivity('удалил инструмент', tool?.title || '', 'tools', { before: pickFields(tool) });
+  await notifyAdmins('Инструмент удалён', tool?.title || '', 'warn');
   toast('Инструмент удалён', 'success');
   closeConfirm();
   loadTools();
+  loadBadges();
  } catch (error) { toast('Ошибка удаления', 'error'); closeConfirm(); }
 });
 function closeConfirm() { confirmDialog.classList.remove('active'); deleteTargetId = null; }
 confirmDialog.addEventListener('click', e => { if (e.target === confirmDialog) closeConfirm(); });
 
-// ===== RESET =====
+// RESET
 async function resetTools() {
  if (!isAdmin) return;
  if (!confirm('Удалить все инструменты и создать стандартный набор?')) return;
@@ -633,23 +820,60 @@ async function resetTools() {
   await batch.commit();
   await createDefaultTools();
   await logActivity('сбросил инструменты', 'к стандартным', 'tools');
+  await notifyAdmins('Сброс инструментов', 'Все инструменты сброшены к стандартным', 'warn');
   toast('Инструменты сброшены', 'success');
+  loadBadges();
  } catch (error) { toast('Ошибка сброса', 'error'); }
 }
 
-// ===== ACTIVITY =====
-async function logActivity(action, target, type='tools') {
+// ACTIVITY
+async function logActivity(action, target, type='tools', extra={}) {
  try {
   await db.collection('activity').add({
    who: currentAdmin?.name || currentAdmin?.email || 'admin',
    uid: currentAdmin?.uid,
    action, target, type,
+   ...extra,
    timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
  } catch(e) { console.warn('activity log failed', e); }
 }
 
-// ===== TOAST =====
+// NOTIFICATIONS
+async function notifyAdmins(title, body, type='info') {
+ try {
+  const snap = await db.collection('admins').get();
+  const batch = db.batch();
+  snap.forEach(doc => {
+   batch.set(db.collection('notifications').doc(), {
+    uid: doc.id, title, body, type, read: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+   });
+  });
+  await batch.commit();
+ } catch(e) { console.warn('notify failed', e); }
+}
+
+// CONFIRM
+let _confirmResolve = null;
+function customConfirm(message, title='Подтверждение') {
+ document.getElementById('confirmTitle').textContent = title;
+ document.getElementById('confirmMessage').textContent = message;
+ confirmDialog.classList.add('active');
+ return new Promise(resolve => { _confirmResolve = resolve; });
+}
+document.getElementById('confirmBtn').addEventListener('click', () => {
+ if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+});
+// оверрайд closeConfirm чтобы резолвить false
+const origCloseConfirm = closeConfirm;
+closeConfirm = function() {
+ confirmDialog.classList.remove('active');
+ deleteTargetId = null;
+ if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+};
+
+// TOAST
 function toast(msg, type='info', duration=3500) {
  const wrap = document.getElementById('toasts');
  const el = document.createElement('div');
@@ -662,7 +886,7 @@ function toast(msg, type='info', duration=3500) {
 }
 function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
-// ===== GLOBAL =====
+// GLOBAL
 window.openAddModal = openAddModal;
 window.openEditModal = openEditModal;
 window.closeModal = closeModal;
@@ -673,6 +897,8 @@ window.filterTools = filterTools;
 window.clearSearch = clearSearch;
 window.saveOrder = saveOrder;
 window.resetTools = resetTools;
+window.bulkAction = bulkAction;
+window.clearSelection = clearSelection;
 window.toast = toast;
 
 console.log('🔧 Tools dashboard loaded');
