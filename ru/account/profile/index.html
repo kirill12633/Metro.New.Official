@@ -4,9 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.workers.dev https:
- 
- //*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://metro-new-85226.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' https: data:; connect-src 'self' https://*.workers.dev https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://metro-new-85226.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
 <link rel="shortcut icon" href="https://kirill12633.github.io/Metro.New.Official/ru/images/metro-icon.png" type="image/png" />
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -311,7 +309,7 @@ select.sel{width:100%;padding:12px 14px;background:var(--bg2);border:1px solid v
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 const firebaseConfig={apiKey:"AIzaSyDNAyhui3Lc_IX0wuot7_Z6Vdf9Bw5A9mE",authDomain:"metro-new-85226.firebaseapp.com",databaseURL:"https://metro-new-85226-default-rtdb.firebaseio.com",projectId:"metro-new-85226",storageBucket:"metro-new-85226.firebasestorage.app",messagingSenderId:"905640751733",appId:"1:905640751733:web:f1ab3a1b119ca1e245fe3c"};
-const WORKER="https://metro-new-singup.kirilltyr123.workers.dev";
+const WORKER="https://metro-new-auth.kirilltyr123.workers.dev";
 const SITE="https://kirill12633.github.io/Metro.New.Official/";
 const AUTH_PAGE=SITE+"auth/singup/";
 const app=initializeApp(firebaseConfig),auth=getAuth(app);
@@ -339,7 +337,7 @@ onAuthStateChanged(auth,async u=>{
  if(!u||!u.emailVerified){location.replace(AUTH_PAGE+'?next='+encodeURIComponent(location.href));return}
  const api=async(p,b)=>{const t=await u.getIdToken(),r=await fetch(WORKER+p,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(b||{})});return{ok:r.ok,status:r.status,j:await r.json().catch(()=>({}))}};
  let g;try{g=await api('/profile/get')}catch(e){g={ok:false,status:0,j:{}}}
- if(!g.ok||!g.j.me){$('load').textContent=g.j.error==='no_profile'?'Сначала завершите регистрацию на странице входа.':'Сервер Метро New ответил не так, как нужно (код '+g.status+'). Проверьте, что Worker обновлён и адрес WORKER верный.';return}
+ if(!g.ok||!g.j.me){$('load').textContent=g.j.error==='no_profile'?'Сначала завершите регистрацию на странице входа.':'Сервер Метро New ответил не так, как нужно (код '+g.status+'). Откройте в браузере '+WORKER+'/health: там должно быть написано metro-new-auth. Если нет, Worker не обновлён или адрес неверный.';return}
  const me=g.j.me,pr=g.j.profile;
  $('load').classList.add('hide');$('acc').classList.remove('hide');
  let type='personal',shown=pr&&pr.photo?pr.photo:null,photo; // photo: undefined = не менять, null = убрать
