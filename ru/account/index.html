@@ -14,7 +14,6 @@
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--r:12px;--rl:16px;--rx:20px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--hov:#1d2b4f;--t:#f2f4fa;--t2:#a6b0cc;--t3:#77819e;--accent:#FFD700;--accent2:#ffe14d;--glow:rgba(255,215,0,.2);--blue:#4d94ff;--green:#34a853;--red:#f28b82;--border:#253460;--shadow:0 8px 30px rgba(0,0,0,.5);color-scheme:dark}
 [data-theme=light]{--bg:#fff;--bg2:#f4f6fb;--card:#fff;--hov:#eef1f9;--t:#14151f;--t2:#565f7a;--t3:#8890a8;--accent:#e6c200;--accent2:#c2a300;--glow:rgba(230,194,0,.18);--blue:#0066CC;--green:#1e8e4e;--red:#d93025;--border:#e2e6f0;--shadow:0 8px 30px rgba(20,22,40,.1);color-scheme:light}
@@ -189,6 +188,8 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
     <div class="kv"><span>Почта</span><b id="mail"></b></div>
     <div class="kv"><span>Регистрация</span><b id="since"></b></div>
     <div class="kv"><span>Способ входа</span><b id="how"></b></div>
+    <div class="kv"><span>Последний вход</span><b id="lastIn"></b></div>
+    <div class="kv"><span>Входов всего</span><b id="cntIn"></b></div>
     <div class="kv"><span>Тариф</span><b id="plan2"></b></div>
    </div>
    <div class="acts" style="margin-top:16px">
@@ -205,8 +206,15 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
    <div class="msg" id="msg2" role="status"></div>
   </div>
 
+  <div class="card2"><h2><i class="fas fa-id-badge"></i> Публичный профиль</h2>
+   <p class="warn" style="margin:0 0 14px">Страница игрока с фото, описанием, соцсетями и значками. Ссылка: <b id="pubUrl"></b></p>
+   <div class="acts">
+    <a class="btn" href="https://kirill12633.github.io/Metro.New.Official/ru/account/profile/"><i class="fas fa-pen"></i> Создать или изменить профиль</a>
+    <a class="btn sec" id="pubLink" href="#"><i class="fas fa-eye"></i> Открыть профиль</a>
+   </div></div>
+
   <div class="card2"><h2><i class="fas fa-clock-rotate-left"></i> Последние входы</h2>
-   <div class="tw"><table><thead><tr><th>Дата</th><th>Событие</th><th>Способ</th><th>Устройство</th><th>IP</th></tr></thead><tbody id="rows"></tbody></table></div>
+   <div class="tw"><table><thead><tr><th>Дата</th><th>Событие</th><th>Способ</th><th>Устройство</th><th>Страна · IP (скрыт)</th></tr></thead><tbody id="rows"></tbody></table></div>
    <p class="warn">Записи хранятся 180 дней. Если видите вход, который сделали не вы, сразу смените пароль.</p>
   </div>
 
@@ -219,13 +227,6 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
    </div>
    <div class="msg" id="msg3" role="status"></div>
    <p class="warn">Приостановка скрывает ваш профиль, данные не удаляются. Вернуть можно кнопкой здесь же. Выход на всех устройствах может сработать на других устройствах в течение часа.</p>
-  </div>
-
-  <div class="card2"><h2><i class="fas fa-mobile-screen"></i> Двухфакторная защита</h2>
-   <p class="warn" style="margin:0 0 14px" id="mfaState"></p>
-   <div id="mfaSetup" class="hide"><p class="warn" style="margin:0 0 10px">1. Отсканируйте QR-код в приложении (Google Authenticator, Authy и т.п.) или введите ключ вручную.</p><div id="qr" style="background:#fff;padding:10px;display:inline-block;border-radius:10px"></div><p class="warn">Ключ: <b id="mfaKey" style="word-break:break-all"></b></p><p class="warn" style="margin:0 0 10px">2. Введите 6-значный код из приложения.</p><div class="inp" style="max-width:220px;margin-bottom:12px"><input id="mfaC" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="padding-left:14px" /></div><div class="acts"><button class="btn" id="mfaOn" type="button">Включить</button><button class="btn sec" id="mfaCancel" type="button">Отмена</button></div></div>
-   <div class="acts"><button class="btn sec" id="mfaBtn" type="button"><i class="fas fa-shield-halved"></i> <span></span></button></div>
-   <div class="msg" id="msg5" role="status"></div>
   </div>
 
   <div class="card2" style="border-color:var(--red)"><h2 style="color:var(--red)"><i class="fas fa-triangle-exclamation"></i> Удаление аккаунта</h2>
@@ -321,7 +322,9 @@ function msg(t,k){const m=$('msg');m.className='msg'+(t?' '+k:'');m.textContent=
 onAuthStateChanged(auth,async u=>{
  if(!u||!u.emailVerified){location.replace(AUTH_PAGE+'?next='+encodeURIComponent(location.href));return}
  let p={};
- try{const s=await getDoc(doc(db,'users',u.uid));if(s.exists())p=s.data()}catch(e){}
+ const T=v=>v?{toDate:()=>new Date(v)}:null,maskIp=ip=>typeof ip!=='string'?'—':/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)?ip.split('.').slice(0,3).join('.')+'.xxx':ip.includes(':')?ip.split(':').slice(0,3).join(':')+':xxxx':ip==='unknown'?'—':ip;
+ try{const t=await u.getIdToken(),r=await fetch(WORKER+'/account/me',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:'{}'});if(!r.ok)throw 0;const j=await r.json();if(j.me){p=j.me;['createdAt','planUntil','deleteAfter','lastLoginAt'].forEach(k=>{if(p[k])p[k]=T(p[k])});if(p.ban&&p.ban.until)p.ban.until=T(p.ban.until);if(p.alert&&p.alert.at)p.alert.at=T(p.alert.at)}}
+ catch(e){try{const s=await getDoc(doc(db,'users',u.uid));if(s.exists())p=s.data()}catch(e2){}}
  const nick=p.nickname||u.displayName||'Игрок';
  $('av').textContent=nick.charAt(0).toUpperCase();$('nick').textContent=nick;
  $('role').textContent=ROLES[p.role]||p.role||'Игрок';
@@ -329,15 +332,18 @@ onAuthStateChanged(auth,async u=>{
  $('mail').textContent=u.email||'—';
  $('since').textContent=fmt(p.createdAt&&p.createdAt.toDate?p.createdAt.toDate():(u.metadata.creationTime?new Date(u.metadata.creationTime):null));
  $('how').textContent=u.providerData.some(x=>x.providerId==='google.com')?'Google':'Почта и пароль';
+ $('lastIn').textContent=p.lastLoginAt&&p.lastLoginAt.toDate?fmt(p.lastLoginAt.toDate())+(p.lastCountry?' · '+p.lastCountry:''):'—';$('cntIn').textContent=p.loginCount||'—';
  $('load').classList.add('hide');$('acc').classList.remove('hide');
- try{
-  const q=await getDocs(query(collection(db,'loginup'),where('uid','==',u.uid),limit(100)));
-  const list=q.docs.map(d=>d.data()).sort((a,b)=>(b.at?b.at.toMillis():0)-(a.at?a.at.toMillis():0)).slice(0,10);
-  const tb=$('rows');
-  if(!list.length){const r=document.createElement('tr'),c=td('Пока нет записей');c.colSpan=5;r.appendChild(c);tb.appendChild(r)}
-  list.forEach(x=>{const r=document.createElement('tr'),dv=x.device||{};
-   r.append(td(fmt(x.at&&x.at.toDate?x.at.toDate():null)),td(ACT[x.action]||x.action||'—'),td(METH[x.method]||x.method||'—'),td([DT[dv.type]||dv.type,dv.os,dv.browser].filter(Boolean).join(' · ')||'—'),td(x.ip||'—'));tb.appendChild(r)});
- }catch(e){const r=document.createElement('tr'),c=td('Не удалось загрузить историю входов');c.colSpan=5;r.appendChild(c);$('rows').appendChild(r)}
+ // журнал входов: через Worker (не зависит от правил), запасной путь через Firestore
+ {
+  const tb=$('rows'),row=t=>{const r=document.createElement('tr'),c=td(t);c.colSpan=5;r.appendChild(c);tb.appendChild(r)};
+  let list=null,why='';
+  try{const t=await u.getIdToken(),r=await fetch(WORKER+'/account/logins',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:'{}'});if(r.ok)list=(await r.json()).logins.map(x=>({...x,at:T(x.at)}));else why='Worker ответил кодом '+r.status}catch(e){why='Worker недоступен'}
+  if(!list){try{const q=await getDocs(query(collection(db,'loginup'),where('uid','==',u.uid),limit(100)));list=q.docs.map(d=>d.data()).sort((a,b)=>(b.at?b.at.toMillis():0)-(a.at?a.at.toMillis():0)).slice(0,10)}catch(e){why+=(why?'; ':'')+(e.code==='permission-denied'?'в Firestore не опубликованы правила для loginup':'ошибка чтения базы')}}
+  if(!list)row('Не удалось загрузить историю входов ('+why+')');
+  else if(!list.length)row('Пока нет записей');
+  else list.forEach(x=>{const r=document.createElement('tr'),dv=x.device||{};r.append(td(fmt(x.at&&x.at.toDate?x.at.toDate():null)),td(ACT[x.action]||x.action||'—'),td(METH[x.method]||x.method||'—'),td(([DT[dv.type]||dv.type,dv.os,dv.browser].filter(Boolean).join(' · ')+((x.flags&&x.flags.length)?' ⚠':''))||'—'),td((x.country?x.country+' · ':'')+maskIp(x.ip)));tb.appendChild(r)});
+ }
  $('pwd').onclick=async()=>{
   if(u.providerData.every(x=>x.providerId==='google.com'))return msg('Вы входите через Google, пароль меняется в аккаунте Google','err');
   try{await sendPasswordResetEmail(auth,u.email);msg('Письмо для смены пароля отправлено на '+u.email,'ok')}catch(e){msg(e.code==='auth/too-many-requests'?'Слишком часто. Подождите немного':'Не удалось отправить письмо','err')}
@@ -379,9 +385,8 @@ onAuthStateChanged(auth,async u=>{
   if(!a)return;
   if(!(await reauth(a.pw)))return mm('msg3','Не удалось подтвердить вход','err');
   try{
-   const ps=await getDoc(doc(db,'users',u.uid)),lg=await getDocs(query(collection(db,'loginup'),where('uid','==',u.uid),limit(500)));
-   const ts=v=>v&&v.toDate?v.toDate().toISOString():(v||null),pd=ps.exists()?ps.data():{};
-   const out={exportedAt:new Date().toISOString(),account:{uid:u.uid,email:u.email,emailVerified:u.emailVerified,providers:u.providerData.map(x=>x.providerId),created:u.metadata.creationTime,lastSignIn:u.metadata.lastSignInTime},profile:{nickname:pd.nickname||null,role:pd.role||null,plan:pd.plan||null,status:pd.status||null,createdAt:ts(pd.createdAt),consents:pd.consents?{...pd.consents,at:ts(pd.consents.at)}:null},logins:lg.docs.map(d=>{const x=d.data();return{at:ts(x.at),action:x.action,method:x.method,ip:x.ip,country:x.country||null,flags:x.flags||[],device:x.device,tech:x.tech}}).sort((p1,q1)=>String(q1.at).localeCompare(String(p1.at)))};
+   const r=await api('/account/export');if(!r.ok)throw 0;
+   const out={exportedAt:new Date().toISOString(),...r.j};
    const url=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'})),el=document.createElement('a');
    el.href=url;el.download='metro-new-my-data.json';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
    try{localStorage.setItem('mn_export_at',String(Date.now()))}catch(e){}
@@ -427,23 +432,8 @@ onAuthStateChanged(auth,async u=>{
  $('alOk').onclick=async()=>{const r=await api('/account/ack-alert');if(r.ok)$('alertB').classList.add('hide')};
  $('alNo').onclick=async()=>{await api('/account/ack-alert');await api('/account/logout-all');if(isPw)await sendPasswordResetEmail(auth,u.email).catch(()=>{});await signOut(auth);location.href=AUTH_PAGE};
 
- // двухфакторная защита (TOTP)
- const mfx=()=>multiFactor(u);let tsec=null;
- const paint2fa=()=>{const on=mfx().enrolledFactors.length>0;$('mfaState').textContent=on?'Включена: при входе нужен код из приложения.':'Выключена. Рекомендуем включить: даже при утечке пароля войти без кода не получится.';$('mfaBtn').lastElementChild.textContent=on?'Отключить 2FA':'Включить 2FA'};paint2fa();
- $('mfaBtn').onclick=async()=>{
-  const on=mfx().enrolledFactors.length>0;
-  const a=await ask({title:on?'Отключить 2FA':'Включить 2FA',text:isPw?'Введите пароль для подтверждения.':'Подтвердите вход через Google.',ok:'Продолжить',pw:isPw});if(!a)return;
-  if(!(await reauth(a.pw)))return mm('msg5','Не удалось подтвердить вход','err');
-  try{
-   if(on){await mfx().unenroll(mfx().enrolledFactors[0]);paint2fa();mm('msg5','2FA отключена','ok');return}
-   const s=await mfx().getSession();tsec=await TotpMultiFactorGenerator.generateSecret(s);
-   $('mfaKey').textContent=tsec.secretKey;const q=$('qr');q.innerHTML='';if(window.QRCode)new QRCode(q,{text:tsec.generateQrCodeUrl(u.email,'Метро New'),width:180,height:180});
-   $('mfaSetup').classList.remove('hide');
-  }catch(e){mm('msg5',e.code==='auth/operation-not-allowed'?'Двухфакторная защита ещё не включена в Firebase (нужен Identity Platform)':'Не удалось выполнить','err')}
- };
- $('mfaOn').onclick=async()=>{try{await mfx().enroll(TotpMultiFactorGenerator.assertionForEnrollment(tsec,$('mfaC').value.trim()),'Authenticator');$('mfaSetup').classList.add('hide');$('mfaC').value='';paint2fa();mm('msg5','2FA включена','ok')}catch(e){mm('msg5','Неверный код, попробуйте ещё раз','err')}};
- $('mfaCancel').onclick=()=>$('mfaSetup').classList.add('hide');
 
+ $('pubUrl').textContent='…/u/'+nick;$('pubLink').href='https://kirill12633.github.io/Metro.New.Official/u/'+encodeURIComponent(nick);
  $('out').onclick=async()=>{await signOut(auth);location.href=AUTH_PAGE};
 });
 </script>
