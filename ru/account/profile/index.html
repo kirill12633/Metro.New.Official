@@ -11,7 +11,7 @@
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/lang-config.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/cookies.js"></script>
 <script src="https://kirill12633.github.io/Metro.New.Official/ru/js/link-protector.js"></script>
-<title>Публичный профиль — Метро New</title>
+<title>Создать профиль — Метро New</title>
 <meta name="robots" content="noindex, nofollow" />
 <style>
 :root{--r:12px;--rl:16px;--rx:20px;--bg:#0d1526;--bg2:#131c33;--card:#182444;--hov:#1d2b4f;--t:#f2f4fa;--t2:#a6b0cc;--t3:#77819e;--accent:#FFD700;--accent2:#ffe14d;--glow:rgba(255,215,0,.2);--blue:#4d94ff;--green:#34a853;--red:#f28b82;--border:#253460;--shadow:0 8px 30px rgba(0,0,0,.5);color-scheme:dark}
@@ -158,17 +158,28 @@ ul.dl i{color:var(--green);margin-top:5px;font-size:.8rem}
 
 .sg{display:grid;gap:12px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
-.pav img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.pav{overflow:hidden}
+.pav{overflow:hidden}.pav img{width:100%;height:100%;object-fit:cover}
 .nb{background:color-mix(in srgb,var(--accent) 10%,var(--bg2));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:var(--r);padding:14px 16px;font-size:.85rem;color:var(--t2);font-weight:500}
 .nb ul{margin:8px 0 0 18px}.nb li{margin-bottom:4px}
 .off{opacity:.6;cursor:not-allowed}
 textarea{width:100%;min-height:90px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--t);font:500 .95rem 'Montserrat';outline:0;resize:vertical}
 textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+select.sel{width:100%;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--t);font:500 .95rem 'Montserrat'}
+.row2{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:center}
+.row2 .x{background:none;border:1px solid var(--border);color:var(--t2);border-radius:50%;width:38px;height:38px;cursor:pointer}
+.sub{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:18px 0 8px}
+.sub:first-child{margin-top:0}
+.sect{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--t3);text-align:center;margin:6px 0}
 .soc2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
 .soc2 a,.soc2 span{display:inline-flex;gap:8px;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:50px;padding:8px 16px;color:var(--t);text-decoration:none;font-size:.85rem;font-weight:600}
 .soc2 a:hover{border-color:var(--accent);color:var(--accent)}
 .bio{white-space:pre-wrap;word-break:break-word;color:var(--t2);font-weight:500;margin-top:14px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.dcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px 12px;text-align:center;text-decoration:none;color:var(--t);transition:.25s}
+.dcard:hover{border-color:var(--accent);transform:translateY(-3px)}
+.dcard .pav{width:64px;height:64px;font-size:1.6rem;margin:0 auto 8px}
+.dcard b{display:block;font-size:.92rem;word-break:break-word}.dcard small{color:var(--t3);font-size:.75rem}
+@media(max-width:600px){.row2{grid-template-columns:1fr 1fr auto}}
 </style>
 </head>
 <body>
@@ -188,52 +199,56 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
 <main><div class="container">
  <div class="load" id="load"><i class="fas fa-spinner fa-spin"></i> Загрузка…</div>
  <form class="acc hide" id="acc" novalidate>
-  <div class="card2"><h2><i class="fas fa-id-badge"></i> <span id="ttl">Создать публичный профиль</span></h2>
-   <p class="warn" style="margin:0">Профиль увидят все посетители сайта. Заполните то, чем хотите поделиться, остальное оставьте пустым.</p></div>
+  <div class="card2"><div class="tabs" style="margin-bottom:12px"><button id="tP" class="on" type="button">Персональный аккаунт</button><button id="tB" type="button">Бизнес аккаунт</button></div>
+   <h2 style="margin:0"><i class="fas fa-id-badge"></i> <span id="ttl">Создать профиль</span></h2>
+   <p class="warn" style="margin:6px 0 0">Профиль увидят все посетители сайта. Заполните то, чем хотите поделиться.</p></div>
+
+  <div class="card2 hide" id="bizBox"><h2><i class="fas fa-handshake"></i> Бизнес-аккаунт</h2>
+   <div class="nb"><b>!</b> Бизнес-аккаунт нужен проектам, командам и каналам. После проверки вы станете партнёром Метро New: профиль получит значок «Партнёр» и сможет появиться в блоке партнёров на сайте. Позже здесь можно будет создать команду и добавить в неё людей.</div>
+   <div class="f" style="margin-top:14px"><label class="l" for="cat">Что вы представляете</label><select class="sel" id="cat"><option value="project">Roblox-проект</option><option value="discord">Discord-сервер</option><option value="channel">Видеоканал</option><option value="team">Команда</option><option value="shop">Магазин или сервис</option><option value="other">Другое</option></select></div>
+   <div class="acts"><button class="btn sec off" type="button" disabled><i class="fas fa-people-group"></i> Создать команду · в разработке</button></div></div>
 
   <div class="card2"><h2><i class="fas fa-camera"></i> Фото</h2>
-   <div class="pc"><div class="pav" id="pav"></div><div>
+   <div class="pc"><div class="pav" id="pav"></div><div style="flex:1;min-width:220px">
     <input type="file" id="file" accept="image/jpeg,image/png,image/webp" class="hide" />
-    <div class="acts"><button class="btn sec" id="pick" type="button">Выбрать фото</button><button class="btn sec" id="rmPhoto" type="button">Убрать</button></div>
-    <p class="warn">Фото обрезается до квадрата и сжимается в браузере (192×192). Место и время съёмки из файла не сохраняются.</p></div></div></div>
-
-  <div class="card2"><h2><i class="fas fa-link"></i> Ссылка профиля</h2>
-   <div class="kv"><span>Никнейм аккаунта</span><b id="slug"></b></div>
-   <div class="kv" style="margin-top:10px"><span>Адрес страницы</span><b id="url" style="font-size:.85rem"></b></div>
-   <div class="acts" style="margin-top:12px"><button class="btn sec" id="copy" type="button"><i class="fas fa-copy"></i> Скопировать ссылку</button></div>
-   <p class="warn">Ссылка строится из никнейма аккаунта. Сменить его можно в кабинете, раз в 30 дней.</p></div>
-
-  <div class="card2"><h2><i class="fas fa-user-tag"></i> Тип аккаунта</h2>
-   <label class="chk"><input type="radio" name="type" value="personal" checked /><span>Личный</span></label>
-   <label class="chk"><input type="radio" name="type" value="business" /><span>Бизнес (команда, проект, канал)</span></label>
-   <div class="nb"><b>!</b> Если у вас бизнес-аккаунт, он получит значок «Бизнес» и может быть проверен модераторами. Выдавать себя за чужой проект запрещено.</div></div>
+    <div class="acts"><button class="btn sec" id="pick" type="button"><i class="fas fa-upload"></i> Загрузить файл</button><button class="btn sec" id="rmPhoto" type="button">Убрать</button></div>
+    <div class="f" style="margin:12px 0 0"><label class="l" for="purl">Или ссылка на фото</label><div class="inp"><input id="purl" placeholder="https://i.imgur.com/…" autocomplete="off" style="padding-left:14px" /></div></div>
+    <div class="acts" style="margin-top:8px"><button class="btn sec" id="purlOk" type="button">Применить ссылку</button></div>
+    <p class="warn">Разрешены ссылки с: Imgur, ImgBB, Discord, GitHub, Roblox. Если фото нет, будет аватар с первой буквой ника. Загруженный файл сжимается до 192×192, место и время съёмки не сохраняются.</p></div></div></div>
 
   <div class="card2"><h2><i class="fas fa-user-pen"></i> Ник и описание</h2>
    <div class="f"><label class="l" for="dn">Ник (псевдоним)</label><div class="inp"><input id="dn" maxlength="30" autocomplete="off" style="padding-left:14px" /></div><div class="hint warn"><i class="fas fa-triangle-exclamation"></i> Не рекомендуем использовать настоящее имя.</div></div>
    <div class="f"><label class="l" for="bio">Описание</label><textarea id="bio" maxlength="300" placeholder="Расскажите о себе. Без ссылок, почты и телефонов."></textarea><div class="hint"><span id="cnt">0</span>/300</div></div></div>
 
+  <div class="card2"><h2><i class="fas fa-link"></i> Ссылка профиля</h2>
+   <div class="f"><label class="l" for="nk">Никнейм аккаунта</label><div class="inp"><input id="nk" maxlength="20" autocomplete="off" style="padding-left:14px" /></div><div class="hint">Меняется не чаще раза в 30 дней. Буквы, цифры, _ . -</div></div>
+   <div class="kv"><span>Адрес страницы будет таким</span><b id="url" style="font-size:.85rem"></b></div>
+   <div class="acts" style="margin-top:12px"><button class="btn sec" id="copy" type="button"><i class="fas fa-copy"></i> Скопировать ссылку</button></div></div>
+
   <div class="card2"><h2><i class="fas fa-share-nodes"></i> Соцсети</h2>
    <div class="sg" id="socs"></div>
+   <div class="sub">Другие соцсети</div>
+   <div class="sg" id="others"></div>
+   <div class="acts" style="margin-top:10px"><button class="btn sec" id="addOther" type="button"><i class="fas fa-plus"></i> Добавить</button></div>
    <p class="warn">Укажите только имя или ID, ссылку мы соберём сами. Так безопаснее для посетителей.</p></div>
 
-  <div class="card2"><h2><i class="fas fa-crown"></i> Подписка</h2>
+  <div class="sect">Дополнительно</div>
+  <div class="card2">
+   <div class="sub"><i class="fas fa-crown"></i> Подписка</div>
    <p class="warn" style="margin:0 0 10px">Ваша подписка: <b id="planName">Стартовый</b></p>
-   <label class="chk" id="planRow"><input type="checkbox" id="showPlan" /><span>Показывать мою подписку в профиле</span></label></div>
-
-  <div class="card2"><h2><i class="fas fa-medal"></i> Значки</h2>
-   <div class="chips" id="badges"></div>
-   <p class="warn">Значки выдаются автоматически: по роли, дате регистрации и типу аккаунта.</p></div>
-
-  <div class="card2"><h2><i class="fas fa-plug"></i> Подключения</h2>
+   <label class="chk" id="planRow"><input type="checkbox" id="showPlan" /><span>Показывать мою подписку в профиле</span></label>
+   <div class="sub"><i class="fas fa-plug"></i> Подключения</div>
    <div class="acts">
     <button class="btn sec off" type="button" disabled><i class="fab fa-discord"></i> Discord · в разработке</button>
     <button class="btn sec off" type="button" disabled><i class="fab fa-telegram"></i> Telegram · в разработке</button>
     <button class="btn sec off" type="button" disabled><i class="fas fa-gamepad"></i> Roblox · в разработке</button>
    </div>
-   <p class="warn">Позже вы сможете подтвердить аккаунты и получить значки «Верифицирован».</p></div>
+   <div class="sub"><i class="fas fa-medal"></i> Значки</div>
+   <div class="chips" id="badges"></div>
+   <p class="warn">Значки выдаются автоматически: по роли, дате регистрации и типу аккаунта.</p></div>
 
-  <div class="card2"><h2><i class="fas fa-shield-halved"></i> Безопасность</h2>
-   <div class="nb">Профиль публичный, его видят все, в том числе без входа. Чтобы остаться в безопасности:
+  <div class="sect">Безопасность</div>
+  <div class="card2"><div class="nb">Профиль публичный, его видят все, в том числе без входа. Чтобы остаться в безопасности:
     <ul>
      <li>Не публикуйте настоящее имя, адрес, телефон, школу, документы.</li>
      <li>Никому не сообщайте пароль и коды из писем и приложений. Метро New их никогда не просит.</li>
@@ -242,13 +257,14 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
      <li>Скрыть (приостановить аккаунт) или удалить профиль можно в любой момент.</li>
     </ul></div></div>
 
-  <div class="card2"><h2><i class="fas fa-file-signature"></i> Согласия</h2>
+  <div class="sect">Соглашение</div>
+  <div class="card2">
    <label class="chk"><input type="checkbox" id="k1" /><span>Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/terms-of-service/" target="_blank" rel="noopener noreferrer">Пользовательским соглашением</a> и <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/privacy-policy/" target="_blank" rel="noopener noreferrer">Политикой конфиденциальности</a></span></label>
    <label class="chk"><input type="checkbox" id="k2" /><span>Я согласен с <a href="https://kirill12633.github.io/Metro.New.Official/ru/help/site-guidelines" target="_blank" rel="noopener noreferrer">Правилами сайта</a></span></label>
    <label class="chk"><input type="checkbox" id="k3" /><span>Я согласен на публикацию данных профиля (фото, ник, описание, соцсети, значки) для всех посетителей сайта</span></label>
    <label class="chk"><input type="checkbox" id="k4" /><span>Я понимаю, что информация в профиле будет публичной, и не буду публиковать личные данные</span></label>
    <div class="msg" id="msg" role="status"></div>
-   <div class="acts" style="margin-top:8px"><button class="btn" id="save" type="submit"><i class="fas fa-user-plus"></i> <span>Создать профиль</span></button><a class="btn sec hide" id="open" href="#"><i class="fas fa-eye"></i> Открыть профиль</a><button class="btn sec hide" id="del" type="button"><i class="fas fa-trash"></i> Удалить профиль</button></div></div>
+   <div class="acts" style="margin-top:8px"><button class="btn" id="save" type="submit"><i class="fas fa-user-plus"></i> <span>Создать</span></button><a class="btn sec hide" id="open" href="#"><i class="fas fa-eye"></i> Открыть профиль</a><button class="btn sec hide" id="del" type="button"><i class="fas fa-trash"></i> Удалить профиль</button></div></div>
  </form>
 </div></main>
 <footer><div class="container">
@@ -306,38 +322,46 @@ document.addEventListener('click',e=>{if(!$('dd').contains(e.target))$('dd').cla
 $('yr').textContent=new Date().getFullYear();
 
 const SOCS=[['roblox','Roblox','ID или ссылка на профиль Roblox','fas fa-gamepad'],['discord','Discord','имя пользователя','fab fa-discord'],['telegram','Telegram','@имя (от 5 символов)','fab fa-telegram'],['youtube','YouTube','@имя канала','fab fa-youtube'],['tiktok','TikTok','@имя','fab fa-tiktok'],['instagram','Instagram','имя','fab fa-instagram']];
-SOCS.forEach(([k,n,ph,ic])=>{const f=document.createElement('div');f.className='f';const l=document.createElement('label');l.className='l';l.htmlFor='s_'+k;l.textContent=n;const w=document.createElement('div');w.className='inp';const i=document.createElement('i');i.className=ic+' ic';const inp=document.createElement('input');inp.id='s_'+k;inp.maxLength=80;inp.placeholder=ph;inp.autocomplete='off';w.append(i,inp);f.append(l,w);$('socs').appendChild(f)});
+const OTHER={vk:'VK',twitch:'Twitch',github:'GitHub',boosty:'Boosty',reddit:'Reddit',x:'X (Twitter)',steam:'Steam'};
+const PH=['i.imgur.com','i.ibb.co','cdn.discordapp.com','media.discordapp.net','avatars.githubusercontent.com','raw.githubusercontent.com','kirill12633.github.io','tr.rbxcdn.com'];
 const BN={founder:'Основатель 2026',vip:'VIP',respected:'Уважаемый',staff:'Команда',business:'Бизнес'};
 const PN={free:'Стартовый',machinist:'Машинист',chief:'Начальник метро',pro:'Pro'};
-function msg(t,k){const m=$('msg');m.className='msg'+(t?' '+k:'');m.textContent=t||''}
+SOCS.forEach(([k,n,ph,ic])=>{const f=document.createElement('div'),l=document.createElement('label'),w=document.createElement('div'),i=document.createElement('i'),inp=document.createElement('input');f.className='f';l.className='l';l.htmlFor='s_'+k;l.textContent=n;w.className='inp';i.className=ic+' ic';inp.id='s_'+k;inp.maxLength=80;inp.placeholder=ph;inp.autocomplete='off';w.append(i,inp);f.append(l,w);$('socs').appendChild(f)});
+function addOther(n,h){if($('others').children.length>=3)return;const r=document.createElement('div'),s=document.createElement('select'),i=document.createElement('input'),x=document.createElement('button');r.className='row2';s.className='sel';Object.entries(OTHER).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v;s.appendChild(o)});if(n)s.value=n;i.placeholder='имя или ID';i.maxLength=60;i.autocomplete='off';i.value=h||'';i.style.cssText='padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--t);font:500 .95rem Montserrat;width:100%';x.type='button';x.className='x';x.textContent='×';x.onclick=()=>r.remove();r.append(s,i,x);$('others').appendChild(r)}
+$('addOther').onclick=()=>addOther();
+const msg=(t,k)=>{const m=$('msg');m.className='msg'+(t?' '+k:'');m.textContent=t||''};
+const NICK_BAD=/(admin|админ|moder|модер|support|поддержк|official|официал|staff|owner|владелец|system|root)/i;
+const checkNick=n=>!/^[\p{L}\d][\p{L}\d_.-]{2,19}$/u.test(n)?'Никнейм: 3–20 символов, буквы, цифры, _ . - (начинать с буквы или цифры)':NICK_BAD.test(n)?'Этот никнейм зарезервирован':'';
 
 onAuthStateChanged(auth,async u=>{
  if(!u||!u.emailVerified){location.replace(AUTH_PAGE+'?next='+encodeURIComponent(location.href));return}
- const api=async(p,b)=>{const t=await u.getIdToken(),r=await fetch(WORKER+p,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(b||{})});return{ok:r.ok,j:await r.json().catch(()=>({}))}};
- const g=await api('/profile/get');
- if(!g.ok){$('load').textContent=g.j.error==='no_profile'?'Сначала завершите регистрацию на странице входа.':'Не удалось загрузить данные';return}
+ const api=async(p,b)=>{const t=await u.getIdToken(),r=await fetch(WORKER+p,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(b||{})});return{ok:r.ok,status:r.status,j:await r.json().catch(()=>({}))}};
+ let g;try{g=await api('/profile/get')}catch(e){g={ok:false,status:0,j:{}}}
+ if(!g.ok||!g.j.me){$('load').textContent=g.j.error==='no_profile'?'Сначала завершите регистрацию на странице входа.':'Сервер Метро New ответил не так, как нужно (код '+g.status+'). Проверьте, что Worker обновлён и адрес WORKER верный.';return}
  const me=g.j.me,pr=g.j.profile;
  $('load').classList.add('hide');$('acc').classList.remove('hide');
- const url=SITE+'u/'+encodeURIComponent(me.nickname);
- $('slug').textContent=me.nickname;$('url').textContent=url;
- let shown=pr&&pr.photo?pr.photo:null,photo; // photo: undefined = не менять, null = убрать
- const paintAv=()=>{const a=$('pav');a.textContent='';if(shown){const i=document.createElement('img');i.alt='';i.src=shown;a.appendChild(i)}else a.textContent=($('dn').value||me.nickname).charAt(0).toUpperCase()};
+ let type='personal',shown=pr&&pr.photo?pr.photo:null,photo; // photo: undefined = не менять, null = убрать
+ const url=()=>SITE+'u/'+encodeURIComponent($('nk').value.trim()||me.nickname);
+ const paintUrl=()=>{$('url').textContent=url()};
+ const paintAv=()=>{const a=$('pav');a.textContent='';const letter=()=>{a.textContent=($('dn').value||me.nickname).charAt(0).toUpperCase()};if(shown){const i=document.createElement('img');i.alt='';i.referrerPolicy='no-referrer';i.onerror=()=>{letter();msg('Не удалось загрузить фото по ссылке','err')};i.src=shown;a.appendChild(i)}else letter()};
  const active=me.plan&&me.plan!=='free'&&(!me.planUntil||new Date(me.planUntil)>new Date());
  $('planName').textContent=active?(PN[me.plan]||me.plan):'Стартовый';
  if(!active){$('showPlan').disabled=true;$('planRow').style.opacity='.6'}
- const paintBadges=()=>{const b=[];if(me.createdAt&&new Date(me.createdAt).getFullYear()<=2026)b.push('founder');if(me.role==='vip')b.push('vip');if(me.role==='respected')b.push('respected');if(['moderator','admin','owner'].includes(me.role))b.push('staff');if(document.querySelector('input[name=type]:checked').value==='business')b.push('business');const c=$('badges');c.textContent='';if(!b.length){c.textContent='Пока нет значков'}b.forEach(x=>{const s=document.createElement('span');s.className='bd';s.textContent=BN[x];c.appendChild(s)})};
+ const paintBadges=()=>{const b=[];if(me.createdAt&&new Date(me.createdAt).getFullYear()<=2026)b.push('founder');if(me.role==='vip')b.push('vip');if(me.role==='respected')b.push('respected');if(['moderator','admin','owner'].includes(me.role))b.push('staff');if(type==='business')b.push('business');const c=$('badges');c.textContent='';if(!b.length)c.textContent='Пока нет значков';b.forEach(x=>{const s=document.createElement('span');s.className='bd';s.textContent=BN[x];c.appendChild(s)})};
+ const setType=t=>{type=t;$('tP').classList.toggle('on',t==='personal');$('tB').classList.toggle('on',t==='business');$('bizBox').classList.toggle('hide',t!=='business');paintBadges()};
+ $('tP').onclick=()=>setType('personal');$('tB').onclick=()=>setType('business');
  // заполнение
- $('dn').value=pr?pr.displayName:me.nickname;$('bio').value=pr?pr.bio:'';$('cnt').textContent=$('bio').value.length;
- if(pr){document.querySelector('input[name=type][value='+pr.type+']').checked=true;SOCS.forEach(([k])=>{$('s_'+k).value=(pr.socials&&pr.socials[k])||''});$('showPlan').checked=!!pr.plan;$('ttl').textContent='Изменить публичный профиль';$('save').lastElementChild.textContent='Сохранить';$('open').href=url;$('open').classList.remove('hide');$('del').classList.remove('hide')}
- paintAv();paintBadges();
- document.querySelectorAll('input[name=type]').forEach(r=>r.onchange=paintBadges);
+ $('nk').value=me.nickname;$('dn').value=pr?pr.displayName:me.nickname;$('bio').value=pr?pr.bio:'';$('cnt').textContent=$('bio').value.length;
+ if(pr){setType(pr.type);if(pr.category)$('cat').value=pr.category;SOCS.forEach(([k])=>{$('s_'+k).value=(pr.socials&&pr.socials[k])||''});((pr.socials&&pr.socials.other)||[]).forEach(o=>addOther(o.n,o.h));$('showPlan').checked=!!pr.plan;$('ttl').textContent='Изменить профиль';$('save').lastElementChild.textContent='Сохранить';$('open').href=url();$('open').classList.remove('hide');$('del').classList.remove('hide')}
+ paintAv();paintBadges();paintUrl();
  $('bio').oninput=()=>$('cnt').textContent=$('bio').value.length;
- $('dn').oninput=()=>{if(!shown)paintAv()};
- $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(url);msg('Ссылка скопирована','ok')}catch(e){msg('Скопируйте вручную: '+url,'info')}};
+ $('dn').oninput=()=>{if(!shown)paintAv()};$('nk').oninput=paintUrl;
+ $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(url());msg('Ссылка скопирована','ok')}catch(e){msg('Скопируйте вручную: '+url(),'info')}};
 
  // фото
  $('pick').onclick=()=>$('file').click();
- $('rmPhoto').onclick=()=>{photo=null;shown=null;paintAv()};
+ $('rmPhoto').onclick=()=>{photo=null;shown=null;$('purl').value='';paintAv()};
+ $('purlOk').onclick=()=>{const v=$('purl').value.trim();try{const x=new URL(v);if(x.protocol!=='https:'||x.username||x.password||!PH.includes(x.hostname)||v.length>400)throw 0;photo=v;shown=v;paintAv();msg('')}catch(e){msg('Ссылка не подходит. Разрешены: Imgur, ImgBB, Discord, GitHub, Roblox (https).','err')}};
  $('file').onchange=()=>{const f=$('file').files[0];if(!f)return;
   if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>8e6){msg('Нужен JPG, PNG или WebP до 8 МБ','err');return}
   const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=192;c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,192,192);let q=.85,d=c.toDataURL('image/jpeg',q);while(d.length>55000&&q>.4){q-=.1;d=c.toDataURL('image/jpeg',q)}photo=d;shown=d;paintAv();msg('')};im.onerror=()=>msg('Не удалось прочитать картинку','err');im.src=fr.result};fr.readAsDataURL(f)};
@@ -347,12 +371,24 @@ onAuthStateChanged(auth,async u=>{
  $('acc').addEventListener('submit',async e=>{
   e.preventDefault();msg('');
   if(!($('k1').checked&&$('k2').checked&&$('k3').checked&&$('k4').checked))return msg('Отметьте все четыре согласия','err');
-  const socials={};SOCS.forEach(([k])=>{socials[k]=$('s_'+k).value.trim()});
-  const body={displayName:$('dn').value.trim(),bio:$('bio').value.trim(),type:document.querySelector('input[name=type]:checked').value,socials,showPlan:$('showPlan').checked,consents:{terms:true,rules:true,publicData:true,safety:true}};
-  if(photo!==undefined)body.photo=photo;
-  $('save').disabled=true;const r=await api('/profile/save',body);$('save').disabled=false;
-  if(r.ok){msg('Готово! Профиль сохранён.','ok');$('open').href=r.j.url;$('open').classList.remove('hide');$('del').classList.remove('hide');$('ttl').textContent='Изменить публичный профиль';$('save').lastElementChild.textContent='Сохранить';photo=undefined}
-  else msg(r.j.message||ER[r.j.error]||'Не удалось сохранить профиль','err');
+  $('save').disabled=true;
+  try{
+   const nn=$('nk').value.trim();
+   if(nn!==me.nickname){
+    const er=checkNick(nn);if(er)return msg(er,'err');
+    const r=await api('/nickname',{nickname:nn});
+    if(!r.ok)return msg(r.j.error==='cooldown'?'Никнейм можно сменить после '+new Date(r.j.until).toLocaleDateString('ru-RU'):r.j.error==='nickname_taken'?'Этот никнейм уже занят':(r.j.message||'Не удалось сменить никнейм'),'err');
+    me.nickname=r.j.nickname;paintUrl();
+   }
+   const socials={};SOCS.forEach(([k])=>{socials[k]=$('s_'+k).value.trim()});
+   socials.other=[...$('others').children].map(r=>({n:r.querySelector('select').value,h:r.querySelector('input').value.trim()})).filter(o=>o.h);
+   const body={displayName:$('dn').value.trim(),bio:$('bio').value.trim(),type,category:$('cat').value,socials,showPlan:$('showPlan').checked,consents:{terms:true,rules:true,publicData:true,safety:true}};
+   if(photo!==undefined)body.photo=photo;
+   const r=await api('/profile/save',body);
+   if(r.ok){msg('Готово! Профиль сохранён.','ok');$('open').href=r.j.url;$('open').classList.remove('hide');$('del').classList.remove('hide');$('ttl').textContent='Изменить профиль';$('save').lastElementChild.textContent='Сохранить';photo=undefined}
+   else msg(r.j.message||ER[r.j.error]||'Не удалось сохранить профиль','err');
+  }catch(x){msg('Нет соединения с сервером','err')}
+  finally{$('save').disabled=false}
  });
  $('del').onclick=async()=>{if(!confirm('Удалить публичный профиль? Аккаунт останется.'))return;const r=await api('/profile/delete');if(r.ok)location.reload();else msg('Не удалось удалить профиль','err')};
 });
